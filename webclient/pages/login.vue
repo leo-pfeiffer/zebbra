@@ -1,6 +1,6 @@
 <template>
-  <div class="container flex justify-center">
-    <div class="basis-1/4">
+  <div class="container flex justify-center mx-auto">
+    <div class="">
       <h1 class="text-2xl my-4 text-zinc-900 font-semibold">Login</h1>
       <form>
         <div>
