@@ -33,3 +33,14 @@ brew services stop mongodb-community
 mongod --config /usr/local/etc/mongod.conf --fork
 ```
 
+## Testing
+
+We use pytest for unit tests.
+
+```shell
+# /server
+make test
+
+# or
+python -m pytest tests
+```
