@@ -3,6 +3,9 @@ from pydantic import BaseSettings
 
 
 class Settings(BaseSettings):
+
+    ENV: str = 'prod'
+
     MONGODB_USER: str
     MONGODB_DB: str
     MONGODB_PW: str

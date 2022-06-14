@@ -13,4 +13,4 @@ def get_db_url():
 
 
 client = motor.motor_asyncio.AsyncIOMotorClient(get_db_url())
-db = client.zebbra
+db = client[_settings.dict()['MONGODB_DB']]
