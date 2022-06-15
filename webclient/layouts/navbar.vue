@@ -45,7 +45,7 @@ export default {
                         class="bi bi-plus-lg mr-1"></i>Create New Model</button>
 
             </div>
-            <div class="border-b border-zinc-300 pb-3">
+            <div class="pb-3">
                 <div>
                     <span class="text-xs text-zinc-500">YOUR MODELS</span>
                     <div v-if="true" class="overflow-auto min-h-[50vh] max-h-[50vh]">
