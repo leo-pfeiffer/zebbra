@@ -1,9 +1,12 @@
 #!/bin/zsh
 
+# run from "/server" directory
+
 # run this when you first set up the database
 
 # source env file
-source ../.env
+source .env
+
 
 mongosh <<EOF
   show dbs;
@@ -16,3 +19,6 @@ mongosh <<EOF
     }
   );
 EOF
+
+# import demo data
+mongoimport --db zebbra --collection users --drop --file scripts/demo_data.json --jsonArray
