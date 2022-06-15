@@ -1,5 +1,7 @@
 <template>
-    <div>
-        <h1>Settings</h1>
-    </div>
+    <NuxtLayout name="navbar">
+        <div>
+            <p>Settings</p>
+        </div>
+    </NuxtLayout>
 </template>

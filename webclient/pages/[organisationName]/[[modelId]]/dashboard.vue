@@ -1,7 +1,8 @@
 <template>
     <NuxtLayout name="navbar">
         <div>
-            <p>{{ $route.params.organisationName }} Workspace</p>
+            <h1>Model ID: {{ $route.params.model }}</h1>
+            <p>Dashboard</p>
         </div>
     </NuxtLayout>
 </template>
