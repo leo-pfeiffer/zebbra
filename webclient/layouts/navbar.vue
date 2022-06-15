@@ -15,7 +15,7 @@ export default {
 
 <template>
     <div class="w-screen h-screen flex">
-        <div class="w-48 bg-zinc-100 px-3 py-4 border-r border-zinc-300 overflow-hidden">
+        <div class="min-w-[12rem] max-w-[12rem]  bg-zinc-100 px-3 py-4 border-r border-zinc-300 overflow-hidden">
             <div>
                 <span class="px-2 py-1 rounded-md bg-green-500 text-neutral-50 shadow-sm">
                     {{ workspaceName[0] }}
@@ -59,8 +59,18 @@ export default {
                 </div>
             </div>
         </div>
-        <div class="flex-grow">
+        <div class="right-page">
             <slot />
         </div>
     </div>
 </template>
+
+<style>
+
+.right-page {
+    width: calc(100% - 12rem);
+}
+
+
+
+</style>
