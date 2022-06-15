@@ -8,3 +8,4 @@ python-multipart==0.0.5
 uvicorn==0.17.6
 passlib[bcrypt]==1.7.4
 python-jose[cryptography]==3.3.0
+requests==2.28.0
