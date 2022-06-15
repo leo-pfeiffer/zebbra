@@ -1,8 +1,8 @@
 <template>
     <div class="my-2 text-zinc-500">
-        <div @click="clickDropdown" class="hover:cursor-pointer flex align-middle">
-            <i v-if="!opened" class="bi bi-caret-right-fill mr-2 text-sm"></i>
-            <i v-else class="bi bi-caret-down-fill mr-2 text-sm"></i>
+        <div @click="clickDropdown" class="hover:cursor-pointer flex align-middle text-sm">
+            <i v-if="!opened" class="bi bi-caret-right-fill mr-2 text-sm text-zinc-400"></i>
+            <i v-else class="bi bi-caret-down-fill mr-2 text-sm text-zinc-400"></i>
             {{ model.name }}
         </div>
         <div v-show="opened" class="text-sm ml-10 mt-1">
