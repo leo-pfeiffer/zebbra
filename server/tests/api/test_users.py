@@ -7,7 +7,7 @@ from tests.utils import assert_unauthorized_login_checked
 def test_users_me(access_token):
 
     client = TestClient(app)
-    response = client.get("/users/me", headers={
+    response = client.get("/user", headers={
             'Authorization': f'Bearer {access_token}'
         })
 
@@ -16,4 +16,4 @@ def test_users_me(access_token):
 
 
 def test_users_me_protected():
-    assert_unauthorized_login_checked("/users/me")
+    assert_unauthorized_login_checked("/user")
