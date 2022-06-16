@@ -24,8 +24,8 @@ async def read_user(current_user: User = Depends(get_current_active_user)):
             })
 async def delete_user(current_user: User = Depends(get_current_active_user)):
     """
-    Delete a user's account, that is remove from the database.
-    This requires that the user is not admin of any workspace, model etc.
+    Delete a user's account. This requires that the user is not
+    admin of any workspace, model etc.
     """
 
     # check if user is workspace admin
