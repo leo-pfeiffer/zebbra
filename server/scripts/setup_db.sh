@@ -23,7 +23,11 @@ EOF
 
 # import demo data
 # prod db
-mongoimport --db zebbra --collection users --drop --file scripts/demo_users.json --jsonArray
+DEMO_DIR="resources/demo"
+
+mongoimport --db zebbra --collection users --drop --file $DEMO_DIR/users.json --jsonArray
+mongoimport --db zebbra --collection workspaces --drop --file $DEMO_DIR/workspaces.json --jsonArray
 
 # test db
-mongoimport --db zebbra_test --collection users --drop --file scripts/demo_users.json --jsonArray
+mongoimport --db zebbra_test --collection users --drop --file $DEMO_DIR/users.json --jsonArray
+mongoimport --db zebbra_test --collection workspaces --drop --file $DEMO_DIR/workspaces.json --jsonArray
