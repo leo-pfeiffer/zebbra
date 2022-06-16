@@ -29,7 +29,11 @@ async def root():
     return {"message": "Hello Zebbra!"}
 
 
-@app.post("/token", response_model=Token)
+@app.post("/token",
+          response_model=Token,
+          responses={
+              401: {"description": "Incorrect username or password"}
+          })
 async def login_for_access_token(
         form_data: OAuth2PasswordRequestForm = Depends()):
     user = await authenticate_user(form_data.username, form_data.password)
@@ -46,7 +50,11 @@ async def login_for_access_token(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@app.post('/register', response_model=User)
+@app.post('/register',
+          response_model=User,
+          responses={
+            409: {"description": "Username already exists"}
+          })
 async def register_user(form_data: RegisterUser):
 
     # make sure username is not already taken

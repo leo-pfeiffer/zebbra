@@ -1,4 +1,6 @@
 from fastapi.testclient import TestClient
+
+from core.models.database import db
 from main import app
 
 
@@ -13,3 +15,7 @@ def assert_unauthorized_login_checked(endpoint: str) -> None:
         })
 
     assert response.status_code == 401
+
+
+def count_documents(collection: str):
+    return db[collection].count_documents({})
