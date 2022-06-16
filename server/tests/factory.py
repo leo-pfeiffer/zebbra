@@ -8,7 +8,7 @@ def create_demo_data():
             "username": "johndoe@example.com",
             "first_name": "John",
             "last_name": "Doe",
-            "workspace": "ACME Inc.",
+            "workspaces": ["ACME Inc."],
             "email": "johndoe@example.com",
             "hashed_password": "$2b$12$JObcoGR6lNWg3ztKdhEK/OtPjUoltMlHJIg99ctXPaBCNQH1EMts.",
             "disabled": False
@@ -17,7 +17,7 @@ def create_demo_data():
             "username": "alice@example.com",
             "first_name": "Alice",
             "last_name": "Wonderson",
-            "workspace": "Boring Co.",
+            "workspaces": ["Boring Co."],
             "email": "alice@example.com",
             "hashed_password": "$2b$12$JObcoGR6lNWg3ztKdhEK/OtPjUoltMlHJIg99ctXPaBCNQH1EMts.",
             "disabled": False

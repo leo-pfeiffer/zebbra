@@ -22,5 +22,8 @@ mongosh <<EOF
 EOF
 
 # import demo data
-mongoimport --db zebbra --collection users --drop --file scripts/demo_data.json --jsonArray
-mongoimport --db zebbra_test --collection users --drop --file scripts/demo_data.json --jsonArray
+# prod db
+mongoimport --db zebbra --collection users --drop --file scripts/demo_users.json --jsonArray
+
+# test db
+mongoimport --db zebbra_test --collection users --drop --file scripts/demo_users.json --jsonArray

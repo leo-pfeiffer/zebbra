@@ -22,7 +22,7 @@ async def test_register():
         "email": "new_user@example.com",
         "first_name": "John",
         "last_name": "Doe",
-        "workspace": "ACME Inc.",
+        "workspaces": ["ACME Inc."],
         "password": "secret"
     })
 
@@ -42,7 +42,7 @@ async def test_cannot_register_existing_username():
         "email": "johndoe@example.com",
         "first_name": "John",
         "last_name": "Doe",
-        "workspace": "ACME Inc.",
+        "workspaces": ["ACME Inc."],
         "password": "secret"
     })
 
