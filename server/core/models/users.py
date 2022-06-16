@@ -1,6 +1,7 @@
 from fastapi.encoders import jsonable_encoder
 
-from core.exceptions import UniqueConstraintFailedException
+from core.exceptions import UniqueConstraintFailedException, \
+    DoesNotExistException
 from core.models.database import db
 from core.schemas.users import UserInDB
 
@@ -18,7 +19,11 @@ async def create_user(user: UserInDB):
     return res
 
 
-async def delete_user(username: str):
+async def delete_user_full(username: str):
+    """
+    Fully delete a user including and remove from all workspaces etc.
+    :param username: username of user to delete
+    """
     # remove user object itself
     await db["users"].delete_one({"username": username})
 

@@ -1,7 +1,7 @@
 import pytest
 
 from core.exceptions import UniqueConstraintFailedException
-from core.models.users import get_user, delete_user, add_user_to_workspace, \
+from core.models.users import get_user, delete_user_full, add_user_to_workspace, \
     create_user
 from core.models.workspaces import get_workspaces_of_user, create_workspace, \
     get_workspace
@@ -53,14 +53,14 @@ async def test_get_non_existing_user_returns_none():
 
 @pytest.mark.anyio
 async def test_delete_user_deletes_user():
-    await delete_user("johndoe@example.com")
+    await delete_user_full("johndoe@example.com")
     assert await get_user("johndoe@example.com") is None
 
 
 @pytest.mark.anyio
 async def test_delete_user_deletes_workspace_membership():
     assert len(await get_workspaces_of_user("johndoe@example.com")) == 1
-    await delete_user("johndoe@example.com")
+    await delete_user_full("johndoe@example.com")
     assert len(await get_workspaces_of_user("johndoe@example.com")) == 0
 
 

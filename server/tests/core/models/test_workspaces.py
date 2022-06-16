@@ -1,9 +1,10 @@
 import pytest
 
-from core.exceptions import UniqueConstraintFailedException
-from core.models.users import get_user, delete_user, add_user_to_workspace
+from core.exceptions import UniqueConstraintFailedException, \
+    DoesNotExistException
+from core.models.users import get_user, delete_user_full, add_user_to_workspace
 from core.models.workspaces import get_workspaces_of_user, create_workspace, \
-    get_workspace
+    get_workspace, get_admin_workspaces_of_user, change_workspace_admin
 from core.schemas.workspaces import Workspace
 
 
@@ -55,3 +56,32 @@ async def test_get_workspaces_of_user():
     assert len(wsps) == 2
     assert "Boring Co." in wsps
     assert "ACME Inc." in wsps
+
+
+@pytest.mark.anyio
+async def test_get_admin_workspaces_of_user():
+    username = "johndoe@example.com"
+    await add_user_to_workspace(username, "Boring Co.")
+    wsps = [w.name for w in await get_admin_workspaces_of_user(username)]
+
+    assert len(wsps) == 1
+    assert "ACME Inc." in wsps
+
+
+@pytest.mark.anyio
+async def test_change_workspace_admin():
+    wsp = "Boring Co."
+    username = "johndoe@example.com"
+    await change_workspace_admin(wsp, username)
+
+    updated = await get_workspace(wsp)
+    assert updated.admin == username
+
+
+@pytest.mark.anyio
+async def test_cannot_change_workspace_admin_to_non_existing_user():
+    wsp = "Boring Co."
+    username = "notauser@example.com"
+
+    with pytest.raises(DoesNotExistException):
+        await change_workspace_admin(wsp, username)
