@@ -8,7 +8,8 @@ os.environ['MONGODB_DB'] = 'zebbra_test'
 import pytest
 from fastapi.testclient import TestClient
 from main import app
-from tests.factory import create_demo_data, teardown
+from tests.factory import create_user_data, create_workspace_data, \
+    teardown_users, teardown_workspaces
 
 
 # add fixtures here
@@ -20,10 +21,12 @@ def anyio_backend():
 @pytest.fixture(autouse=True)
 async def mongodb():
     # before test
-    await create_demo_data()
+    await create_user_data()
+    await create_workspace_data()
     yield
     # after test
-    await teardown()
+    await teardown_users()
+    await teardown_workspaces()
 
 
 @pytest.fixture
