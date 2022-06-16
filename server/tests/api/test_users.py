@@ -16,8 +16,12 @@ def test_users_me(access_token):
     assert response.json()['username'] == 'johndoe@example.com'
 
 
-def test_users_me_protected():
+def test_user_protected():
     assert_unauthorized_login_checked("/user")
+
+
+def test_user_delete_protected():
+    assert_unauthorized_login_checked("/user/delete")
 
 
 @pytest.mark.anyio
