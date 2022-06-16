@@ -3,7 +3,7 @@ export default {
     data() {
         return {
             workspaceName: 'Tesla',
-            items: [
+            models: [
                 { name: 'Model S', id: "1" },
                 { name: 'Model 3', id: "2" },
                 { name: 'Model X', id: "3" }
@@ -49,7 +49,7 @@ export default {
                 <div>
                     <span class="text-xs text-zinc-500">YOUR MODELS</span>
                     <div v-if="true" class="overflow-auto min-h-[50vh] max-h-[50vh]">
-                        <div v-for="item in items">
+                        <div v-for="item in models">
                             <ModelDropdown :model=item></ModelDropdown>
                         </div>
                     </div>
