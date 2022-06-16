@@ -27,7 +27,7 @@
             <div class="mt-1">
               <input required
                 class="w-full border-zinc-300 border rounded text-sm focus:ring-sky-500 focus:border-sky-500 px-2.5 py-1 placeholder:text-zinc-400"
-                id="register-email" type="email" placeholder="elon@spacex.com" v-model="form.email">
+                id="register-email" type="email" placeholder="elon@spacex.com" v-model="form.username">
             </div>
           </div>
           <div class="mt-2">
@@ -66,7 +66,7 @@ export default {
       form: {
         firstName: "",
         lastName: "",
-        email: "",
+        username: "",
         password: "",
         workspaceName: "",
       },

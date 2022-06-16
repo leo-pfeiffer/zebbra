@@ -5,13 +5,13 @@
         <h1 class="text-2xl mb-4 mt-16 text-zinc-900 font-semibold">Login</h1>
       </div>
       <div class="w-full">
-        <form @submit.prevent="submit">
+        <form @submit.prevent="login">
           <div>
             <label class="block text-xs font-medium text-zinc-500" for="login-email">Email</label>
             <div class="mt-1">
               <input required
                 class="w-full border-zinc-300 border rounded text-sm focus:ring-sky-500 focus:border-sky-500 px-2.5 py-1 placeholder:text-zinc-400"
-                id="login-email" type="email" placeholder="you@company.com" v-model="form.email">
+                id="login-email" type="email" placeholder="you@company.com" v-model="form.username">
             </div>
           </div>
           <div class="mt-2">
@@ -39,16 +39,28 @@ export default {
   data() {
     return {
       form: {
-        email: "",
+        username: "",
         password: ""
       },
       showError: false
     };
   },
   methods: {
-    submit() {
-      //send api request and handle errors
-      console.log(this.form);
+    async login() {
+      const loginBody = new FormData();
+      loginBody.append("username", this.form.username);
+      loginBody.append("password", this.form.password);
+
+      const data = await $fetch(
+        'http://localhost:8000/token',{ method: 'POST',
+        body: loginBody }
+        ).catch((error) => console.log(error.data));
+
+        useProfile().setToken(data.access_token);
+
+        //todo:update
+        
+        navigateTo({ path: '/tesla' });
     }
   }
 }
