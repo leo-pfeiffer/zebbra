@@ -5,8 +5,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
 
 from api import users
-from api.auth import create_access_token, authenticate_user
+from api.auth import create_access_token, authenticate_user, get_password_hash
 from core.schemas.tokens import Token
+from core.schemas.users import RegisterUser, UserInDB
 from dependencies import ACCESS_TOKEN_EXPIRE_MINUTES
 
 app = FastAPI()
@@ -41,3 +42,13 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+@app.post('/register')
+def create_user(form_data: RegisterUser):
+    hashed_pw = get_password_hash(form_data.password)
+    # todo check if username is taken
+    new_user = UserInDB()
+    new_user.username = form_data.username
+
+    return {'res': 'created'}

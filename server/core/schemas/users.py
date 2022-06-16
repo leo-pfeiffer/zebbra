@@ -45,5 +45,22 @@ class UpdateUser(BaseModel):
         }
 
 
+class RegisterUser(BaseModel):
+    username: str
+    email: EmailStr
+    full_name: str | None
+    password: str
+
+    class Config(User.Config):
+        schema_extra = {
+            "example": {
+                "username": "jdoe@example.com",
+                "email": "jdoe@example.com",
+                "full_name": "John Doe",
+                "password": "secret"
+            }
+        }
+
+
 class UserInDB(User):
     hashed_password: str
