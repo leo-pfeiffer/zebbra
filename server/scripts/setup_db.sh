@@ -12,6 +12,11 @@ mongosh <<EOF
   show dbs;
   use zebbra;
   use zebbra_test;
+
+  if (db.getUsers({filter: {'user': "$MONGODB_USER"}}).users.length != 0) {
+    db.dropUser("$MONGODB_USER")
+  }
+
   db.createUser(
     {
       user: "$MONGODB_USER",
