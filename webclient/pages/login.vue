@@ -5,13 +5,13 @@
         <h1 class="text-2xl mb-4 mt-16 text-zinc-900 font-semibold">Login</h1>
       </div>
       <div class="w-full">
-        <form>
+        <form @submit.prevent="submit">
           <div>
             <label class="block text-xs font-medium text-zinc-500" for="login-email">Email</label>
             <div class="mt-1">
               <input required
                 class="w-full border-zinc-300 border rounded text-sm focus:ring-sky-500 focus:border-sky-500 px-2.5 py-1 placeholder:text-zinc-400"
-                id="login-email" type="email" placeholder="you@company.com">
+                id="login-email" type="email" placeholder="you@company.com" v-model="form.email">
             </div>
           </div>
           <div class="mt-2">
@@ -19,7 +19,7 @@
             <div class="mt-1">
               <input required
                 class="w-full border-zinc-300 border rounded text-sm focus:ring-sky-500 focus:border-sky-500 px-2.5 py-1 placeholder:text-zinc-400"
-                id="login-password" type="password" placeholder="Password">
+                id="login-password" type="password" placeholder="Password" v-model="form.password">
             </div>
           </div>
           <div class="mt-3">
@@ -33,3 +33,23 @@
     </div>
   </div>
 </template>
+
+<script>
+export default {
+  data() {
+    return {
+      form: {
+        email: "",
+        password: ""
+      },
+      showError: false
+    };
+  },
+  methods: {
+    submit() {
+      //send api request and handle errors
+      console.log(this.form);
+    }
+  }
+}
+</script>
