@@ -1,0 +1,12 @@
+[
+    {
+        "name": "ACME Inc.",
+        "admin": "johndoe@example.com",
+        "users": ["johndoe@example.com"]
+    },
+    {
+        "name": "Boring Co.",
+        "admin": "alice@example.com",
+        "users": ["alice@example.com"]
+    }
+]

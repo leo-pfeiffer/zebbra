@@ -10,7 +10,7 @@ class User(BaseModel):
     email: EmailStr | None = None
     first_name: str | None = None
     last_name: str | None = None
-    workspace: str | None = None
+    workspaces: list[str] | None = None
     disabled: bool | None = None
 
     class Config:
@@ -23,7 +23,7 @@ class User(BaseModel):
                 "email": "jdoe@example.com",
                 "first_name": "John",
                 "last_name": "Doe",
-                "workspace": "ACME Inc.",
+                "workspaces": ["ACME Inc.", "Boring Co."],
                 "disabled": False,
             }
         }
@@ -34,7 +34,7 @@ class UpdateUser(BaseModel):
     email: EmailStr | None
     first_name: str | None
     last_name: str | None
-    workspace: str | None
+    workspaces: list[str] | None
     disabled: bool | None
 
     class Config:
@@ -47,7 +47,7 @@ class UpdateUser(BaseModel):
                 "email": "jdoe@example.com",
                 "first_name": "John",
                 "last_name": "Doe",
-                "workspace": "ACME Inc.",
+                "workspaces": ["ACME Inc.", "Boring Co."],
                 "disabled": False,
             }
         }
@@ -58,7 +58,7 @@ class RegisterUser(BaseModel):
     email: EmailStr
     first_name: str
     last_name: str
-    workspace: str
+    workspaces: list[str]
     password: str
 
     class Config(User.Config):
@@ -68,7 +68,7 @@ class RegisterUser(BaseModel):
                 "email": "jdoe@example.com",
                 "first_name": "John",
                 "last_name": "Doe",
-                "workspace": "ACME Inc.",
+                "workspaces": ["ACME Inc.", "Boring Co."],
                 "password": "secret"
             }
         }
