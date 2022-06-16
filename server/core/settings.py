@@ -6,6 +6,10 @@ class Settings(BaseSettings):
 
     ENV: str = 'prod'
 
+    AUTH_SECRET: str
+    AUTH_ALGO: str
+    AUTH_TOKEN_EXPIRE: int
+
     MONGODB_USER: str
     MONGODB_DB: str
     MONGODB_PW: str
