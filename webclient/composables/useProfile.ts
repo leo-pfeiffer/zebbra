@@ -8,7 +8,7 @@ export const useProfile = () => {
     };
 
     const removeToken = () => {
-        token.value = null;
+        token.value = undefined;
       };
   
     return { id: null, name: null, token, setToken, removeToken };
