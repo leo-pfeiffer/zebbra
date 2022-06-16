@@ -7,7 +7,7 @@ def test_oauth_with_valid_user():
 
     user_form = {
         'grant_type': 'password',
-        'username': 'johndoe',
+        'username': 'johndoe@example.com',
         'password': 'secret'
     }
 
@@ -24,7 +24,7 @@ async def test_oauth_with_invalid_user():
 
     user_form = {
         'grant_type': 'password',
-        'username': 'johndoe',
+        'username': 'johndoe@example.com',
         'password': 'wrongsecret'
     }
 

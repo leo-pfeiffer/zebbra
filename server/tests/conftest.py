@@ -21,7 +21,7 @@ def access_token():
     client = TestClient(app)
     user_form = {
         'grant_type': 'password',
-        'username': 'johndoe',
+        'username': 'johndoe@example.com',
         'password': 'secret'
     }
     response = client.post("/token", data=user_form)

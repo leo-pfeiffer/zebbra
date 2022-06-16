@@ -12,7 +12,7 @@ def test_users_me(access_token):
         })
 
     assert response.status_code == 200
-    assert response.json()['username'] == 'johndoe'
+    assert response.json()['username'] == 'johndoe@example.com'
 
 
 def test_users_me_protected():
