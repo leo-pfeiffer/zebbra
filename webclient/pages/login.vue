@@ -54,13 +54,19 @@ export default {
       const data = await $fetch(
         'http://localhost:8000/token',{ method: 'POST',
         body: loginBody }
-        ).catch((error) => console.log(error.data));
+        ).then((data) => {
 
-        useProfile().setToken(data.access_token);
+          /* useProfile().setToken(data.access_token); */
 
-        //todo:update
-        
-        navigateTo({ path: '/tesla' });
+          useToken().setTokenCookie(data.access_token);
+          
+          const token = useToken().getToken();
+          console.log(token);
+
+          //todo:update
+          navigateTo({ path: '/tesla' });
+
+        }).catch((error) => console.log(error.data));
     }
   }
 }
