@@ -7,7 +7,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 from api import users
 from api.auth import create_access_token, authenticate_user, get_password_hash
 from core.schemas.tokens import Token
-from core.schemas.users import RegisterUser, UserInDB
+from core.schemas.users import RegisterUser, UserInDB, User
+from core.models.users import get_user, create_user
 from dependencies import ACCESS_TOKEN_EXPIRE_MINUTES
 
 app = FastAPI()
@@ -29,7 +30,8 @@ async def root():
 
 
 @app.post("/token", response_model=Token)
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+async def login_for_access_token(
+        form_data: OAuth2PasswordRequestForm = Depends()):
     user = await authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(
@@ -44,11 +46,26 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@app.post('/register')
-def create_user(form_data: RegisterUser):
-    hashed_pw = get_password_hash(form_data.password)
-    # todo check if username is taken
-    new_user = UserInDB()
-    new_user.username = form_data.username
+@app.post('/register', response_model=User)
+async def register_user(form_data: RegisterUser):
 
-    return {'res': 'created'}
+    # make sure username is not already taken
+    if (await get_user(form_data.username)) is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Username already exists",
+        )
+
+    # convert into UserInDb object
+    hashed_password = get_password_hash(form_data.password)
+    new_user = UserInDB(**{
+        **form_data.dict(),
+        "hashed_password": hashed_password,
+        "disabled": False
+    })
+
+    # insert user
+    await create_user(new_user)
+
+    # return user object
+    return await get_user(new_user.username)

@@ -1,5 +1,6 @@
 from core.schemas.users import User
-from dependencies import pwd_context, get_user, SECRET_KEY, ALGORITHM
+from dependencies import pwd_context, SECRET_KEY, ALGORITHM
+from core.models.users import get_user
 from datetime import datetime, timedelta
 from jose import jwt
 

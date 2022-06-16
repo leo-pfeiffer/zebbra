@@ -3,10 +3,10 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
-from core.models.database import db
 from core.schemas.tokens import TokenData
-from core.schemas.users import User, UserInDB
+from core.schemas.users import User
 from core.settings import get_settings
+from core.models.users import get_user
 
 settings = get_settings()
 SECRET_KEY = settings.dict()['AUTH_SECRET']
@@ -16,12 +16,6 @@ ACCESS_TOKEN_EXPIRE_MINUTES = settings.dict()['AUTH_TOKEN_EXPIRE']
 pwd_context: CryptContext = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
-
-async def get_user(username: str):
-    user = await db["users"].find_one({"username": username})
-    if user is not None:
-        return UserInDB(**user)
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
