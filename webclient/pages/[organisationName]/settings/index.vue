@@ -5,7 +5,7 @@
 </script>
 
 <template>
-    <NuxtLayout name="navbar">
+    <NuxtLayout name="settings-layout">
         <div>
             <p>Settings</p>
         </div>
