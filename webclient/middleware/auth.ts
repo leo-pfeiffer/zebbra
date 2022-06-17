@@ -2,17 +2,11 @@ import { useToken } from "~~/composables/useToken"
 
 export default defineNuxtRouteMiddleware((to, from) => {
 
-    const token = useToken().getToken;
-
-    console.log("auth");
-    console.log(token);
+    const token = useToken().getToken();
 
     if(!token) {
-        navigateTo("/login")
+        console.log("401 unauthorized");
+        return navigateTo('/login');
+        //todo: add error message in modal that you have to be logged in
     }
-
-    /* console.log("auth middleware");
-    const { token } = useProfile();
-    console.log(token) */
-
   })

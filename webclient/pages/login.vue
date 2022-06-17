@@ -55,13 +55,8 @@ export default {
         'http://localhost:8000/token',{ method: 'POST',
         body: loginBody }
         ).then((data) => {
-
-          /* useProfile().setToken(data.access_token); */
-
-          useToken().setTokenCookie(data.access_token);
           
-          const token = useToken().getToken();
-          console.log(token);
+          useToken().setTokenCookie(data.access_token);
 
           //todo:update
           navigateTo({ path: '/tesla' });
