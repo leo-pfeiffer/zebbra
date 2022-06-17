@@ -15,7 +15,6 @@ async def test_create_user():
         "first_name": "John",
         "last_name": "Doe",
         "workspaces": ["ACME Inc."],
-        "email": "another@example.com",
         "hashed_password": "$2b$12$JObcoGR6lNWg3ztKdhEK/OtPjUoltMlHJIg99ctXPaBCNQH1EMts.",
         "disabled": False
     })
@@ -31,7 +30,6 @@ async def test_cannot_create_user_with_duplicate_username():
         "first_name": "John",
         "last_name": "Doe",
         "workspaces": ["ACME Inc."],
-        "email": "johndoe@example.com",
         "hashed_password": "$2b$12$JObcoGR6lNWg3ztKdhEK/OtPjUoltMlHJIg99ctXPaBCNQH1EMts.",
         "disabled": False
     })

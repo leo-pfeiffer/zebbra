@@ -1,5 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
+from starlette import status
 
 from core.models.workspaces import change_workspace_admin
 from main import app
@@ -12,7 +13,7 @@ def test_users_me(access_token):
         'Authorization': f'Bearer {access_token}'
     })
 
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
     assert response.json()['username'] == 'johndoe@example.com'
 
 
@@ -37,7 +38,7 @@ async def test_delete_user(access_token):
         'Authorization': f'Bearer {access_token}'
     })
 
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
     assert response.json()['message'] == 'User deleted.'
 
 
@@ -47,4 +48,4 @@ def test_cannot_delete_user_who_is_admin(access_token):
         'Authorization': f'Bearer {access_token}'
     })
 
-    assert response.status_code == 400
+    assert response.status_code == status.HTTP_400_BAD_REQUEST

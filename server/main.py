@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -6,10 +6,13 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from api import users
 from api.auth import create_access_token, authenticate_user, get_password_hash
-from core.schemas.tokens import Token
+from core.models.token_blacklist import add_to_blacklist
+from core.schemas.tokens import Token, BlacklistToken
 from core.schemas.users import RegisterUser, UserInDB, User
 from core.models.users import get_user, create_user
-from dependencies import ACCESS_TOKEN_EXPIRE_MINUTES
+from core.schemas.utils import Message
+from dependencies import ACCESS_TOKEN_EXPIRE_MINUTES, \
+    get_current_active_user_token
 
 app = FastAPI()
 
@@ -47,7 +50,17 @@ async def login_for_access_token(
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+
+    return {
+        "access_token": access_token,
+        "token_type": "bearer"
+    }
+
+
+@app.post("/logout", response_model=Message)
+async def logout(token: str = Depends(get_current_active_user_token)):
+    await add_to_blacklist(BlacklistToken(**{"access_token": token}))
+    return {'message': "Logged out."}
 
 
 @app.post('/register',
@@ -66,11 +79,12 @@ async def register_user(form_data: RegisterUser):
 
     # convert into UserInDb object
     hashed_password = get_password_hash(form_data.password)
-    new_user = UserInDB(**{
-        **form_data.dict(),
-        "hashed_password": hashed_password,
-        "disabled": False
-    })
+
+    user_data = form_data.dict()
+    user_data["workspaces"] = [user_data["workspaces"]]
+    user_data["hashed_password"] = hashed_password
+    user_data["disabled"] = False
+    new_user = UserInDB(**user_data)
 
     # insert user
     await create_user(new_user)

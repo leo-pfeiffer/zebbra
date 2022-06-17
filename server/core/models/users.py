@@ -1,7 +1,6 @@
 from fastapi.encoders import jsonable_encoder
 
-from core.exceptions import UniqueConstraintFailedException, \
-    DoesNotExistException
+from core.exceptions import UniqueConstraintFailedException
 from core.models.database import db
 from core.schemas.users import UserInDB
 

@@ -9,7 +9,7 @@ import pytest
 from fastapi.testclient import TestClient
 from main import app
 from tests.factory import create_user_data, create_workspace_data, \
-    teardown_users, teardown_workspaces
+    teardown_users, teardown_workspaces, teardown_token_blacklist
 
 
 # add fixtures here
@@ -27,6 +27,7 @@ async def mongodb():
     # after test
     await teardown_users()
     await teardown_workspaces()
+    await teardown_token_blacklist()
 
 
 @pytest.fixture
