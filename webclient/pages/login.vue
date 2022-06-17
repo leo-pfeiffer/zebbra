@@ -29,9 +29,12 @@
             </NuxtLink>
           </div>
         </form>
+        <div v-show="showError" class="w-full flex justify-center">
+          <div class="w-max static mt-5 py-2 px-3 border border-red-300 rounded shadow-sm shadow-red-100 text-xs text-red-500 text-center" ><i class="bi bi-exclamation-triangle-fill mr-2"></i>{{ errorMessage }} </div>
+        </div>
       </div>
     </div>
-  </div>
+  </div>  
 </template>
 
 <script>
@@ -42,7 +45,8 @@ export default {
         username: "",
         password: ""
       },
-      showError: false
+      showError: false, 
+      errorMessage: "incorrect password"
     };
   },
   methods: {
@@ -58,10 +62,14 @@ export default {
           
           useToken().setTokenCookie(data.access_token);
 
-          //todo:update
+          //todo
+          //fetch workspace name then navigate there
           navigateTo({ path: '/tesla' });
 
-        }).catch((error) => console.log(error.data));
+        }).catch((error) => {
+          this.errorMessage = error.data.detail;
+          this.showError = true;
+          });
     }
   }
 }
