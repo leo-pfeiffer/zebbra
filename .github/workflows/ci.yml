@@ -25,14 +25,11 @@ jobs:
 
     - name: Set up db
       run: |
-        echo "hello"
-        ls
         cd server
         make setup_db
 
     - name: Run tests
       run: |
-        echo "hello"
-        ls
+        # todo set env variables for settings
         cd server
         make test
