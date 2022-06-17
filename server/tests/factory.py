@@ -46,3 +46,7 @@ def teardown_users():
 
 def teardown_workspaces():
     return db["workspaces"].delete_many({})
+
+
+def teardown_token_blacklist():
+    return db["token_blacklist"].delete_many({})
