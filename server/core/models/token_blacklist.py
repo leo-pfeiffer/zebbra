@@ -1,10 +1,10 @@
 from fastapi.encoders import jsonable_encoder
 
 from core.models.database import db
-from core.schemas.tokens import Token
+from core.schemas.tokens import BlacklistToken
 
 
-async def add_to_blacklist(token: Token):
+async def add_to_blacklist(token: BlacklistToken):
     res = await db["token_blacklist"].insert_one(jsonable_encoder(token))
     return res
 
