@@ -17,9 +17,22 @@ jobs:
         cd server
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+
     - name: Start MongoDB
       uses: supercharge/mongodb-github-action@1.7.0
       with:
         mongodb-version: '5.0'
 
-    - run: make setup_db
+    - name: Set up db
+      run: |
+        echo "hello"
+        ls
+        cd server
+        make setup_db
+
+    - name: Run tests
+      run: |
+        echo "hello"
+        ls
+        cd server
+        make test
