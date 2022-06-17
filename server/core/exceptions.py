@@ -1,0 +1,6 @@
+class UniqueConstraintFailedException(BaseException):
+    ...
+
+
+class DoesNotExistException(BaseException):
+    ...
