@@ -102,26 +102,3 @@ export default {
   }
 }
 </script>
-
-
-{
-    "username": "pat.schnyder96@gmail.com",
-    "password": "asdfasdf",
-    "first_name": "Patrick",
-    "last_name": "Schnyder",
-    "workspaces": [
-        "Patrick Schnyder"
-    ]
-}
-
-{
-  "username": "jdoe@example.com",
-  "email": "jdoe@example.com",
-  "first_name": "John",
-  "last_name": "Doe",
-  "workspaces": [
-    "ACME Inc.",
-    "Boring Co."
-  ],
-  "password": "secret"
-}
