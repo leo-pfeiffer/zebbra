@@ -53,7 +53,7 @@ class RegisterUser(BaseModel):
     username: str
     first_name: str
     last_name: str
-    workspaces: list[str]
+    workspaces: str
     password: str
 
     class Config(User.Config):
@@ -62,7 +62,7 @@ class RegisterUser(BaseModel):
                 "username": "jdoe@example.com",
                 "first_name": "John",
                 "last_name": "Doe",
-                "workspaces": ["ACME Inc.", "Boring Co."],
+                "workspaces": "ACME Inc.",
                 "password": "secret"
             }
         }

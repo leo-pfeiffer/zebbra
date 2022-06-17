@@ -79,11 +79,12 @@ async def register_user(form_data: RegisterUser):
 
     # convert into UserInDb object
     hashed_password = get_password_hash(form_data.password)
-    new_user = UserInDB(**{
-        **form_data.dict(),
-        "hashed_password": hashed_password,
-        "disabled": False
-    })
+
+    user_data = form_data.dict()
+    user_data["workspaces"] = [user_data["workspaces"]]
+    user_data["hashed_password"] = hashed_password
+    user_data["disabled"] = False
+    new_user = UserInDB(**user_data)
 
     # insert user
     await create_user(new_user)

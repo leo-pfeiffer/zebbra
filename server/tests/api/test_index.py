@@ -45,7 +45,7 @@ async def test_register():
         "username": "new_user@example.com",
         "first_name": "John",
         "last_name": "Doe",
-        "workspaces": ["ACME Inc."],
+        "workspaces": "ACME Inc.",
         "password": "secret"
     })
 
@@ -64,7 +64,7 @@ async def test_cannot_register_existing_username():
         "username": "johndoe@example.com",
         "first_name": "John",
         "last_name": "Doe",
-        "workspaces": ["ACME Inc."],
+        "workspaces": "ACME Inc.",
         "password": "secret"
     })
 
