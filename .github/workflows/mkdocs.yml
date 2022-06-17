@@ -1,11 +1,9 @@
-name: ci 
+name: mkdocs
 on:
   push:
     branches:
       - master 
       - main
-      - dev
-      - leopoldpfeiffer/zba-69-set-up-cicd
 jobs:
   deploy:
     runs-on: ubuntu-latest
