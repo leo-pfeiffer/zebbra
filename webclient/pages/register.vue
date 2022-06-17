@@ -5,13 +5,13 @@
         <h1 class="text-2xl mb-4 mt-16 text-zinc-900 font-semibold">Register</h1>
       </div>
       <div class="w-full">
-        <form @submit.prevent="submit">
+        <form @submit.prevent="register">
           <div>
             <label class="block text-xs font-medium text-zinc-500" for="register-first-name">First Name</label>
             <div class="mt-1">
               <input required
                 class="w-full border-zinc-300 border rounded text-sm focus:ring-sky-500 focus:border-sky-500 px-2.5 py-1 placeholder:text-zinc-400"
-                id="register-first-name" type="text" placeholder="Elon" v-model="form.firstName">
+                id="register-first-name" type="text" placeholder="Elon" v-model="form.first_name">
             </div>
           </div>
           <div class="mt-2">
@@ -19,7 +19,7 @@
             <div class="mt-1">
               <input required
                 class="w-full border-zinc-300 border rounded text-sm focus:ring-sky-500 focus:border-sky-500 px-2.5 py-1 placeholder:text-zinc-400"
-                id="register-last-name" type="text" placeholder="Musk" v-model="form.lastName">
+                id="register-last-name" type="text" placeholder="Musk" v-model="form.last_name">
             </div>
           </div>
           <div class="mt-2">
@@ -27,7 +27,7 @@
             <div class="mt-1">
               <input required
                 class="w-full border-zinc-300 border rounded text-sm focus:ring-sky-500 focus:border-sky-500 px-2.5 py-1 placeholder:text-zinc-400"
-                id="register-email" type="email" placeholder="elon@spacex.com" v-model="form.email">
+                id="register-email" type="email" placeholder="elon@spacex.com" v-model="form.username">
             </div>
           </div>
           <div class="mt-2">
@@ -44,7 +44,7 @@
             <div class="mt-1">
               <input required
                 class="w-full border-zinc-300 border rounded text-sm focus:ring-sky-500 focus:border-sky-500 px-2.5 py-1 placeholder:text-zinc-400"
-                id="register-workspace-name" type="text" placeholder="Space X" v-model="form.workspaceName">
+                id="register-workspace-name" type="text" placeholder="Space X" v-model="workspaceInput">
             </div>
           </div>
           <div class="mt-3">
@@ -54,6 +54,9 @@
             </NuxtLink>
           </div>
         </form>
+        <div v-show="showError" class="w-full flex justify-center">
+          <ErrorMessage :error-message="errorMessage"></ErrorMessage>
+        </div>
       </div>
     </div>
   </div>
@@ -64,19 +67,37 @@ export default {
   data() {
     return {
       form: {
-        firstName: "",
-        lastName: "",
+        username: "",
         email: "",
-        password: "",
-        workspaceName: "",
+        first_name: "",
+        last_name: "",
+        workspaces: [],
+        password: ""
       },
-      showError: false
+      workspaceInput: "",
+      showError: false,
+      errorMessage: "Registration failed. Try again!"  
     };
   },
   methods: {
-    submit() {
-      //send api request and handle errors
-      console.log(this.form);
+    async register() {
+      
+      //add workspace and email to form
+      this.form.workspaces.push(this.workspaceInput);
+      this.form.email = this.form.username;
+
+      const data = await $fetch(
+        'http://localhost:8000/register', {
+          method: 'POST',
+          body: this.form
+        }
+      ).then(() => {
+        navigateTo({ path: '/login' })
+      
+      }).catch((error) => {
+        this.errorMessage = error.data.detail;
+        this.showError = true;
+      });
     }
   }
 }
