@@ -44,7 +44,7 @@
             <div class="mt-1">
               <input required
                 class="w-full border-zinc-300 border rounded text-sm focus:ring-sky-500 focus:border-sky-500 px-2.5 py-1 placeholder:text-zinc-400"
-                id="register-workspace-name" type="text" placeholder="Space X" v-model="workspaceInput">
+                id="register-workspace-name" type="text" placeholder="Space X" v-model="form.workspaces">
             </div>
           </div>
           <div class="mt-3">
@@ -68,13 +68,11 @@ export default {
     return {
       form: {
         username: "",
-        email: "",
         first_name: "",
         last_name: "",
-        workspaces: [],
+        workspaces: "",
         password: ""
       },
-      workspaceInput: "",
       showError: false,
       errorMessage: "Registration failed. Try again!"  
     };
@@ -82,10 +80,6 @@ export default {
   methods: {
     async register() {
       
-      //add workspace and email to form
-      this.form.workspaces.push(this.workspaceInput);
-      this.form.email = this.form.username;
-
       const data = await $fetch(
         'http://localhost:8000/register', {
           method: 'POST',
