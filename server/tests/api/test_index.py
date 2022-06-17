@@ -43,7 +43,6 @@ async def test_cannot_use_token_after_logout(access_token):
 async def test_register():
     user = RegisterUser(**{
         "username": "new_user@example.com",
-        "email": "new_user@example.com",
         "first_name": "John",
         "last_name": "Doe",
         "workspaces": ["ACME Inc."],
@@ -63,7 +62,6 @@ async def test_register():
 async def test_cannot_register_existing_username():
     user = RegisterUser(**{
         "username": "johndoe@example.com",
-        "email": "johndoe@example.com",
         "first_name": "John",
         "last_name": "Doe",
         "workspaces": ["ACME Inc."],

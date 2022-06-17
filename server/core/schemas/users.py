@@ -7,7 +7,6 @@ from core.models.objects import PyObjectId
 class User(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     username: str
-    email: EmailStr | None = None
     first_name: str | None = None
     last_name: str | None = None
     workspaces: list[str] | None = None
@@ -20,7 +19,6 @@ class User(BaseModel):
         schema_extra = {
             "example": {
                 "username": "jdoe@example.com",
-                "email": "jdoe@example.com",
                 "first_name": "John",
                 "last_name": "Doe",
                 "workspaces": ["ACME Inc.", "Boring Co."],
@@ -31,7 +29,6 @@ class User(BaseModel):
 
 class UpdateUser(BaseModel):
     username: str | None
-    email: EmailStr | None
     first_name: str | None
     last_name: str | None
     workspaces: list[str] | None
@@ -44,7 +41,6 @@ class UpdateUser(BaseModel):
         schema_extra = {
             "example": {
                 "username": "jdoe@example.com",
-                "email": "jdoe@example.com",
                 "first_name": "John",
                 "last_name": "Doe",
                 "workspaces": ["ACME Inc.", "Boring Co."],
@@ -55,7 +51,6 @@ class UpdateUser(BaseModel):
 
 class RegisterUser(BaseModel):
     username: str
-    email: EmailStr
     first_name: str
     last_name: str
     workspaces: list[str]
@@ -65,7 +60,6 @@ class RegisterUser(BaseModel):
         schema_extra = {
             "example": {
                 "username": "jdoe@example.com",
-                "email": "jdoe@example.com",
                 "first_name": "John",
                 "last_name": "Doe",
                 "workspaces": ["ACME Inc.", "Boring Co."],
