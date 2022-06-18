@@ -1,4 +1,5 @@
 #!/bin/zsh
 . .env
 
-openssl enc -aes-256-cbc -e -in ".env"  -out "encrypted_dotenv" -pass pass:$ENV_ENCRYPT_PASS
+cat .env | \
+  openssl enc -base64 -e -aes-256-cbc -nosalt -pass pass:$ENV_ENCRYPT_PASS > .env.enc

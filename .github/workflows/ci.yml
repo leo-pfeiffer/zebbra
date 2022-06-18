@@ -8,12 +8,19 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    
+
+    - name: Set up environment variables
+      env:
+        ENV_ENCRYPT_PASS: ${{ secrets.ENV_ENCRYPT_PASS }}
+      run: |
+        cd server
+        make decrypt_env
+
     - name: Set up python-3.10
       uses: actions/setup-python@v2
       with:
         python-version: '3.10'
-    
+
     - name: Install dependencies
       run: |
         cd server
@@ -24,13 +31,6 @@ jobs:
       uses: supercharge/mongodb-github-action@1.7.0
       with:
         mongodb-version: '5.0'
-
-    - name: Set up environment variables
-      env:
-        ENV_ENCRYPT_PASS: ${{ secrets.ENV_ENCRYPT_PASS }}
-      run: |
-        cd server
-        make decrypt_env
 
     - name: Set up db
       run: |
