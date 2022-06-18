@@ -11,10 +11,12 @@ jobs:
 
     - name: Set up environment variables
       env:
-        ENV_ENCRYPT_PASS: ${{ secrets.ENV_ENCRYPT_PASS }}
+        DOT_ENV: ${{ secrets.DOT_ENV }}
       run: |
         cd server
-        make decrypt_env
+        echo $DOT_ENV | base64 --decode > .env
+        ls
+        cat .env
 
     - name: Set up python-3.10
       uses: actions/setup-python@v2
