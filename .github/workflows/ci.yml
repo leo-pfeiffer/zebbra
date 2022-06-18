@@ -3,7 +3,9 @@ name: Run tests
 on: [push]
 
 env:
-  DAY_OF_WEEK: Monday
+  ENV_ENCRYPT_PASS: {{ secrets.ENV_ENCRYPT_PASS }}
+  AUTH_SECRET: {{ secrets.AUTH_SECRET }}
+  AUTH_ALGO: {{ secrets.AUTH_ALGO }}
 
 jobs:
   build:
