@@ -1,5 +1,5 @@
-#!/bin/bash
-source .env
+#!/bin/zsh
+. .env
 
 echo "$ENV_ENCRYPT_PASS"
 

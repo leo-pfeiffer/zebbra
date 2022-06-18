@@ -7,7 +7,6 @@
 # source env file
 . .env
 
-
 mongosh <<EOF
   show dbs;
   use zebbra;
