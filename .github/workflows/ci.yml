@@ -4,8 +4,6 @@ on: [push]
 
 env:
   ENV_ENCRYPT_PASS: {{ secrets.ENV_ENCRYPT_PASS }}
-  AUTH_SECRET: {{ secrets.AUTH_SECRET }}
-  AUTH_ALGO: {{ secrets.AUTH_ALGO }}
 
 jobs:
   build:
