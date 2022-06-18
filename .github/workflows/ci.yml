@@ -34,6 +34,7 @@ jobs:
 
     - name: Set up db
       run: |
+        export
         cd server
         make setup_db
 

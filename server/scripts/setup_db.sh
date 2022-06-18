@@ -5,7 +5,7 @@
 # run this when you first set up the database
 
 # source env file
-# . .env
+. .env
 
 mongosh <<EOF
   show dbs;
