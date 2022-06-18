@@ -23,6 +23,11 @@ jobs:
       with:
         mongodb-version: '5.0'
 
+    - name: Set up environment variables
+      run: |
+        cd server
+        make decrypt_env
+
     - name: Set up db
       run: |
         cd server
