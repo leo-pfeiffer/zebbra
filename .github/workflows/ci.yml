@@ -11,10 +11,14 @@ jobs:
 
     - name: Set up environment variables
       env:
-        DOT_ENV: ${{ secrets.DOT_ENV }}
-      run: |
-        cd server
-        echo $DOT_ENV | base64 --decode > .env
+        ENV_ENCRYPT_PASS: {{ secrets.ENV_ENCRYPT_PASS }}
+        AUTH_SECRET: {{ secrets.AUTH_SECRET }}
+        AUTH_ALGO: {{ secrets.AUTH_ALGO }}
+        AUTH_TOKEN_EXPIRE: {{ secrets.AUTH_TOKEN_EXPIRE }}
+        MONGODB_USER: {{ secrets.MONGODB_USER }}
+        MONGODB_DB: {{ secrets.MONGODB_DB }}
+        MONGODB_PW: {{ secrets.MONGODB_PW }}
+        MONGODB_URL: {{ secrets.MONGODB_URL }}
 
     - name: Set up python-3.10
       uses: actions/setup-python@v2
@@ -34,12 +38,10 @@ jobs:
 
     - name: Set up db
       run: |
-        export
         cd server
-        make setup_db
+        make setup_db_no_source
 
     - name: Run tests
       run: |
         cd server
-        ls -la
         make test

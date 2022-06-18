@@ -5,7 +5,12 @@ test:
 .PHONY: setup_db
 setup_db:
 	chmod +x scripts/setup_db.sh
-	sh scripts/setup_db.sh
+	scripts/setup_db.sh
+
+.PHONY: setup_db_no_source
+setup_db:
+	chmod +x scripts/setup_db.sh
+	scripts/setup_db.sh "nosource"
 
 .PHONY: run_server
 run_server:
@@ -13,5 +18,4 @@ run_server:
 
 .PHONY: set_secret_env
 set_secret_env:
-	chmod +x scripts/gh_set_secret.sh
-	sh scripts/gh_set_secret.sh
+	gh secret set -f .env
