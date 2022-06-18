@@ -5,12 +5,12 @@ test:
 .PHONY: setup_db
 setup_db:
 	chmod +x scripts/setup_db.sh
-	scripts/setup_db.sh
+	./scripts/setup_db.sh
 
 .PHONY: setup_db_no_source
 setup_db_no_source:
 	chmod +x scripts/setup_db.sh
-	scripts/setup_db.sh "nosource"
+	./scripts/setup_db.sh "nosource"
 
 .PHONY: run_server
 run_server:
