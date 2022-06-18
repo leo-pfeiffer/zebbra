@@ -2,18 +2,21 @@ name: Run tests
 
 on: [push]
 
+env:
+  DAY_OF_WEEK: Monday
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      ENV_ENCRYPT_PASS: {{ secrets.ENV_ENCRYPT_PASS }}
-      AUTH_SECRET: {{ secrets.AUTH_SECRET }}
-      AUTH_ALGO: {{ secrets.AUTH_ALGO }}
-      AUTH_TOKEN_EXPIRE: {{ secrets.AUTH_TOKEN_EXPIRE }}
-      MONGODB_USER: {{ secrets.MONGODB_USER }}
-      MONGODB_DB: {{ secrets.MONGODB_DB }}
-      MONGODB_PW: {{ secrets.MONGODB_PW }}
-      MONGODB_URL: {{ secrets.MONGODB_URL }}
+    # env:
+    #   ENV_ENCRYPT_PASS: {{ secrets.ENV_ENCRYPT_PASS }}
+    #   AUTH_SECRET: {{ secrets.AUTH_SECRET }}
+    #   AUTH_ALGO: {{ secrets.AUTH_ALGO }}
+    #   AUTH_TOKEN_EXPIRE: {{ secrets.AUTH_TOKEN_EXPIRE }}
+    #   MONGODB_USER: {{ secrets.MONGODB_USER }}
+    #   MONGODB_DB: {{ secrets.MONGODB_DB }}
+    #   MONGODB_PW: {{ secrets.MONGODB_PW }}
+    #   MONGODB_URL: {{ secrets.MONGODB_URL }}
 
     steps:
     - uses: actions/checkout@v2
