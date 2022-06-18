@@ -1,6 +1,6 @@
 #!/bin/zsh
 . .env
 
-echo "$ENV_ENCRYPT_PASS"
+openssl base64 -A -in .env -out enc.env
 
-gh secret set ENV_ENCRYPT_PASS --body "$ENV_ENCRYPT_PASS"
+gh secret set DOT_ENV --body "$(cat enc.env)"
