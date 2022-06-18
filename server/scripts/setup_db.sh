@@ -5,8 +5,11 @@
 # run this when you first set up the database
 
 # source env file
-source .env
 
+if [ "$1" != "nosource" ]
+  then 
+    source .env
+fi
 
 mongosh <<EOF
   show dbs;

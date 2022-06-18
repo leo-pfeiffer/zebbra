@@ -1,16 +1,46 @@
-name: ci 
-on:
-  push:
-    branches:
-      - master 
-      - main
+name: Run tests
+
+on: [push]
+
+env:
+  ENV_ENCRYPT_PASS: ${{ secrets.ENV_ENCRYPT_PASS }}
+  AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+  AUTH_ALGO: ${{ secrets.AUTH_ALGO }}
+  AUTH_TOKEN_EXPIRE: ${{ secrets.AUTH_TOKEN_EXPIRE }}
+  MONGODB_USER: ${{ secrets.MONGODB_USER }}
+  MONGODB_DB: ${{ secrets.MONGODB_DB }}
+  MONGODB_PW: ${{ secrets.MONGODB_PW }}
+  MONGODB_URL: ${{ secrets.MONGODB_URL }}
+
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: 3.x
-      - run: pip install mkdocs-material 
-      - run: mkdocs gh-deploy --force
+    - uses: actions/checkout@v2
+
+    - name: Set up python-3.10
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        cd server
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Start MongoDB
+      uses: supercharge/mongodb-github-action@1.7.0
+      with:
+        mongodb-version: '5.0'
+
+    - name: Set up db
+      run: |
+        cd server
+        make setup_db_no_source
+
+    - name: Run tests
+      run: |
+        cd server
+        make test
