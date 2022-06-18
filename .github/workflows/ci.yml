@@ -15,7 +15,6 @@ jobs:
       run: |
         cd server
         echo $DOT_ENV | base64 --decode > .env
-        ls -la
 
     - name: Set up python-3.10
       uses: actions/setup-python@v2
@@ -25,7 +24,6 @@ jobs:
     - name: Install dependencies
       run: |
         cd server
-        ls -la
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
@@ -37,12 +35,10 @@ jobs:
     - name: Set up db
       run: |
         cd server
-        ls -la
         make setup_db
 
     - name: Run tests
       run: |
-        # todo set env variables for settings
         cd server
         ls -la
         make test

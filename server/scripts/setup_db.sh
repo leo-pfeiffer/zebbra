@@ -5,6 +5,7 @@
 # run this when you first set up the database
 
 # source env file
+ls -la
 . .env
 
 mongosh <<EOF
