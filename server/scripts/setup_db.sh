@@ -11,8 +11,6 @@ if [ "$1" != "nosource" ]
     source .env
 fi
 
-exit
-
 mongosh <<EOF
   show dbs;
   use zebbra;
