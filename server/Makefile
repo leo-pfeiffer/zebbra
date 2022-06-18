@@ -8,7 +8,7 @@ setup_db:
 	scripts/setup_db.sh
 
 .PHONY: setup_db_no_source
-setup_db:
+setup_db_no_source:
 	chmod +x scripts/setup_db.sh
 	scripts/setup_db.sh "nosource"
 
