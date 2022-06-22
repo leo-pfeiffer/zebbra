@@ -1,6 +1,6 @@
 import pytest
 
-from core.models.token_blacklist import add_to_blacklist, \
+from core.dao.token_blacklist import add_to_blacklist, \
     count_blacklisted_tokens, get_blacklisted, is_token_blacklisted
 from core.schemas.tokens import BlacklistToken
 

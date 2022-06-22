@@ -2,7 +2,7 @@ import pytest
 from fastapi.testclient import TestClient
 from starlette import status
 
-from core.models.workspaces import change_workspace_admin
+from core.dao.workspaces import change_workspace_admin
 from main import app
 from tests.utils import assert_unauthorized_login_checked
 

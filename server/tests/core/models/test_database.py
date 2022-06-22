@@ -9,5 +9,5 @@ def test_settings_env_is_test():
 
 
 def test_database_is_connected():
-    from core.models.database import db
-    assert db.name == 'zebbra_test'
+    from core.dao.database import db
+    assert db.get_db().name == 'zebbra_test'

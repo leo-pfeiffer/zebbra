@@ -3,7 +3,7 @@ from typing import Any
 from bson import ObjectId
 from pydantic import BaseModel, Field
 
-from core.models.objects import PyObjectId
+from core.objects import PyObjectId
 from core.types import RowType, ValType
 
 

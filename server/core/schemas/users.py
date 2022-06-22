@@ -1,7 +1,7 @@
 from bson import ObjectId
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field
 
-from core.models.objects import PyObjectId
+from core.objects import PyObjectId
 
 
 class User(BaseModel):

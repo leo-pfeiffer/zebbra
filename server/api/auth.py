@@ -4,8 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from jose import jwt
 
-from core.models.token_blacklist import add_to_blacklist
-from core.models.users import get_user, create_user
+from core.dao.token_blacklist import add_to_blacklist
+from core.dao.users import get_user, create_user
 from core.schemas.tokens import Token, BlacklistToken
 from core.schemas.users import RegisterUser, UserInDB, User
 from core.schemas.utils import Message

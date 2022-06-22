@@ -1,7 +1,7 @@
 from bson import ObjectId
 from pydantic import BaseModel, Field
 
-from core.models.objects import PyObjectId
+from core.objects import PyObjectId
 from core.schemas.rows import Row
 
 

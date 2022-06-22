@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from starlette import status
 from starlette.responses import JSONResponse
 
-from core.models.users import delete_user_full
-from core.models.workspaces import get_admin_workspaces_of_user
+from core.dao.users import delete_user_full
+from core.dao.workspaces import get_admin_workspaces_of_user
 from core.schemas.users import User
 from core.schemas.utils import Message
 from dependencies import get_current_active_user

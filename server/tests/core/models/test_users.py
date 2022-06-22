@@ -1,9 +1,9 @@
 import pytest
 
 from core.exceptions import UniqueConstraintFailedException
-from core.models.users import get_user, delete_user_full, add_user_to_workspace, \
+from core.dao.users import get_user, delete_user_full, add_user_to_workspace, \
     create_user
-from core.models.workspaces import get_workspaces_of_user, create_workspace, \
+from core.dao.workspaces import get_workspaces_of_user, create_workspace, \
     get_workspace
 from core.schemas.users import UserInDB
 

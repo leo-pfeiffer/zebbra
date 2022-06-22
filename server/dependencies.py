@@ -3,11 +3,11 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
-from core.models.token_blacklist import is_token_blacklisted
+from core.dao.token_blacklist import is_token_blacklisted
 from core.schemas.tokens import TokenData
 from core.schemas.users import User
 from core.settings import get_settings
-from core.models.users import get_user
+from core.dao.users import get_user
 
 settings = get_settings()
 SECRET_KEY = settings.dict()['AUTH_SECRET']
