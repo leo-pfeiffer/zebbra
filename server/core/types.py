@@ -1,16 +1,22 @@
 from enum import Enum
 
 
-class VarType(Enum):
+class RowType(Enum):
+    """
+    Type of row. Can be one of ['manual', 'integration', 'relation'].
+    """
     manual = "manual"
     integration = "integration"
     relation = "relation"
 
 
 class ValType(Enum):
-    number: "number"
-    currency: "currency"
-    percentage: "percentage"
+    """
+    Type of value. Can be one of ['number', 'currency', 'percentage']
+    """
+    number = "number"
+    currency = "currency"
+    percentage = "percentage"
 
 
 class RowRef:

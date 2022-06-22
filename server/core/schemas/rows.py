@@ -4,16 +4,19 @@ from bson import ObjectId
 from pydantic import BaseModel, Field
 
 from core.models.objects import PyObjectId
-from core.types import VarType, ValType
+from core.types import RowType, ValType
 
 
 class RowData(BaseModel):
-    varType: VarType
+    """
+    Abstract class for row data.
+    """
+    varType: RowType
     data: Any
 
 
 class Manual(RowData):
-    data: dict[str, float]      # column_id: value
+    data: dict[str, float]  # column_id: value
 
     class Config:
         allow_population_by_field_name = True
