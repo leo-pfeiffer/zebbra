@@ -1,4 +1,4 @@
-from datetime import timedelta, datetime
+from datetime import timedelta
 
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,9 +7,9 @@ from fastapi.security import OAuth2PasswordRequestForm
 from api import users
 from api.auth import create_access_token, authenticate_user, get_password_hash
 from core.models.token_blacklist import add_to_blacklist
+from core.models.users import get_user, create_user
 from core.schemas.tokens import Token, BlacklistToken
 from core.schemas.users import RegisterUser, UserInDB, User
-from core.models.users import get_user, create_user
 from core.schemas.utils import Message
 from dependencies import ACCESS_TOKEN_EXPIRE_MINUTES, \
     get_current_active_user_token
@@ -27,18 +27,29 @@ app.add_middleware(
 app.include_router(users.router)
 
 
-@app.get("/")
+@app.get(
+    "/",
+    response_model=Message,
+)
 async def root():
+    """
+    Heartbeat endpoint to check if server is running.
+    """
     return {"message": "Hello Zebbra!"}
 
 
-@app.post("/token",
-          response_model=Token,
-          responses={
-              401: {"description": "Incorrect username or password"}
-          })
+@app.post(
+    "/token",
+    response_model=Token,
+    responses={
+      401: {"description": "Incorrect username or password"}
+    },
+)
 async def login_for_access_token(
         form_data: OAuth2PasswordRequestForm = Depends()):
+    """
+    Get an OAuth access token using the user's credentials.
+    """
     user = await authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(
@@ -59,6 +70,10 @@ async def login_for_access_token(
 
 @app.post("/logout", response_model=Message)
 async def logout(token: str = Depends(get_current_active_user_token)):
+    """
+    Logout the user who is currently logged in. This invalidates the access
+    token.
+    """
     await add_to_blacklist(BlacklistToken(**{"access_token": token}))
     return {'message': "Logged out."}
 
@@ -69,6 +84,9 @@ async def logout(token: str = Depends(get_current_active_user_token)):
             409: {"description": "Username already exists"}
           })
 async def register_user(form_data: RegisterUser):
+    """
+    Register a new user.
+    """
 
     # make sure username is not already taken
     if (await get_user(form_data.username)) is not None:

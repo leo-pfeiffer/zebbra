@@ -11,17 +11,26 @@ from dependencies import get_current_active_user
 router = APIRouter()
 
 
-@router.get("/user", response_model=User, tags=["users"])
+@router.get(
+    "/user",
+    response_model=User,
+    tags=["users"],
+)
 async def read_user(current_user: User = Depends(get_current_active_user)):
+    """
+    Retrieve current user's data.
+    """
     return current_user
 
 
-@router.get("/user/delete",
-            response_model=Message,
-            tags=["users"],
-            responses={
-                400: {"description": "Attempting to delete admin."}
-            })
+@router.get(
+    "/user/delete",
+    response_model=Message,
+    tags=["users"],
+    responses={
+        400: {"description": "Attempting to delete admin."}
+    }
+)
 async def delete_user(current_user: User = Depends(get_current_active_user)):
     """
     Delete a user's account. This requires that the user is not
