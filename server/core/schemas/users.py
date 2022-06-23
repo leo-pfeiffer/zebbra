@@ -63,7 +63,7 @@ class RegisterUser(BaseModel):
                 "first_name": "John",
                 "last_name": "Doe",
                 "workspaces": "ACME Inc.",
-                "password": "secret"
+                "password": "secret",
             }
         }
 

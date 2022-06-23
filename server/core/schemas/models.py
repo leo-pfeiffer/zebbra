@@ -10,7 +10,7 @@ class ModelMeta(BaseModel):
     admin: str  # username
     editors: list[str]  # list of usernames
     viewers: list[str]  # list of usernames
-    workspace: str      # workspace name
+    workspace: str  # workspace name
     # todo what else?
 
 
@@ -23,4 +23,3 @@ class Model(BaseModel):
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
-

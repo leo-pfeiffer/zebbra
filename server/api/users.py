@@ -27,9 +27,7 @@ async def read_user(current_user: User = Depends(get_current_active_user)):
     "/user/delete",
     response_model=Message,
     tags=["users"],
-    responses={
-        400: {"description": "Attempting to delete admin."}
-    }
+    responses={400: {"description": "Attempting to delete admin."}},
 )
 async def delete_user(current_user: User = Depends(get_current_active_user)):
     """
@@ -49,4 +47,3 @@ async def delete_user(current_user: User = Depends(get_current_active_user)):
     await delete_user_full(current_user.username)
 
     return JSONResponse(status_code=200, content={"message": "User deleted."})
-

@@ -27,21 +27,14 @@ async def delete_user_full(username: str):
     await db.users.delete_one({"username": username})
 
     # remove user from workspaces
-    await db.workspaces.update_many(
-        {"users": username},
-        {"$pull": {"users": username}}
-    )
+    await db.workspaces.update_many({"users": username}, {"$pull": {"users": username}})
 
 
 async def add_user_to_workspace(username: str, workspace: str):
     # add workspace to user
     await db.users.update_one(
-        {"username": username},
-        {"$push": {"workspaces": workspace}}
+        {"username": username}, {"$push": {"workspaces": workspace}}
     )
 
     # add user to workspace
-    await db.workspaces.update_one(
-        {"name": workspace},
-        {"$push": {"users": username}}
-    )
+    await db.workspaces.update_one({"name": workspace}, {"$push": {"users": username}})

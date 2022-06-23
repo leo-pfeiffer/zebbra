@@ -17,18 +17,14 @@ class Workspace(BaseModel):
         schema_extra = {
             "example": {
                 "admin": "jdoe@example.com",
-                "users": [
-                    "alice@me.com",
-                    "bob@me.com",
-                    "jdoe@example.com"
-                ]
+                "users": ["alice@me.com", "bob@me.com", "jdoe@example.com"],
             }
         }
 
 
 class UpdateWorkspace(BaseModel):
     name: str | None
-    admin: EmailStr| None
+    admin: EmailStr | None
     users: list[EmailStr] | None
 
     class Config:
@@ -38,10 +34,6 @@ class UpdateWorkspace(BaseModel):
         schema_extra = {
             "example": {
                 "admin": "jdoe@example.com",
-                "users": [
-                    "alice@me.com",
-                    "bob@me.com",
-                    "jdoe@example.com"
-                ]
+                "users": ["alice@me.com", "bob@me.com", "jdoe@example.com"],
             }
         }

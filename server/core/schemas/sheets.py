@@ -11,9 +11,9 @@ class SheetMeta(BaseModel):
 
 
 class SectionModel(BaseModel):
-    category: str   # todo: @Patrick, what did we mean by that again?
+    category: str  # todo: @Patrick, what did we mean by that again?
     rows: list[Row]
-    end_row: Row    # todo should we enforce this to be a relation row?
+    end_row: Row  # todo should we enforce this to be a relation row?
 
 
 class Section(BaseModel):
@@ -30,4 +30,3 @@ class Sheet(BaseModel):
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
-

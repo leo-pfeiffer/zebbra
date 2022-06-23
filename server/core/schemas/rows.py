@@ -11,6 +11,7 @@ class RowData(BaseModel):
     """
     Abstract class for row data.
     """
+
     varType: RowType
     data: Any
 
@@ -51,7 +52,7 @@ class Relation(RowData):
                 "data": {
                     "expression": "RowRef('row1') + RowRef('row2')",
                     "has_starting_value": True,
-                    "starting_value": 123
+                    "starting_value": 123,
                 },
             }
         }

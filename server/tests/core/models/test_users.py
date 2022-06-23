@@ -1,23 +1,28 @@
 import pytest
 
 from core.exceptions import UniqueConstraintFailedException
-from core.dao.users import get_user, delete_user_full, add_user_to_workspace, \
-    create_user
-from core.dao.workspaces import get_workspaces_of_user, create_workspace, \
-    get_workspace
+from core.dao.users import (
+    get_user,
+    delete_user_full,
+    add_user_to_workspace,
+    create_user,
+)
+from core.dao.workspaces import get_workspaces_of_user, create_workspace, get_workspace
 from core.schemas.users import UserInDB
 
 
 @pytest.mark.anyio
 async def test_create_user():
-    new_user = UserInDB(**{
-        "username": "another@example.com",
-        "first_name": "John",
-        "last_name": "Doe",
-        "workspaces": ["ACME Inc."],
-        "hashed_password": "$2b$12$JObcoGR6lNWg3ztKdhEK/OtPjUoltMlHJIg99ctXPaBCNQH1EMts.",
-        "disabled": False
-    })
+    new_user = UserInDB(
+        **{
+            "username": "another@example.com",
+            "first_name": "John",
+            "last_name": "Doe",
+            "workspaces": ["ACME Inc."],
+            "hashed_password": "$2b$12$JObcoGR6lNWg3ztKdhEK/OtPjUoltMlHJIg99ctXPaBCNQH1EMts.",
+            "disabled": False,
+        }
+    )
     await create_user(new_user)
     user = await get_user("another@example.com")
     assert user is not None
@@ -25,14 +30,16 @@ async def test_create_user():
 
 @pytest.mark.anyio
 async def test_cannot_create_user_with_duplicate_username():
-    new_user = UserInDB(**{
-        "username": "johndoe@example.com",
-        "first_name": "John",
-        "last_name": "Doe",
-        "workspaces": ["ACME Inc."],
-        "hashed_password": "$2b$12$JObcoGR6lNWg3ztKdhEK/OtPjUoltMlHJIg99ctXPaBCNQH1EMts.",
-        "disabled": False
-    })
+    new_user = UserInDB(
+        **{
+            "username": "johndoe@example.com",
+            "first_name": "John",
+            "last_name": "Doe",
+            "workspaces": ["ACME Inc."],
+            "hashed_password": "$2b$12$JObcoGR6lNWg3ztKdhEK/OtPjUoltMlHJIg99ctXPaBCNQH1EMts.",
+            "disabled": False,
+        }
+    )
     with pytest.raises(UniqueConstraintFailedException):
         await create_user(new_user)
 
@@ -73,4 +80,3 @@ async def test_add_user_to_workspace():
     workspace = await get_workspace(wsp)
     assert len(workspace.users) == 2
     assert username in workspace.users
-

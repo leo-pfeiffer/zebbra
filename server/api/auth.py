@@ -9,8 +9,7 @@ from core.dao.users import get_user, create_user
 from core.schemas.tokens import Token, BlacklistToken
 from core.schemas.users import RegisterUser, UserInDB, User
 from core.schemas.utils import Message
-from dependencies import ACCESS_TOKEN_EXPIRE_MINUTES, \
-    get_current_active_user_token
+from dependencies import ACCESS_TOKEN_EXPIRE_MINUTES, get_current_active_user_token
 from dependencies import pwd_context, SECRET_KEY, ALGORITHM
 
 router = APIRouter()
@@ -48,12 +47,9 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     "/token",
     tags=["auth"],
     response_model=Token,
-    responses={
-        401: {"description": "Incorrect username or password"}
-    },
+    responses={401: {"description": "Incorrect username or password"}},
 )
-async def login_for_access_token(
-        form_data: OAuth2PasswordRequestForm = Depends()):
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     """
     Get an OAuth access token using the user's credentials.
     """
@@ -69,10 +65,7 @@ async def login_for_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
 
-    return {
-        "access_token": access_token,
-        "token_type": "bearer"
-    }
+    return {"access_token": access_token, "token_type": "bearer"}
 
 
 @router.post("/logout", response_model=Message, tags=["auth"])
@@ -82,15 +75,15 @@ async def logout(token: str = Depends(get_current_active_user_token)):
     token.
     """
     await add_to_blacklist(BlacklistToken(**{"access_token": token}))
-    return {'message': "Logged out."}
+    return {"message": "Logged out."}
 
 
-@router.post('/register',
-             tags=["auth"],
-             response_model=User,
-             responses={
-                 409: {"description": "Username already exists"}
-             })
+@router.post(
+    "/register",
+    tags=["auth"],
+    response_model=User,
+    responses={409: {"description": "Username already exists"}},
+)
 async def register_user(form_data: RegisterUser):
     """
     Register a new user.

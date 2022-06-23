@@ -9,12 +9,10 @@ from tests.utils import assert_unauthorized_login_checked
 
 def test_users_me(access_token):
     client = TestClient(app)
-    response = client.get("/user", headers={
-        'Authorization': f'Bearer {access_token}'
-    })
+    response = client.get("/user", headers={"Authorization": f"Bearer {access_token}"})
 
     assert response.status_code == status.HTTP_200_OK
-    assert response.json()['username'] == 'johndoe@example.com'
+    assert response.json()["username"] == "johndoe@example.com"
 
 
 def test_user_protected():
@@ -34,18 +32,18 @@ async def test_delete_user(access_token):
     username = "alice@example.com"
     await change_workspace_admin(wsp, username)
 
-    response = client.get("/user/delete", headers={
-        'Authorization': f'Bearer {access_token}'
-    })
+    response = client.get(
+        "/user/delete", headers={"Authorization": f"Bearer {access_token}"}
+    )
 
     assert response.status_code == status.HTTP_200_OK
-    assert response.json()['message'] == 'User deleted.'
+    assert response.json()["message"] == "User deleted."
 
 
 def test_cannot_delete_user_who_is_admin(access_token):
     client = TestClient(app)
-    response = client.get("/user/delete", headers={
-        'Authorization': f'Bearer {access_token}'
-    })
+    response = client.get(
+        "/user/delete", headers={"Authorization": f"Bearer {access_token}"}
+    )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST

@@ -1,7 +1,6 @@
 from fastapi.encoders import jsonable_encoder
 
-from core.exceptions import UniqueConstraintFailedException, \
-    DoesNotExistException
+from core.exceptions import UniqueConstraintFailedException, DoesNotExistException
 from core.dao.database import db
 from core.dao.users import get_user
 from core.schemas.workspaces import Workspace
@@ -57,7 +56,4 @@ async def change_workspace_admin(workspace: str, username: str):
     if await get_user(username) is None:
         raise DoesNotExistException("User does not exist")
 
-    await db.workspaces.update_one(
-        {"name": workspace},
-        {"$set": {"admin": username}}
-    )
+    await db.workspaces.update_one({"name": workspace}, {"$set": {"admin": username}})
