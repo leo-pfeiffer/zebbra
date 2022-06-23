@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic.typing import Literal
 from starlette import status
 
 from core.dao.models import (
@@ -6,19 +7,21 @@ from core.dao.models import (
     get_model_by_id,
     get_models_for_workspace,
     get_models_for_user,
+    set_admin,
+    add_editor_to_model,
+    add_viewer_to_model,
+    remove_viewer_from_model,
+    remove_editor_from_model,
 )
 from core.dao.workspaces import is_user_in_workspace
+from core.exceptions import DoesNotExistException
 from core.schemas.models import Model
 from core.schemas.sheets import Sheet
 from core.schemas.users import User
-from core.types import ModelPermissionTypes
+from core.schemas.utils import Message
 from dependencies import get_current_active_user
 
 router = APIRouter()
-
-# Todo:
-#  As of now, almost all endpoints return the current model. This could make it easier
-#  to use the result of the API call. However, I could also return Messages instead.
 
 
 @router.get(
@@ -51,11 +54,7 @@ async def get_model(
         )
 
     if id is not None:
-        if not await has_access_to_model(id, current_user.username):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="User does not have access to this model.",
-            )
+        await _assert_access(current_user.username, id)
         return [await get_model_by_id(id)]
 
     if workspace is not None:
@@ -70,8 +69,47 @@ async def get_model(
         return await get_models_for_user(current_user.username)
 
 
+# todo test
 @router.post(
     "/model/grant",
+    response_model=Message,
+    tags=["model"],
+    responses={
+        403: {"description": "User does not have access to the resource."},
+        400: {"description": "User does not exist."},
+    },
+)
+async def model_grant_permission(
+    id: str,
+    role: Literal["admin", "editor", "viewer"],
+    user: str,
+    current_user: User = Depends(get_current_active_user),
+):
+    # granting user must have access
+    await _assert_access(current_user.username, id)
+
+    try:
+        if role == "admin":
+            await set_admin(user, id)
+
+        elif role == "editor":
+            await add_editor_to_model(user, id)
+
+        elif role == "viewer":
+            await add_viewer_to_model(user, id)
+
+        return {"message": "Access granted"}
+
+    except DoesNotExistException:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User does not exist.",
+        )
+
+
+# todo test
+@router.post(
+    "/model/revoke",
     response_model=Model,
     tags=["model"],
     responses={
@@ -79,14 +117,29 @@ async def get_model(
         400: {"description": "Missing parameters."},
     },
 )
-async def model_grant_permission(
+async def model_revoke_permission(
     id: str,
-    role: ModelPermissionTypes,
+    role: Literal["editor", "viewer"],
     user: str,
     current_user: User = Depends(get_current_active_user),
 ):
-    # todo
-    ...
+    # granting user must have access
+    await _assert_access(current_user.username, id)
+
+    try:
+        if role == "editor":
+            await remove_editor_from_model(user, id)
+
+        elif role == "viewer":
+            await remove_viewer_from_model(user, id)
+
+        return {"message": "Access revoked"}
+
+    except DoesNotExistException:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User does not exist.",
+        )
 
 
 @router.post(
@@ -179,3 +232,11 @@ async def delete_sheet(
 ):
     # todo
     ...
+
+
+async def _assert_access(username: str, model_id: str):
+    if not await has_access_to_model(model_id, username):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User does not have access to this model.",
+        )

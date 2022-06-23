@@ -5,6 +5,10 @@ from core.dao.database import db
 from core.schemas.users import UserInDB
 
 
+async def user_exists(username: str):
+    return get_user(username) is not None
+
+
 async def get_user(username: str):
     user = await db.users.find_one({"username": username})
     if user is not None:

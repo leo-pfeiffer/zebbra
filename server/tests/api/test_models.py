@@ -88,3 +88,67 @@ def test_user(access_token):
             or (user in m["meta"]["editors"])
             or (user in m["meta"]["viewers"])
         )
+
+
+def test_is_admin_true():
+    assert False
+
+
+def test_is_admin_false():
+    assert False
+
+
+def test_is_editor_true():
+    assert False
+
+
+def test_is_editor_false():
+    assert False
+
+
+def test_is_viewer_true():
+    assert False
+
+
+def test_is_viewer_false():
+    assert False
+
+
+def test_set_admin():
+    assert False
+
+
+def test_set_admin_non_existing_user():
+    assert False
+
+
+def test_add_editor_to_model():
+    assert False
+
+
+def test_add_editor_to_model_non_existing_user():
+    assert False
+
+
+def test_add_viewer_to_model():
+    assert False
+
+
+def test_add_viewer_to_model_non_existing_user():
+    assert False
+
+
+def test_remove_viewer_from_model():
+    assert False
+
+
+def test_remove_viewer_from_model_non_existing_user():
+    assert False
+
+
+def test_remove_editor_from_model():
+    assert False
+
+
+def test_remove_editor_from_model_non_existing_user():
+    assert False
