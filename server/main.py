@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from api import users, models, sheets, auth
+from api import users, models, auth
 from core.schemas.utils import Message
 
 app = FastAPI(
@@ -28,4 +28,3 @@ async def root():
 app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(models.router)
-app.include_router(sheets.router)

@@ -1,6 +1,16 @@
 from enum import Enum
 
 
+class ModelPermissionTypes(Enum):
+    """
+    Types of permissions for models. Can be one of ['admin', 'editor', 'viewer']
+    """
+
+    admin = "admin"
+    editor = "editor"
+    viewer = "viewer"
+
+
 class RowType(Enum):
     """
     Type of row. Can be one of ['manual', 'integration', 'relation'].

@@ -14,7 +14,7 @@ router = APIRouter()
 @router.get(
     "/user",
     response_model=User,
-    tags=["users"],
+    tags=["user"],
 )
 async def read_user(current_user: User = Depends(get_current_active_user)):
     """
@@ -26,7 +26,7 @@ async def read_user(current_user: User = Depends(get_current_active_user)):
 @router.get(
     "/user/delete",
     response_model=Message,
-    tags=["users"],
+    tags=["user"],
     responses={400: {"description": "Attempting to delete admin."}},
 )
 async def delete_user(current_user: User = Depends(get_current_active_user)):
