@@ -27,6 +27,20 @@ async def get_workspaces_of_user(username: str):
     return lis
 
 
+async def is_user_in_workspace(username: str, workspace: str):
+    """
+    Returns true if the user is in the workspace, else false.
+    :param username: username of the user
+    :param workspace: workspace name
+    """
+    return (
+        await db.workspaces.count_documents(
+            {"name": workspace, "$or": [{"admin": username}, {"users": username}]}
+        )
+        > 0
+    )
+
+
 async def get_admin_workspaces_of_user(username: str):
     """
     Return a list of the workspaces of which the user is the admin.

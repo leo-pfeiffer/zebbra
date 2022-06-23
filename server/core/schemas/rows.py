@@ -59,9 +59,7 @@ class Relation(RowData):
 
 
 class Row(BaseModel):
-    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     name: str
-    sheetId: PyObjectId
     valType: ValType
     editable: bool
     data: Manual | Integration | Relation

@@ -6,6 +6,8 @@ class Settings(BaseSettings):
 
     ENV: str = "prod"
 
+    MAX_MODELS: int = 10000
+
     AUTH_SECRET: str
     AUTH_ALGO: str
     AUTH_TOKEN_EXPIRE: int

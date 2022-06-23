@@ -1,7 +1,5 @@
 from bson import ObjectId
-from pydantic import BaseModel, Field
-
-from core.objects import PyObjectId
+from pydantic import BaseModel
 from core.schemas.rows import Row
 
 
@@ -22,7 +20,6 @@ class Section(BaseModel):
 
 
 class Sheet(BaseModel):
-    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     meta: SheetMeta
     data: list[Section]
 
