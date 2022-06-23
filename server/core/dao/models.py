@@ -21,10 +21,7 @@ async def has_access_to_model(id: str, username: str):
 
 
 async def get_model_by_id(id: str):
-    models = await db.models.find_one({"_id": id})
-    if not models is None:
-        return [models]
-    return []
+    return await db.models.find_one({"_id": id})
 
 
 async def get_models_for_workspace(workspace: str):

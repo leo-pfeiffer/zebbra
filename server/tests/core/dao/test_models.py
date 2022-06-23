@@ -32,14 +32,13 @@ async def test_has_access_to_model_false():
 async def test_get_model_by_id():
     model_id = "62b488ba433720870b60ec0a"
     models = await get_model_by_id(model_id)
-    assert models[0]["_id"] == model_id
+    assert models["_id"] == model_id
 
 
 @pytest.mark.anyio
 async def test_get_model_by_id_no_results():
     model_id = "not_an_id"
-    models = await get_model_by_id(model_id)
-    assert len(models) == 0
+    assert await get_model_by_id(model_id) is None
 
 
 @pytest.mark.anyio

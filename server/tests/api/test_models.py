@@ -35,7 +35,7 @@ def test_get_by_id(access_token):
         headers={"Authorization": f"Bearer {access_token}"},
     )
     assert response.status_code == status.HTTP_200_OK
-    assert response.json()["_id"] == model_id
+    assert response.json()[0]["_id"] == model_id
 
 
 def test_get_id_forbidden(access_token):
