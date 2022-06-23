@@ -36,6 +36,14 @@ async def get_model(
         workspace: models of a workspace,
         user: models of the current user.
     """
+
+    # assert that only one parameter has been specified
+    if (id is not None) + (workspace is not None) + user != 1:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Exactly one of the query parameters must be specified.",
+        )
+
     if id is not None:
         if not await has_access_to_model(id, current_user.username):
             raise HTTPException(
@@ -54,8 +62,3 @@ async def get_model(
 
     if user:
         return await get_models_for_user(current_user.username)
-
-    raise HTTPException(
-        status_code=status.HTTP_400_BAD_REQUEST,
-        detail="Exactly one of the query parameters must be specified.",
-    )
