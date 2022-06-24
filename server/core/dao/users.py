@@ -9,7 +9,7 @@ async def user_exists(username: str):
     return await get_user(username) is not None
 
 
-async def get_user(username: str):
+async def get_user(username: str) -> UserInDB | None:
     user = await db.users.find_one({"username": username})
     if user is not None:
         return UserInDB(**user)
