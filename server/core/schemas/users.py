@@ -70,3 +70,4 @@ class RegisterUser(BaseModel):
 
 class UserInDB(User):
     hashed_password: str
+    otp_secret: str | None

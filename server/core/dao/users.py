@@ -42,3 +42,9 @@ async def add_user_to_workspace(username: str, workspace: str):
 
     # add user to workspace
     await db.workspaces.update_one({"name": workspace}, {"$push": {"users": username}})
+
+
+async def set_user_otp_secret(username: str, otp_secret: str):
+    await db.users.update_one(
+        {"username": username}, {"$set": {"otp_secret": otp_secret}}
+    )
