@@ -9,7 +9,7 @@ from core.exceptions import (
     UniqueConstraintFailedException,
 )
 from core.schemas.models import ModelMeta, UpdateModel
-from core.schemas.sheets import Sheet, SheetMeta
+from core.schemas.sheets import Sheet, SheetMeta, Section
 from core.settings import get_settings
 
 settings = get_settings()
@@ -151,4 +151,31 @@ async def add_sheet_to_model(model_id: str, sheet_name: str):
 async def delete_sheet_from_model(model_id: str, sheet_name: str):
     return await db.models.update_one(
         {"_id": model_id}, {"$pull": {"data": {"meta.name": sheet_name}}}
+    )
+
+
+async def update_sheet_meta_in_model(
+    model_id: str, sheet_name: str, new_meta: SheetMeta
+):
+    # sheet names must be unique within model
+    if (
+        await db.models.count_documents(
+            {"_id": model_id, "data.meta.name": new_meta.name}
+        )
+        > 0
+    ):
+        raise UniqueConstraintFailedException("Sheet names must be unique within model")
+
+    return await db.models.update_one(
+        {"_id": model_id, "data.meta.name": sheet_name},
+        {"$set": {"data.$.meta": jsonable_encoder(new_meta)}},
+    )
+
+
+async def update_sheet_data_in_model(
+    model_id: str, sheet_name: str, new_data: list[Section]
+):
+    return await db.models.update_one(
+        {"_id": model_id, "data.meta.name": sheet_name},
+        {"$set": {"data.$.data": jsonable_encoder(new_data)}},
     )

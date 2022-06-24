@@ -1,9 +1,8 @@
 from typing import Any
 
 from bson import ObjectId
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
-from core.objects import PyObjectId
 from core.types import RowType, ValType
 
 
@@ -17,6 +16,7 @@ class RowData(BaseModel):
 
 
 class Manual(RowData):
+    varType = RowType.manual
     data: dict[str, float]  # column_id: value
 
     class Config:
@@ -36,11 +36,13 @@ class Manual(RowData):
 
 class Integration(RowData):
     # todo
+    varType = RowType.integration
     ...
 
 
 class Relation(RowData):
     # todo
+    varType = RowType.relation
     data: dict[str, float]
 
     class Config:

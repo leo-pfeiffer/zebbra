@@ -17,13 +17,15 @@ from core.dao.models import (
     create_model,
     add_sheet_to_model,
     delete_sheet_from_model,
+    update_sheet_meta_in_model,
+    update_sheet_data_in_model,
 )
-from core.dao.users import get_user, user_exists
 from core.exceptions import (
     DoesNotExistException,
     NoAccessException,
     UniqueConstraintFailedException,
 )
+from core.schemas.sheets import SheetMeta, Section, SectionModel
 
 
 @pytest.mark.anyio
@@ -270,3 +272,61 @@ async def test_delete_sheet():
     model2 = await get_model_by_id(model_id)
     assert len(model1["data"]) - len(model2["data"]) == 1
     assert sheet_name not in [x["meta"]["name"] for x in model2["data"]]
+
+
+@pytest.mark.anyio
+async def test_update_sheet_meta():
+    model_id = "62b488ba433720870b60ec0a"
+    model1 = await get_model_by_id(model_id)
+    old_sheet_name = model1["data"][0]["meta"]["name"]
+    new_sheet_name = "new sheet name"
+    new_meta = SheetMeta(name=new_sheet_name)
+
+    await update_sheet_meta_in_model(model_id, old_sheet_name, new_meta)
+
+    model1 = await get_model_by_id(model_id)
+    assert model1["data"][0]["meta"]["name"] == new_sheet_name
+
+
+@pytest.mark.anyio
+async def test_update_sheet_meta_duplicate_name():
+    model_id = "62b488ba433720870b60ec0a"
+    model1 = await get_model_by_id(model_id)
+    old_sheet_name = model1["data"][0]["meta"]["name"]
+    new_meta = SheetMeta(name=old_sheet_name)
+
+    with pytest.raises(UniqueConstraintFailedException):
+        await update_sheet_meta_in_model(model_id, old_sheet_name, new_meta)
+
+
+@pytest.mark.anyio
+async def test_update_sheet_data():
+    model_id = "62b488ba433720870b60ec0a"
+    model1 = await get_model_by_id(model_id)
+    old_sheet_name = model1["data"][0]["meta"]["name"]
+
+    new_data = [
+        Section(
+            **{
+                "assumptions": [],
+                "model": SectionModel(
+                    **{"category": "foo", "rows": [], "end_row": None}
+                ),
+            }
+        ),
+        Section(
+            **{
+                "assumptions": [],
+                "model": SectionModel(
+                    **{"category": "bar", "rows": [], "end_row": None}
+                ),
+            }
+        ),
+    ]
+
+    await update_sheet_data_in_model(model_id, old_sheet_name, new_data)
+
+    model2 = await get_model_by_id(model_id)
+    assert len(model2["data"][0]["data"]) == 2
+    assert model2["data"][0]["data"][0]["model"]["category"] == "foo"
+    assert model2["data"][0]["data"][1]["model"]["category"] == "bar"

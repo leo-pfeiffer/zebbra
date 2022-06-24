@@ -18,6 +18,8 @@ from core.dao.models import (
     is_editor,
     add_sheet_to_model,
     delete_sheet_from_model,
+    update_sheet_meta_in_model,
+    update_sheet_data_in_model,
 )
 from core.dao.workspaces import is_user_in_workspace
 from core.exceptions import (
@@ -26,7 +28,7 @@ from core.exceptions import (
     UniqueConstraintFailedException,
 )
 from core.schemas.models import Model
-from core.schemas.sheets import Sheet
+from core.schemas.sheets import Sheet, SheetMeta, Section
 from core.schemas.users import User
 from core.schemas.utils import Message
 from dependencies import get_current_active_user
@@ -241,22 +243,53 @@ async def delete_sheet(
 
 
 @router.post(
-    "/model/sheet/update",
+    "/model/sheet/update/data",
     response_model=Model,
     tags=["model"],
     responses={
-        400: {"description": "Missing parameters."},
         403: {"description": "User does not have access to the resource."},
     },
 )
-async def update_sheet(
+async def update_sheet_data(
     id: str,
     name: str,
-    sheet: Sheet,
+    sheet_data: list[Section],
     current_user: User = Depends(get_current_active_user),
 ):
-    # todo
-    ...
+    # only editor can update sheet
+    await _assert_access_can_edit(current_user.username, id)
+    await update_sheet_data_in_model(id, name, sheet_data)
+    return await get_model_by_id(id)
+
+
+@router.post(
+    "/model/sheet/update/meta",
+    response_model=Model,
+    tags=["model"],
+    responses={
+        403: {"description": "User does not have access to the resource."},
+        409: {"description": "Sheet name already exists in the same model."},
+    },
+)
+async def update_sheet_meta(
+    id: str,
+    name: str,
+    sheet_meta: SheetMeta,
+    current_user: User = Depends(get_current_active_user),
+):
+    # only editor can update sheet
+    await _assert_access_can_edit(current_user.username, id)
+    try:
+        await update_sheet_meta_in_model(id, name, sheet_meta)
+        return await get_model_by_id(id)
+    except UniqueConstraintFailedException:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Sheet name already exists in the same model.",
+        )
+
+
+# todo assert model exists
 
 
 async def _assert_access(username: str, model_id: str):

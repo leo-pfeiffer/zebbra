@@ -1,8 +1,10 @@
 import pytest
+from fastapi.encoders import jsonable_encoder
 from starlette import status
 from starlette.testclient import TestClient
 
 from core.dao.models import is_admin, is_editor, is_viewer, get_model_by_id
+from core.schemas.sheets import SheetMeta, Section, SectionModel
 from main import app
 from tests.utils import assert_unauthorized_login_checked
 
@@ -344,6 +346,117 @@ async def test_delete_sheet_no_access(access_token_alice):
     response = client.post(
         f"/model/sheet/delete?id={model_id}&name={sheet_name}",
         headers={"Authorization": f"Bearer {access_token_alice}"},
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.anyio
+async def test_update_sheet_meta(access_token):
+    client = TestClient(app)
+    model_id = "62b488ba433720870b60ec0a"
+    model1 = await get_model_by_id(model_id)
+    old_sheet_name = model1["data"][0]["meta"]["name"]
+    new_sheet_name = "new sheet name"
+    new_meta = SheetMeta(name=new_sheet_name)
+
+    response = client.post(
+        f"/model/sheet/update/meta?id={model_id}&name={old_sheet_name}",
+        headers={"Authorization": f"Bearer {access_token}"},
+        json=jsonable_encoder(new_meta),
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+    assert response.json()["data"][0]["meta"]["name"] == new_sheet_name
+
+
+@pytest.mark.anyio
+async def test_update_sheet_meta_no_access(access_token_alice):
+    client = TestClient(app)
+    model_id = "62b488ba433720870b60ec0a"
+    model1 = await get_model_by_id(model_id)
+    old_sheet_name = model1["data"][0]["meta"]["name"]
+    new_sheet_name = "new sheet name"
+    new_meta = SheetMeta(name=new_sheet_name)
+
+    response = client.post(
+        f"/model/sheet/update/meta?id={model_id}&name={old_sheet_name}",
+        headers={"Authorization": f"Bearer {access_token_alice}"},
+        json=jsonable_encoder(new_meta),
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.anyio
+async def test_update_sheet_meta_duplicate_name(access_token):
+    client = TestClient(app)
+    model_id = "62b488ba433720870b60ec0a"
+    model1 = await get_model_by_id(model_id)
+    old_sheet_name = model1["data"][0]["meta"]["name"]
+    new_meta = SheetMeta(name=old_sheet_name)
+
+    response = client.post(
+        f"/model/sheet/update/meta?id={model_id}&name={old_sheet_name}",
+        headers={"Authorization": f"Bearer {access_token}"},
+        json=jsonable_encoder(new_meta),
+    )
+
+    assert response.status_code == status.HTTP_409_CONFLICT
+
+
+@pytest.mark.anyio
+async def test_update_sheet_data(access_token):
+    client = TestClient(app)
+    model_id = "62b488ba433720870b60ec0a"
+    model1 = await get_model_by_id(model_id)
+    old_sheet_name = model1["data"][0]["meta"]["name"]
+
+    new_data = [
+        Section(
+            **{
+                "assumptions": [],
+                "model": SectionModel(
+                    **{"category": "foo", "rows": [], "end_row": None}
+                ),
+            }
+        ),
+        Section(
+            **{
+                "assumptions": [],
+                "model": SectionModel(
+                    **{"category": "bar", "rows": [], "end_row": None}
+                ),
+            }
+        ),
+    ]
+
+    response = client.post(
+        f"/model/sheet/update/data?id={model_id}&name={old_sheet_name}",
+        headers={"Authorization": f"Bearer {access_token}"},
+        json=jsonable_encoder(new_data),
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+    model2 = response.json()
+    assert len(model2["data"][0]["data"]) == 2
+    assert model2["data"][0]["data"][0]["model"]["category"] == "foo"
+    assert model2["data"][0]["data"][1]["model"]["category"] == "bar"
+
+
+@pytest.mark.anyio
+async def test_update_sheet_data_no_access(access_token_alice):
+    client = TestClient(app)
+    model_id = "62b488ba433720870b60ec0a"
+    model1 = await get_model_by_id(model_id)
+    old_sheet_name = model1["data"][0]["meta"]["name"]
+
+    response = client.post(
+        f"/model/sheet/update/data?id={model_id}&name={old_sheet_name}",
+        headers={"Authorization": f"Bearer {access_token_alice}"},
+        json=jsonable_encoder([]),
     )
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
