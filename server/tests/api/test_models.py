@@ -272,5 +272,47 @@ async def test_add_model_no_access(access_token):
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
-# def test_(access_token):
-#     assert False
+@pytest.mark.anyio
+async def test_add_sheet(access_token):
+    client = TestClient(app)
+    sheet_name = "some sheet"
+    model_id = "62b488ba433720870b60ec0a"
+    response = client.post(
+        f"/model/sheet/add?id={model_id}&name={sheet_name}",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    model = response.json()
+    assert sheet_name in [x["meta"]["name"] for x in model["data"]]
+
+
+@pytest.mark.anyio
+async def test_add_sheet_no_access(access_token_alice):
+    client = TestClient(app)
+    sheet_name = "some sheet"
+    model_id = "62b488ba433720870b60ec0a"
+    response = client.post(
+        f"/model/sheet/add?id={model_id}&name={sheet_name}",
+        headers={"Authorization": f"Bearer {access_token_alice}"},
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.anyio
+async def test_add_sheet_unique_constraint(access_token):
+    client = TestClient(app)
+    sheet_name = "some sheet"
+    model_id = "62b488ba433720870b60ec0a"
+    r1 = client.post(
+        f"/model/sheet/add?id={model_id}&name={sheet_name}",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+    r2 = client.post(
+        f"/model/sheet/add?id={model_id}&name={sheet_name}",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+    assert r2.status_code == status.HTTP_409_CONFLICT

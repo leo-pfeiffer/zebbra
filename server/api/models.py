@@ -15,9 +15,15 @@ from core.dao.models import (
     is_admin,
     set_name,
     create_model,
+    is_editor,
+    add_sheet_to_model,
 )
 from core.dao.workspaces import is_user_in_workspace
-from core.exceptions import DoesNotExistException, NoAccessException
+from core.exceptions import (
+    DoesNotExistException,
+    NoAccessException,
+    UniqueConstraintFailedException,
+)
 from core.schemas.models import Model
 from core.schemas.sheets import Sheet
 from core.schemas.users import User
@@ -72,7 +78,6 @@ async def get_model(
         return await get_models_for_user(current_user.username)
 
 
-# todo test
 @router.post(
     "/model/grant",
     response_model=Message,
@@ -88,7 +93,9 @@ async def model_grant_permission(
     user: str,
     current_user: User = Depends(get_current_active_user),
 ):
-    # granting user must have access
+
+    # todo: Or should every editor have granting permission?
+    # granting user must be admin
     await _assert_access_admin(current_user.username, id)
 
     try:
@@ -110,7 +117,6 @@ async def model_grant_permission(
         )
 
 
-# todo test
 @router.post(
     "/model/revoke",
     response_model=Message,
@@ -126,7 +132,8 @@ async def model_revoke_permission(
     user: str,
     current_user: User = Depends(get_current_active_user),
 ):
-    # granting user must have access
+    # todo: Or should every editor have revoking permission?
+    # granting user must be admin
     await _assert_access_admin(current_user.username, id)
 
     try:
@@ -158,7 +165,8 @@ async def model_rename(
     name: str,
     current_user: User = Depends(get_current_active_user),
 ):
-    await _assert_access_admin(current_user.username, id)
+    # only editor can rename
+    await _assert_access_can_edit(current_user.username, id)
     await set_name(id, name)
     return {"message": f"Model renamed ({name})"}
 
@@ -191,7 +199,6 @@ async def model_add(
     response_model=Model,
     tags=["model"],
     responses={
-        400: {"description": "Missing parameters."},
         403: {"description": "User does not have access to the resource."},
         409: {"description": "Sheet name already exists in the same model."},
     },
@@ -201,8 +208,16 @@ async def add_sheet(
     name: str,
     current_user: User = Depends(get_current_active_user),
 ):
-    # todo
-    ...
+    # only editor can add sheet
+    await _assert_access_can_edit(current_user.username, id)
+    try:
+        await add_sheet_to_model(id, name)
+        return await get_model_by_id(id)
+    except UniqueConstraintFailedException:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Sheet name already exists in the same model.",
+        )
 
 
 @router.post(
@@ -232,7 +247,7 @@ async def delete_sheet(
         403: {"description": "User does not have access to the resource."},
     },
 )
-async def delete_sheet(
+async def update_sheet(
     id: str,
     name: str,
     sheet: Sheet,
@@ -255,4 +270,14 @@ async def _assert_access_admin(username: str, model_id: str):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="User is not admin.",
+        )
+
+
+async def _assert_access_can_edit(username: str, model_id: str):
+    if not await is_admin(model_id, username) and not await is_editor(
+        model_id, username
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User cannot edit this model.",
         )
