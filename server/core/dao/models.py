@@ -146,3 +146,9 @@ async def add_sheet_to_model(model_id: str, sheet_name: str):
     return await db.models.update_one(
         {"_id": model_id}, {"$push": {"data": jsonable_encoder(sheet)}}
     )
+
+
+async def delete_sheet_from_model(model_id: str, sheet_name: str):
+    return await db.models.update_one(
+        {"_id": model_id}, {"$pull": {"data": {"meta.name": sheet_name}}}
+    )

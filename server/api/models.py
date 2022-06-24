@@ -17,6 +17,7 @@ from core.dao.models import (
     create_model,
     is_editor,
     add_sheet_to_model,
+    delete_sheet_from_model,
 )
 from core.dao.workspaces import is_user_in_workspace
 from core.exceptions import (
@@ -123,7 +124,7 @@ async def model_grant_permission(
     tags=["model"],
     responses={
         403: {"description": "User does not have access to the resource."},
-        400: {"description": "Missing parameters."},
+        400: {"description": "User does not exist."},
     },
 )
 async def model_revoke_permission(
@@ -225,7 +226,6 @@ async def add_sheet(
     response_model=Model,
     tags=["model"],
     responses={
-        400: {"description": "Missing parameters."},
         403: {"description": "User does not have access to the resource."},
     },
 )
@@ -234,8 +234,10 @@ async def delete_sheet(
     name: str,
     current_user: User = Depends(get_current_active_user),
 ):
-    # todo
-    ...
+    # only editor can delete sheet
+    await _assert_access_can_edit(current_user.username, id)
+    await delete_sheet_from_model(id, name)
+    return await get_model_by_id(id)
 
 
 @router.post(

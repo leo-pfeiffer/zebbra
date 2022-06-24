@@ -305,14 +305,45 @@ async def test_add_sheet_unique_constraint(access_token):
     client = TestClient(app)
     sheet_name = "some sheet"
     model_id = "62b488ba433720870b60ec0a"
-    r1 = client.post(
+    client.post(
         f"/model/sheet/add?id={model_id}&name={sheet_name}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
-    r2 = client.post(
+    r = client.post(
         f"/model/sheet/add?id={model_id}&name={sheet_name}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
-    assert r2.status_code == status.HTTP_409_CONFLICT
+    assert r.status_code == status.HTTP_409_CONFLICT
+
+
+@pytest.mark.anyio
+async def test_delete_sheet(access_token):
+    client = TestClient(app)
+    model_id = "62b488ba433720870b60ec0a"
+    model1 = await get_model_by_id(model_id)
+    sheet_name = model1["data"][0]["meta"]["name"]
+
+    response = client.post(
+        f"/model/sheet/delete?id={model_id}&name={sheet_name}",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    model = response.json()
+    assert sheet_name not in [x["meta"]["name"] for x in model["data"]]
+
+
+@pytest.mark.anyio
+async def test_delete_sheet_no_access(access_token_alice):
+    client = TestClient(app)
+    model_id = "62b488ba433720870b60ec0a"
+    sheet_name = "some model name"
+
+    response = client.post(
+        f"/model/sheet/delete?id={model_id}&name={sheet_name}",
+        headers={"Authorization": f"Bearer {access_token_alice}"},
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN

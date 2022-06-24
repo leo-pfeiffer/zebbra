@@ -16,6 +16,7 @@ from core.dao.models import (
     set_name,
     create_model,
     add_sheet_to_model,
+    delete_sheet_from_model,
 )
 from core.dao.users import get_user, user_exists
 from core.exceptions import (
@@ -253,8 +254,19 @@ async def test_add_sheet():
 async def test_add_sheet_unique_constraint():
     model_id = "62b488ba433720870b60ec0a"
     sheet_name = "sheet_name"
-    model1 = await get_model_by_id(model_id)
+    await get_model_by_id(model_id)
     await add_sheet_to_model(model_id, sheet_name)
 
     with pytest.raises(UniqueConstraintFailedException):
         await add_sheet_to_model(model_id, sheet_name)
+
+
+@pytest.mark.anyio
+async def test_delete_sheet():
+    model_id = "62b488ba433720870b60ec0a"
+    model1 = await get_model_by_id(model_id)
+    sheet_name = model1["data"][0]["meta"]["name"]
+    await delete_sheet_from_model(model_id, sheet_name)
+    model2 = await get_model_by_id(model_id)
+    assert len(model1["data"]) - len(model2["data"]) == 1
+    assert sheet_name not in [x["meta"]["name"] for x in model2["data"]]
