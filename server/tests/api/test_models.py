@@ -13,7 +13,7 @@ def test_model_protected():
     assert_unauthorized_login_checked("/model")
 
 
-def test_more_than_one_param(access_token):
+def test_model_more_than_one_param(access_token):
     client = TestClient(app)
     response = client.get(
         "/model/?user=true&id=some_random_id",
@@ -22,7 +22,7 @@ def test_more_than_one_param(access_token):
     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
-def test_no_param(access_token):
+def test_model_no_param(access_token):
     client = TestClient(app)
     response = client.get(
         "/model",
@@ -31,7 +31,7 @@ def test_no_param(access_token):
     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
-def test_get_by_id(access_token):
+def test_model_get_by_id(access_token):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
     response = client.get(
@@ -42,7 +42,17 @@ def test_get_by_id(access_token):
     assert response.json()[0]["_id"] == model_id
 
 
-def test_get_id_forbidden(access_token):
+def test_model_get_by_id_non_existent_model(access_token):
+    client = TestClient(app)
+    model_id = "not a model"
+    response = client.get(
+        f"/model/?id={model_id}",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+def test_model_get_id_forbidden(access_token):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0b"
     response = client.get(
@@ -52,7 +62,7 @@ def test_get_id_forbidden(access_token):
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
-def test_get_workspace(access_token):
+def test_model_get_workspace(access_token):
     client = TestClient(app)
     wsp = "ACME Inc."
     response = client.get(
@@ -67,7 +77,7 @@ def test_get_workspace(access_token):
         assert m["meta"]["workspace"] == wsp
 
 
-def test_get_workspace_forbidden(access_token):
+def test_model_get_workspace_forbidden(access_token):
     client = TestClient(app)
     wsp = "Boring Co."
     response = client.get(
@@ -77,7 +87,7 @@ def test_get_workspace_forbidden(access_token):
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
-def test_user(access_token):
+def test_model_user(access_token):
     client = TestClient(app)
     response = client.get(
         f"/model/?user=true",
@@ -162,6 +172,20 @@ async def test_grant_permission_no_access(access_token_alice):
 
 
 @pytest.mark.anyio
+async def test_grant_permission_non_existent_model(access_token):
+    client = TestClient(app)
+    model_id = "not a model"
+    user = "johndoe@example.com"
+    role = "viewer"
+    response = client.post(
+        f"/model/grant?id={model_id}&role={role}&user={user}",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.anyio
 async def test_revoke_permission_editor(access_token):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
@@ -213,6 +237,20 @@ async def test_revoke_permission_no_access(access_token_alice):
 
 
 @pytest.mark.anyio
+async def test_revoke_permission_non_existent_model(access_token):
+    client = TestClient(app)
+    model_id = "not a model"
+    user = "charlie@example.com"
+    role = "viewer"
+    response = client.post(
+        f"/model/revoke?id={model_id}&role={role}&user={user}",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.anyio
 async def test_rename_model(access_token):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
@@ -243,6 +281,19 @@ async def test_rename_model_no_access(access_token_alice):
 
     model = await get_model_by_id(model_id)
     assert model["meta"]["name"] != new_name
+
+
+@pytest.mark.anyio
+async def test_rename_model_non_existent_model(access_token):
+    client = TestClient(app)
+    model_id = "not a model"
+    new_name = "new_name"
+    response = client.post(
+        f"/model/rename?id={model_id}&name={new_name}",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
 @pytest.mark.anyio
@@ -287,6 +338,19 @@ async def test_add_sheet(access_token):
     assert response.status_code == status.HTTP_200_OK
     model = response.json()
     assert sheet_name in [x["meta"]["name"] for x in model["data"]]
+
+
+@pytest.mark.anyio
+async def test_add_sheet_non_existent_model(access_token):
+    client = TestClient(app)
+    sheet_name = "some sheet"
+    model_id = "not a model"
+    response = client.post(
+        f"/model/sheet/add?id={model_id}&name={sheet_name}",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
 @pytest.mark.anyio
@@ -338,6 +402,19 @@ async def test_delete_sheet(access_token):
 
 
 @pytest.mark.anyio
+async def test_delete_sheet_non_existent_model(access_token):
+    client = TestClient(app)
+    model_id = "not a model"
+
+    response = client.post(
+        f"/model/sheet/delete?id={model_id}&name=foobar",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.anyio
 async def test_delete_sheet_no_access(access_token_alice):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
@@ -369,6 +446,22 @@ async def test_update_sheet_meta(access_token):
     assert response.status_code == status.HTTP_200_OK
 
     assert response.json()["data"][0]["meta"]["name"] == new_sheet_name
+
+
+@pytest.mark.anyio
+async def test_update_sheet_meta_non_existent_model(access_token):
+    client = TestClient(app)
+    model_id = "not a model"
+    new_sheet_name = "new sheet name"
+    new_meta = SheetMeta(name=new_sheet_name)
+
+    response = client.post(
+        f"/model/sheet/update/meta?id={model_id}&name=foo",
+        headers={"Authorization": f"Bearer {access_token}"},
+        json=jsonable_encoder(new_meta),
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
 @pytest.mark.anyio
@@ -460,3 +553,17 @@ async def test_update_sheet_data_no_access(access_token_alice):
     )
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.anyio
+async def test_update_sheet_data_non_existent_model(access_token):
+    client = TestClient(app)
+    model_id = "not a model"
+
+    response = client.post(
+        f"/model/sheet/update/data?id={model_id}&name=foo",
+        headers={"Authorization": f"Bearer {access_token}"},
+        json=jsonable_encoder([]),
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
