@@ -9,7 +9,7 @@ async def user_exists(username: str):
     return await get_user(username) is not None
 
 
-async def get_user(username: str):
+async def get_user(username: str) -> UserInDB | None:
     user = await db.users.find_one({"username": username})
     if user is not None:
         return UserInDB(**user)
@@ -42,3 +42,17 @@ async def add_user_to_workspace(username: str, workspace: str):
 
     # add user to workspace
     await db.workspaces.update_one({"name": workspace}, {"$push": {"users": username}})
+
+
+async def set_user_otp_secret(username: str, otp_secret: str):
+    await db.users.update_one(
+        {"username": username},
+        {"$set": {"otp_secret": otp_secret, "otp_validated": False}},
+    )
+
+
+async def set_user_otp_secret_validated(username: str):
+    await db.users.update_one(
+        {"username": username},
+        {"$set": {"otp_validated": True}},
+    )

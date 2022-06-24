@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+import pyotp
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from jose import jwt
@@ -8,7 +9,7 @@ from core.dao.token_blacklist import add_to_blacklist
 from core.dao.users import get_user, create_user
 from core.schemas.tokens import Token, BlacklistToken
 from core.schemas.users import RegisterUser, UserInDB, User
-from core.schemas.utils import Message
+from core.schemas.utils import Message, OAuth2PasswordRequestFormWithOTP
 from dependencies import ACCESS_TOKEN_EXPIRE_MINUTES, get_current_active_user_token
 from dependencies import pwd_context, SECRET_KEY, ALGORITHM
 
@@ -23,7 +24,7 @@ def get_password_hash(password: str):
     return pwd_context.hash(password)
 
 
-async def authenticate_user(username: str, password: str) -> User | bool:
+async def authenticate_user(username: str, password: str) -> UserInDB | bool:
     user = await get_user(username)
     if not user:
         return False
@@ -49,7 +50,9 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     response_model=Token,
     responses={401: {"description": "Incorrect username or password"}},
 )
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+async def login_for_access_token(
+    form_data: OAuth2PasswordRequestFormWithOTP = Depends(),
+):
     """
     Get an OAuth access token using the user's credentials.
     """
@@ -60,6 +63,17 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+    # user has validated 2FA, thus compare the OTP
+    if user.otp_validated:
+        totp = pyotp.TOTP(user.otp_secret)
+        if not totp.verify(form_data.otp):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="OTP of Two-Factor Authentication is invalid",
+            )
+
+    # create token
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
