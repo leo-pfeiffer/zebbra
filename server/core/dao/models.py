@@ -99,3 +99,7 @@ async def remove_editor_from_model(username: str, model_id: str):
     if not await user_exists(username):
         raise DoesNotExistException("User does not exist")
     await db.models.update_one({"_id": model_id}, {"$pull": {"meta.editors": username}})
+
+
+async def set_name(model_id: str, name: str):
+    await db.models.update_one({"_id": model_id}, {"$set": {"meta.name": name}})

@@ -13,6 +13,7 @@ from core.dao.models import (
     add_viewer_to_model,
     remove_viewer_from_model,
     remove_editor_from_model,
+    set_name,
 )
 from core.dao.users import get_user, user_exists
 from core.exceptions import DoesNotExistException
@@ -198,3 +199,12 @@ async def test_remove_editor_from_model_non_existing_user():
         await remove_editor_from_model(
             "not-a-user@example.com", "62b488ba433720870b60ec0a"
         )
+
+
+@pytest.mark.anyio
+async def test_set_name():
+    model_id = "62b488ba433720870b60ec0a"
+    new_name = "new_name"
+    await set_name(model_id, new_name)
+    model = await get_model_by_id(model_id)
+    assert model["meta"]["name"] == new_name

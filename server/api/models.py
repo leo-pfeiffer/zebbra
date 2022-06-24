@@ -13,6 +13,7 @@ from core.dao.models import (
     remove_viewer_from_model,
     remove_editor_from_model,
     is_admin,
+    set_name,
 )
 from core.dao.workspaces import is_user_in_workspace
 from core.exceptions import DoesNotExistException
@@ -145,11 +146,10 @@ async def model_revoke_permission(
 
 @router.post(
     "/model/rename",
-    response_model=Model,
+    response_model=Message,
     tags=["model"],
     responses={
         403: {"description": "User does not have access to the resource."},
-        400: {"description": "Missing parameters."},
     },
 )
 async def model_rename(
@@ -157,8 +157,9 @@ async def model_rename(
     name: str,
     current_user: User = Depends(get_current_active_user),
 ):
-    # todo
-    ...
+    await _assert_access_admin(current_user.username, id)
+    await set_name(id, name)
+    return {"message": f"Model renamed ({name})"}
 
 
 @router.post(

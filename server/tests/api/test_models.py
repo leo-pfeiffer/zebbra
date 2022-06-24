@@ -2,7 +2,7 @@ import pytest
 from starlette import status
 from starlette.testclient import TestClient
 
-from core.dao.models import is_admin, is_editor, is_viewer
+from core.dao.models import is_admin, is_editor, is_viewer, get_model_by_id
 from main import app
 from tests.utils import assert_unauthorized_login_checked
 
@@ -210,9 +210,39 @@ async def test_revoke_permission_no_access(access_token_alice):
     assert await is_viewer(model_id, user)
 
 
-# def test_(access_token):
-#     assert False
-#
+@pytest.mark.anyio
+async def test_rename_model(access_token):
+    client = TestClient(app)
+    model_id = "62b488ba433720870b60ec0a"
+    new_name = "new_name"
+    response = client.post(
+        f"/model/rename?id={model_id}&name={new_name}",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["message"] == f"Model renamed ({new_name})"
+
+    model = await get_model_by_id(model_id)
+    assert model["meta"]["name"] == new_name
+
+
+@pytest.mark.anyio
+async def test_rename_model_no_access(access_token_alice):
+    client = TestClient(app)
+    model_id = "62b488ba433720870b60ec0a"
+    new_name = "new_name"
+    response = client.post(
+        f"/model/rename?id={model_id}&name={new_name}",
+        headers={"Authorization": f"Bearer {access_token_alice}"},
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    model = await get_model_by_id(model_id)
+    assert model["meta"]["name"] != new_name
+
+
 #
 # def test_(access_token):
 #     assert False
