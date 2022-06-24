@@ -15,6 +15,7 @@ from core.dao.models import (
     remove_editor_from_model,
     set_name,
     create_model,
+    add_sheet_to_model,
 )
 from core.dao.users import get_user, user_exists
 from core.exceptions import DoesNotExistException, NoAccessException
@@ -231,3 +232,14 @@ async def test_add_model_no_access():
 
     with pytest.raises(NoAccessException):
         await create_model(admin, new_name, workspace)
+
+
+@pytest.mark.anyio
+async def test_add_sheet():
+    model_id = "62b488ba433720870b60ec0a"
+    sheet_name = "sheet_name"
+    model1 = await get_model_by_id(model_id)
+    await add_sheet_to_model(model_id, sheet_name)
+    model2 = await get_model_by_id(model_id)
+    assert len(model2["data"]) - len(model1["data"]) == 1
+    assert sheet_name in [x["meta"]["name"] for x in model2["data"]]

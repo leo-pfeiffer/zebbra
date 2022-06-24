@@ -5,6 +5,7 @@ from core.dao.users import user_exists
 from core.dao.workspaces import is_user_in_workspace
 from core.exceptions import DoesNotExistException, NoAccessException
 from core.schemas.models import ModelMeta, UpdateModel
+from core.schemas.sheets import Sheet, SheetMeta
 from core.settings import get_settings
 
 settings = get_settings()
@@ -125,3 +126,10 @@ async def create_model(admin: str, model_name: str, workspace: str):
     )
     model = UpdateModel(**{"meta": meta, "data": []})
     return await db.models.insert_one(jsonable_encoder(model))
+
+
+async def add_sheet_to_model(model_id: str, sheet_name: str):
+    sheet = Sheet(**{"meta": SheetMeta(name=sheet_name), "data": []})
+    return await db.models.update_one(
+        {"_id": model_id}, {"$push": {"data": jsonable_encoder(sheet)}}
+    )
