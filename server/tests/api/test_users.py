@@ -92,6 +92,25 @@ async def test_validate_otp_true(access_token):
 
 
 @pytest.mark.anyio
+async def test_validate_otp_sets_validated_true(access_token):
+    client = TestClient(app)
+
+    secret = pyotp.random_base32()
+    await set_user_otp_secret("johndoe@example.com", secret)
+
+    totp = pyotp.TOTP(secret)
+    otp = totp.now()
+
+    client.post(
+        f"/user/otp/validate?otp={otp}",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+    user = await get_user("johndoe@example.com")
+    assert user.otp_validated
+
+
+@pytest.mark.anyio
 async def test_validate_otp_false(access_token):
     client = TestClient(app)
 

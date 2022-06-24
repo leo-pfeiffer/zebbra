@@ -7,6 +7,7 @@ from core.dao.users import (
     add_user_to_workspace,
     create_user,
     set_user_otp_secret,
+    set_user_otp_secret_validated,
 )
 from core.dao.workspaces import get_workspaces_of_user, create_workspace, get_workspace
 from core.schemas.users import UserInDB
@@ -90,3 +91,22 @@ async def test_set_otp_secret():
     await set_user_otp_secret(username, secret)
     user = await get_user(username)
     assert user.otp_secret == secret
+
+
+@pytest.mark.anyio
+async def test_set_otp_secret_sets_validated_false():
+    username = "johndoe@example.com"
+    secret = "the secret"
+    await set_user_otp_secret_validated(username)
+    await set_user_otp_secret(username, secret)
+    user = await get_user(username)
+    assert not user.otp_validated
+
+
+@pytest.mark.anyio
+async def test_set_otp_validated():
+    username = "johndoe@example.com"
+    secret = "the secret"
+    await set_user_otp_secret_validated(username)
+    user = await get_user(username)
+    assert user.otp_validated

@@ -4,7 +4,12 @@ from starlette import status
 from starlette.responses import JSONResponse
 
 from core.dao.models import get_admin_models_for_user
-from core.dao.users import delete_user_full, set_user_otp_secret, get_user
+from core.dao.users import (
+    delete_user_full,
+    set_user_otp_secret,
+    get_user,
+    set_user_otp_secret_validated,
+)
 from core.dao.workspaces import get_admin_workspaces_of_user
 from core.schemas.users import User
 from core.schemas.utils import Message, OtpUrl, OtpValidation
@@ -103,5 +108,8 @@ async def user_otp_validate(
 
     totp = pyotp.TOTP(user.otp_secret)
     valid = totp.verify(otp)
+
+    if valid:
+        await set_user_otp_secret_validated(current_user.username)
 
     return OtpValidation(otp=otp, valid=valid)
