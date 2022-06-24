@@ -12,6 +12,7 @@ from core.dao.models import (
     add_viewer_to_model,
     remove_viewer_from_model,
     remove_editor_from_model,
+    is_admin,
 )
 from core.dao.workspaces import is_user_in_workspace
 from core.exceptions import DoesNotExistException
@@ -86,7 +87,7 @@ async def model_grant_permission(
     current_user: User = Depends(get_current_active_user),
 ):
     # granting user must have access
-    await _assert_access(current_user.username, id)
+    await _assert_access_admin(current_user.username, id)
 
     try:
         if role == "admin":
@@ -98,7 +99,7 @@ async def model_grant_permission(
         elif role == "viewer":
             await add_viewer_to_model(user, id)
 
-        return {"message": "Access granted"}
+        return {"message": f"Access granted ({role})"}
 
     except DoesNotExistException:
         raise HTTPException(
@@ -110,7 +111,7 @@ async def model_grant_permission(
 # todo test
 @router.post(
     "/model/revoke",
-    response_model=Model,
+    response_model=Message,
     tags=["model"],
     responses={
         403: {"description": "User does not have access to the resource."},
@@ -124,7 +125,7 @@ async def model_revoke_permission(
     current_user: User = Depends(get_current_active_user),
 ):
     # granting user must have access
-    await _assert_access(current_user.username, id)
+    await _assert_access_admin(current_user.username, id)
 
     try:
         if role == "editor":
@@ -133,7 +134,7 @@ async def model_revoke_permission(
         elif role == "viewer":
             await remove_viewer_from_model(user, id)
 
-        return {"message": "Access revoked"}
+        return {"message": f"Access revoked ({role})"}
 
     except DoesNotExistException:
         raise HTTPException(
@@ -239,4 +240,12 @@ async def _assert_access(username: str, model_id: str):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="User does not have access to this model.",
+        )
+
+
+async def _assert_access_admin(username: str, model_id: str):
+    if not await is_admin(model_id, username):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User is not admin.",
         )

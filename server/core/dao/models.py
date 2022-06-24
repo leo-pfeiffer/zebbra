@@ -71,7 +71,7 @@ async def add_editor_to_model(username: str, model_id: str):
         raise DoesNotExistException("User does not exist")
 
     # don't add as editor if already is editor
-    if not is_editor(model_id, username):
+    if not await is_editor(model_id, username):
         await db.models.update_one(
             {"_id": model_id}, {"$push": {"meta.editors": username}}
         )
@@ -82,9 +82,9 @@ async def add_viewer_to_model(username: str, model_id: str):
         raise DoesNotExistException("User does not exist")
 
     # don't add as viewer if already is viewer
-    if not is_editor(model_id, username):
+    if not await is_viewer(model_id, username):
         await db.models.update_one(
-            {"_id": model_id}, {"$push": {"meta.editors": username}}
+            {"_id": model_id}, {"$push": {"meta.viewers": username}}
         )
 
 
