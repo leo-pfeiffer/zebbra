@@ -45,6 +45,14 @@ def create_user_data():
                 "hashed_password": "$2b$12$JObcoGR6lNWg3ztKdhEK/OtPjUoltMlHJIg99ctXPaBCNQH1EMts.",
                 "disabled": False,
             },
+            {
+                "username": "zeus@example.com",
+                "first_name": "Zeus",
+                "last_name": "Olympus",
+                "workspaces": ["ACME Inc."],
+                "hashed_password": "$2b$12$JObcoGR6lNWg3ztKdhEK/OtPjUoltMlHJIg99ctXPaBCNQH1EMts.",
+                "disabled": False,
+            },
         ]
     )
 

@@ -72,6 +72,12 @@ async def get_models_for_user(username: str):
     ).to_list(length=settings.MAX_MODELS)
 
 
+async def get_admin_models_for_user(username: str):
+    return await db.models.find({"meta.admin": username}).to_list(
+        length=settings.MAX_MODELS
+    )
+
+
 async def set_admin(username: str, model_id: str):
     if not await user_exists(username):
         raise DoesNotExistException("User does not exist")

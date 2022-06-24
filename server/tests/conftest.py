@@ -61,3 +61,15 @@ def access_token_alice():
     }
     response = client.post("/token", data=user_form)
     return response.json()["access_token"]
+
+
+@pytest.fixture
+def access_token_zeus():
+    client = TestClient(app)
+    user_form = {
+        "grant_type": "password",
+        "username": "zeus@example.com",
+        "password": "secret",
+    }
+    response = client.post("/token", data=user_form)
+    return response.json()["access_token"]

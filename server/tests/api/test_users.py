@@ -23,27 +23,39 @@ def test_user_delete_protected():
     assert_unauthorized_login_checked("/user/delete")
 
 
-@pytest.mark.anyio
-async def test_delete_user(access_token):
+def test_delete_user(access_token_zeus):
     client = TestClient(app)
 
-    # make sure current user is no longer an admin
-    wsp = "ACME Inc."
-    username = "alice@example.com"
-    await change_workspace_admin(wsp, username)
-
     response = client.get(
-        "/user/delete", headers={"Authorization": f"Bearer {access_token}"}
+        "/user/delete", headers={"Authorization": f"Bearer {access_token_zeus}"}
     )
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json()["message"] == "User deleted."
 
 
-def test_cannot_delete_user_who_is_admin(access_token):
+def test_cannot_delete_user_who_is_workspace_admin(access_token):
     client = TestClient(app)
     response = client.get(
         "/user/delete", headers={"Authorization": f"Bearer {access_token}"}
     )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json()["detail"].startswith("Attempting to delete workspace admin")
+
+
+@pytest.mark.anyio
+async def test_cannot_delete_user_who_is_model_admin(access_token):
+
+    # make sure current user is no longer an admin
+    wsp = "ACME Inc."
+    username = "alice@example.com"
+    await change_workspace_admin(wsp, username)
+
+    client = TestClient(app)
+    response = client.get(
+        "/user/delete", headers={"Authorization": f"Bearer {access_token}"}
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json()["detail"].startswith("Attempting to delete model admin")

@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from starlette import status
 from starlette.responses import JSONResponse
 
+from core.dao.models import get_admin_models_for_user
 from core.dao.users import delete_user_full
 from core.dao.workspaces import get_admin_workspaces_of_user
 from core.schemas.users import User
@@ -39,10 +40,15 @@ async def delete_user(current_user: User = Depends(get_current_active_user)):
     if len(await get_admin_workspaces_of_user(current_user.username)) > 0:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Attempting to delete admin.",
+            detail="Attempting to delete workspace admin. Set another admin first.",
         )
 
-    # TODO: check if user is any other admin
+    # check if user is model admin
+    if len(await get_admin_models_for_user(current_user.username)) > 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Attempting to delete model admin. Set another admin first.",
+        )
 
     await delete_user_full(current_user.username)
 
