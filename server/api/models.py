@@ -20,6 +20,7 @@ from core.dao.models import (
     delete_sheet_from_model,
     update_sheet_meta_in_model,
     update_sheet_data_in_model,
+    model_exists,
 )
 from core.dao.workspaces import is_user_in_workspace
 from core.exceptions import (
@@ -28,7 +29,7 @@ from core.exceptions import (
     UniqueConstraintFailedException,
 )
 from core.schemas.models import Model
-from core.schemas.sheets import Sheet, SheetMeta, Section
+from core.schemas.sheets import SheetMeta, Section
 from core.schemas.users import User
 from core.schemas.utils import Message
 from dependencies import get_current_active_user
@@ -42,7 +43,6 @@ router = APIRouter()
     tags=["model"],
     responses={
         403: {"description": "User does not have access to the resource."},
-        400: {"description": "Exactly one of the query parameters must be specified."},
     },
 )
 async def get_model(
@@ -66,6 +66,7 @@ async def get_model(
         )
 
     if id is not None:
+        await _assert_model_exists(id)
         await _assert_access(current_user.username, id)
         return [await get_model_by_id(id)]
 
@@ -87,7 +88,6 @@ async def get_model(
     tags=["model"],
     responses={
         403: {"description": "User does not have access to the resource."},
-        400: {"description": "User does not exist."},
     },
 )
 async def model_grant_permission(
@@ -96,6 +96,8 @@ async def model_grant_permission(
     user: str,
     current_user: User = Depends(get_current_active_user),
 ):
+
+    await _assert_model_exists(id)
 
     # todo: Or should every editor have granting permission?
     # granting user must be admin
@@ -126,7 +128,6 @@ async def model_grant_permission(
     tags=["model"],
     responses={
         403: {"description": "User does not have access to the resource."},
-        400: {"description": "User does not exist."},
     },
 )
 async def model_revoke_permission(
@@ -135,6 +136,8 @@ async def model_revoke_permission(
     user: str,
     current_user: User = Depends(get_current_active_user),
 ):
+    await _assert_model_exists(id)
+
     # todo: Or should every editor have revoking permission?
     # granting user must be admin
     await _assert_access_admin(current_user.username, id)
@@ -168,6 +171,7 @@ async def model_rename(
     name: str,
     current_user: User = Depends(get_current_active_user),
 ):
+    await _assert_model_exists(id)
     # only editor can rename
     await _assert_access_can_edit(current_user.username, id)
     await set_name(id, name)
@@ -211,6 +215,7 @@ async def add_sheet(
     name: str,
     current_user: User = Depends(get_current_active_user),
 ):
+    await _assert_model_exists(id)
     # only editor can add sheet
     await _assert_access_can_edit(current_user.username, id)
     try:
@@ -236,6 +241,7 @@ async def delete_sheet(
     name: str,
     current_user: User = Depends(get_current_active_user),
 ):
+    await _assert_model_exists(id)
     # only editor can delete sheet
     await _assert_access_can_edit(current_user.username, id)
     await delete_sheet_from_model(id, name)
@@ -256,6 +262,7 @@ async def update_sheet_data(
     sheet_data: list[Section],
     current_user: User = Depends(get_current_active_user),
 ):
+    await _assert_model_exists(id)
     # only editor can update sheet
     await _assert_access_can_edit(current_user.username, id)
     await update_sheet_data_in_model(id, name, sheet_data)
@@ -277,6 +284,7 @@ async def update_sheet_meta(
     sheet_meta: SheetMeta,
     current_user: User = Depends(get_current_active_user),
 ):
+    await _assert_model_exists(id)
     # only editor can update sheet
     await _assert_access_can_edit(current_user.username, id)
     try:
@@ -289,7 +297,12 @@ async def update_sheet_meta(
         )
 
 
-# todo assert model exists
+async def _assert_model_exists(model_id: str):
+    if not await model_exists(model_id):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Model does not exist.",
+        )
 
 
 async def _assert_access(username: str, model_id: str):

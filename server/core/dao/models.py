@@ -15,6 +15,10 @@ from core.settings import get_settings
 settings = get_settings()
 
 
+async def model_exists(id: str):
+    return await get_model_by_id(id) is not None
+
+
 async def has_access_to_model(id: str, username: str):
     return (
         await db.models.count_documents(
