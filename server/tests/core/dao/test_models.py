@@ -5,7 +5,17 @@ from core.dao.models import (
     get_model_by_id,
     get_models_for_workspace,
     get_models_for_user,
+    is_admin,
+    is_editor,
+    is_viewer,
+    set_admin,
+    add_editor_to_model,
+    add_viewer_to_model,
+    remove_viewer_from_model,
+    remove_editor_from_model,
 )
+from core.dao.users import get_user, user_exists
+from core.exceptions import DoesNotExistException
 
 
 @pytest.mark.anyio
@@ -89,3 +99,102 @@ async def test_get_models_for_user_no_results():
     user = "not-a-user@example.com"
     models = await get_models_for_user(user)
     assert len(models) == 0
+
+
+@pytest.mark.anyio
+async def test_is_admin_true():
+    assert await is_admin("62b488ba433720870b60ec0a", "johndoe@example.com")
+
+
+@pytest.mark.anyio
+async def test_is_admin_false():
+    assert not await is_admin("62b488ba433720870b60ec0a", "darwin@example.com")
+
+
+@pytest.mark.anyio
+async def test_is_editor_true():
+    assert await is_editor("62b488ba433720870b60ec0a", "darwin@example.com")
+
+
+@pytest.mark.anyio
+async def test_is_editor_false():
+    assert not await is_editor("62b488ba433720870b60ec0a", "charlie@example.com")
+
+
+@pytest.mark.anyio
+async def test_is_viewer_true():
+    assert await is_viewer("62b488ba433720870b60ec0a", "charlie@example.com")
+
+
+@pytest.mark.anyio
+async def test_is_viewer_false():
+    assert not await is_viewer("62b488ba433720870b60ec0a", "darwing@example.com")
+
+
+@pytest.mark.anyio
+async def test_set_admin():
+    assert await is_admin("62b488ba433720870b60ec0a", "johndoe@example.com")
+    await set_admin("charlie@example.com", "62b488ba433720870b60ec0a")
+    assert await is_admin("62b488ba433720870b60ec0a", "charlie@example.com")
+
+
+@pytest.mark.anyio
+async def test_set_admin_non_existing_user():
+    with pytest.raises(DoesNotExistException):
+        await set_admin("not-a-user@example.com", "62b488ba433720870b60ec0a")
+
+
+@pytest.mark.anyio
+async def test_add_editor_to_model():
+    assert not await is_editor("62b488ba433720870b60ec0a", "johndoe@example.com")
+    await add_editor_to_model("darwin@example.com", "62b488ba433720870b60ec0a")
+    assert await is_editor("62b488ba433720870b60ec0a", "darwin@example.com")
+
+
+@pytest.mark.anyio
+async def test_add_editor_to_model_non_existing_user():
+    with pytest.raises(DoesNotExistException):
+        await add_editor_to_model("not-a-user@example.com", "62b488ba433720870b60ec0a")
+
+
+@pytest.mark.anyio
+async def test_add_viewer_to_model():
+    assert not await is_viewer("62b488ba433720870b60ec0a", "darwin@example.com")
+    await add_viewer_to_model("darwin@example.com", "62b488ba433720870b60ec0a")
+    assert await is_viewer("62b488ba433720870b60ec0a", "charlie@example.com")
+
+
+@pytest.mark.anyio
+async def test_add_viewer_to_model_non_existing_user():
+    with pytest.raises(DoesNotExistException):
+        await add_viewer_to_model("not-a-user@example.com", "62b488ba433720870b60ec0a")
+
+
+@pytest.mark.anyio
+async def test_remove_viewer_from_model():
+    assert await is_viewer("62b488ba433720870b60ec0a", "charlie@example.com")
+    await remove_viewer_from_model("charlie@example.com", "62b488ba433720870b60ec0a")
+    assert not await is_viewer("62b488ba433720870b60ec0a", "charlie@example.com")
+
+
+@pytest.mark.anyio
+async def test_remove_viewer_from_model_non_existing_user():
+    with pytest.raises(DoesNotExistException):
+        await remove_viewer_from_model(
+            "not-a-user@example.com", "62b488ba433720870b60ec0a"
+        )
+
+
+@pytest.mark.anyio
+async def test_remove_editor_from_model():
+    assert await is_editor("62b488ba433720870b60ec0a", "darwin@example.com")
+    await remove_editor_from_model("darwin@example.com", "62b488ba433720870b60ec0a")
+    assert not await is_editor("62b488ba433720870b60ec0a", "darwin@example.com")
+
+
+@pytest.mark.anyio
+async def test_remove_editor_from_model_non_existing_user():
+    with pytest.raises(DoesNotExistException):
+        await remove_editor_from_model(
+            "not-a-user@example.com", "62b488ba433720870b60ec0a"
+        )

@@ -6,7 +6,7 @@ from core.schemas.users import UserInDB
 
 
 async def user_exists(username: str):
-    return get_user(username) is not None
+    return await get_user(username) is not None
 
 
 async def get_user(username: str):
