@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic.typing import Literal
+from typing import Literal
 from starlette import status
 
 from core.dao.models import (
