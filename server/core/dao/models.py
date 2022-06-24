@@ -1,6 +1,10 @@
+from fastapi.encoders import jsonable_encoder
+
 from core.dao.database import db
 from core.dao.users import user_exists
-from core.exceptions import DoesNotExistException
+from core.dao.workspaces import is_user_in_workspace
+from core.exceptions import DoesNotExistException, NoAccessException
+from core.schemas.models import ModelMeta, UpdateModel
 from core.settings import get_settings
 
 settings = get_settings()
@@ -103,3 +107,21 @@ async def remove_editor_from_model(username: str, model_id: str):
 
 async def set_name(model_id: str, name: str):
     await db.models.update_one({"_id": model_id}, {"$set": {"meta.name": name}})
+
+
+async def create_model(admin: str, model_name: str, workspace: str):
+
+    if not await is_user_in_workspace(admin, workspace):
+        raise NoAccessException("User has no access to workspace.")
+
+    meta = ModelMeta(
+        **{
+            "name": model_name,
+            "admin": admin,
+            "workspace": workspace,
+            "editors": [],
+            "viewers": [],
+        }
+    )
+    model = UpdateModel(**{"meta": meta, "data": []})
+    return await db.models.insert_one(jsonable_encoder(model))

@@ -14,9 +14,10 @@ from core.dao.models import (
     remove_editor_from_model,
     is_admin,
     set_name,
+    create_model,
 )
 from core.dao.workspaces import is_user_in_workspace
-from core.exceptions import DoesNotExistException
+from core.exceptions import DoesNotExistException, NoAccessException
 from core.schemas.models import Model
 from core.schemas.sheets import Sheet
 from core.schemas.users import User
@@ -168,7 +169,6 @@ async def model_rename(
     tags=["model"],
     responses={
         403: {"description": "User does not have access to the resource."},
-        400: {"description": "Missing parameters."},
     },
 )
 async def model_add(
@@ -176,8 +176,14 @@ async def model_add(
     workspace: str,
     current_user: User = Depends(get_current_active_user),
 ):
-    # todo
-    ...
+    try:
+        r = await create_model(current_user.username, name, workspace)
+        return await get_model_by_id(r.inserted_id)
+    except NoAccessException:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User is not in the workspace.",
+        )
 
 
 @router.post(

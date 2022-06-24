@@ -14,9 +14,10 @@ from core.dao.models import (
     remove_viewer_from_model,
     remove_editor_from_model,
     set_name,
+    create_model,
 )
 from core.dao.users import get_user, user_exists
-from core.exceptions import DoesNotExistException
+from core.exceptions import DoesNotExistException, NoAccessException
 
 
 @pytest.mark.anyio
@@ -208,3 +209,25 @@ async def test_set_name():
     await set_name(model_id, new_name)
     model = await get_model_by_id(model_id)
     assert model["meta"]["name"] == new_name
+
+
+@pytest.mark.anyio
+async def test_add_model():
+    new_name = "some_new_model"
+    workspace = "ACME Inc."
+    admin = "johndoe@example.com"
+    r = await create_model(admin, new_name, workspace)
+    model = await get_model_by_id(r.inserted_id)
+    assert model["meta"]["name"] == new_name
+    assert model["meta"]["workspace"] == workspace
+    assert model["meta"]["admin"] == admin
+
+
+@pytest.mark.anyio
+async def test_add_model_no_access():
+    new_name = "some_new_model"
+    workspace = "Boring Co."
+    admin = "johndoe@example.com"
+
+    with pytest.raises(NoAccessException):
+        await create_model(admin, new_name, workspace)

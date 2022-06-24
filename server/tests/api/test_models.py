@@ -243,14 +243,34 @@ async def test_rename_model_no_access(access_token_alice):
     assert model["meta"]["name"] != new_name
 
 
-#
-# def test_(access_token):
-#     assert False
-#
-#
-# def test_(access_token):
-#     assert False
-#
-#
+@pytest.mark.anyio
+async def test_add_model(access_token):
+    client = TestClient(app)
+    new_name = "new_name"
+    workspace = "ACME Inc."
+    response = client.post(
+        f"/model/add?name={new_name}&workspace={workspace}",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    model = response.json()
+    assert model["meta"]["name"] == new_name
+    assert model["meta"]["workspace"] == workspace
+    assert model["meta"]["admin"] == "johndoe@example.com"
+
+
+@pytest.mark.anyio
+async def test_add_model_no_access(access_token):
+    client = TestClient(app)
+    new_name = "new_name"
+    workspace = "Boring Co."
+    response = client.post(
+        f"/model/add?name={new_name}&workspace={workspace}",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
 # def test_(access_token):
 #     assert False
