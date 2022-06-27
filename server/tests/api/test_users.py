@@ -6,6 +6,7 @@ from starlette import status
 from core.dao.models import get_models_for_user
 from core.dao.users import get_user, set_user_otp_secret
 from core.dao.workspaces import change_workspace_admin, get_workspaces_of_user
+from dependencies import get_password_hash
 from main import app
 from tests.utils import assert_unauthorized_login_checked
 
@@ -203,9 +204,14 @@ async def test_update_password(access_token):
 
     client = TestClient(app)
 
+    user_before = await get_user(username)
+
     response = client.post(
-        f"/user/update?hashed_password={value}",
+        f"/user/update?password={value}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
     assert response.status_code == status.HTTP_200_OK
+
+    user_after = await get_user(username)
+    assert user_before.hashed_password != user_after.hashed_password
