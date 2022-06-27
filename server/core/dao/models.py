@@ -138,30 +138,8 @@ async def create_model(admin: str, model_name: str, workspace: str):
             "viewers": [],
         }
     )
-    model = UpdateModel(**{"meta": meta, "data": []})
+    model = UpdateModel(**{"meta": meta, "sheets": []})
     return await db.models.insert_one(jsonable_encoder(model))
-
-
-async def add_sheet_to_model(model_id: str, sheet_name: str):
-
-    # sheet names must be unique within model
-    if (
-        await db.models.count_documents({"_id": model_id, "data.meta.name": sheet_name})
-        > 0
-    ):
-        raise UniqueConstraintFailedException("Sheet names must be unique within model")
-
-    sheet = Sheet(**{"meta": SheetMeta(name=sheet_name), "data": []})
-
-    return await db.models.update_one(
-        {"_id": model_id}, {"$push": {"data": jsonable_encoder(sheet)}}
-    )
-
-
-async def delete_sheet_from_model(model_id: str, sheet_name: str):
-    return await db.models.update_one(
-        {"_id": model_id}, {"$pull": {"data": {"meta.name": sheet_name}}}
-    )
 
 
 async def update_sheet_meta_in_model(
@@ -170,22 +148,22 @@ async def update_sheet_meta_in_model(
     # sheet names must be unique within model
     if (
         await db.models.count_documents(
-            {"_id": model_id, "data.meta.name": new_meta.name}
+            {"_id": model_id, "sheets.meta.name": new_meta.name}
         )
         > 0
     ):
         raise UniqueConstraintFailedException("Sheet names must be unique within model")
 
     return await db.models.update_one(
-        {"_id": model_id, "data.meta.name": sheet_name},
-        {"$set": {"data.$.meta": jsonable_encoder(new_meta)}},
+        {"_id": model_id, "sheets.meta.name": sheet_name},
+        {"$set": {"sheets.$.meta": jsonable_encoder(new_meta)}},
     )
 
 
-async def update_sheet_data_in_model(
-    model_id: str, sheet_name: str, new_data: list[Section]
+async def update_sheet_sections_in_model(
+    model_id: str, sheet_name: str, new_sections: list[Section]
 ):
     return await db.models.update_one(
-        {"_id": model_id, "data.meta.name": sheet_name},
-        {"$set": {"data.$.data": jsonable_encoder(new_data)}},
+        {"_id": model_id, "sheets.meta.name": sheet_name},
+        {"$set": {"sheets.$.sections": jsonable_encoder(new_sections)}},
     )

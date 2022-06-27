@@ -15,17 +15,15 @@ from core.dao.models import (
     remove_editor_from_model,
     set_name,
     create_model,
-    add_sheet_to_model,
-    delete_sheet_from_model,
     update_sheet_meta_in_model,
-    update_sheet_data_in_model,
+    update_sheet_sections_in_model,
 )
 from core.exceptions import (
     DoesNotExistException,
     NoAccessException,
     UniqueConstraintFailedException,
 )
-from core.schemas.sheets import SheetMeta, Section, SectionModel
+from core.schemas.sheets import SheetMeta, Section
 
 
 @pytest.mark.anyio
@@ -242,57 +240,24 @@ async def test_add_model_no_access():
 
 
 @pytest.mark.anyio
-async def test_add_sheet():
-    model_id = "62b488ba433720870b60ec0a"
-    sheet_name = "sheet_name"
-    model1 = await get_model_by_id(model_id)
-    await add_sheet_to_model(model_id, sheet_name)
-    model2 = await get_model_by_id(model_id)
-    assert len(model2["data"]) - len(model1["data"]) == 1
-    assert sheet_name in [x["meta"]["name"] for x in model2["data"]]
-
-
-@pytest.mark.anyio
-async def test_add_sheet_unique_constraint():
-    model_id = "62b488ba433720870b60ec0a"
-    sheet_name = "sheet_name"
-    await get_model_by_id(model_id)
-    await add_sheet_to_model(model_id, sheet_name)
-
-    with pytest.raises(UniqueConstraintFailedException):
-        await add_sheet_to_model(model_id, sheet_name)
-
-
-@pytest.mark.anyio
-async def test_delete_sheet():
-    model_id = "62b488ba433720870b60ec0a"
-    model1 = await get_model_by_id(model_id)
-    sheet_name = model1["data"][0]["meta"]["name"]
-    await delete_sheet_from_model(model_id, sheet_name)
-    model2 = await get_model_by_id(model_id)
-    assert len(model1["data"]) - len(model2["data"]) == 1
-    assert sheet_name not in [x["meta"]["name"] for x in model2["data"]]
-
-
-@pytest.mark.anyio
 async def test_update_sheet_meta():
     model_id = "62b488ba433720870b60ec0a"
     model1 = await get_model_by_id(model_id)
-    old_sheet_name = model1["data"][0]["meta"]["name"]
+    old_sheet_name = model1["sheets"][0]["meta"]["name"]
     new_sheet_name = "new sheet name"
     new_meta = SheetMeta(name=new_sheet_name)
 
     await update_sheet_meta_in_model(model_id, old_sheet_name, new_meta)
 
     model1 = await get_model_by_id(model_id)
-    assert model1["data"][0]["meta"]["name"] == new_sheet_name
+    assert model1["sheets"][0]["meta"]["name"] == new_sheet_name
 
 
 @pytest.mark.anyio
 async def test_update_sheet_meta_duplicate_name():
     model_id = "62b488ba433720870b60ec0a"
     model1 = await get_model_by_id(model_id)
-    old_sheet_name = model1["data"][0]["meta"]["name"]
+    old_sheet_name = model1["sheets"][0]["meta"]["name"]
     new_meta = SheetMeta(name=old_sheet_name)
 
     with pytest.raises(UniqueConstraintFailedException):
@@ -303,30 +268,16 @@ async def test_update_sheet_meta_duplicate_name():
 async def test_update_sheet_data():
     model_id = "62b488ba433720870b60ec0a"
     model1 = await get_model_by_id(model_id)
-    old_sheet_name = model1["data"][0]["meta"]["name"]
+    old_sheet_name = model1["sheets"][0]["meta"]["name"]
 
     new_data = [
-        Section(
-            **{
-                "assumptions": [],
-                "model": SectionModel(
-                    **{"category": "foo", "rows": [], "end_row": None}
-                ),
-            }
-        ),
-        Section(
-            **{
-                "assumptions": [],
-                "model": SectionModel(
-                    **{"category": "bar", "rows": [], "end_row": None}
-                ),
-            }
-        ),
+        Section(**{"name": "section1", "rows": [], "end_row": None}),
+        Section(**{"name": "section2", "rows": [], "end_row": None}),
     ]
 
-    await update_sheet_data_in_model(model_id, old_sheet_name, new_data)
+    await update_sheet_sections_in_model(model_id, old_sheet_name, new_data)
 
     model2 = await get_model_by_id(model_id)
-    assert len(model2["data"][0]["data"]) == 2
-    assert model2["data"][0]["data"][0]["model"]["category"] == "foo"
-    assert model2["data"][0]["data"][1]["model"]["category"] == "bar"
+    assert len(model2["sheets"][0]["sections"]) == 2
+    assert model2["sheets"][0]["sections"][0]["name"] == "section1"
+    assert model2["sheets"][0]["sections"][1]["name"] == "section2"

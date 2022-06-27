@@ -17,7 +17,7 @@ class ModelMeta(BaseModel):
 class Model(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     meta: ModelMeta
-    data: list[Sheet]
+    sheets: list[Sheet]
 
     class Config:
         allow_population_by_field_name = True
@@ -27,7 +27,7 @@ class Model(BaseModel):
 
 class UpdateModel(BaseModel):
     meta: ModelMeta
-    data: list[Sheet]
+    sheets: list[Sheet]
 
     class Config:
         allow_population_by_field_name = True

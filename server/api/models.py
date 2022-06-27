@@ -16,10 +16,8 @@ from core.dao.models import (
     set_name,
     create_model,
     is_editor,
-    add_sheet_to_model,
-    delete_sheet_from_model,
     update_sheet_meta_in_model,
-    update_sheet_data_in_model,
+    update_sheet_sections_in_model,
     model_exists,
 )
 from core.dao.workspaces import is_user_in_workspace
@@ -46,29 +44,29 @@ router = APIRouter()
     },
 )
 async def get_model(
-    id: str | None = None,
+    model_id: str | None = None,
     workspace: str | None = None,
     user: bool = False,
     current_user: User = Depends(get_current_active_user),
 ):
     """
     Retrieve models:
-        id: model with the id,
+        model_id: model with the id,
         workspace: models of a workspace,
         user: models of the current user.
     """
 
     # assert that only one parameter has been specified
-    if (id is not None) + (workspace is not None) + user != 1:
+    if (model_id is not None) + (workspace is not None) + user != 1:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Exactly one of the query parameters must be specified.",
         )
 
-    if id is not None:
-        await _assert_model_exists(id)
-        await _assert_access(current_user.username, id)
-        return [await get_model_by_id(id)]
+    if model_id is not None:
+        await _assert_model_exists(model_id)
+        await _assert_access(current_user.username, model_id)
+        return [await get_model_by_id(model_id)]
 
     if workspace is not None:
         if not await is_user_in_workspace(current_user.username, workspace):
@@ -91,27 +89,27 @@ async def get_model(
     },
 )
 async def model_grant_permission(
-    id: str,
+    model_id: str,
     role: Literal["admin", "editor", "viewer"],
     user: str,
     current_user: User = Depends(get_current_active_user),
 ):
 
-    await _assert_model_exists(id)
+    await _assert_model_exists(model_id)
 
     # todo: Or should every editor have granting permission?, Nope, only admin
     # granting user must be admin
-    await _assert_access_admin(current_user.username, id)
+    await _assert_access_admin(current_user.username, model_id)
 
     try:
         if role == "admin":
-            await set_admin(user, id)
+            await set_admin(user, model_id)
 
         elif role == "editor":
-            await add_editor_to_model(user, id)
+            await add_editor_to_model(user, model_id)
 
         elif role == "viewer":
-            await add_viewer_to_model(user, id)
+            await add_viewer_to_model(user, model_id)
 
         return {"message": f"Access granted ({role})"}
 
@@ -131,23 +129,23 @@ async def model_grant_permission(
     },
 )
 async def model_revoke_permission(
-    id: str,
+    model_id: str,
     role: Literal["editor", "viewer"],
     user: str,
     current_user: User = Depends(get_current_active_user),
 ):
-    await _assert_model_exists(id)
+    await _assert_model_exists(model_id)
 
     # todo: Or should every editor have revoking permission? Nope, only admin
     # granting user must be admin
-    await _assert_access_admin(current_user.username, id)
+    await _assert_access_admin(current_user.username, model_id)
 
     try:
         if role == "editor":
-            await remove_editor_from_model(user, id)
+            await remove_editor_from_model(user, model_id)
 
         elif role == "viewer":
-            await remove_viewer_from_model(user, id)
+            await remove_viewer_from_model(user, model_id)
 
         return {"message": f"Access revoked ({role})"}
 
@@ -167,14 +165,14 @@ async def model_revoke_permission(
     },
 )
 async def model_rename(
-    id: str,
+    model_id: str,
     name: str,
     current_user: User = Depends(get_current_active_user),
 ):
-    await _assert_model_exists(id)
+    await _assert_model_exists(model_id)
     # only editor can rename
-    await _assert_access_can_edit(current_user.username, id)
-    await set_name(id, name)
+    await _assert_access_can_edit(current_user.username, model_id)
+    await set_name(model_id, name)
     return {"message": f"Model renamed ({name})"}
 
 
@@ -202,53 +200,6 @@ async def model_add(
 
 
 @router.post(
-    "/model/sheet/add",
-    response_model=Model,
-    tags=["model"],
-    responses={
-        403: {"description": "User does not have access to the resource."},
-        409: {"description": "Sheet name already exists in the same model."},
-    },
-)
-async def add_sheet(
-    id: str,
-    name: str,
-    current_user: User = Depends(get_current_active_user),
-):
-    await _assert_model_exists(id)
-    # only editor can add sheet
-    await _assert_access_can_edit(current_user.username, id)
-    try:
-        await add_sheet_to_model(id, name)
-        return await get_model_by_id(id)
-    except UniqueConstraintFailedException:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Sheet name already exists in the same model.",
-        )
-
-
-@router.post(
-    "/model/sheet/delete",
-    response_model=Model,
-    tags=["model"],
-    responses={
-        403: {"description": "User does not have access to the resource."},
-    },
-)
-async def delete_sheet(
-    id: str,
-    name: str,
-    current_user: User = Depends(get_current_active_user),
-):
-    await _assert_model_exists(id)
-    # only editor can delete sheet
-    await _assert_access_can_edit(current_user.username, id)
-    await delete_sheet_from_model(id, name)
-    return await get_model_by_id(id)
-
-
-@router.post(
     "/model/sheet/update/data",
     response_model=Model,
     tags=["model"],
@@ -257,16 +208,16 @@ async def delete_sheet(
     },
 )
 async def update_sheet_data(
-    id: str,
+    model_id: str,
     name: str,
     sheet_data: list[Section],
     current_user: User = Depends(get_current_active_user),
 ):
-    await _assert_model_exists(id)
+    await _assert_model_exists(model_id)
     # only editor can update sheet
-    await _assert_access_can_edit(current_user.username, id)
-    await update_sheet_data_in_model(id, name, sheet_data)
-    return await get_model_by_id(id)
+    await _assert_access_can_edit(current_user.username, model_id)
+    await update_sheet_sections_in_model(model_id, name, sheet_data)
+    return await get_model_by_id(model_id)
 
 
 @router.post(
@@ -279,17 +230,17 @@ async def update_sheet_data(
     },
 )
 async def update_sheet_meta(
-    id: str,
+    model_id: str,
     name: str,
     sheet_meta: SheetMeta,
     current_user: User = Depends(get_current_active_user),
 ):
-    await _assert_model_exists(id)
+    await _assert_model_exists(model_id)
     # only editor can update sheet
-    await _assert_access_can_edit(current_user.username, id)
+    await _assert_access_can_edit(current_user.username, model_id)
     try:
-        await update_sheet_meta_in_model(id, name, sheet_meta)
-        return await get_model_by_id(id)
+        await update_sheet_meta_in_model(model_id, name, sheet_meta)
+        return await get_model_by_id(model_id)
     except UniqueConstraintFailedException:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,

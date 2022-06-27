@@ -1,128 +1,124 @@
 [
-    {
-        "_id": "62b488ba433720870b60ec0a",
-        "meta": {
-            "name": "model1",
-            "admin": "johndoe@example.com",
-            "editors": ["darwin@example.com"],
-            "viewers": ["charlie@example.com"],
-            "workspace": "ACME Inc."
-        },
-        "data": [
-            {
-                "meta": {"name": "sheet1"},
-                "data": [
-                    {
-                        "assumptions": [
-                            {
-                                "name": "Initial Customers",
-                                "valType": "number",
-                                "editable": true,
-                                "data": {
-                                    "varType": "manual",
-                                    "data": {
-                                        "column1": 100
-                                    }
-                                }
-                            }
-                        ],
-                        "model": {
-                            "category": "Growth",
-                            "rows": [
-                                {
-                                    "name": "New customers",
-                                    "valType": "number",
-                                    "editable": true,
-                                    "data": {
-                                        "varType": "manual",
-                                        "data": {
-                                            "column1": 10,
-                                            "column2": 20,
-                                            "column3": 25
-                                        }
-                                    }
-                                }
-                            ],
-                            "end_row": {
-                                "name": "Total customers",
-                                "valType": "number",
-                                "editable": true,
-                                "data": {
-                                    "varType": "manual",
-                                    "data": {
-                                        "column1": 110,
-                                        "column2": 130,
-                                        "column3": 155
-                                    }
-                                }
-                            }
-                        }
-                    }
-                ]
-            }
-        ]
+  {
+    "_id": "62b488ba433720870b60ec0a",
+    "meta": {
+      "name": "model1",
+      "admin": "johndoe@example.com",
+      "editors": [
+        "darwin@example.com"
+      ],
+      "viewers": [
+        "charlie@example.com"
+      ],
+      "workspace": "ACME Inc."
     },
-    {
-        "_id": "62b488ba433720870b60ec0b",
+    "sheets": [
+      {
         "meta": {
-            "name": "model1",
-            "admin": "alice@example.com",
-            "editors": ["alice@example.com"],
-            "viewers": ["bob@example.com"],
-            "workspace": "Boring Co."
+          "name": "sheet1"
         },
-        "data": [
-            {
-                "meta": {"name": "sheet1"},
-                "data": [
-                    {
-                        "assumptions": [
-                            {
-                                "name": "Initial Customers",
-                                "valType": "number",
-                                "editable": true,
-                                "data": {
-                                    "varType": "manual",
-                                    "data": {
-                                        "column1": 100
-                                    }
-                                }
-                            }
-                        ],
-                        "model": {
-                            "category": "Growth",
-                            "rows": [
-                                {
-                                    "name": "New customers",
-                                    "valType": "number",
-                                    "editable": true,
-                                    "data": {
-                                        "varType": "manual",
-                                        "data": {
-                                            "column1": 10,
-                                            "column2": 20,
-                                            "column3": 25
-                                        }
-                                    }
-                                }
-                            ],
-                            "end_row": {
-                                "name": "Total customers",
-                                "valType": "number",
-                                "editable": true,
-                                "data": {
-                                    "varType": "manual",
-                                    "data": {
-                                        "column1": 110,
-                                        "column2": 130,
-                                        "column3": 155
-                                    }
-                                }
-                            }
-                        }
-                    }
-                ]
+        "assumptions": [
+          {
+            "name": "assumption1",
+            "valType": "number",
+            "editable": true,
+            "varType": "manual",
+            "data": {
+              "column1": 1.23
             }
+          }
+        ],
+        "sections": [
+          {
+            "name": "section1",
+            "rows": [
+              {
+                "name": "string",
+                "valType": "number",
+                "editable": true,
+                "varType": "manual",
+                "data": {
+                  "column1": 1.23,
+                  "column2": 12.3,
+                  "column3": 123
+                }
+              }
+            ],
+            "end_row": {
+              "name": "end_row",
+              "valType": "number",
+              "editable": true,
+              "varType": "relation",
+              "data": {
+                "expression": "RowRef('row1') + RowRef('row2')",
+                "has_starting_value": true,
+                "starting_value": 123
+              }
+            }
+          }
         ]
-    }
+      }
+    ]
+  },
+  {
+    "_id": "62b488ba433720870b60ec0b",
+    "meta": {
+      "name": "model1",
+      "admin": "alice@example.com",
+      "editors": [
+        "alice@example.com"
+      ],
+      "viewers": [
+        "bob@example.com"
+      ],
+      "workspace": "Boring Co."
+    },
+    "sheets": [
+      {
+        "meta": {
+          "name": "sheet1"
+        },
+        "assumptions": [
+          {
+            "name": "assumption1",
+            "valType": "number",
+            "editable": true,
+            "varType": "manual",
+            "data": {
+              "column1": 1.23
+            }
+          }
+        ],
+        "sections": [
+          {
+            "name": "section1",
+            "rows": [
+              {
+                "name": "string",
+                "valType": "number",
+                "editable": true,
+                "varType": "manual",
+                "data": {
+                  "column1": 1.23,
+                  "column2": 12.3,
+                  "column3": 123
+                }
+              }
+            ],
+            "end_row": {
+              "name": "end_row",
+              "valType": "number",
+              "editable": true,
+              "varType": "relation",
+              "data": {
+                "expression": "RowRef('row1') + RowRef('row2')",
+                "has_starting_value": true,
+                "starting_value": 123
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
 ]

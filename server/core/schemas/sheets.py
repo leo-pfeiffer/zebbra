@@ -1,6 +1,6 @@
 from bson import ObjectId
 from pydantic import BaseModel
-from core.schemas.rows import Row
+from core.schemas.rows import Row, Relation, Manual
 
 
 class SheetMeta(BaseModel):
@@ -9,25 +9,16 @@ class SheetMeta(BaseModel):
     #
 
 
-class SectionModel(BaseModel):
-    category: str  # todo: @Patrick, what did we mean by that again? Name? -> Name
-    rows: list[Row]
-    end_row: Row | None  # todo should we enforce this to be a relation row? -> YES
-
-
 class Section(BaseModel):
-    assumptions: list[Row]  # todo should we enforce that Row is a manual row? -> YES
-    model: SectionModel
+    name: str
+    rows: list[Row]
+    end_row: Relation | None
 
 
 class Sheet(BaseModel):
     meta: SheetMeta
-    data: list[Section]
-
-    # class Sheet(BaseModel):
-    #     meta: SheetMeta
-    #     assumptions: list[Row]
-    #     data: list[SectionModel]
+    assumptions: list[Manual]
+    sections: list[Section]
 
     class Config:
         allow_population_by_field_name = True

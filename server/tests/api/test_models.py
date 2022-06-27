@@ -4,7 +4,7 @@ from starlette import status
 from starlette.testclient import TestClient
 
 from core.dao.models import is_admin, is_editor, is_viewer, get_model_by_id
-from core.schemas.sheets import SheetMeta, Section, SectionModel
+from core.schemas.sheets import SheetMeta, Section
 from main import app
 from tests.utils import assert_unauthorized_login_checked
 
@@ -16,7 +16,7 @@ def test_model_protected():
 def test_model_more_than_one_param(access_token):
     client = TestClient(app)
     response = client.get(
-        "/model/?user=true&id=some_random_id",
+        "/model/?user=true&model_id=some_random_id",
         headers={"Authorization": f"Bearer {access_token}"},
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -35,7 +35,7 @@ def test_model_get_by_id(access_token):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
     response = client.get(
-        f"/model/?id={model_id}",
+        f"/model/?model_id={model_id}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
     assert response.status_code == status.HTTP_200_OK
@@ -46,7 +46,7 @@ def test_model_get_by_id_non_existent_model(access_token):
     client = TestClient(app)
     model_id = "not a model"
     response = client.get(
-        f"/model/?id={model_id}",
+        f"/model/?model_id={model_id}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -56,7 +56,7 @@ def test_model_get_id_forbidden(access_token):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0b"
     response = client.get(
-        f"/model/?id={model_id}",
+        f"/model/?model_id={model_id}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
@@ -111,7 +111,7 @@ async def test_grant_permission_admin(access_token):
     user = "darwin@example.com"
     role = "admin"
     response = client.post(
-        f"/model/grant?id={model_id}&role={role}&user={user}",
+        f"/model/grant?model_id={model_id}&role={role}&user={user}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -128,7 +128,7 @@ async def test_grant_permission_editor(access_token):
     user = "johndoe@example.com"
     role = "editor"
     response = client.post(
-        f"/model/grant?id={model_id}&role={role}&user={user}",
+        f"/model/grant?model_id={model_id}&role={role}&user={user}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -145,7 +145,7 @@ async def test_grant_permission_viewer(access_token):
     user = "johndoe@example.com"
     role = "viewer"
     response = client.post(
-        f"/model/grant?id={model_id}&role={role}&user={user}",
+        f"/model/grant?model_id={model_id}&role={role}&user={user}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -162,7 +162,7 @@ async def test_grant_permission_no_access(access_token_alice):
     user = "johndoe@example.com"
     role = "viewer"
     response = client.post(
-        f"/model/grant?id={model_id}&role={role}&user={user}",
+        f"/model/grant?model_id={model_id}&role={role}&user={user}",
         headers={"Authorization": f"Bearer {access_token_alice}"},
     )
 
@@ -178,7 +178,7 @@ async def test_grant_permission_non_existent_model(access_token):
     user = "johndoe@example.com"
     role = "viewer"
     response = client.post(
-        f"/model/grant?id={model_id}&role={role}&user={user}",
+        f"/model/grant?model_id={model_id}&role={role}&user={user}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -193,7 +193,7 @@ async def test_revoke_permission_editor(access_token):
     role = "editor"
 
     response = client.post(
-        f"/model/revoke?id={model_id}&role={role}&user={user}",
+        f"/model/revoke?model_id={model_id}&role={role}&user={user}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -210,7 +210,7 @@ async def test_revoke_permission_viewer(access_token):
     user = "charlie@example.com"
     role = "viewer"
     response = client.post(
-        f"/model/revoke?id={model_id}&role={role}&user={user}",
+        f"/model/revoke?model_id={model_id}&role={role}&user={user}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -227,7 +227,7 @@ async def test_revoke_permission_no_access(access_token_alice):
     user = "charlie@example.com"
     role = "viewer"
     response = client.post(
-        f"/model/revoke?id={model_id}&role={role}&user={user}",
+        f"/model/revoke?model_id={model_id}&role={role}&user={user}",
         headers={"Authorization": f"Bearer {access_token_alice}"},
     )
 
@@ -243,7 +243,7 @@ async def test_revoke_permission_non_existent_model(access_token):
     user = "charlie@example.com"
     role = "viewer"
     response = client.post(
-        f"/model/revoke?id={model_id}&role={role}&user={user}",
+        f"/model/revoke?model_id={model_id}&role={role}&user={user}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -256,7 +256,7 @@ async def test_rename_model(access_token):
     model_id = "62b488ba433720870b60ec0a"
     new_name = "new_name"
     response = client.post(
-        f"/model/rename?id={model_id}&name={new_name}",
+        f"/model/rename?model_id={model_id}&name={new_name}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -273,7 +273,7 @@ async def test_rename_model_no_access(access_token_alice):
     model_id = "62b488ba433720870b60ec0a"
     new_name = "new_name"
     response = client.post(
-        f"/model/rename?id={model_id}&name={new_name}",
+        f"/model/rename?model_id={model_id}&name={new_name}",
         headers={"Authorization": f"Bearer {access_token_alice}"},
     )
 
@@ -289,7 +289,7 @@ async def test_rename_model_non_existent_model(access_token):
     model_id = "not a model"
     new_name = "new_name"
     response = client.post(
-        f"/model/rename?id={model_id}&name={new_name}",
+        f"/model/rename?model_id={model_id}&name={new_name}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -326,126 +326,23 @@ async def test_add_model_no_access(access_token):
 
 
 @pytest.mark.anyio
-async def test_add_sheet(access_token):
-    client = TestClient(app)
-    sheet_name = "some sheet"
-    model_id = "62b488ba433720870b60ec0a"
-    response = client.post(
-        f"/model/sheet/add?id={model_id}&name={sheet_name}",
-        headers={"Authorization": f"Bearer {access_token}"},
-    )
-
-    assert response.status_code == status.HTTP_200_OK
-    model = response.json()
-    assert sheet_name in [x["meta"]["name"] for x in model["data"]]
-
-
-@pytest.mark.anyio
-async def test_add_sheet_non_existent_model(access_token):
-    client = TestClient(app)
-    sheet_name = "some sheet"
-    model_id = "not a model"
-    response = client.post(
-        f"/model/sheet/add?id={model_id}&name={sheet_name}",
-        headers={"Authorization": f"Bearer {access_token}"},
-    )
-
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-
-
-@pytest.mark.anyio
-async def test_add_sheet_no_access(access_token_alice):
-    client = TestClient(app)
-    sheet_name = "some sheet"
-    model_id = "62b488ba433720870b60ec0a"
-    response = client.post(
-        f"/model/sheet/add?id={model_id}&name={sheet_name}",
-        headers={"Authorization": f"Bearer {access_token_alice}"},
-    )
-
-    assert response.status_code == status.HTTP_403_FORBIDDEN
-
-
-@pytest.mark.anyio
-async def test_add_sheet_unique_constraint(access_token):
-    client = TestClient(app)
-    sheet_name = "some sheet"
-    model_id = "62b488ba433720870b60ec0a"
-    client.post(
-        f"/model/sheet/add?id={model_id}&name={sheet_name}",
-        headers={"Authorization": f"Bearer {access_token}"},
-    )
-
-    r = client.post(
-        f"/model/sheet/add?id={model_id}&name={sheet_name}",
-        headers={"Authorization": f"Bearer {access_token}"},
-    )
-
-    assert r.status_code == status.HTTP_409_CONFLICT
-
-
-@pytest.mark.anyio
-async def test_delete_sheet(access_token):
-    client = TestClient(app)
-    model_id = "62b488ba433720870b60ec0a"
-    model1 = await get_model_by_id(model_id)
-    sheet_name = model1["data"][0]["meta"]["name"]
-
-    response = client.post(
-        f"/model/sheet/delete?id={model_id}&name={sheet_name}",
-        headers={"Authorization": f"Bearer {access_token}"},
-    )
-
-    assert response.status_code == status.HTTP_200_OK
-    model = response.json()
-    assert sheet_name not in [x["meta"]["name"] for x in model["data"]]
-
-
-@pytest.mark.anyio
-async def test_delete_sheet_non_existent_model(access_token):
-    client = TestClient(app)
-    model_id = "not a model"
-
-    response = client.post(
-        f"/model/sheet/delete?id={model_id}&name=foobar",
-        headers={"Authorization": f"Bearer {access_token}"},
-    )
-
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-
-
-@pytest.mark.anyio
-async def test_delete_sheet_no_access(access_token_alice):
-    client = TestClient(app)
-    model_id = "62b488ba433720870b60ec0a"
-    sheet_name = "some model name"
-
-    response = client.post(
-        f"/model/sheet/delete?id={model_id}&name={sheet_name}",
-        headers={"Authorization": f"Bearer {access_token_alice}"},
-    )
-
-    assert response.status_code == status.HTTP_403_FORBIDDEN
-
-
-@pytest.mark.anyio
 async def test_update_sheet_meta(access_token):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
     model1 = await get_model_by_id(model_id)
-    old_sheet_name = model1["data"][0]["meta"]["name"]
+    old_sheet_name = model1["sheets"][0]["meta"]["name"]
     new_sheet_name = "new sheet name"
     new_meta = SheetMeta(name=new_sheet_name)
 
     response = client.post(
-        f"/model/sheet/update/meta?id={model_id}&name={old_sheet_name}",
+        f"/model/sheet/update/meta?model_id={model_id}&name={old_sheet_name}",
         headers={"Authorization": f"Bearer {access_token}"},
         json=jsonable_encoder(new_meta),
     )
 
     assert response.status_code == status.HTTP_200_OK
 
-    assert response.json()["data"][0]["meta"]["name"] == new_sheet_name
+    assert response.json()["sheets"][0]["meta"]["name"] == new_sheet_name
 
 
 @pytest.mark.anyio
@@ -456,7 +353,7 @@ async def test_update_sheet_meta_non_existent_model(access_token):
     new_meta = SheetMeta(name=new_sheet_name)
 
     response = client.post(
-        f"/model/sheet/update/meta?id={model_id}&name=foo",
+        f"/model/sheet/update/meta?model_id={model_id}&name=foo",
         headers={"Authorization": f"Bearer {access_token}"},
         json=jsonable_encoder(new_meta),
     )
@@ -469,12 +366,12 @@ async def test_update_sheet_meta_no_access(access_token_alice):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
     model1 = await get_model_by_id(model_id)
-    old_sheet_name = model1["data"][0]["meta"]["name"]
+    old_sheet_name = model1["sheets"][0]["meta"]["name"]
     new_sheet_name = "new sheet name"
     new_meta = SheetMeta(name=new_sheet_name)
 
     response = client.post(
-        f"/model/sheet/update/meta?id={model_id}&name={old_sheet_name}",
+        f"/model/sheet/update/meta?model_id={model_id}&name={old_sheet_name}",
         headers={"Authorization": f"Bearer {access_token_alice}"},
         json=jsonable_encoder(new_meta),
     )
@@ -487,11 +384,11 @@ async def test_update_sheet_meta_duplicate_name(access_token):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
     model1 = await get_model_by_id(model_id)
-    old_sheet_name = model1["data"][0]["meta"]["name"]
+    old_sheet_name = model1["sheets"][0]["meta"]["name"]
     new_meta = SheetMeta(name=old_sheet_name)
 
     response = client.post(
-        f"/model/sheet/update/meta?id={model_id}&name={old_sheet_name}",
+        f"/model/sheet/update/meta?model_id={model_id}&name={old_sheet_name}",
         headers={"Authorization": f"Bearer {access_token}"},
         json=jsonable_encoder(new_meta),
     )
@@ -504,29 +401,15 @@ async def test_update_sheet_data(access_token):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
     model1 = await get_model_by_id(model_id)
-    old_sheet_name = model1["data"][0]["meta"]["name"]
+    old_sheet_name = model1["sheets"][0]["meta"]["name"]
 
     new_data = [
-        Section(
-            **{
-                "assumptions": [],
-                "model": SectionModel(
-                    **{"category": "foo", "rows": [], "end_row": None}
-                ),
-            }
-        ),
-        Section(
-            **{
-                "assumptions": [],
-                "model": SectionModel(
-                    **{"category": "bar", "rows": [], "end_row": None}
-                ),
-            }
-        ),
+        Section(**{"name": "section1", "rows": [], "end_row": None}),
+        Section(**{"name": "section2", "rows": [], "end_row": None}),
     ]
 
     response = client.post(
-        f"/model/sheet/update/data?id={model_id}&name={old_sheet_name}",
+        f"/model/sheet/update/data?model_id={model_id}&name={old_sheet_name}",
         headers={"Authorization": f"Bearer {access_token}"},
         json=jsonable_encoder(new_data),
     )
@@ -534,9 +417,9 @@ async def test_update_sheet_data(access_token):
     assert response.status_code == status.HTTP_200_OK
 
     model2 = response.json()
-    assert len(model2["data"][0]["data"]) == 2
-    assert model2["data"][0]["data"][0]["model"]["category"] == "foo"
-    assert model2["data"][0]["data"][1]["model"]["category"] == "bar"
+    assert len(model2["sheets"][0]["sections"]) == 2
+    assert model2["sheets"][0]["sections"][0]["name"] == "section1"
+    assert model2["sheets"][0]["sections"][1]["name"] == "section2"
 
 
 @pytest.mark.anyio
@@ -544,10 +427,10 @@ async def test_update_sheet_data_no_access(access_token_alice):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
     model1 = await get_model_by_id(model_id)
-    old_sheet_name = model1["data"][0]["meta"]["name"]
+    old_sheet_name = model1["sheets"][0]["meta"]["name"]
 
     response = client.post(
-        f"/model/sheet/update/data?id={model_id}&name={old_sheet_name}",
+        f"/model/sheet/update/data?model_id={model_id}&name={old_sheet_name}",
         headers={"Authorization": f"Bearer {access_token_alice}"},
         json=jsonable_encoder([]),
     )
@@ -561,7 +444,7 @@ async def test_update_sheet_data_non_existent_model(access_token):
     model_id = "not a model"
 
     response = client.post(
-        f"/model/sheet/update/data?id={model_id}&name=foo",
+        f"/model/sheet/update/data?model_id={model_id}&name=foo",
         headers={"Authorization": f"Bearer {access_token}"},
         json=jsonable_encoder([]),
     )
