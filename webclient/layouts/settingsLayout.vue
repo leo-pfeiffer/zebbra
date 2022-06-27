@@ -1,6 +1,6 @@
 <template>
     <div class="w-screen h-screen flex">
-        <div class="w-48 bg-zinc-100 px-3 py-4 border-r border-zinc-300 overflow-hidden">
+        <div class="w-48 min-w-[12rem] bg-zinc-100 px-3 py-4 border-r border-zinc-300 overflow-hidden">
             <div class="text-sm flex align-middle">
                 <NuxtLink to="/tesla"><div class="text-zinc-400 py-1 pl-1.5 pr-1 hover:bg-zinc-200 hover:text-zinc-500 rounded-md hover:shadow-sm">
                     <i class="bi bi-arrow-up-left"></i>

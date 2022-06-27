@@ -15,7 +15,7 @@ export default {
 
 <template>
     <div class="w-screen h-screen flex">
-        <div class="w-48 bg-zinc-100 px-3 py-4 border-r border-zinc-300 overflow-hidden">
+        <div class="w-48 min-w-[12rem] bg-zinc-100 px-3 py-4 border-r border-zinc-300 overflow-hidden">
             <div class="text-sm ml-0.5">
                 <span class="px-2 py-1 rounded-md bg-green-500 text-neutral-50 shadow-sm">
                     {{ workspaceName[0] }}
