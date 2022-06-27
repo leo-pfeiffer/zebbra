@@ -1,0 +1,128 @@
+[
+    {
+        "_id": "62b488ba433720870b60ec0a",
+        "meta": {
+            "name": "model1",
+            "admin": "johndoe@example.com",
+            "editors": ["darwin@example.com"],
+            "viewers": ["charlie@example.com"],
+            "workspace": "ACME Inc."
+        },
+        "data": [
+            {
+                "meta": {"name": "sheet1"},
+                "data": [
+                    {
+                        "assumptions": [
+                            {
+                                "name": "Initial Customers",
+                                "valType": "number",
+                                "editable": true,
+                                "data": {
+                                    "varType": "manual",
+                                    "data": {
+                                        "column1": 100
+                                    }
+                                }
+                            }
+                        ],
+                        "model": {
+                            "category": "Growth",
+                            "rows": [
+                                {
+                                    "name": "New customers",
+                                    "valType": "number",
+                                    "editable": true,
+                                    "data": {
+                                        "varType": "manual",
+                                        "data": {
+                                            "column1": 10,
+                                            "column2": 20,
+                                            "column3": 25
+                                        }
+                                    }
+                                }
+                            ],
+                            "end_row": {
+                                "name": "Total customers",
+                                "valType": "number",
+                                "editable": true,
+                                "data": {
+                                    "varType": "manual",
+                                    "data": {
+                                        "column1": 110,
+                                        "column2": 130,
+                                        "column3": 155
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "_id": "62b488ba433720870b60ec0b",
+        "meta": {
+            "name": "model1",
+            "admin": "alice@example.com",
+            "editors": ["alice@example.com"],
+            "viewers": ["bob@example.com"],
+            "workspace": "Boring Co."
+        },
+        "data": [
+            {
+                "meta": {"name": "sheet1"},
+                "data": [
+                    {
+                        "assumptions": [
+                            {
+                                "name": "Initial Customers",
+                                "valType": "number",
+                                "editable": true,
+                                "data": {
+                                    "varType": "manual",
+                                    "data": {
+                                        "column1": 100
+                                    }
+                                }
+                            }
+                        ],
+                        "model": {
+                            "category": "Growth",
+                            "rows": [
+                                {
+                                    "name": "New customers",
+                                    "valType": "number",
+                                    "editable": true,
+                                    "data": {
+                                        "varType": "manual",
+                                        "data": {
+                                            "column1": 10,
+                                            "column2": 20,
+                                            "column3": 25
+                                        }
+                                    }
+                                }
+                            ],
+                            "end_row": {
+                                "name": "Total customers",
+                                "valType": "number",
+                                "editable": true,
+                                "data": {
+                                    "varType": "manual",
+                                    "data": {
+                                        "column1": 110,
+                                        "column2": 130,
+                                        "column3": 155
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+]

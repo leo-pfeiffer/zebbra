@@ -14,5 +14,37 @@
         "workspaces": ["Boring Co."],
         "hashed_password": "$2b$12$JObcoGR6lNWg3ztKdhEK/OtPjUoltMlHJIg99ctXPaBCNQH1EMts.",
         "disabled": false
+    },
+    {
+        "username": "bob@example.com",
+        "first_name": "Bob",
+        "last_name": "Babish",
+        "workspaces": ["Boring Co."],
+        "hashed_password": "$2b$12$JObcoGR6lNWg3ztKdhEK/OtPjUoltMlHJIg99ctXPaBCNQH1EMts.",
+        "disabled": false
+    },
+    {
+        "username": "charlie@example.com",
+        "first_name": "Charlie",
+        "last_name": "Carlson",
+        "workspaces": ["ACME Inc."],
+        "hashed_password": "$2b$12$JObcoGR6lNWg3ztKdhEK/OtPjUoltMlHJIg99ctXPaBCNQH1EMts.",
+        "disabled": false
+    },
+    {
+        "username": "darwin@example.com",
+        "first_name": "Darwin",
+        "last_name": "Dobson",
+        "workspaces": ["ACME Inc."],
+        "hashed_password": "$2b$12$JObcoGR6lNWg3ztKdhEK/OtPjUoltMlHJIg99ctXPaBCNQH1EMts.",
+        "disabled": false
+    },
+    {
+        "username": "zeus@example.com",
+        "first_name": "Zeus",
+        "last_name": "Olympus",
+        "workspaces": ["ACME Inc."],
+        "hashed_password": "$2b$12$JObcoGR6lNWg3ztKdhEK/OtPjUoltMlHJIg99ctXPaBCNQH1EMts.",
+        "disabled": false
     }
 ]
