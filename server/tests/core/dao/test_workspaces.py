@@ -8,6 +8,8 @@ from core.dao.workspaces import (
     get_admin_workspaces_of_user,
     change_workspace_admin,
     is_user_in_workspace,
+    change_workspace_name,
+    is_user_admin_of_workspace,
 )
 from core.exceptions import UniqueConstraintFailedException, DoesNotExistException
 from core.schemas.workspaces import Workspace
@@ -108,3 +110,36 @@ async def test_cannot_change_workspace_admin_to_non_existing_user():
 
     with pytest.raises(DoesNotExistException):
         await change_workspace_admin(wsp, username)
+
+
+@pytest.mark.anyio
+async def test_change_workspace_name():
+    wsp = "Boring Co."
+    new_name = "Tesla Co."
+
+    await change_workspace_name(wsp, new_name)
+    assert await get_workspace(wsp) is None
+    assert await get_workspace(new_name) is not None
+
+
+@pytest.mark.anyio
+async def test_change_workspace_name_duplicate():
+    wsp = "Boring Co."
+    new_name = "ACME Inc."
+
+    with pytest.raises(UniqueConstraintFailedException):
+        await change_workspace_name(wsp, new_name)
+
+
+@pytest.mark.anyio
+async def test_user_is_admin():
+    username = "johndoe@example.com"
+    workspace = "ACME Inc."
+    assert await is_user_admin_of_workspace(username, workspace)
+
+
+@pytest.mark.anyio
+async def test_user_is_admin_false():
+    username = "alice@example.com"
+    workspace = "ACME Inc."
+    assert not await is_user_admin_of_workspace(username, workspace)

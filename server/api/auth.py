@@ -9,18 +9,15 @@ from core.dao.users import get_user, create_user
 from core.schemas.tokens import Token, BlacklistToken
 from core.schemas.users import RegisterUser, UserInDB, User
 from core.schemas.utils import Message, OAuth2PasswordRequestFormWithOTP
-from dependencies import ACCESS_TOKEN_EXPIRE_MINUTES, get_current_active_user_token
-from dependencies import pwd_context, SECRET_KEY, ALGORITHM
+from dependencies import (
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+    get_current_active_user_token,
+    verify_password,
+    get_password_hash,
+)
+from dependencies import SECRET_KEY, ALGORITHM
 
 router = APIRouter()
-
-
-def verify_password(plain_password: str, hashed_password: str):
-    return pwd_context.verify(plain_password, hashed_password)
-
-
-def get_password_hash(password: str):
-    return pwd_context.hash(password)
 
 
 async def authenticate_user(username: str, password: str) -> UserInDB | bool:

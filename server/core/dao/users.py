@@ -1,8 +1,10 @@
+from typing import Any
+
 from fastapi.encoders import jsonable_encoder
 
 from core.exceptions import UniqueConstraintFailedException
 from core.dao.database import db
-from core.schemas.users import UserInDB
+from core.schemas.users import UserInDB, RegisterUser
 
 
 async def user_exists(username: str):
@@ -22,6 +24,64 @@ async def create_user(user: UserInDB):
     return res
 
 
+async def update_username(username: str, new_username: str):
+    if await get_user(new_username) is not None:
+        raise UniqueConstraintFailedException("Username must be unique")
+
+    await db.users.update_one(
+        {"username": username},
+        {"$set": {"username": new_username}},
+    )
+
+    # workspace admin
+    await db.workspaces.update_many(
+        {"admin": username}, {"$set": {"admin": new_username}}
+    )
+
+    # workspace users
+    await db.workspaces.update_many(
+        {"users": username},
+        {"$push": {"users": new_username}},
+    )
+    await db.workspaces.update_many(
+        {"users": username},
+        {"$pull": {"users": username}},
+    )
+
+    # model admin
+    await db.models.update_many(
+        {"meta.admin": username}, {"$set": {"meta.admin": new_username}}
+    )
+
+    # model editor
+    await db.models.update_many(
+        {"meta.editors": username},
+        {"$push": {"meta.editors": new_username}},
+    )
+    await db.models.update_many(
+        {"meta.editors": username},
+        {"$pull": {"meta.editors": username}},
+    )
+
+    # model viewer
+    await db.models.update_many(
+        {"meta.viewers": username},
+        {"$push": {"meta.viewers": new_username}},
+    )
+    await db.models.update_many(
+        {"meta.viewers": username},
+        {"$pull": {"meta.viewers": username}},
+    )
+
+
+async def update_user_field(username: str, field: str, value: Any):
+    assert field != "username"
+    if field not in RegisterUser.__fields__ and field != "hashed_password":
+        raise ValueError(f"Setting {field} not supported.")
+    await db.users.update_one({"username": username}, {"$set": {field: value}})
+    return await db.users.find_one({"username": username})
+
+
 async def delete_user_full(username: str):
     """
     Fully delete a user including and remove from all workspaces etc.
@@ -32,6 +92,17 @@ async def delete_user_full(username: str):
 
     # remove user from workspaces
     await db.workspaces.update_many({"users": username}, {"$pull": {"users": username}})
+
+
+async def remove_user_from_workspace(username: str, workspace: str):
+
+    # todo handle cases where user to be removed is admin
+
+    await db.users.update_one(
+        {"username": username}, {"$pull": {"workspaces": workspace}}
+    )
+
+    await db.workspaces.update_one({"name": workspace}, {"$pull": {"users": username}})
 
 
 async def add_user_to_workspace(username: str, workspace: str):
