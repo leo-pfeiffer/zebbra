@@ -25,7 +25,7 @@ export default {
                 </span>
             </div>
             <div class="text-xs my-4">
-                <NuxtLink to="/tesla/settings"><div class="px-2 hover:bg-zinc-200 py-1.5 rounded text-zinc-500">
+                <NuxtLink to="/tesla/settings/workspace"><div class="px-2 hover:bg-zinc-200 py-1.5 rounded text-zinc-500">
                     <i class="bi bi-gear-fill text-zinc-400"></i><span
                             class="pl-2">Settings</span>
                 </div></NuxtLink>
