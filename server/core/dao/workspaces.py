@@ -88,7 +88,7 @@ async def change_workspace_name(old_name: str, new_name: str):
     """
     Change the workspace name.
     """
-    if await get_workspace(old_name) is not None:
+    if await get_workspace(new_name) is not None:
         raise UniqueConstraintFailedException("Workspace name must be unique")
 
     await db.workspaces.update_one({"name": old_name}, {"$set": {"name": new_name}})
