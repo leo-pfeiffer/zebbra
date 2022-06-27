@@ -99,7 +99,7 @@ async def model_grant_permission(
 
     await _assert_model_exists(id)
 
-    # todo: Or should every editor have granting permission?
+    # todo: Or should every editor have granting permission?, Nope, only admin
     # granting user must be admin
     await _assert_access_admin(current_user.username, id)
 
@@ -138,7 +138,7 @@ async def model_revoke_permission(
 ):
     await _assert_model_exists(id)
 
-    # todo: Or should every editor have revoking permission?
+    # todo: Or should every editor have revoking permission? Nope, only admin
     # granting user must be admin
     await _assert_access_admin(current_user.username, id)
 
