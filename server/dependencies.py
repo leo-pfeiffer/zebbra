@@ -60,3 +60,11 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
 
 async def get_current_active_user_token(token: str = Depends(oauth2_scheme)):
     return token
+
+
+def verify_password(plain_password: str, hashed_password: str):
+    return pwd_context.verify(plain_password, hashed_password)
+
+
+def get_password_hash(password: str):
+    return pwd_context.hash(password)

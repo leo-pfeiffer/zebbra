@@ -1,5 +1,6 @@
 import pytest
 
+from core.dao.models import get_models_for_user
 from core.exceptions import UniqueConstraintFailedException
 from core.dao.users import (
     get_user,
@@ -8,6 +9,8 @@ from core.dao.users import (
     create_user,
     set_user_otp_secret,
     set_user_otp_secret_validated,
+    update_username,
+    update_user_field,
 )
 from core.dao.workspaces import get_workspaces_of_user, create_workspace, get_workspace
 from core.schemas.users import UserInDB
@@ -106,7 +109,66 @@ async def test_set_otp_secret_sets_validated_false():
 @pytest.mark.anyio
 async def test_set_otp_validated():
     username = "johndoe@example.com"
-    secret = "the secret"
     await set_user_otp_secret_validated(username)
     user = await get_user(username)
     assert user.otp_validated
+
+
+@pytest.mark.anyio
+async def test_update_username():
+    username = "johndoe@example.com"
+    new_username = "nolongerjohn@example.com"
+    await update_username(username, new_username)
+
+    assert await get_user(new_username) is not None
+    assert await get_user(username) is None
+
+    assert len(await get_workspaces_of_user(username)) == 0
+    assert len(await get_models_for_user(username)) == 0
+
+
+@pytest.mark.anyio
+async def test_update_username_duplicate():
+    username = "johndoe@example.com"
+    new_username = "johndoe@example.com"
+
+    with pytest.raises(UniqueConstraintFailedException):
+        await update_username(username, new_username)
+
+
+@pytest.mark.anyio
+async def test_update_first_name():
+    username = "johndoe@example.com"
+    first_name = "Alfred"
+    await update_user_field(username, "first_name", first_name)
+
+    user = await get_user(username)
+    assert user.first_name == first_name
+
+
+@pytest.mark.anyio
+async def test_update_last_name():
+    username = "johndoe@example.com"
+    value = "Hitchcock"
+    await update_user_field(username, "last_name", value)
+
+    user = await get_user(username)
+    assert user.last_name == value
+
+
+@pytest.mark.anyio
+async def test_update_password():
+    username = "johndoe@example.com"
+    value = "secret"
+    await update_user_field(username, "hashed_password", value)
+
+    user = await get_user(username)
+    assert user.hashed_password == value
+
+
+@pytest.mark.anyio
+async def test_update_non_existent_field():
+    username = "johndoe@example.com"
+    value = "secret"
+    with pytest.raises(ValueError):
+        await update_user_field(username, "some_random_field", value)
