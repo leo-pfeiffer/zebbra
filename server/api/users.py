@@ -1,5 +1,8 @@
+from typing import Literal
+
 import pyotp
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import EmailStr
 from starlette import status
 from starlette.responses import JSONResponse
 
@@ -9,11 +12,13 @@ from core.dao.users import (
     set_user_otp_secret,
     get_user,
     set_user_otp_secret_validated,
+    update_user_field,
+    update_username,
 )
 from core.dao.workspaces import get_admin_workspaces_of_user
 from core.schemas.users import User
 from core.schemas.utils import Message, OtpUrl, OtpValidation
-from dependencies import get_current_active_user
+from dependencies import get_current_active_user, get_password_hash
 
 router = APIRouter()
 
@@ -30,7 +35,7 @@ async def read_user(current_user: User = Depends(get_current_active_user)):
     return current_user
 
 
-@router.get(
+@router.post(
     "/user/delete",
     response_model=Message,
     tags=["user"],
@@ -61,6 +66,42 @@ async def delete_user(current_user: User = Depends(get_current_active_user)):
     await delete_user_full(current_user.username)
 
     return JSONResponse(status_code=200, content={"message": "User deleted."})
+
+
+@router.post("/user/update", response_model=User, tags=["user"])
+async def update_user(
+    username: EmailStr | None = None,
+    first_name: str | None = None,
+    last_name: str | None = None,
+    password: str | None = None,
+    current_user: User = Depends(get_current_active_user),
+):
+    """
+    Update a user object.
+    """
+
+    username_to_get = current_user.username
+
+    if username is not None:
+        # make sure username is not already taken
+        if (await get_user(username)) is not None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Username already exists",
+            )
+        await update_username(current_user.username, username)
+        username_to_get = username
+    elif first_name is not None:
+        await update_user_field(current_user.username, "first_name", first_name)
+    elif last_name is not None:
+        await update_user_field(current_user.username, "last_name", last_name)
+    elif password is not None:
+        hashed_password = get_password_hash(password)
+        await update_user_field(
+            current_user.username, "hashed_password", hashed_password
+        )
+
+    return await get_user(username_to_get)
 
 
 @router.post(

@@ -1,8 +1,10 @@
+from typing import Any
+
 from fastapi.encoders import jsonable_encoder
 
 from core.exceptions import UniqueConstraintFailedException
 from core.dao.database import db
-from core.schemas.users import UserInDB
+from core.schemas.users import UserInDB, RegisterUser
 
 
 async def user_exists(username: str):
@@ -20,6 +22,64 @@ async def create_user(user: UserInDB):
         raise UniqueConstraintFailedException("Username must be unique")
     res = await db.users.insert_one(jsonable_encoder(user))
     return res
+
+
+async def update_username(username: str, new_username: str):
+    if await get_user(new_username) is not None:
+        raise UniqueConstraintFailedException("Username must be unique")
+
+    await db.users.update_one(
+        {"username": username},
+        {"$set": {"username": new_username}},
+    )
+
+    # workspace admin
+    await db.workspaces.update_many(
+        {"admin": username}, {"$set": {"admin": new_username}}
+    )
+
+    # workspace users
+    await db.workspaces.update_many(
+        {"users": username},
+        {"$push": {"users": new_username}},
+    )
+    await db.workspaces.update_many(
+        {"users": username},
+        {"$pull": {"users": username}},
+    )
+
+    # model admin
+    await db.models.update_many(
+        {"meta.admin": username}, {"$set": {"meta.admin": new_username}}
+    )
+
+    # model editor
+    await db.models.update_many(
+        {"meta.editors": username},
+        {"$push": {"meta.editors": new_username}},
+    )
+    await db.models.update_many(
+        {"meta.editors": username},
+        {"$pull": {"meta.editors": username}},
+    )
+
+    # model viewer
+    await db.models.update_many(
+        {"meta.viewers": username},
+        {"$push": {"meta.viewers": new_username}},
+    )
+    await db.models.update_many(
+        {"meta.viewers": username},
+        {"$pull": {"meta.viewers": username}},
+    )
+
+
+async def update_user_field(username: str, field: str, value: Any):
+    assert field != "username"
+    if field not in RegisterUser.__fields__ and field != "hashed_password":
+        raise ValueError(f"Setting {field} not supported.")
+    await db.users.update_one({"username": username}, {"$set": {field: value}})
+    return await db.users.find_one({"username": username})
 
 
 async def delete_user_full(username: str):
