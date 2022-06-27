@@ -41,6 +41,17 @@ async def is_user_in_workspace(username: str, workspace: str):
     )
 
 
+async def is_user_admin_of_workspace(username: str, workspace: str):
+    """
+    Returns true if the user is the admin of the workspace, else false.
+    :param username: username of the user
+    :param workspace: workspace name
+    """
+    return (
+        await db.workspaces.count_documents({"name": workspace, "admin": username}) > 0
+    )
+
+
 async def get_admin_workspaces_of_user(username: str):
     """
     Return a list of the workspaces of which the user is the admin.
@@ -57,7 +68,7 @@ async def create_workspace(workspace: Workspace):
     Create a new workspace.
     """
     if await get_workspace(workspace.name) is not None:
-        raise UniqueConstraintFailedException("Username must be unique")
+        raise UniqueConstraintFailedException("Workspace name must be unique")
     return await db.workspaces.insert_one(jsonable_encoder(workspace))
 
 
@@ -71,3 +82,27 @@ async def change_workspace_admin(workspace: str, username: str):
         raise DoesNotExistException("User does not exist")
 
     await db.workspaces.update_one({"name": workspace}, {"$set": {"admin": username}})
+
+
+async def change_workspace_name(old_name: str, new_name: str):
+    """
+    Change the workspace name.
+    """
+    if await get_workspace(old_name) is not None:
+        raise UniqueConstraintFailedException("Workspace name must be unique")
+
+    await db.workspaces.update_one({"name": old_name}, {"$set": {"name": new_name}})
+
+    # change users
+    await db.users.update_many(
+        {"workspaces": old_name}, {"$push": {"workspaces": new_name}}
+    )
+
+    await db.users.update_many(
+        {"workspaces": old_name}, {"$pull": {"workspaces": old_name}}
+    )
+
+    # change models
+    await db.models.update_many(
+        {"workspace": old_name}, {"$set": {"workspace": new_name}}
+    )
