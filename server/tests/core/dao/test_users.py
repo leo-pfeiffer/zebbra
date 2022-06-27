@@ -78,13 +78,14 @@ async def test_delete_user_deletes_workspace_membership():
 async def test_add_user_to_workspace():
     wsp = "Boring Co."
     username = "johndoe@example.com"
+    workspace_before = await get_workspace(wsp)
     await add_user_to_workspace(username, wsp)
     user = await get_user(username)
     assert len(user.workspaces) == 2
     assert wsp in user.workspaces
-    workspace = await get_workspace(wsp)
-    assert len(workspace.users) == 2
-    assert username in workspace.users
+    workspace_after = await get_workspace(wsp)
+    assert len(workspace_after.users) - len(workspace_before.users) == 1
+    assert username in workspace_after.users
 
 
 @pytest.mark.anyio

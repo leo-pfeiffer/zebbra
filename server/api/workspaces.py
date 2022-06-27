@@ -1,7 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from starlette import status
 
-from core.dao.users import add_user_to_workspace, remove_user_from_workspace
+from core.dao.users import (
+    add_user_to_workspace,
+    remove_user_from_workspace,
+    user_exists,
+)
 from core.dao.workspaces import (
     is_user_in_workspace,
     get_workspaces_of_user,
@@ -37,7 +41,7 @@ async def get_workspace_for_user(current_user: User = Depends(get_current_active
 # CREATE workspace
 @router.post(
     "/workspace",
-    response_model=list[Workspace],
+    response_model=Workspace,
     tags=["workspace"],
 )
 async def create_new_workspace(
@@ -77,12 +81,13 @@ async def rename_workspace(
         )
 
 
-# POST add user to workspace
+# POST add user to workspace todo test
 @router.post("/workspace/add", response_model=Workspace, tags=["workspace"])
 async def add_to_workspace(
     username: str, workspace: str, current_user: User = Depends(get_current_active_user)
 ):
 
+    await _assert_user_exists(username)
     await _assert_workspace_access_admin(current_user.username, workspace)
 
     if not await is_user_in_workspace(username, workspace):
@@ -90,12 +95,13 @@ async def add_to_workspace(
     return await get_workspace(workspace)
 
 
-# POST remove user from workspace
+# POST remove user from workspace todo test
 @router.post("/workspace/remove", response_model=Workspace, tags=["workspace"])
 async def remove_from_workspace(
     username: str, workspace: str, current_user: User = Depends(get_current_active_user)
 ):
 
+    await _assert_user_exists(username)
     await _assert_workspace_access_admin(current_user.username, workspace)
 
     if await is_user_in_workspace(username, workspace):
@@ -103,12 +109,13 @@ async def remove_from_workspace(
     return await get_workspace(workspace)
 
 
-# POST set another user as admin
+# POST set another user as admin todo test
 @router.post("/workspace/changeAdmin", response_model=Workspace, tags=["workspace"])
 async def change_admin(
     username: str, workspace: str, current_user: User = Depends(get_current_active_user)
 ):
 
+    await _assert_user_exists(username)
     await _assert_workspace_access_admin(current_user.username, workspace)
 
     if not await is_user_in_workspace(username, workspace):
@@ -117,7 +124,7 @@ async def change_admin(
             detail="User is not in workspace.",
         )
 
-    await change_workspace_admin(username, workspace)
+    await change_workspace_admin(workspace, username)
     return await get_workspace(workspace)
 
 
@@ -130,4 +137,12 @@ async def _assert_workspace_access_admin(username: str, workspace: str):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="User is not admin.",
+        )
+
+
+async def _assert_user_exists(username: str):
+    if not await user_exists(username):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User does not exist.",
         )
