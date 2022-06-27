@@ -27,7 +27,7 @@
                 <button @click="useLogout" class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-sm px-2.5 py-1 border border-zinc-300 rounded text-zinc-700">Logout</button>
             </div>
         </div>
-        <div class="flex-grow">
+        <div class="flex-grow overflow-y-scroll">
             <slot />
         </div>
     </div>
