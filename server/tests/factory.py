@@ -1,50 +1,46 @@
 # test object factory
-from core.models.database import db
+from core.dao.database import db
+import json
+
+
+def _read_json(path):
+    with open(path) as f:
+        data = json.load(f)
+    return data
+
+
+USERS_PATH = "resources/demo/users.json"
+WORKSPACE_PATH = "resources/demo/workspaces.json"
+MODELS_PATH = "resources/demo/models.json"
+
+workspaces = _read_json(WORKSPACE_PATH)
+users = _read_json(USERS_PATH)
+models = _read_json(MODELS_PATH)
 
 
 def create_user_data():
-    return db["users"].insert_many([
-        {
-            "username": "johndoe@example.com",
-            "first_name": "John",
-            "last_name": "Doe",
-            "workspaces": ["ACME Inc."],
-            "hashed_password": "$2b$12$JObcoGR6lNWg3ztKdhEK/OtPjUoltMlHJIg99ctXPaBCNQH1EMts.",
-            "disabled": False
-        },
-        {
-            "username": "alice@example.com",
-            "first_name": "Alice",
-            "last_name": "Wonderson",
-            "workspaces": ["Boring Co."],
-            "hashed_password": "$2b$12$JObcoGR6lNWg3ztKdhEK/OtPjUoltMlHJIg99ctXPaBCNQH1EMts.",
-            "disabled": False
-        }
-    ])
+    return db.users.insert_many(users)
 
 
 def create_workspace_data():
-    return db["workspaces"].insert_many([
-        {
-            "name": "ACME Inc.",
-            "admin": "johndoe@example.com",
-            "users": ["johndoe@example.com"]
-        },
-        {
-            "name": "Boring Co.",
-            "admin": "alice@example.com",
-            "users": ["alice@example.com"]
-        }
-    ])
+    return db.workspaces.insert_many(workspaces)
+
+
+def create_model_data():
+    return db.models.insert_many(models)
 
 
 def teardown_users():
-    return db["users"].delete_many({})
+    return db.users.delete_many({})
 
 
 def teardown_workspaces():
-    return db["workspaces"].delete_many({})
+    return db.workspaces.delete_many({})
 
 
 def teardown_token_blacklist():
-    return db["token_blacklist"].delete_many({})
+    return db.token_blacklist.delete_many({})
+
+
+def teardown_models():
+    return db.models.delete_many({})

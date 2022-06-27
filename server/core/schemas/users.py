@@ -1,7 +1,7 @@
 from bson import ObjectId
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field
 
-from core.models.objects import PyObjectId
+from core.objects import PyObjectId
 
 
 class User(BaseModel):
@@ -63,10 +63,12 @@ class RegisterUser(BaseModel):
                 "first_name": "John",
                 "last_name": "Doe",
                 "workspaces": "ACME Inc.",
-                "password": "secret"
+                "password": "secret",
             }
         }
 
 
 class UserInDB(User):
     hashed_password: str
+    otp_secret: str | None
+    otp_validated: bool = False

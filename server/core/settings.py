@@ -4,7 +4,9 @@ from pydantic import BaseSettings
 
 class Settings(BaseSettings):
 
-    ENV: str = 'prod'
+    ENV: str = "prod"
+
+    MAX_MODELS: int = 10000
 
     AUTH_SECRET: str
     AUTH_ALGO: str
@@ -16,8 +18,8 @@ class Settings(BaseSettings):
     MONGODB_URL: str
 
     class Config:
-        env_file = '.env'
-        env_file_encoding = 'utf-8'
+        env_file = ".env"
+        env_file_encoding = "utf-8"
 
 
 @lru_cache()
