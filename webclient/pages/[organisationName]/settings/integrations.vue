@@ -1,5 +1,5 @@
 <template>
-    <NuxtLayout name="navbar">
+    <NuxtLayout name="settings-layout">
         <div>
             <p>Integrations</p>
         </div>

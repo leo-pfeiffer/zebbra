@@ -1,11 +1,11 @@
 <template>
-    <div class="my-2 text-zinc-500">
-        <div @click="clickDropdown" class="hover:cursor-pointer flex align-middle text-sm">
-            <i v-if="!opened" class="bi bi-caret-right-fill mr-2 text-sm text-zinc-400"></i>
-            <i v-else class="bi bi-caret-down-fill mr-2 text-sm text-zinc-400"></i>
+    <div class="my-2 text-xs text-zinc-700">
+        <div @click="clickDropdown" class="hover:cursor-pointer flex align-middle">
+            <i v-if="!opened" class="bi bi-caret-right-fill mr-2 text-xs text-zinc-400"></i>
+            <i v-else class="bi bi-caret-down-fill mr-2 text-xs text-zinc-400"></i>
             {{ model.name }}
         </div>
-        <div v-show="opened" class="text-sm pl-10 mt-1">
+        <div v-show="opened" class="text-xs text-zinc-700 pl-10 mt-1">
             <ul class="list-disc">
                 <!-- todo: update links, add active state and default open for selected model -->
                 <NuxtLink to="/tesla/{{ $model.id }}/dashboard"><li class="my-1.5">Dashboard</li></NuxtLink>
