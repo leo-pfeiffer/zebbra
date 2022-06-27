@@ -2,7 +2,6 @@ from datetime import datetime, timedelta
 
 import pyotp
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
 from jose import jwt
 
 from core.dao.token_blacklist import add_to_blacklist

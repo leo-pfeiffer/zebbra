@@ -37,6 +37,7 @@ mongoimport --db zebbra --collection users --drop --file $DEMO_DIR/users.json --
 mongoimport --db zebbra --collection workspaces --drop --file $DEMO_DIR/workspaces.json --jsonArray
 mongoimport --db zebbra --collection models --drop --file $DEMO_DIR/models.json --jsonArray
 
-## test db
-#mongoimport --db zebbra_test --collection users --drop --file $DEMO_DIR/users.json --jsonArray
-#mongoimport --db zebbra_test --collection workspaces --drop --file $DEMO_DIR/workspaces.json --jsonArray
+### test db
+mongoimport --db zebbra_test --collection users --drop --file $DEMO_DIR/users.json --jsonArray
+mongoimport --db zebbra_test --collection workspaces --drop --file $DEMO_DIR/workspaces.json --jsonArray
+mongoimport --db zebbra_test --collection workspaces --drop --file $DEMO_DIR/models.json --jsonArray
