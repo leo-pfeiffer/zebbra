@@ -19,6 +19,7 @@ from core.dao.models import (
     update_sheet_meta_in_model,
     update_sheet_sections_in_model,
     model_exists,
+    get_sheet_by_name,
 )
 from core.dao.workspaces import is_user_in_workspace
 from core.exceptions import (
@@ -27,7 +28,7 @@ from core.exceptions import (
     UniqueConstraintFailedException,
 )
 from core.schemas.models import Model
-from core.schemas.sheets import SheetMeta, Section
+from core.schemas.sheets import SheetMeta, Section, Sheet
 from core.schemas.users import User
 from core.schemas.utils import Message
 from dependencies import get_current_active_user
@@ -201,7 +202,7 @@ async def model_add(
 
 @router.post(
     "/model/sheet/update/data",
-    response_model=Model,
+    response_model=Sheet,
     tags=["model"],
     responses={
         403: {"description": "User does not have access to the resource."},
@@ -217,14 +218,15 @@ async def update_sheet_data(
     # only editor can update sheet
     await _assert_access_can_edit(current_user.username, model_id)
     await update_sheet_sections_in_model(model_id, name, sheet_data)
-    return await get_model_by_id(model_id)
+    return await get_sheet_by_name(model_id, name)
 
 
 @router.post(
     "/model/sheet/update/meta",
-    response_model=Model,
+    response_model=Sheet,
     tags=["model"],
     responses={
+        400: {"description": "Sheet does not exist."},
         403: {"description": "User does not have access to the resource."},
         409: {"description": "Sheet name already exists in the same model."},
     },
@@ -240,7 +242,7 @@ async def update_sheet_meta(
     await _assert_access_can_edit(current_user.username, model_id)
     try:
         await update_sheet_meta_in_model(model_id, name, sheet_meta)
-        return await get_model_by_id(model_id)
+        return await get_sheet_by_name(model_id, sheet_meta.name)
     except UniqueConstraintFailedException:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,

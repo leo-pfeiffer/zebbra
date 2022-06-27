@@ -17,6 +17,7 @@ from core.dao.models import (
     create_model,
     update_sheet_meta_in_model,
     update_sheet_sections_in_model,
+    get_sheet_by_name,
 )
 from core.exceptions import (
     DoesNotExistException,
@@ -237,6 +238,21 @@ async def test_add_model_no_access():
 
     with pytest.raises(NoAccessException):
         await create_model(admin, new_name, workspace)
+
+
+@pytest.mark.anyio
+async def test_get_sheet_by_name():
+    model_id = "62b488ba433720870b60ec0a"
+    sheet_name = "sheet1"
+    sheet = await get_sheet_by_name(model_id, sheet_name)
+    assert sheet.meta.name == sheet_name
+
+
+@pytest.mark.anyio
+async def test_get_sheet_by_name_non_existent():
+    model_id = "62b488ba433720870b60ec0a"
+    sheet_name = "not a sheet"
+    assert await get_sheet_by_name(model_id, sheet_name) is None
 
 
 @pytest.mark.anyio

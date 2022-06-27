@@ -125,7 +125,6 @@ async def set_name(model_id: str, name: str):
 
 
 async def create_model(admin: str, model_name: str, workspace: str):
-
     if not await is_user_in_workspace(admin, workspace):
         raise NoAccessException("User has no access to workspace.")
 
@@ -167,3 +166,14 @@ async def update_sheet_sections_in_model(
         {"_id": model_id, "sheets.meta.name": sheet_name},
         {"$set": {"sheets.$.sections": jsonable_encoder(new_sections)}},
     )
+
+
+async def get_sheet_by_name(model_id: str, sheet_name: str) -> Sheet:
+    model = await db.models.find_one(
+        {"_id": model_id, "sheets.meta.name": sheet_name},
+    )
+
+    if model is not None:
+        for sheet in model["sheets"]:
+            if sheet["meta"]["name"] == sheet_name:
+                return Sheet(**sheet)

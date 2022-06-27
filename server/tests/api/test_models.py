@@ -342,7 +342,7 @@ async def test_update_sheet_meta(access_token):
 
     assert response.status_code == status.HTTP_200_OK
 
-    assert response.json()["sheets"][0]["meta"]["name"] == new_sheet_name
+    assert response.json()["meta"]["name"] == new_sheet_name
 
 
 @pytest.mark.anyio
@@ -416,10 +416,10 @@ async def test_update_sheet_data(access_token):
 
     assert response.status_code == status.HTTP_200_OK
 
-    model2 = response.json()
-    assert len(model2["sheets"][0]["sections"]) == 2
-    assert model2["sheets"][0]["sections"][0]["name"] == "section1"
-    assert model2["sheets"][0]["sections"][1]["name"] == "section2"
+    sheet = response.json()
+    assert len(sheet["sections"]) == 2
+    assert sheet["sections"][0]["name"] == "section1"
+    assert sheet["sections"][1]["name"] == "section2"
 
 
 @pytest.mark.anyio
