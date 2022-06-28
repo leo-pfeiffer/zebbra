@@ -42,16 +42,40 @@ export default {
   data() {
     return {
       workspace: {
-        name: "Tesla",
+        name: "",
       },
       showError: false, 
       errorMessage: "Somthing went wrong. Try again!"
     };
+  },async beforeMount() {
+    //get workspace name
+    /* const data = await useFetchAuth(
+        'http://localhost:8000/workspace',{ method: 'GET'}
+        ).then((data) => {
+          console.log(data);
+          this.workspace.name = data.workspace;
+        }).catch((error) => {
+          console.log(error);
+          }); */
   },
   methods: {
     async updateWorkspaceName() {
       //todo make API call to update name and handle error
       console.log("update workspace name")
+
+      /* const data = await useFetchAuth(
+        'http://localhost:8000/workspace/rename',{ method: 'POST', 
+        body: {
+          old_name: this.user.email,
+          new_name: this.user.firstName,
+          }}
+        ).then((data) => {
+          this.workspace.name = data.workspace.name;
+        }).catch((error) => {
+          console.log(error);
+          this.errorMessage = error.data.detail;
+          this.showError = true;
+          }); */
     }
   }
 }
