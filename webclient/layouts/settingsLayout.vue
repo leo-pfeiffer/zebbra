@@ -8,7 +8,7 @@
                 <div class="ml-1 text-zinc-900 font-medium text-lg">Settings</div>
             </div>
             <div class="text-xs pl-2 mt-8">
-                <div class="text-zinc-500 text-semibold"><i class="bi bi-house-door-fill mr-2"></i>Workspace</div>
+                <div class="text-zinc-500 text-semibold"><i class="bi bi-house-door-fill mr-2 text-zinc-400"></i>Workspace</div>
                 <div class="mt-1.5">
                     <NuxtLink :to="`/${user.organisation}/settings/workspace`" activeClass="font-semibold"><div class="text-xs text-zinc-700 py-1 pl-5 hover:bg-zinc-200 rounded">General</div></NuxtLink>
                     <NuxtLink :to="`/${user.organisation}/settings/members`" activeClass="font-semibold"><div id="workspace-members" class="text-xs text-zinc-700 py-1 pl-5 hover:bg-zinc-200 rounded">Members</div></NuxtLink>
@@ -16,7 +16,7 @@
                 </div>
             </div>
             <div class="text-xs pl-2 mt-6">
-                <div class="text-zinc-500 text-semibold"><i class="bi bi-person-fill mr-2"></i>Profile</div>
+                <div class="text-zinc-500 text-semibold"><i class="bi bi-person-fill mr-2 text-zinc-400"></i>Profile</div>
                 <div class="mt-1.5">
                     <NuxtLink :to="`/${user.organisation}/settings/profile`" activeClass="font-semibold"><div id="profile-general" class="text-xs text-zinc-700 py-1 pl-5 hover:bg-zinc-200 rounded">General</div></NuxtLink>
                 </div>
