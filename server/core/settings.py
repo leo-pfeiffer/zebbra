@@ -3,7 +3,6 @@ from pydantic import BaseSettings
 
 
 class Settings(BaseSettings):
-
     ENV: str = "prod"
 
     MAX_MODELS: int = 10000

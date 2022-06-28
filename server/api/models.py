@@ -99,7 +99,6 @@ async def model_grant_permission(
     user: str,
     current_user: User = Depends(get_current_active_user),
 ):
-
     await _assert_model_exists(model_id)
 
     # granting user must be admin
@@ -278,7 +277,9 @@ async def get_model_users(
     """
     Get all users for a workspace
     """
-    # user needs to be in workspace
+    # model must exist
+    await _assert_model_exists(model_id)
+    # user must be in workspace
     await _assert_access(current_user.username, model_id)
     return await get_users_for_model(model_id)
 

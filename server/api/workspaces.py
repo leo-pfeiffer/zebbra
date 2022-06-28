@@ -86,7 +86,6 @@ async def create_new_workspace(
 async def rename_workspace(
     old_name: str, new_name: str, current_user: User = Depends(get_current_active_user)
 ):
-
     await _assert_workspace_access_admin(current_user.username, old_name)
 
     try:
@@ -104,7 +103,6 @@ async def rename_workspace(
 async def add_to_workspace(
     username: str, workspace: str, current_user: User = Depends(get_current_active_user)
 ):
-
     await _assert_user_exists(username)
     await _assert_workspace_access_admin(current_user.username, workspace)
 
@@ -118,7 +116,6 @@ async def add_to_workspace(
 async def remove_from_workspace(
     username: str, workspace: str, current_user: User = Depends(get_current_active_user)
 ):
-
     await _assert_user_exists(username)
     await _assert_workspace_access_admin(current_user.username, workspace)
 
@@ -132,7 +129,6 @@ async def remove_from_workspace(
 async def change_admin(
     username: str, workspace: str, current_user: User = Depends(get_current_active_user)
 ):
-
     await _assert_user_exists(username)
     await _assert_workspace_access_admin(current_user.username, workspace)
 

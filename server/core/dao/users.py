@@ -100,7 +100,6 @@ async def delete_user_full(username: str):
 
 
 async def remove_user_from_workspace(username: str, workspace: str):
-
     # todo handle cases where user to be removed is admin
 
     await db.users.update_one(

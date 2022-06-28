@@ -19,6 +19,7 @@ from core.dao.models import (
     update_sheet_sections_in_model,
     get_sheet_by_name,
     remove_admin_from_model,
+    get_users_for_model,
 )
 from core.dao.workspaces import get_workspace
 from core.exceptions import (
@@ -353,3 +354,42 @@ async def test_update_sheet_data():
     assert len(model2["sheets"][0]["sections"]) == 2
     assert model2["sheets"][0]["sections"][0]["name"] == "section1"
     assert model2["sheets"][0]["sections"][1]["name"] == "section2"
+
+
+@pytest.mark.anyio
+async def test_get_users_of_model(access_token):
+    model_id = "62b488ba433720870b60ec0a"
+    users = await get_users_for_model(model_id)
+
+    unique = set()
+    model = await get_model_by_id(model_id)
+
+    admin_set = set(model["meta"]["admins"])
+    editor_set = set(model["meta"]["editors"])
+    viewer_set = set(model["meta"]["viewers"])
+
+    usernames = list(admin_set.union(editor_set).union(viewer_set))
+
+    for u in users:
+        if u.username == "johndoe@example.com":
+            assert u.user_role == "Admin"
+
+        if u.user_role == "Admin":
+            assert u.username in admin_set
+        elif u.user_role == "Editor":
+            assert u.username in editor_set
+        elif u.user_role == "Viewer":
+            assert u.username in viewer_set
+
+        unique.add(u.username)
+
+        assert u.username in usernames
+
+    assert len(users) == len(unique)
+    assert len(usernames) == len(unique)
+
+
+@pytest.mark.anyio
+async def test_get_users_for_model_model_non_existent(access_token):
+    with pytest.raises(DoesNotExistException):
+        await get_users_for_model("Not a model.")

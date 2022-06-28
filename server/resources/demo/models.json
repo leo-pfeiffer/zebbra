@@ -3,7 +3,9 @@
     "_id": "62b488ba433720870b60ec0a",
     "meta": {
       "name": "model1",
-      "admins": ["johndoe@example.com"],
+      "admins": [
+        "johndoe@example.com"
+      ],
       "editors": [
         "darwin@example.com"
       ],
@@ -64,7 +66,9 @@
     "_id": "62b488ba433720870b60ec0b",
     "meta": {
       "name": "model1",
-      "admins": ["alice@example.com"],
+      "admins": [
+        "alice@example.com"
+      ],
       "editors": [
         "alice@example.com"
       ],
