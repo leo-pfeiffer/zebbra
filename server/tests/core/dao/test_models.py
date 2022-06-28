@@ -8,7 +8,7 @@ from core.dao.models import (
     is_admin,
     is_editor,
     is_viewer,
-    set_admin,
+    add_admin_to_model,
     add_editor_to_model,
     add_viewer_to_model,
     remove_viewer_from_model,
@@ -18,11 +18,15 @@ from core.dao.models import (
     update_sheet_meta_in_model,
     update_sheet_sections_in_model,
     get_sheet_by_name,
+    remove_admin_from_model,
 )
+from core.dao.workspaces import get_workspace
 from core.exceptions import (
     DoesNotExistException,
     NoAccessException,
     UniqueConstraintFailedException,
+    BusinessLogicException,
+    CardinalityConstraintFailedException,
 )
 from core.schemas.sheets import SheetMeta, Section
 
@@ -82,7 +86,7 @@ async def test_get_models_for_user_admin():
     models = await get_models_for_user(user)
     assert len(models) == 1
     for m in models:
-        assert m["meta"]["admin"] == user
+        assert user in m["meta"]["admins"]
 
 
 @pytest.mark.anyio
@@ -143,14 +147,14 @@ async def test_is_viewer_false():
 @pytest.mark.anyio
 async def test_set_admin():
     assert await is_admin("62b488ba433720870b60ec0a", "johndoe@example.com")
-    await set_admin("charlie@example.com", "62b488ba433720870b60ec0a")
+    await add_admin_to_model("charlie@example.com", "62b488ba433720870b60ec0a")
     assert await is_admin("62b488ba433720870b60ec0a", "charlie@example.com")
 
 
 @pytest.mark.anyio
 async def test_set_admin_non_existing_user():
     with pytest.raises(DoesNotExistException):
-        await set_admin("not-a-user@example.com", "62b488ba433720870b60ec0a")
+        await add_admin_to_model("not-a-user@example.com", "62b488ba433720870b60ec0a")
 
 
 @pytest.mark.anyio
@@ -195,6 +199,36 @@ async def test_remove_viewer_from_model_non_existing_user():
 
 
 @pytest.mark.anyio
+async def test_remove_admin_from_model():
+    await add_admin_to_model("charlie@example.com", "62b488ba433720870b60ec0a")
+    assert await is_admin("62b488ba433720870b60ec0a", "charlie@example.com")
+    await remove_admin_from_model("charlie@example.com", "62b488ba433720870b60ec0a")
+    assert not await is_admin("62b488ba433720870b60ec0a", "charlie@example.com")
+
+
+@pytest.mark.anyio
+async def test_remove_admin_from_model_non_existing_user():
+    with pytest.raises(DoesNotExistException):
+        await remove_admin_from_model(
+            "not-a-user@example.com", "62b488ba433720870b60ec0a"
+        )
+
+
+@pytest.mark.anyio
+async def test_remove_admin_from_model_only_one_admin():
+    with pytest.raises(CardinalityConstraintFailedException):
+        await remove_admin_from_model("johndoe@example.com", "62b488ba433720870b60ec0a")
+
+
+@pytest.mark.anyio
+async def test_remove_admin_from_model_workspace_admin():
+    await add_admin_to_model("charlie@example.com", "62b488ba433720870b60ec0a")
+    assert await is_admin("62b488ba433720870b60ec0a", "charlie@example.com")
+    with pytest.raises(BusinessLogicException):
+        await remove_admin_from_model("johndoe@example.com", "62b488ba433720870b60ec0a")
+
+
+@pytest.mark.anyio
 async def test_remove_editor_from_model():
     assert await is_editor("62b488ba433720870b60ec0a", "darwin@example.com")
     await remove_editor_from_model("darwin@example.com", "62b488ba433720870b60ec0a")
@@ -225,9 +259,11 @@ async def test_add_model():
     admin = "johndoe@example.com"
     r = await create_model(admin, new_name, workspace)
     model = await get_model_by_id(r.inserted_id)
+    wsp = await get_workspace(workspace)
     assert model["meta"]["name"] == new_name
     assert model["meta"]["workspace"] == workspace
-    assert model["meta"]["admin"] == admin
+    assert admin in model["meta"]["admins"]
+    assert wsp.admin in model["meta"]["admins"]
 
 
 @pytest.mark.anyio
@@ -237,6 +273,26 @@ async def test_add_model_no_access():
     admin = "johndoe@example.com"
 
     with pytest.raises(NoAccessException):
+        await create_model(admin, new_name, workspace)
+
+
+@pytest.mark.anyio
+async def test_add_model_non_existent_user():
+    new_name = "some_new_model"
+    workspace = "ACME Inc."
+    admin = "not-a-user@example.com"
+
+    with pytest.raises(DoesNotExistException):
+        await create_model(admin, new_name, workspace)
+
+
+@pytest.mark.anyio
+async def test_add_model_non_existent_workspace():
+    new_name = "some_new_model"
+    workspace = "Not a workspace"
+    admin = "johndoe@example.com"
+
+    with pytest.raises(DoesNotExistException):
         await create_model(admin, new_name, workspace)
 
 

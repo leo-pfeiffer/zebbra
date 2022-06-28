@@ -83,6 +83,12 @@ async def change_workspace_admin(workspace: str, username: str):
 
     await db.workspaces.update_one({"name": workspace}, {"$set": {"admin": username}})
 
+    # add the new admin as admin to all models of the workspace
+    await db.models.update_many(
+        {"meta.workspace": workspace, "meta.admins": {"$ne": username}},
+        {"$push": {"meta.admins": username}},
+    )
+
 
 async def change_workspace_name(old_name: str, new_name: str):
     """

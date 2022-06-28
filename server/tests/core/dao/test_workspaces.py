@@ -1,5 +1,6 @@
 import pytest
 
+from core.dao.models import get_models_for_workspace, add_admin_to_model
 from core.dao.users import add_user_to_workspace
 from core.dao.workspaces import (
     get_workspaces_of_user,
@@ -101,6 +102,39 @@ async def test_change_workspace_admin():
 
     updated = await get_workspace(wsp)
     assert updated.admin == username
+
+
+@pytest.mark.anyio
+async def test_change_workspace_admin_updates_model_admins():
+    wsp = "ACME Inc."
+    username = "charlie@example.com"
+    await change_workspace_admin(wsp, username)
+
+    updated = await get_workspace(wsp)
+    assert updated.admin == username
+
+    models = await get_models_for_workspace(wsp)
+    for m in models:
+        assert username in m["meta"]["admins"]
+
+
+@pytest.mark.anyio
+async def test_change_workspace_admin_updates_model_admins_no_duplicates():
+    wsp = "ACME Inc."
+    username = "charlie@example.com"
+
+    models = await get_models_for_workspace(wsp)
+    for m in models:
+        await add_admin_to_model(username, m["_id"])
+
+    await change_workspace_admin(wsp, username)
+
+    updated = await get_workspace(wsp)
+    assert updated.admin == username
+
+    models = await get_models_for_workspace(wsp)
+    for m in models:
+        assert len([x for x in m["meta"]["admins"] if x == username]) == 1
 
 
 @pytest.mark.anyio

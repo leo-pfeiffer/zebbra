@@ -7,7 +7,7 @@ from core.schemas.sheets import Sheet
 
 class ModelMeta(BaseModel):
     name: str
-    admin: str  # username
+    admins: list[str]  # list of usernames
     editors: list[str]  # list of usernames
     viewers: list[str]  # list of usernames
     workspace: str  # workspace name

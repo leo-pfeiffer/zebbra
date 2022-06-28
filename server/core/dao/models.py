@@ -2,11 +2,13 @@ from fastapi.encoders import jsonable_encoder
 
 from core.dao.database import db
 from core.dao.users import user_exists
-from core.dao.workspaces import is_user_in_workspace
+from core.dao.workspaces import is_user_in_workspace, get_workspace
 from core.exceptions import (
     DoesNotExistException,
     NoAccessException,
     UniqueConstraintFailedException,
+    CardinalityConstraintFailedException,
+    BusinessLogicException,
 )
 from core.schemas.models import ModelMeta, UpdateModel
 from core.schemas.sheets import Sheet, SheetMeta, Section
@@ -15,17 +17,17 @@ from core.settings import get_settings
 settings = get_settings()
 
 
-async def model_exists(id: str):
-    return await get_model_by_id(id) is not None
+async def model_exists(model_id: str):
+    return await get_model_by_id(model_id) is not None
 
 
-async def has_access_to_model(id: str, username: str):
+async def has_access_to_model(model_id: str, username: str):
     return (
         await db.models.count_documents(
             {
-                "_id": id,
+                "_id": model_id,
                 "$or": [
-                    {"meta.admin": username},
+                    {"meta.admins": username},
                     {"meta.editors": username},
                     {"meta.viewers": username},
                 ],
@@ -35,23 +37,23 @@ async def has_access_to_model(id: str, username: str):
     )
 
 
-async def is_admin(id: str, username: str):
-    model = await db.models.find_one({"_id": id})
-    return model["meta"]["admin"] == username
+async def is_admin(model_id: str, username: str):
+    model = await db.models.find_one({"_id": model_id})
+    return username in model["meta"]["admins"]
 
 
-async def is_editor(id: str, username: str):
-    model = await db.models.find_one({"_id": id})
+async def is_editor(model_id: str, username: str):
+    model = await db.models.find_one({"_id": model_id})
     return username in model["meta"]["editors"]
 
 
-async def is_viewer(id: str, username: str):
-    model = await db.models.find_one({"_id": id})
+async def is_viewer(model_id: str, username: str):
+    model = await db.models.find_one({"_id": model_id})
     return username in model["meta"]["viewers"]
 
 
-async def get_model_by_id(id: str):
-    return await db.models.find_one({"_id": id})
+async def get_model_by_id(model_id: str):
+    return await db.models.find_one({"_id": model_id})
 
 
 async def get_models_for_workspace(workspace: str):
@@ -64,7 +66,7 @@ async def get_models_for_user(username: str):
     return await db.models.find(
         {
             "$or": [
-                {"meta.admin": username},
+                {"meta.admins": username},
                 {"meta.editors": username},
                 {"meta.viewers": username},
             ]
@@ -73,16 +75,16 @@ async def get_models_for_user(username: str):
 
 
 async def get_admin_models_for_user(username: str):
-    return await db.models.find({"meta.admin": username}).to_list(
+    return await db.models.find({"meta.admins": username}).to_list(
         length=settings.MAX_MODELS
     )
 
 
-async def set_admin(username: str, model_id: str):
+async def add_admin_to_model(username: str, model_id: str):
     if not await user_exists(username):
         raise DoesNotExistException("User does not exist")
 
-    await db.models.update_one({"_id": model_id}, {"$set": {"meta.admin": username}})
+    await db.models.update_one({"_id": model_id}, {"$push": {"meta.admins": username}})
 
 
 async def add_editor_to_model(username: str, model_id: str):
@@ -107,6 +109,24 @@ async def add_viewer_to_model(username: str, model_id: str):
         )
 
 
+async def remove_admin_from_model(username: str, model_id: str):
+    if not await user_exists(username):
+        raise DoesNotExistException("User does not exist")
+
+    model = await get_model_by_id(model_id)
+
+    # must have at least one admin
+    if len(model["meta"]["admins"]) == 1:
+        raise CardinalityConstraintFailedException("Model must have at least one admin")
+
+    # must not remove workspace admin
+    workspace = await get_workspace(model["meta"]["workspace"])
+    if username == workspace.admin:
+        raise BusinessLogicException("Cannot remove workspace admin from model.")
+
+    await db.models.update_one({"_id": model_id}, {"$pull": {"meta.admins": username}})
+
+
 async def remove_viewer_from_model(username: str, model_id: str):
     if not await user_exists(username):
         raise DoesNotExistException("User does not exist")
@@ -125,13 +145,25 @@ async def set_name(model_id: str, name: str):
 
 
 async def create_model(admin: str, model_name: str, workspace: str):
+    if not await user_exists(admin):
+        raise DoesNotExistException("User does not exist")
+
+    wsp = await get_workspace(workspace)
+
+    if wsp is None:
+        raise DoesNotExistException("Workspace does not exist")
+
     if not await is_user_in_workspace(admin, workspace):
         raise NoAccessException("User has no access to workspace.")
+
+    admins = [admin]
+    if admin != wsp.admin:
+        admins.append(wsp.admin)
 
     meta = ModelMeta(
         **{
             "name": model_name,
-            "admin": admin,
+            "admins": admins,
             "workspace": workspace,
             "editors": [],
             "viewers": [],
