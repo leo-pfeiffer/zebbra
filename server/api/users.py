@@ -82,7 +82,7 @@ async def update_user(
 
     username_to_get = current_user.username
 
-    if username is not None:
+    if username is not None and username != current_user.username:
         # make sure username is not already taken
         if (await get_user(username)) is not None:
             raise HTTPException(
@@ -91,11 +91,11 @@ async def update_user(
             )
         await update_username(current_user.username, username)
         username_to_get = username
-    elif first_name is not None:
+    if first_name is not None:
         await update_user_field(current_user.username, "first_name", first_name)
-    elif last_name is not None:
+    if last_name is not None:
         await update_user_field(current_user.username, "last_name", last_name)
-    elif password is not None:
+    if password is not None:
         hashed_password = get_password_hash(password)
         await update_user_field(
             current_user.username, "hashed_password", hashed_password

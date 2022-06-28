@@ -148,7 +148,7 @@ async def test_update_username(access_token):
 
 @pytest.mark.anyio
 async def test_update_username_duplicate(access_token):
-    new_username = "johndoe@example.com"
+    new_username = "alice@example.com"
 
     client = TestClient(app)
 
