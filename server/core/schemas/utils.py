@@ -3,6 +3,10 @@ from pydantic import BaseModel
 from fastapi.param_functions import Form
 
 
+class ExpiredMessage(BaseModel):
+    expired: bool
+
+
 class Message(BaseModel):
     message: str
 
