@@ -7,7 +7,7 @@ from core.dao.models import (
     get_model_by_id,
     get_models_for_workspace,
     get_models_for_user,
-    set_admin,
+    add_admin_to_model,
     add_editor_to_model,
     add_viewer_to_model,
     remove_viewer_from_model,
@@ -20,12 +20,15 @@ from core.dao.models import (
     update_sheet_sections_in_model,
     model_exists,
     get_sheet_by_name,
+    remove_admin_from_model,
 )
 from core.dao.workspaces import is_user_in_workspace
 from core.exceptions import (
     DoesNotExistException,
     NoAccessException,
     UniqueConstraintFailedException,
+    CardinalityConstraintFailedException,
+    BusinessLogicException,
 )
 from core.schemas.models import Model
 from core.schemas.sheets import SheetMeta, Section, Sheet
@@ -104,7 +107,7 @@ async def model_grant_permission(
 
     try:
         if role == "admin":
-            await set_admin(user, model_id)
+            await add_admin_to_model(user, model_id)
 
         elif role == "editor":
             await add_editor_to_model(user, model_id)
@@ -131,7 +134,7 @@ async def model_grant_permission(
 )
 async def model_revoke_permission(
     model_id: str,
-    role: Literal["editor", "viewer"],
+    role: Literal["admin", "editor", "viewer"],
     user: str,
     current_user: User = Depends(get_current_active_user),
 ):
@@ -142,7 +145,21 @@ async def model_revoke_permission(
     await _assert_access_admin(current_user.username, model_id)
 
     try:
-        if role == "editor":
+        if role == "admin":
+            try:
+                await remove_admin_from_model(user, model_id)
+            except CardinalityConstraintFailedException:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Each model must have at least one admin.",
+                )
+            except BusinessLogicException:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Cannot remove workspace admin from model.",
+                )
+
+        elif role == "editor":
             await remove_editor_from_model(user, model_id)
 
         elif role == "viewer":

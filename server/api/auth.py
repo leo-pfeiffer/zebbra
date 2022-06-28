@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+import jose
 import pyotp
 from fastapi import APIRouter, Depends, HTTPException, status
 from jose import jwt
@@ -8,12 +9,13 @@ from core.dao.token_blacklist import add_to_blacklist
 from core.dao.users import get_user, create_user
 from core.schemas.tokens import Token, BlacklistToken
 from core.schemas.users import RegisterUser, UserInDB, User
-from core.schemas.utils import Message, OAuth2PasswordRequestFormWithOTP
+from core.schemas.utils import Message, OAuth2PasswordRequestFormWithOTP, ExpiredMessage
 from dependencies import (
     ACCESS_TOKEN_EXPIRE_MINUTES,
     get_current_active_user_token,
     verify_password,
     get_password_hash,
+    decode_token,
 )
 from dependencies import SECRET_KEY, ALGORITHM
 
@@ -76,6 +78,16 @@ async def login_for_access_token(
     )
 
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+@router.get("/token/expired", response_model=ExpiredMessage, tags=["auth"])
+async def token_expired(token: str = Depends(get_current_active_user_token)):
+    expired = False
+    try:
+        decode_token(token)
+    except jose.exceptions.ExpiredSignatureError:
+        expired = True
+    return {"expired": expired}
 
 
 @router.post("/logout", response_model=Message, tags=["auth"])

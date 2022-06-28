@@ -50,7 +50,12 @@ async def update_username(username: str, new_username: str):
 
     # model admin
     await db.models.update_many(
-        {"meta.admin": username}, {"$set": {"meta.admin": new_username}}
+        {"meta.admins": username},
+        {"$push": {"meta.admins": new_username}},
+    )
+    await db.models.update_many(
+        {"meta.admins": username},
+        {"$pull": {"meta.admins": username}},
     )
 
     # model editor
