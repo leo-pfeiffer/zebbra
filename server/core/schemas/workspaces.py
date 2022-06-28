@@ -1,3 +1,5 @@
+from typing import Literal
+
 from bson import ObjectId
 from pydantic import BaseModel, EmailStr, Field
 
@@ -38,3 +40,10 @@ class UpdateWorkspace(BaseModel):
                 "users": ["alice@me.com", "bob@me.com", "jdoe@example.com"],
             }
         }
+
+
+class WorkspaceUser(BaseModel):
+    username: str
+    first_name: str | None
+    last_name: str | None
+    user_role: Literal["Admin", "Member"]

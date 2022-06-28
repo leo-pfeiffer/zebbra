@@ -8,7 +8,6 @@ from main import app
 
 
 def test_oauth_with_valid_user():
-
     user_form = {
         "grant_type": "password",
         "username": "johndoe@example.com",
@@ -25,7 +24,6 @@ def test_oauth_with_valid_user():
 
 @pytest.mark.anyio
 async def test_oauth_with_valid_user_does_with_valid_otp():
-
     username = "johndoe@example.com"
     secret = pyotp.random_base32()
     await set_user_otp_secret(username, secret)
@@ -50,7 +48,6 @@ async def test_oauth_with_valid_user_does_with_valid_otp():
 
 @pytest.mark.anyio
 async def test_oauth_with_valid_user_does_with_invalid_otp():
-
     username = "johndoe@example.com"
 
     secret = pyotp.random_base32()
@@ -71,7 +68,6 @@ async def test_oauth_with_valid_user_does_with_invalid_otp():
 
 @pytest.mark.anyio
 async def test_oauth_with_invalid_user():
-
     user_form = {
         "grant_type": "password",
         "username": "johndoe@example.com",

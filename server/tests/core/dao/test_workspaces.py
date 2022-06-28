@@ -11,6 +11,7 @@ from core.dao.workspaces import (
     is_user_in_workspace,
     change_workspace_name,
     is_user_admin_of_workspace,
+    get_users_of_workspace,
 )
 from core.exceptions import UniqueConstraintFailedException, DoesNotExistException
 from core.schemas.workspaces import Workspace
@@ -177,3 +178,30 @@ async def test_user_is_admin_false():
     username = "alice@example.com"
     workspace = "ACME Inc."
     assert not await is_user_admin_of_workspace(username, workspace)
+
+
+@pytest.mark.anyio
+async def test_get_users_of_workspace(access_token):
+    users = await get_users_of_workspace("ACME Inc.")
+    unique = set()
+    wsp = await get_workspace("ACME Inc.")
+    wsp_users = set(wsp.users)
+    wsp_users.add(wsp.admin)
+
+    for u in users:
+        if u.username == "johndoe@example.com":
+            assert u.user_role == "Admin"
+        else:
+            assert u.user_role == "Member"
+        unique.add(u.username)
+
+        assert u.username in wsp_users
+
+    assert len(users) == len(unique)
+    assert len(wsp_users) == len(unique)
+
+
+@pytest.mark.anyio
+async def test_get_users_of_workspace_workspace_non_existent(access_token):
+    with pytest.raises(DoesNotExistException):
+        await get_users_of_workspace("Not a workspace.")

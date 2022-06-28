@@ -14,12 +14,13 @@ from core.dao.workspaces import (
     change_workspace_name,
     is_user_admin_of_workspace,
     change_workspace_admin,
+    get_users_of_workspace,
 )
 from core.exceptions import (
     UniqueConstraintFailedException,
 )
 from core.schemas.users import User
-from core.schemas.workspaces import Workspace
+from core.schemas.workspaces import Workspace, WorkspaceUser
 from dependencies import get_current_active_user
 
 router = APIRouter()
@@ -36,6 +37,23 @@ async def get_workspace_for_user(current_user: User = Depends(get_current_active
     Get all workspaces for the logged-in user.
     """
     return await get_workspaces_of_user(current_user.username)
+
+
+# GET users of workspace
+@router.get(
+    "/workspace/users",
+    response_model=list[WorkspaceUser],
+    tags=["workspace"],
+)
+async def get_workspace_users(
+    name: str, current_user: User = Depends(get_current_active_user)
+):
+    """
+    Get all users for a workspace
+    """
+    # user needs to be in workspace
+    await _assert_workspace_access(current_user.username, name)
+    return await get_users_of_workspace(name)
 
 
 # CREATE workspace
@@ -68,7 +86,6 @@ async def create_new_workspace(
 async def rename_workspace(
     old_name: str, new_name: str, current_user: User = Depends(get_current_active_user)
 ):
-
     await _assert_workspace_access_admin(current_user.username, old_name)
 
     try:
@@ -86,7 +103,6 @@ async def rename_workspace(
 async def add_to_workspace(
     username: str, workspace: str, current_user: User = Depends(get_current_active_user)
 ):
-
     await _assert_user_exists(username)
     await _assert_workspace_access_admin(current_user.username, workspace)
 
@@ -100,7 +116,6 @@ async def add_to_workspace(
 async def remove_from_workspace(
     username: str, workspace: str, current_user: User = Depends(get_current_active_user)
 ):
-
     await _assert_user_exists(username)
     await _assert_workspace_access_admin(current_user.username, workspace)
 
@@ -114,7 +129,6 @@ async def remove_from_workspace(
 async def change_admin(
     username: str, workspace: str, current_user: User = Depends(get_current_active_user)
 ):
-
     await _assert_user_exists(username)
     await _assert_workspace_access_admin(current_user.username, workspace)
 
@@ -130,6 +144,14 @@ async def change_admin(
 
 # POST invite user to workspace
 # todo
+
+
+async def _assert_workspace_access(username: str, workspace: str):
+    if not await is_user_in_workspace(username, workspace):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User is not in workspace.",
+        )
 
 
 async def _assert_workspace_access_admin(username: str, workspace: str):
