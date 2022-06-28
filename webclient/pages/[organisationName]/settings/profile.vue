@@ -142,7 +142,7 @@ export default {
 
       const data = await useFetchAuth(
         'http://localhost:8000/user/update',{ method: 'POST', 
-        body: {
+        params: {
           username: this.user.email,
           first_name: this.user.firstName,
           last_name: this.user.lastName
@@ -162,7 +162,7 @@ export default {
 
       const data = await useFetchAuth(
         'http://localhost:8000/user/update',{ method: 'POST', 
-        body: {
+        params: {
           password: this.user.password
           }}
         ).then((data) => {
