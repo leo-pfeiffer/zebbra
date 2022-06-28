@@ -170,3 +170,46 @@ async def test_workspace_remove_user(access_token):
     assert response.status_code == status.HTTP_200_OK
     wsp = await get_workspace("ACME Inc.")
     assert wsp.admin == "charlie@example.com"
+
+
+@pytest.mark.anyio
+async def test_get_users_of_workspace(access_token):
+    client = TestClient(app)
+
+    response = client.get(
+        "/workspace/users",
+        params={"name": "ACME Inc."},
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    users = response.json()
+    unique = set()
+    wsp = await get_workspace("ACME Inc.")
+    wsp_users = set(wsp.users)
+    wsp_users.add(wsp.admin)
+
+    for u in users:
+        if u["username"] == "johndoe@example.com":
+            assert u["user_role"] == "Admin"
+        else:
+            assert u["user_role"] == "Member"
+        unique.add(u["username"])
+
+        assert u["username"] in wsp_users
+
+    assert len(users) == len(unique)
+    assert len(wsp_users) == len(unique)
+
+
+@pytest.mark.anyio
+async def test_get_users_of_workspace_no_access(access_token_alice):
+    client = TestClient(app)
+
+    response = client.get(
+        "/workspace/users",
+        params={"name": "ACME Inc."},
+        headers={"Authorization": f"Bearer {access_token_alice}"},
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
