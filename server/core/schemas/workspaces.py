@@ -16,6 +16,7 @@ class Workspace(BaseModel):
         json_encoders = {ObjectId: str}
         schema_extra = {
             "example": {
+                "name": "ACME Inc.",
                 "admin": "jdoe@example.com",
                 "users": ["alice@me.com", "bob@me.com", "jdoe@example.com"],
             }

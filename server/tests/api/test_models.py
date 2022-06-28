@@ -3,7 +3,13 @@ from fastapi.encoders import jsonable_encoder
 from starlette import status
 from starlette.testclient import TestClient
 
-from core.dao.models import is_admin, is_editor, is_viewer, get_model_by_id
+from core.dao.models import (
+    is_admin,
+    is_editor,
+    is_viewer,
+    get_model_by_id,
+    add_admin_to_model,
+)
 from core.schemas.sheets import SheetMeta, Section
 from main import app
 from tests.utils import assert_unauthorized_login_checked
@@ -98,7 +104,7 @@ def test_model_user(access_token):
     user = "johndoe@example.com"
     for m in response.json():
         assert (
-            (m["meta"]["admin"] == user)
+            (user in m["meta"]["admins"])
             or (user in m["meta"]["editors"])
             or (user in m["meta"]["viewers"])
         )
@@ -221,6 +227,62 @@ async def test_revoke_permission_viewer(access_token):
 
 
 @pytest.mark.anyio
+async def test_revoke_permission_admin(access_token):
+    client = TestClient(app)
+    model_id = "62b488ba433720870b60ec0a"
+    user = "charlie@example.com"
+    role = "admin"
+
+    await add_admin_to_model(user, model_id)
+    assert await is_admin(model_id, user)
+
+    response = client.post(
+        f"/model/revoke?model_id={model_id}&role={role}&user={user}",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert not await is_admin(model_id, user)
+
+
+@pytest.mark.anyio
+async def test_revoke_permission_admin_no_admins_left(access_token):
+    client = TestClient(app)
+    model_id = "62b488ba433720870b60ec0a"
+    user = "johndoe@example.com"
+    role = "admin"
+    response = client.post(
+        f"/model/revoke?model_id={model_id}&role={role}&user={user}",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    assert await is_admin(model_id, user)
+
+
+@pytest.mark.anyio
+async def test_revoke_permission_admin_workspace_admin(access_token):
+    client = TestClient(app)
+    model_id = "62b488ba433720870b60ec0a"
+    user = "johndoe@example.com"
+    dummy_user = "charlie@example.com"
+    role = "admin"
+
+    await add_admin_to_model(dummy_user, model_id)
+    assert await is_admin(model_id, dummy_user)
+
+    response = client.post(
+        f"/model/revoke?model_id={model_id}&role={role}&user={user}",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    assert await is_admin(model_id, user)
+
+
+@pytest.mark.anyio
 async def test_revoke_permission_no_access(access_token_alice):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
@@ -310,7 +372,7 @@ async def test_add_model(access_token):
     model = response.json()
     assert model["meta"]["name"] == new_name
     assert model["meta"]["workspace"] == workspace
-    assert model["meta"]["admin"] == "johndoe@example.com"
+    assert "johndoe@example.com" in model["meta"]["admins"]
 
 
 @pytest.mark.anyio
