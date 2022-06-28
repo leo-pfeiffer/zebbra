@@ -67,6 +67,9 @@ definePageMeta({
           <div v-show="showErrorPassword" class="w-full flex justify-center">
             <ErrorMessage :error-message="errorMessagePassword"></ErrorMessage>
           </div>
+          <div v-show="showSuccessPassword" class="w-full flex justify-center">
+            <SuccessMessage success-message="Password successfully updated!"></SuccessMessage>
+          </div>
         </div>
         <div class="py-6">
           <h2 class="text-xl text-zinc-900 mb-3">Delete Your Account</h2>
@@ -112,6 +115,7 @@ export default {
       showErrorPersonalInfo: false,
       errorMessagePersonalInfo: "Somthing went wrong. Try again!",
       showErrorPassword: false,
+      showSuccessPassword: false,
       errorMessagePassword: "Somthing went wrong. Try again!",
       showErrorDeleteAccount: false,
       errorMessageDeleteAccount: "Somthing went wrong. Try again!",
@@ -123,21 +127,54 @@ export default {
     const data = await useFetchAuth(
         'http://localhost:8000/user',{ method: 'GET'}
         ).then((data) => {
+          console.log(data);
           this.user.firstName = data.first_name;
           this.user.lastName = data.last_name;
           this.user.email = data.username;
+          this.user.password = data.password;
 
         }).catch((error) => {
-          console.log(error)
+          console.log(error);
           });
   },
   methods: {
     async updateUserInformation() {
-      //todo make API call to update names etc and handle error
-      console.log("update user info")
+
+      const data = await useFetchAuth(
+        'http://localhost:8000/user/update',{ method: 'POST', 
+        body: {
+          username: this.user.email,
+          first_name: this.user.firstName,
+          last_name: this.user.lastName
+          }}
+        ).then((data) => {
+          this.user.firstName = data.first_name;
+          this.user.lastName = data.last_name;
+          this.user.email = data.username;
+        }).catch((error) => {
+          console.log(error);
+          this.errorMessagePersonalInfo = error.data.detail;
+          this.showErrorPersonalInfo = true;
+          });
+
     },
     async updatePassword() {
-      //todo make API call
+
+      const data = await useFetchAuth(
+        'http://localhost:8000/user/update',{ method: 'POST', 
+        body: {
+          password: this.user.password
+          }}
+        ).then((data) => {
+          console.log(data)
+          //show success
+          this.showSuccessPassword = true;
+        }).catch((error) => {
+          console.log(error);
+          this.errorMessagePassword = error.data.detail;
+          this.showErrorPassword = true;
+          });
+      
     },
     toggleDeleteModal() {
       if (this.deleteModalOpen === false) {
@@ -148,7 +185,18 @@ export default {
 
     },
     async deleteAccount() {
-      //todo make API call
+
+      const data = await useFetchAuth(
+        'http://localhost:8000/user/delete',{ method: 'POST', 
+        }).then((data) => {
+          console.log(data)
+          useLogout();
+          //todo: success message
+        }).catch((error) => {
+          console.log(error);
+          this.errorMessageDeleteAccount = error.data.detail;
+          this.showErrorDeleteAccount = true;
+          });
     }
   }
 }
