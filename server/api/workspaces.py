@@ -18,6 +18,7 @@ from core.dao.workspaces import (
 )
 from core.exceptions import (
     UniqueConstraintFailedException,
+    BusinessLogicException,
 )
 from core.schemas.users import User
 from core.schemas.workspaces import Workspace, WorkspaceUser
@@ -120,7 +121,14 @@ async def remove_from_workspace(
     await _assert_workspace_access_admin(current_user.username, workspace)
 
     if await is_user_in_workspace(username, workspace):
-        await remove_user_from_workspace(username, workspace)
+        try:
+            await remove_user_from_workspace(username, workspace)
+        except BusinessLogicException:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cannot remove user due to business logic violation.",
+            )
+
     return await get_workspace(workspace)
 
 

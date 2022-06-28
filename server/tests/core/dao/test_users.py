@@ -1,7 +1,7 @@
 import pytest
 
-from core.dao.models import get_models_for_user
-from core.exceptions import UniqueConstraintFailedException
+from core.dao.models import get_models_for_user, get_models_for_workspace
+from core.exceptions import UniqueConstraintFailedException, BusinessLogicException
 from core.dao.users import (
     get_user,
     delete_user_full,
@@ -11,6 +11,7 @@ from core.dao.users import (
     set_user_otp_secret_validated,
     update_username,
     update_user_field,
+    remove_user_from_workspace,
 )
 from core.dao.workspaces import get_workspaces_of_user, create_workspace, get_workspace
 from core.schemas.users import UserInDB
@@ -173,3 +174,34 @@ async def test_update_non_existent_field():
     value = "secret"
     with pytest.raises(ValueError):
         await update_user_field(username, "some_random_field", value)
+
+
+@pytest.mark.anyio
+async def test_remove_user_from_workspace():
+    u = "charlie@example.com"
+    w = "ACME Inc."
+    await remove_user_from_workspace(u, w)
+    wsp = await get_workspace("ACME Inc.")
+    assert u not in wsp.users
+    charlie = await get_user(u)
+    assert w not in charlie.workspaces
+
+
+@pytest.mark.anyio
+async def test_remove_user_from_workspace_cannot_remove_admin():
+    u = "johndoe@example.com"
+    w = "ACME Inc."
+    with pytest.raises(BusinessLogicException):
+        await remove_user_from_workspace(u, w)
+
+
+@pytest.mark.anyio
+async def test_remove_user_from_workspace_remove_from_models():
+    u = "charlie@example.com"
+    w = "ACME Inc."
+    await remove_user_from_workspace(u, w)
+    models = await get_models_for_workspace("ACME Inc.")
+    for m in models:
+        assert u not in m["meta"]["admins"]
+        assert u not in m["meta"]["editors"]
+        assert u not in m["meta"]["viewers"]

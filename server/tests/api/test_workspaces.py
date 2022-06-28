@@ -2,6 +2,7 @@ import pytest
 from fastapi.testclient import TestClient
 from starlette import status
 
+from core.dao.models import get_models_for_workspace
 from core.dao.users import get_user
 from core.dao.workspaces import get_workspace
 from main import app
@@ -132,6 +133,41 @@ async def test_workspace_remove(access_token):
 
 
 @pytest.mark.anyio
+async def test_workspace_remove_user_removes_from_models(access_token):
+    client = TestClient(app)
+
+    u = "charlie@example.com"
+
+    response = client.post(
+        "/workspace/remove",
+        params={"username": u, "workspace": "ACME Inc."},
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    models = await get_models_for_workspace("ACME Inc.")
+    for m in models:
+        assert u not in m["meta"]["admins"]
+        assert u not in m["meta"]["editors"]
+        assert u not in m["meta"]["viewers"]
+
+
+@pytest.mark.anyio
+async def test_workspace_remove_user_cannot_admin(access_token):
+    client = TestClient(app)
+
+    u = "johndoe@example.com"
+
+    response = client.post(
+        "/workspace/remove",
+        params={"username": u, "workspace": "ACME Inc."},
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.anyio
 async def test_workspace_remove_non_existent_user(access_token):
     client = TestClient(app)
 
@@ -158,7 +194,7 @@ async def test_workspace_remove_user_not_in_workspace(access_token):
 
 
 @pytest.mark.anyio
-async def test_workspace_remove_user(access_token):
+async def test_workspace_change_admin(access_token):
     client = TestClient(app)
 
     response = client.post(
