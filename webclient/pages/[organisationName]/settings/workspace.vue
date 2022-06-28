@@ -31,6 +31,9 @@ definePageMeta({
           <div v-show="showError" class="w-full flex justify-center">
             <ErrorMessage :error-message="errorMessage"></ErrorMessage>
           </div>
+          <div v-show="showSuccess" class="w-full flex justify-center">
+            <SuccessMessage success-message="Workspace name successfully updated!"></SuccessMessage>
+          </div>
         </div>
       </div>
     </div>
@@ -46,6 +49,7 @@ export default {
         oldName: "",
       },
       showError: false,
+      showSuccess: false,
       errorMessage: "Somthing went wrong. Try again!"
     };
   }, async beforeMount() {
@@ -62,6 +66,10 @@ export default {
   methods: {
     async updateWorkspaceName() {
 
+      //remove error messages so they don't stack up
+      this.showError = false;
+      this.showSuccess = false;
+
       const data = await useFetchAuth(
         'http://localhost:8000/workspace/rename', {
           method: 'POST',
@@ -71,8 +79,7 @@ export default {
       }).then((data) => {
         console.log(data);
         this.workspace.oldName = data.name;
-
-        //todo: sucess message
+        this.showSuccess = true;
 
       }).catch((error) => {
         console.log(error);
