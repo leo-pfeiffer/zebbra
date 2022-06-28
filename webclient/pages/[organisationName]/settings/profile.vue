@@ -46,6 +46,9 @@ definePageMeta({
           <div v-show="showErrorPersonalInfo" class="w-full flex justify-center">
             <ErrorMessage :error-message="errorMessagePersonalInfo"></ErrorMessage>
           </div>
+          <div v-show="showSuccessPersonalInfo" class="w-full flex justify-center">
+            <SuccessMessage success-message="Personal Information successfully updated!"></SuccessMessage>
+          </div>
         </div>
         <div class="py-6">
           <h2 class="text-xl text-zinc-900 mb-3">Change Password</h2>
@@ -113,6 +116,7 @@ export default {
         password: ""
       },
       showErrorPersonalInfo: false,
+      showSuccessPersonalInfo: false,
       errorMessagePersonalInfo: "Somthing went wrong. Try again!",
       showErrorPassword: false,
       showSuccessPassword: false,
@@ -123,7 +127,7 @@ export default {
     };
   },
   async beforeMount() {
-    //get user data
+    //get user data and pre fill the form
     const data = await useFetchAuth(
         'http://localhost:8000/user',{ method: 'GET'}
         ).then((data) => {
@@ -151,6 +155,9 @@ export default {
           this.user.firstName = data.first_name;
           this.user.lastName = data.last_name;
           this.user.email = data.username;
+
+          this.showSuccessPersonalInfo = true;
+
         }).catch((error) => {
           console.log(error);
           this.errorMessagePersonalInfo = error.data.detail;
