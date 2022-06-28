@@ -1,3 +1,5 @@
+from typing import Literal
+
 from bson import ObjectId
 from pydantic import BaseModel, Field
 
@@ -33,3 +35,10 @@ class UpdateModel(BaseModel):
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
+
+
+class ModelUser(BaseModel):
+    username: str
+    first_name: str | None
+    last_name: str | None
+    user_role: Literal["Admin", "Editor", "Viewer"]

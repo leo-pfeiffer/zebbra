@@ -33,9 +33,12 @@ async def get_users_of_workspace(workspace: str):
     if wsp is None:
         raise DoesNotExistException("Workspace does not exist")
 
-    usernames = list(set(wsp.users))
+    user_set = set(wsp.users)
+    user_set.add(wsp.admin)
+    usernames = list(user_set)
     users = []
     admins = []
+
     for username in usernames:
         user = await get_user(username)
         user_role = "Admin" if username == wsp.admin else "Member"

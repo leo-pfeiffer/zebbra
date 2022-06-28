@@ -21,6 +21,7 @@ from core.dao.models import (
     model_exists,
     get_sheet_by_name,
     remove_admin_from_model,
+    get_users_for_model,
 )
 from core.dao.workspaces import is_user_in_workspace
 from core.exceptions import (
@@ -30,7 +31,7 @@ from core.exceptions import (
     CardinalityConstraintFailedException,
     BusinessLogicException,
 )
-from core.schemas.models import Model
+from core.schemas.models import Model, ModelUser
 from core.schemas.sheets import SheetMeta, Section, Sheet
 from core.schemas.users import User
 from core.schemas.utils import Message
@@ -263,6 +264,23 @@ async def update_sheet_meta(
             status_code=status.HTTP_409_CONFLICT,
             detail="Sheet name already exists in the same model.",
         )
+
+
+# GET users of workspace
+@router.get(
+    "/model/users",
+    response_model=list[ModelUser],
+    tags=["model"],
+)
+async def get_model_users(
+    model_id: str, current_user: User = Depends(get_current_active_user)
+):
+    """
+    Get all users for a workspace
+    """
+    # user needs to be in workspace
+    await _assert_access(current_user.username, model_id)
+    return await get_users_for_model(model_id)
 
 
 async def _assert_model_exists(model_id: str):
