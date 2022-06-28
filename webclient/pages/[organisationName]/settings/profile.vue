@@ -144,6 +144,10 @@ export default {
   methods: {
     async updateUserInformation() {
 
+      //remove error messages so they don't stack up
+      this.showErrorPersonalInfo = false;
+      this.showSuccessPersonalInfo = false;
+
       const data = await useFetchAuth(
         'http://localhost:8000/user/update',{ method: 'POST', 
         params: {
@@ -166,6 +170,10 @@ export default {
 
     },
     async updatePassword() {
+      
+      //remove error messages so they don't stack up
+      this.showErrorPassword = false;
+      this.showSuccessPassword = false;
 
       const data = await useFetchAuth(
         'http://localhost:8000/user/update',{ method: 'POST', 
