@@ -1,23 +1,12 @@
 import { useFetchAuth } from "./useFetchAuth"
 
+import { GetUserResponse } from "~~/types/GetUserResponse";
+import { GetWorkspaceResponse } from "~~/types/GetWorkspaceResponse";
+
 export const useIsAdmin = async () => {
 
     var userUsername: String;
     var adminUsername: String;
-
-    type GetUserResponse = {
-        username: String;
-        first_name: String;
-        last_name: String;
-        workspaces: String[];
-        disabled: Boolean;
-    }
-
-    type GetWorkspaceResponse = {
-        name: String;
-        admin: String;
-        users: String[];
-    }
 
     //get the username and store it
     const getUserUsername = await useFetchAuth(
