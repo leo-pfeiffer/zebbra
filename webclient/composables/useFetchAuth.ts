@@ -2,14 +2,9 @@
 
 import { FetchOptions } from "ohmyfetch";
 import { useLogout } from "./useLogout";
+import { GetTokenExpiredResponse } from "~~/types/GetTokenExpiredResponse";
 
 export const useFetchAuth = (url: string, opts?: FetchOptions) => {
-
-  
-  type GetTokenExpiredResponse = {
-    expired: Boolean;
-  }
-
 
   const token = useToken().getToken();
 
