@@ -74,9 +74,6 @@ export default {
   },
   async beforeMount() {
 
-    const userInfo = await useUserInfo();
-    console.log(userInfo);    
-
     //get user data and pre fill the form
     /* const data = await useFetchAuth(
       'http://localhost:8000/workspace/users', {
