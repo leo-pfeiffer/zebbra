@@ -1,9 +1,9 @@
 export interface GetUserResponse {
-    _id: String;
-    username: String;
-    first_name: String;
-    last_name: String;
-    workspaces: String[];
-    models: String[];
-    disabled: Boolean;
+    _id: string;
+    username: string;
+    first_name: string;
+    last_name: string;
+    workspaces: string[];
+    models: string[];
+    disabled: boolean;
 }
