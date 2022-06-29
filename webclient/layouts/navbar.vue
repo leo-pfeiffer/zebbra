@@ -33,15 +33,15 @@ export default {
                 </span>
             </div>
             <div class="text-xs my-4">
-                <NuxtLink to="/tesla/settings/workspace"><div class="px-2 hover:bg-zinc-200 py-1.5 rounded text-zinc-500">
+                <NuxtLink :to="`/${user.workspaces[0]}/settings/workspace`"><div class="px-2 hover:bg-zinc-200 py-1.5 rounded text-zinc-500">
                     <i class="bi bi-gear-fill text-zinc-400"></i><span
                             class="pl-2">Settings</span>
                 </div></NuxtLink>
-                <NuxtLink to="tesla/settings/integrations"><div class="px-2 hover:bg-zinc-200 py-1.5 rounded text-zinc-500">
+                <NuxtLink :to="`/${user.workspaces[0]}/settings/integrations`"><div class="px-2 hover:bg-zinc-200 py-1.5 rounded text-zinc-500">
                     <i class="bi bi-cloud-fill text-zinc-400"></i><span
                             class="pl-2">Integrations</span>
                 </div></NuxtLink>
-                <NuxtLink to="/docs"><div class="px-2 hover:bg-zinc-200 py-1.5 rounded text-zinc-500">
+                <NuxtLink to="#"><div class="px-2 hover:bg-zinc-200 py-1.5 rounded text-zinc-500">
                     <i class="bi bi-file-earmark-code-fill text-zinc-400"></i><span
                             class="pl-2">Documentation</span>
                 </div></NuxtLink>
