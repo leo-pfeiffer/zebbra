@@ -1,10 +1,9 @@
 //adapted from: https://github.com/nuxt/framework/discussions/3801
 
 import { FetchOptions } from "ohmyfetch";
-import { useLogout } from "./useLogout";
 import { GetTokenExpiredResponse } from "~~/types/GetTokenExpiredResponse";
 
-export const useFetchAuth = (url: string, opts?: FetchOptions) => {
+export const useFetchAuth = async (url: string, opts?: FetchOptions) => {
 
   const token = useToken().getToken();
 
@@ -13,7 +12,7 @@ export const useFetchAuth = (url: string, opts?: FetchOptions) => {
     ...(token && { Authorization: `Bearer ${token}` }),
   };
 
-  const logoutIfTokenIsExpired = $fetch('http://localhost:8000/token/expired', {
+  const logoutIfTokenIsExpired = await $fetch('http://localhost:8000/token/expired', {
     method: 'GET', headers
   }).then((data:GetTokenExpiredResponse) => {
     console.log("Checking AuthToken");
