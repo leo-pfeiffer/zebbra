@@ -72,7 +72,6 @@ export default {
           });
 
       const token:string = useToken().getToken();
-      console.log(token);
 
       if(token != undefined) {
 
