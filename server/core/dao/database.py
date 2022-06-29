@@ -16,8 +16,6 @@ def get_db_url():
 
 class _DAO:
     _client = motor.motor_asyncio.AsyncIOMotorClient(get_db_url())
-    # todo check if this is always needed or only for tests
-    #  https://stackoverflow.com/questions/41584243/runtimeerror-task-attached-to-a-different-loop
     _client.get_io_loop = asyncio.get_running_loop
     _db = _client[_settings.dict()["MONGODB_DB"]]
 

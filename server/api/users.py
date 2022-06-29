@@ -60,8 +60,6 @@ async def delete_user(current_user: User = Depends(get_current_active_user)):
             detail="Attempting to delete model admin. Set another admin first.",
         )
 
-    # TODO: check if user is any other admin
-
     await delete_user_full(current_user.id)
 
     return JSONResponse(status_code=200, content={"message": "User deleted."})
