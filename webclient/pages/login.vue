@@ -85,7 +85,6 @@ export default {
           });
 
       } else {
-        //useLogout();
         this.showError = true;
       }
     }
