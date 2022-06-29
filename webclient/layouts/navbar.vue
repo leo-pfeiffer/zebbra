@@ -1,8 +1,16 @@
-<script>
+<script setup lang="ts">
+
+//update the user state
+await updateUserState();
+//get the current user state
+const user = useUserState();
+
+</script>
+
+<script lang="ts">
 export default {
     data() {
         return {
-            workspaceName: 'Tesla',
             models: [
                 { name: 'Model S', id: "1" },
                 { name: 'Model 3', id: "2" },
@@ -18,10 +26,10 @@ export default {
         <div class="w-48 min-w-[12rem] bg-zinc-100 px-3 py-4 border-r border-zinc-300 overflow-hidden">
             <div class="text-sm ml-0.5">
                 <span class="px-2 py-1 rounded-md bg-green-500 text-neutral-50 shadow-sm">
-                    {{ workspaceName[0] }}
+                    {{ user.workspaces[0][0] }}
                 </span>
                 <span class="ml-2 text-zinc-900">
-                    {{ workspaceName }}
+                    {{ user.workspaces[0] }}
                 </span>
             </div>
             <div class="text-xs my-4">
