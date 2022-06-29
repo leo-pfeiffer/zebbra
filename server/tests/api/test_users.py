@@ -45,9 +45,9 @@ def test_cannot_delete_user_who_is_workspace_admin(access_token):
 
 
 @pytest.mark.anyio
-async def test_cannot_delete_user_who_is_model_admin(access_token, users):
+async def test_cannot_delete_user_who_is_model_admin(access_token, users, workspaces):
     # make sure current user is no longer an admin
-    wsp = "ACME Inc."
+    wsp = workspaces["ACME Inc."]
     user_id = users["alice@example.com"]
     await change_workspace_admin(wsp, user_id)
 

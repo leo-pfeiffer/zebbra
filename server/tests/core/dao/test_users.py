@@ -58,8 +58,8 @@ async def test_get_user_returns_user(users):
 
 
 @pytest.mark.anyio
-async def test_get_non_existing_user_returns_none(not_a_user_id):
-    user = await get_user(not_a_user_id)
+async def test_get_non_existing_user_returns_none(not_an_id):
+    user = await get_user(not_an_id)
     assert user is None
 
 
@@ -77,8 +77,8 @@ async def test_delete_user_deletes_workspace_membership(users):
 
 
 @pytest.mark.anyio
-async def test_add_user_to_workspace(users):
-    wsp = "Boring Co."
+async def test_add_user_to_workspace(users, workspaces):
+    wsp = workspaces["Boring Co."]
     u = users["johndoe@example.com"]
     workspace_before = await get_workspace(wsp)
     await add_user_to_workspace(u, wsp)
@@ -175,11 +175,11 @@ async def test_update_non_existent_field(users):
 
 
 @pytest.mark.anyio
-async def test_remove_user_from_workspace(users):
+async def test_remove_user_from_workspace(users, workspaces):
     u = users["charlie@example.com"]
-    w = "ACME Inc."
+    w = workspaces["ACME Inc."]
     await remove_user_from_workspace(u, w)
-    wsp = await get_workspace("ACME Inc.")
+    wsp = await get_workspace(w)
     assert u not in wsp.users
     charlie = await get_user(u)
     assert w not in charlie.workspaces

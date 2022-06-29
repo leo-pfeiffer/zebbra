@@ -80,5 +80,13 @@ def users() -> dict:
 
 
 @pytest.fixture
-def not_a_user_id():
+def workspaces() -> dict:
+    return {
+        "Boring Co.": "62bc5706a40e85213c27ce28",
+        "ACME Inc.": "62bc5706a40e85213c27ce29",
+    }
+
+
+@pytest.fixture
+def not_an_id():
     return "12ab12345678faba1234567d"

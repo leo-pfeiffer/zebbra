@@ -74,8 +74,8 @@ async def test_get_model_by_id_no_results():
 
 
 @pytest.mark.anyio
-async def test_get_models_for_workspace():
-    wsp = "ACME Inc."
+async def test_get_models_for_workspace(workspaces):
+    wsp = workspaces["ACME Inc."]
     models = await get_models_for_workspace(wsp)
     assert len(models) == 1
     for m in models:
@@ -83,9 +83,8 @@ async def test_get_models_for_workspace():
 
 
 @pytest.mark.anyio
-async def test_get_models_for_workspace_no_results():
-    wsp = "Not a workspace"
-    models = await get_models_for_workspace(wsp)
+async def test_get_models_for_workspace_no_results(not_an_id):
+    models = await get_models_for_workspace(not_an_id)
     assert len(models) == 0
 
 
@@ -117,8 +116,8 @@ async def test_get_models_for_user_viewer(users):
 
 
 @pytest.mark.anyio
-async def test_get_models_for_user_no_results(not_a_user_id):
-    models = await get_models_for_user(not_a_user_id)
+async def test_get_models_for_user_no_results(not_an_id):
+    models = await get_models_for_user(not_an_id)
     assert len(models) == 0
 
 
@@ -160,9 +159,9 @@ async def test_set_admin(users):
 
 
 @pytest.mark.anyio
-async def test_set_admin_non_existing_user(not_a_user_id):
+async def test_set_admin_non_existing_user(not_an_id):
     with pytest.raises(DoesNotExistException):
-        await add_admin_to_model(not_a_user_id, "62b488ba433720870b60ec0a")
+        await add_admin_to_model(not_an_id, "62b488ba433720870b60ec0a")
 
 
 @pytest.mark.anyio
@@ -173,9 +172,9 @@ async def test_add_editor_to_model(users):
 
 
 @pytest.mark.anyio
-async def test_add_editor_to_model_non_existing_user(not_a_user_id):
+async def test_add_editor_to_model_non_existing_user(not_an_id):
     with pytest.raises(DoesNotExistException):
-        await add_editor_to_model(not_a_user_id, "62b488ba433720870b60ec0a")
+        await add_editor_to_model(not_an_id, "62b488ba433720870b60ec0a")
 
 
 @pytest.mark.anyio
@@ -186,9 +185,9 @@ async def test_add_viewer_to_model(users):
 
 
 @pytest.mark.anyio
-async def test_add_viewer_to_model_non_existing_user(not_a_user_id):
+async def test_add_viewer_to_model_non_existing_user(not_an_id):
     with pytest.raises(DoesNotExistException):
-        await add_viewer_to_model(not_a_user_id, "62b488ba433720870b60ec0a")
+        await add_viewer_to_model(not_an_id, "62b488ba433720870b60ec0a")
 
 
 @pytest.mark.anyio
@@ -201,9 +200,9 @@ async def test_remove_viewer_from_model(users):
 
 
 @pytest.mark.anyio
-async def test_remove_viewer_from_model_non_existing_user(not_a_user_id):
+async def test_remove_viewer_from_model_non_existing_user(not_an_id):
     with pytest.raises(DoesNotExistException):
-        await remove_viewer_from_model(not_a_user_id, "62b488ba433720870b60ec0a")
+        await remove_viewer_from_model(not_an_id, "62b488ba433720870b60ec0a")
 
 
 @pytest.mark.anyio
@@ -217,9 +216,9 @@ async def test_remove_admin_from_model(users):
 
 
 @pytest.mark.anyio
-async def test_remove_admin_from_model_non_existing_user(not_a_user_id):
+async def test_remove_admin_from_model_non_existing_user(not_an_id):
     with pytest.raises(DoesNotExistException):
-        await remove_admin_from_model(not_a_user_id, "62b488ba433720870b60ec0a")
+        await remove_admin_from_model(not_an_id, "62b488ba433720870b60ec0a")
 
 
 @pytest.mark.anyio
@@ -250,9 +249,9 @@ async def test_remove_editor_from_model(users):
 
 
 @pytest.mark.anyio
-async def test_remove_editor_from_model_non_existing_user(not_a_user_id):
+async def test_remove_editor_from_model_non_existing_user(not_an_id):
     with pytest.raises(DoesNotExistException):
-        await remove_editor_from_model(not_a_user_id, "62b488ba433720870b60ec0a")
+        await remove_editor_from_model(not_an_id, "62b488ba433720870b60ec0a")
 
 
 @pytest.mark.anyio
@@ -265,9 +264,9 @@ async def test_set_name():
 
 
 @pytest.mark.anyio
-async def test_add_model(users):
+async def test_add_model(users, workspaces):
     new_name = "some_new_model"
-    workspace = "ACME Inc."
+    workspace = workspaces["ACME Inc."]
     admin = users["johndoe@example.com"]
     r = await create_model(admin, new_name, workspace)
     model = await get_model_by_id(r.inserted_id)
@@ -279,9 +278,9 @@ async def test_add_model(users):
 
 
 @pytest.mark.anyio
-async def test_add_model_no_access(users):
+async def test_add_model_no_access(users, workspaces):
     new_name = "some_new_model"
-    workspace = "Boring Co."
+    workspace = workspaces["Boring Co."]
     admin = users["johndoe@example.com"]
 
     with pytest.raises(NoAccessException):
@@ -289,22 +288,21 @@ async def test_add_model_no_access(users):
 
 
 @pytest.mark.anyio
-async def test_add_model_non_existent_user(not_a_user_id):
+async def test_add_model_non_existent_user(not_an_id, workspaces):
     new_name = "some_new_model"
-    workspace = "ACME Inc."
+    workspace = workspaces["ACME Inc."]
 
     with pytest.raises(DoesNotExistException):
-        await create_model(not_a_user_id, new_name, workspace)
+        await create_model(not_an_id, new_name, workspace)
 
 
 @pytest.mark.anyio
-async def test_add_model_non_existent_workspace():
+async def test_add_model_non_existent_workspace(not_an_id, users):
     new_name = "some_new_model"
-    workspace = "Not a workspace"
-    admin = "johndoe@example.com"
+    admin = users["johndoe@example.com"]
 
     with pytest.raises(DoesNotExistException):
-        await create_model(admin, new_name, workspace)
+        await create_model(admin, new_name, not_an_id)
 
 
 @pytest.mark.anyio

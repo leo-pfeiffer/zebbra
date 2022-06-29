@@ -57,8 +57,8 @@ async def get_model_by_id(model_id: str):
     return await db.models.find_one({"_id": model_id})
 
 
-async def get_models_for_workspace(workspace: str):
-    return await db.models.find({"meta.workspace": workspace}).to_list(
+async def get_models_for_workspace(workspace_id: PyObjectId):
+    return await db.models.find({"meta.workspace": str(workspace_id)}).to_list(
         length=settings.MAX_MODELS
     )
 
@@ -202,16 +202,16 @@ async def set_name(model_id: str, name: str):
     await db.models.update_one({"_id": model_id}, {"$set": {"meta.name": name}})
 
 
-async def create_model(admin_id: PyObjectId, model_name: str, workspace: str):
+async def create_model(admin_id: PyObjectId, model_name: str, workspace_id: PyObjectId):
     if not await user_exists(admin_id):
         raise DoesNotExistException("User does not exist")
 
-    wsp = await get_workspace(workspace)
+    wsp = await get_workspace(workspace_id)
 
     if wsp is None:
         raise DoesNotExistException("Workspace does not exist")
 
-    if not await is_user_in_workspace(admin_id, workspace):
+    if not await is_user_in_workspace(admin_id, workspace_id):
         raise NoAccessException("User has no access to workspace.")
 
     admins = [admin_id]
@@ -222,7 +222,7 @@ async def create_model(admin_id: PyObjectId, model_name: str, workspace: str):
         **{
             "name": model_name,
             "admins": admins,
-            "workspace": workspace,
+            "workspace": workspace_id,
             "editors": [],
             "viewers": [],
         }

@@ -97,11 +97,13 @@ async def delete_user_full(user_id: PyObjectId):
     )
 
 
-async def remove_user_from_workspace(user_id: PyObjectId, workspace: str):
+async def remove_user_from_workspace(user_id: PyObjectId, workspace_id: PyObjectId):
 
     # cannot remove admin from workspace
     if (
-        await db.workspaces.count_documents({"admin": str(user_id), "name": workspace})
+        await db.workspaces.count_documents(
+            {"admin": str(user_id), "_id": str(workspace_id)}
+        )
         > 0
     ):
         raise BusinessLogicException("Cannot remove admin from workspace.")
@@ -116,17 +118,17 @@ async def remove_user_from_workspace(user_id: PyObjectId, workspace: str):
         raise BusinessLogicException("Cannot remove sole admin from model.")
 
     await db.users.update_one(
-        {"_id": str(user_id)}, {"$pull": {"workspaces": workspace}}
+        {"_id": str(user_id)}, {"$pull": {"workspaces": str(workspace_id)}}
     )
 
     # remove user from workspace
     await db.workspaces.update_one(
-        {"name": workspace}, {"$pull": {"users": str(user_id)}}
+        {"_id": str(workspace_id)}, {"$pull": {"users": str(user_id)}}
     )
 
     # remove user from all models of workspace
     await db.models.update_many(
-        {"meta.workspace": workspace},
+        {"meta.workspace": str(workspace_id)},
         {
             "$pull": {
                 "meta.admins": str(user_id),
@@ -137,15 +139,15 @@ async def remove_user_from_workspace(user_id: PyObjectId, workspace: str):
     )
 
 
-async def add_user_to_workspace(user_id: PyObjectId, workspace: str):
+async def add_user_to_workspace(user_id: PyObjectId, workspace_id: PyObjectId):
     # add workspace to user
     await db.users.update_one(
-        {"_id": str(user_id)}, {"$push": {"workspaces": workspace}}
+        {"_id": str(user_id)}, {"$push": {"workspaces": str(workspace_id)}}
     )
 
     # add user to workspace
     await db.workspaces.update_one(
-        {"name": workspace}, {"$push": {"users": str(user_id)}}
+        {"_id": str(workspace_id)}, {"$push": {"users": str(user_id)}}
     )
 
 

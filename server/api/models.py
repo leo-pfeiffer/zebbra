@@ -52,7 +52,7 @@ router = APIRouter()
 )
 async def get_model(
     model_id: str | None = None,
-    workspace: str | None = None,
+    workspace_id: PyObjectId | None = None,
     user: bool = False,
     current_user: User = Depends(get_current_active_user),
 ):
@@ -64,7 +64,7 @@ async def get_model(
     """
 
     # assert that only one parameter has been specified
-    if (model_id is not None) + (workspace is not None) + user != 1:
+    if (model_id is not None) + (workspace_id is not None) + user != 1:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Exactly one of the query parameters must be specified.",
@@ -73,15 +73,16 @@ async def get_model(
     if model_id is not None:
         await _assert_model_exists(model_id)
         await _assert_access(current_user.id, model_id)
-        return [await get_model_by_id(model_id)]
+        models = [await get_model_by_id(model_id)]
+        return models
 
-    if workspace is not None:
-        if not await is_user_in_workspace(current_user.id, workspace):
+    if workspace_id is not None:
+        if not await is_user_in_workspace(current_user.id, workspace_id):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="User does not have access to this workspace.",
             )
-        return await get_models_for_workspace(workspace)
+        return await get_models_for_workspace(workspace_id)
 
     if user:
         return await get_models_for_user(current_user.id)
@@ -204,11 +205,11 @@ async def model_rename(
 )
 async def model_add(
     name: str,
-    workspace: str,
+    workspace_id: PyObjectId,
     current_user: User = Depends(get_current_active_user),
 ):
     try:
-        r = await create_model(current_user.id, name, workspace)
+        r = await create_model(current_user.id, name, workspace_id)
         return await get_model_by_id(r.inserted_id)
     except NoAccessException:
         raise HTTPException(

@@ -12,8 +12,7 @@ class ModelMeta(BaseModel):
     admins: list[PyObjectId]  # list of user_ids
     editors: list[PyObjectId]  # list of user_ids
     viewers: list[PyObjectId]  # list of user_ids
-    workspace: str  # workspace name
-    # todo what else?
+    workspace: PyObjectId  # workspace id
 
 
 class Model(BaseModel):

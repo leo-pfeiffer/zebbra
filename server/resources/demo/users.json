@@ -5,7 +5,7 @@
     "first_name": "John",
     "last_name": "Doe",
     "workspaces": [
-      "ACME Inc."
+      "62bc5706a40e85213c27ce29"
     ],
     "hashed_password": "$2b$12$JObcoGR6lNWg3ztKdhEK/OtPjUoltMlHJIg99ctXPaBCNQH1EMts.",
     "disabled": false
@@ -16,7 +16,7 @@
     "first_name": "Alice",
     "last_name": "Wonderson",
     "workspaces": [
-      "Boring Co."
+      "62bc5706a40e85213c27ce28"
     ],
     "hashed_password": "$2b$12$JObcoGR6lNWg3ztKdhEK/OtPjUoltMlHJIg99ctXPaBCNQH1EMts.",
     "disabled": false
@@ -27,7 +27,7 @@
     "first_name": "Bob",
     "last_name": "Babish",
     "workspaces": [
-      "Boring Co."
+      "62bc5706a40e85213c27ce28"
     ],
     "hashed_password": "$2b$12$JObcoGR6lNWg3ztKdhEK/OtPjUoltMlHJIg99ctXPaBCNQH1EMts.",
     "disabled": false
@@ -38,7 +38,7 @@
     "first_name": "Charlie",
     "last_name": "Carlson",
     "workspaces": [
-      "ACME Inc."
+      "62bc5706a40e85213c27ce29"
     ],
     "hashed_password": "$2b$12$JObcoGR6lNWg3ztKdhEK/OtPjUoltMlHJIg99ctXPaBCNQH1EMts.",
     "disabled": false
@@ -49,7 +49,7 @@
     "first_name": "Darwin",
     "last_name": "Dobson",
     "workspaces": [
-      "ACME Inc."
+      "62bc5706a40e85213c27ce29"
     ],
     "hashed_password": "$2b$12$JObcoGR6lNWg3ztKdhEK/OtPjUoltMlHJIg99ctXPaBCNQH1EMts.",
     "disabled": false
@@ -60,7 +60,7 @@
     "first_name": "Zeus",
     "last_name": "Olympus",
     "workspaces": [
-      "ACME Inc."
+      "62bc5706a40e85213c27ce29"
     ],
     "hashed_password": "$2b$12$JObcoGR6lNWg3ztKdhEK/OtPjUoltMlHJIg99ctXPaBCNQH1EMts.",
     "disabled": false

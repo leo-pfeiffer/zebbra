@@ -68,11 +68,11 @@ def test_model_get_id_forbidden(access_token):
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
-def test_model_get_workspace(access_token):
+def test_model_get_workspace(access_token, workspaces):
     client = TestClient(app)
-    wsp = "ACME Inc."
+    wsp = workspaces["ACME Inc."]
     response = client.get(
-        f"/model/?workspace={wsp}",
+        f"/model/?workspace_id={wsp}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -83,11 +83,11 @@ def test_model_get_workspace(access_token):
         assert m["meta"]["workspace"] == wsp
 
 
-def test_model_get_workspace_forbidden(access_token):
+def test_model_get_workspace_forbidden(access_token, workspaces):
     client = TestClient(app)
-    wsp = "Boring Co."
+    wsp = workspaces["Boring Co."]
     response = client.get(
-        f"/model/?workspace={wsp}",
+        f"/model/?workspace_id={wsp}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
@@ -359,12 +359,12 @@ async def test_rename_model_non_existent_model(access_token):
 
 
 @pytest.mark.anyio
-async def test_add_model(access_token, users):
+async def test_add_model(access_token, users, workspaces):
     client = TestClient(app)
     new_name = "new_name"
-    workspace = "ACME Inc."
+    workspace = workspaces["ACME Inc."]
     response = client.post(
-        f"/model/add?name={new_name}&workspace={workspace}",
+        f"/model/add?name={new_name}&workspace_id={workspace}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -376,12 +376,12 @@ async def test_add_model(access_token, users):
 
 
 @pytest.mark.anyio
-async def test_add_model_no_access(access_token):
+async def test_add_model_no_access(access_token, workspaces):
     client = TestClient(app)
     new_name = "new_name"
-    workspace = "Boring Co."
+    workspace = workspaces["Boring Co."]
     response = client.post(
-        f"/model/add?name={new_name}&workspace={workspace}",
+        f"/model/add?name={new_name}&workspace_id={workspace}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN

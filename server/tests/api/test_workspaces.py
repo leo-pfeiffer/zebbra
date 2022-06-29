@@ -4,7 +4,7 @@ from starlette import status
 
 from core.dao.models import get_models_for_workspace
 from core.dao.users import get_user
-from core.dao.workspaces import get_workspace
+from core.dao.workspaces import get_workspace, get_workspace_by_name
 from main import app
 
 
@@ -20,7 +20,7 @@ async def test_get_workspaces_for_user(access_token, users):
     user = await get_user(users["johndoe@example.com"])
     assert len(response.json()) == len(user.workspaces)
     for w in user.workspaces:
-        assert w in [x["name"] for x in response.json()]
+        assert w in [x["_id"] for x in response.json()]
 
 
 @pytest.mark.anyio
@@ -33,7 +33,7 @@ async def test_create_new_workspace(access_token, users):
     )
 
     assert response.status_code == status.HTTP_200_OK
-    wsp = await get_workspace("my_workspace")
+    wsp = await get_workspace_by_name("my_workspace")
     assert wsp is not None
     assert str(wsp.admin) == users["johndoe@example.com"]
 
@@ -56,27 +56,27 @@ async def test_create_new_workspace_duplicate(access_token):
 
 
 @pytest.mark.anyio
-async def test_workspace_rename(access_token):
+async def test_workspace_rename(access_token, workspaces):
     client = TestClient(app)
 
     response = client.post(
         "/workspace/rename",
-        params={"old_name": "ACME Inc.", "new_name": "foobar"},
+        params={"workspace_id": workspaces["ACME Inc."], "new_name": "foobar"},
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
     assert response.status_code == status.HTTP_200_OK
-    assert await get_workspace("foobar") is not None
-    assert await get_workspace("ACME Inc.") is None
+    assert await get_workspace_by_name("foobar") is not None
+    assert await get_workspace_by_name("ACME Inc.") is None
 
 
 @pytest.mark.anyio
-async def test_workspace_rename_exists(access_token):
+async def test_workspace_rename_exists(access_token, workspaces):
     client = TestClient(app)
 
     response = client.post(
         "/workspace/rename",
-        params={"old_name": "ACME Inc.", "new_name": "Boring Co."},
+        params={"workspace_id": workspaces["ACME Inc."], "new_name": "Boring Co."},
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -84,30 +84,28 @@ async def test_workspace_rename_exists(access_token):
 
 
 @pytest.mark.anyio
-async def test_workspace_add(access_token, users):
+async def test_workspace_add(access_token, users, workspaces):
     client = TestClient(app)
 
     u = users["alice@example.com"]
     response = client.post(
         "/workspace/add",
-        params={"user_id": u, "workspace": "ACME Inc."},
+        params={"user_id": u, "workspace_id": workspaces["ACME Inc."]},
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
     assert response.status_code == status.HTTP_200_OK
-    wsp = await get_workspace("ACME Inc.")
+    wsp = await get_workspace_by_name("ACME Inc.")
     assert u in [str(x) for x in wsp.users]
-    alice = await get_user(u)
-    assert "ACME Inc." in alice.workspaces
 
 
 @pytest.mark.anyio
-async def test_workspace_add_non_existent_user(access_token, not_a_user_id):
+async def test_workspace_add_non_existent_user(access_token, not_an_id, workspaces):
     client = TestClient(app)
 
     response = client.post(
         "/workspace/add",
-        params={"user_id": not_a_user_id, "workspace": "ACME Inc."},
+        params={"user_id": not_an_id, "workspace_id": workspaces["ACME Inc."]},
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -115,37 +113,39 @@ async def test_workspace_add_non_existent_user(access_token, not_a_user_id):
 
 
 @pytest.mark.anyio
-async def test_workspace_remove(access_token, users):
+async def test_workspace_remove(access_token, users, workspaces):
     client = TestClient(app)
 
     u = users["charlie@example.com"]
     response = client.post(
         "/workspace/remove",
-        params={"user_id": u, "workspace": "ACME Inc."},
+        params={"user_id": u, "workspace_id": workspaces["ACME Inc."]},
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
     assert response.status_code == status.HTTP_200_OK
-    wsp = await get_workspace("ACME Inc.")
+    wsp = await get_workspace_by_name("ACME Inc.")
     assert u not in [str(x) for x in wsp.users]
     charlie = await get_user(u)
-    assert "ACME Inc." not in charlie.workspaces
+    assert workspaces["ACME Inc."] not in charlie.workspaces
 
 
 @pytest.mark.anyio
-async def test_workspace_remove_user_removes_from_models(access_token, users):
+async def test_workspace_remove_user_removes_from_models(
+    access_token, users, workspaces
+):
     client = TestClient(app)
 
     u = users["charlie@example.com"]
 
     response = client.post(
         "/workspace/remove",
-        params={"user_id": u, "workspace": "ACME Inc."},
+        params={"user_id": u, "workspace_id": workspaces["ACME Inc."]},
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
     assert response.status_code == status.HTTP_200_OK
-    models = await get_models_for_workspace("ACME Inc.")
+    models = await get_models_for_workspace(workspaces["ACME Inc."])
     for m in models:
         assert u not in m["meta"]["admins"]
         assert u not in m["meta"]["editors"]
@@ -153,14 +153,14 @@ async def test_workspace_remove_user_removes_from_models(access_token, users):
 
 
 @pytest.mark.anyio
-async def test_workspace_remove_user_cannot_admin(access_token, users):
+async def test_workspace_remove_user_cannot_admin(access_token, users, workspaces):
     client = TestClient(app)
 
     u = users["johndoe@example.com"]
 
     response = client.post(
         "/workspace/remove",
-        params={"user_id": u, "workspace": "ACME Inc."},
+        params={"user_id": u, "workspace_id": workspaces["ACME Inc."]},
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -168,12 +168,12 @@ async def test_workspace_remove_user_cannot_admin(access_token, users):
 
 
 @pytest.mark.anyio
-async def test_workspace_remove_non_existent_user(access_token, not_a_user_id):
+async def test_workspace_remove_non_existent_user(access_token, not_an_id, workspaces):
     client = TestClient(app)
 
     response = client.post(
         "/workspace/changeAdmin",
-        params={"user_id": not_a_user_id, "workspace": "ACME Inc."},
+        params={"user_id": not_an_id, "workspace_id": workspaces["ACME Inc."]},
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -181,12 +181,15 @@ async def test_workspace_remove_non_existent_user(access_token, not_a_user_id):
 
 
 @pytest.mark.anyio
-async def test_workspace_remove_user_not_in_workspace(access_token, users):
+async def test_workspace_remove_user_not_in_workspace(access_token, users, workspaces):
     client = TestClient(app)
 
     response = client.post(
         "/workspace/changeAdmin",
-        params={"user_id": users["alice@example.com"], "workspace": "ACME Inc."},
+        params={
+            "user_id": users["alice@example.com"],
+            "workspace_id": workspaces["ACME Inc."],
+        },
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -194,36 +197,36 @@ async def test_workspace_remove_user_not_in_workspace(access_token, users):
 
 
 @pytest.mark.anyio
-async def test_workspace_change_admin(access_token, users):
+async def test_workspace_change_admin(access_token, users, workspaces):
     client = TestClient(app)
 
     u = users["charlie@example.com"]
 
     response = client.post(
         "/workspace/changeAdmin",
-        params={"user_id": u, "workspace": "ACME Inc."},
+        params={"user_id": u, "workspace_id": workspaces["ACME Inc."]},
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
     assert response.status_code == status.HTTP_200_OK
-    wsp = await get_workspace("ACME Inc.")
+    wsp = await get_workspace_by_name("ACME Inc.")
     assert str(wsp.admin) == u
 
 
 @pytest.mark.anyio
-async def test_get_users_of_workspace(access_token, users):
+async def test_get_users_of_workspace(access_token, users, workspaces):
     client = TestClient(app)
 
     response = client.get(
         "/workspace/users",
-        params={"name": "ACME Inc."},
+        params={"workspace_id": workspaces["ACME Inc."]},
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
     assert response.status_code == status.HTTP_200_OK
     res = response.json()
     unique = set()
-    wsp = await get_workspace("ACME Inc.")
+    wsp = await get_workspace_by_name("ACME Inc.")
     wsp_users = set([str(x) for x in wsp.users])
     wsp_users.add(str(wsp.admin))
 
@@ -241,12 +244,12 @@ async def test_get_users_of_workspace(access_token, users):
 
 
 @pytest.mark.anyio
-async def test_get_users_of_workspace_no_access(access_token_alice):
+async def test_get_users_of_workspace_no_access(access_token_alice, workspaces):
     client = TestClient(app)
 
     response = client.get(
         "/workspace/users",
-        params={"name": "ACME Inc."},
+        params={"workspace_id": workspaces["ACME Inc."]},
         headers={"Authorization": f"Bearer {access_token_alice}"},
     )
 

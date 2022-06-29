@@ -7,7 +7,17 @@ from core.objects import PyObjectId
 from core.schemas.workspaces import Workspace, WorkspaceUser
 
 
-async def get_workspace(name: str):
+async def get_workspace(workspace_id: PyObjectId):
+    """
+    Get a workspace by its name
+    :param workspace_id: name of the workspace
+    """
+    workspace = await db.workspaces.find_one({"_id": str(workspace_id)})
+    if workspace is not None:
+        return Workspace(**workspace)
+
+
+async def get_workspace_by_name(name: str):
     """
     Get a workspace by its name
     :param name: name of the workspace
@@ -28,9 +38,9 @@ async def get_workspaces_of_user(user_id: PyObjectId):
     return lis
 
 
-async def get_users_of_workspace(workspace: str):
+async def get_users_of_workspace(workspace_id: PyObjectId):
     # get unique users
-    wsp = await get_workspace(workspace)
+    wsp = await get_workspace(workspace_id)
     if wsp is None:
         raise DoesNotExistException("Workspace does not exist")
 
@@ -59,16 +69,16 @@ async def get_users_of_workspace(workspace: str):
     return admins + users
 
 
-async def is_user_in_workspace(user_id: PyObjectId, workspace: str):
+async def is_user_in_workspace(user_id: PyObjectId, workspace_id: PyObjectId):
     """
     Returns true if the user is in the workspace, else false.
     :param user_id: user id of the user
-    :param workspace: workspace name
+    :param workspace_id: workspace name
     """
     return (
         await db.workspaces.count_documents(
             {
-                "name": workspace,
+                "_id": str(workspace_id),
                 "$or": [{"admin": str(user_id)}, {"users": str(user_id)}],
             }
         )
@@ -76,14 +86,16 @@ async def is_user_in_workspace(user_id: PyObjectId, workspace: str):
     )
 
 
-async def is_user_admin_of_workspace(user_id: PyObjectId, workspace: str):
+async def is_user_admin_of_workspace(user_id: PyObjectId, workspace_id: PyObjectId):
     """
     Returns true if the user is the admin of the workspace, else false.
     :param user_id: user id of the user
-    :param workspace: workspace name
+    :param workspace_id: workspace id
     """
     return (
-        await db.workspaces.count_documents({"name": workspace, "admin": str(user_id)})
+        await db.workspaces.count_documents(
+            {"_id": str(workspace_id), "admin": str(user_id)}
+        )
         > 0
     )
 
@@ -103,50 +115,49 @@ async def create_workspace(workspace: Workspace):
     """
     Create a new workspace.
     """
-    if await get_workspace(workspace.name) is not None:
+    if await get_workspace_by_name(workspace.name) is not None:
         raise UniqueConstraintFailedException("Workspace name must be unique")
+
     return await db.workspaces.insert_one(jsonable_encoder(workspace))
 
 
-async def change_workspace_admin(workspace: str, user_id: PyObjectId):
+async def change_workspace_admin(workspace_id: PyObjectId, user_id: PyObjectId):
     """
     Change the admin of the workspace to the user with the given username.
-    :param workspace: the workspace whose admin to change
+    :param workspace_id: the workspace id whose admin to change
     :param user_id: the user id of the new admin
     """
     if not await user_exists(user_id):
         raise DoesNotExistException("User does not exist")
 
     await db.workspaces.update_one(
-        {"name": workspace}, {"$set": {"admin": str(user_id)}}
+        {"_id": str(workspace_id)}, {"$set": {"admin": str(user_id)}}
     )
 
     # add the new admin as admin to all models of the workspace
     await db.models.update_many(
-        {"meta.workspace": workspace, "meta.admins": {"$ne": str(user_id)}},
+        {"meta.workspace": str(workspace_id), "meta.admins": {"$ne": str(user_id)}},
         {"$push": {"meta.admins": str(user_id)}},
     )
 
 
-async def change_workspace_name(old_name: str, new_name: str):
+async def change_workspace_name(workspace_id: PyObjectId, new_name: str):
     """
     Change the workspace name.
     """
-    if await get_workspace(new_name) is not None:
+    if await get_workspace_by_name(new_name) is not None:
         raise UniqueConstraintFailedException("Workspace name must be unique")
 
-    await db.workspaces.update_one({"name": old_name}, {"$set": {"name": new_name}})
-
-    # change users
-    await db.users.update_many(
-        {"workspaces": old_name}, {"$push": {"workspaces": new_name}}
+    # todo remove this!
+    await db.workspaces.update_one(
+        {"_id": str(workspace_id)}, {"$set": {"name": new_name}}
     )
 
     await db.users.update_many(
-        {"workspaces": old_name}, {"$pull": {"workspaces": old_name}}
+        {"workspaces": str(workspace_id)}, {"$pull": {"workspaces": str(workspace_id)}}
     )
 
     # change models
     await db.models.update_many(
-        {"workspace": old_name}, {"$set": {"workspace": new_name}}
+        {"workspace": str(workspace_id)}, {"$set": {"workspace": new_name}}
     )

@@ -48,14 +48,14 @@ async def get_workspace_for_user(current_user: User = Depends(get_current_active
     tags=["workspace"],
 )
 async def get_workspace_users(
-    name: str, current_user: User = Depends(get_current_active_user)
+    workspace_id: PyObjectId, current_user: User = Depends(get_current_active_user)
 ):
     """
     Get all users for a workspace
     """
     # user needs to be in workspace
-    await _assert_workspace_access(current_user.id, name)
-    return await get_users_of_workspace(name)
+    await _assert_workspace_access(current_user.id, workspace_id)
+    return await get_users_of_workspace(workspace_id)
 
 
 # CREATE workspace
@@ -72,8 +72,8 @@ async def create_new_workspace(
     """
     workspace = Workspace(name=name, admin=current_user.id, users=[current_user.id])
     try:
-        await create_workspace(workspace)
-        return await get_workspace(name)
+        obj = await create_workspace(workspace)
+        return await get_workspace(obj.inserted_id)
     except UniqueConstraintFailedException:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -84,13 +84,15 @@ async def create_new_workspace(
 # POST change workspace name
 @router.post("/workspace/rename", response_model=Workspace, tags=["workspace"])
 async def rename_workspace(
-    old_name: str, new_name: str, current_user: User = Depends(get_current_active_user)
+    workspace_id: PyObjectId,
+    new_name: str,
+    current_user: User = Depends(get_current_active_user),
 ):
-    await _assert_workspace_access_admin(current_user.id, old_name)
+    await _assert_workspace_access_admin(current_user.id, workspace_id)
 
     try:
-        await change_workspace_name(old_name, new_name)
-        return await get_workspace(new_name)
+        await change_workspace_name(workspace_id, new_name)
+        return await get_workspace(workspace_id)
     except UniqueConstraintFailedException:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -102,73 +104,73 @@ async def rename_workspace(
 @router.post("/workspace/add", response_model=Workspace, tags=["workspace"])
 async def add_to_workspace(
     user_id: PyObjectId,
-    workspace: str,
+    workspace_id: PyObjectId,
     current_user: User = Depends(get_current_active_user),
 ):
     await _assert_user_exists(user_id)
-    await _assert_workspace_access_admin(current_user.id, workspace)
+    await _assert_workspace_access_admin(current_user.id, workspace_id)
 
-    if not await is_user_in_workspace(user_id, workspace):
-        await add_user_to_workspace(user_id, workspace)
-    return await get_workspace(workspace)
+    if not await is_user_in_workspace(user_id, workspace_id):
+        await add_user_to_workspace(user_id, workspace_id)
+    return await get_workspace(workspace_id)
 
 
 # POST remove user from workspace todo test
 @router.post("/workspace/remove", response_model=Workspace, tags=["workspace"])
 async def remove_from_workspace(
     user_id: PyObjectId,
-    workspace: str,
+    workspace_id: PyObjectId,
     current_user: User = Depends(get_current_active_user),
 ):
     await _assert_user_exists(user_id)
-    await _assert_workspace_access_admin(current_user.id, workspace)
+    await _assert_workspace_access_admin(current_user.id, workspace_id)
 
-    if await is_user_in_workspace(user_id, workspace):
+    if await is_user_in_workspace(user_id, workspace_id):
         try:
-            await remove_user_from_workspace(user_id, workspace)
+            await remove_user_from_workspace(user_id, workspace_id)
         except BusinessLogicException:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Cannot remove user due to business logic violation.",
             )
 
-    return await get_workspace(workspace)
+    return await get_workspace(workspace_id)
 
 
 # POST set another user as admin todo test
 @router.post("/workspace/changeAdmin", response_model=Workspace, tags=["workspace"])
 async def change_admin(
     user_id: PyObjectId,
-    workspace: str,
+    workspace_id: PyObjectId,
     current_user: User = Depends(get_current_active_user),
 ):
     await _assert_user_exists(user_id)
-    await _assert_workspace_access_admin(current_user.id, workspace)
+    await _assert_workspace_access_admin(current_user.id, workspace_id)
 
-    if not await is_user_in_workspace(user_id, workspace):
+    if not await is_user_in_workspace(user_id, workspace_id):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="User is not in workspace.",
         )
 
-    await change_workspace_admin(workspace, user_id)
-    return await get_workspace(workspace)
+    await change_workspace_admin(workspace_id, user_id)
+    return await get_workspace(workspace_id)
 
 
 # POST invite user to workspace
 # todo
 
 
-async def _assert_workspace_access(user_id: PyObjectId, workspace: str):
-    if not await is_user_in_workspace(user_id, workspace):
+async def _assert_workspace_access(user_id: PyObjectId, workspace_id: PyObjectId):
+    if not await is_user_in_workspace(user_id, workspace_id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="User is not in workspace.",
         )
 
 
-async def _assert_workspace_access_admin(user_id: PyObjectId, workspace: str):
-    if not await is_user_admin_of_workspace(user_id, workspace):
+async def _assert_workspace_access_admin(user_id: PyObjectId, workspace_id: PyObjectId):
+    if not await is_user_admin_of_workspace(user_id, workspace_id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="User is not admin.",
