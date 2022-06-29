@@ -37,7 +37,11 @@
   </div>  
 </template>
 
-<script>
+<script lang="ts">
+
+import { PostTokenResponse } from "~~/types/PostTokenResponse";
+import { GetUserResponse} from "~~/types/GetUserResponse";
+
 export default {
   data() {
     return {
@@ -58,18 +62,36 @@ export default {
       const data = await $fetch(
         'http://localhost:8000/token',{ method: 'POST',
         body: loginBody }
-        ).then((data) => {
+        ).then((data:PostTokenResponse) => {
           
           useToken().setTokenCookie(data.access_token);
-
-          //todo
-          //fetch workspace name then navigate there
-          navigateTo({ path: '/tesla' });
 
         }).catch((error) => {
           this.errorMessage = error.data.detail;
           this.showError = true;
           });
+
+      const token:string = useToken().getToken();
+      console.log(token);
+
+      if(token != undefined) {
+
+        const getUserWorkspace = await useFetchAuth(
+        'http://localhost:8000/user',{ method: 'GET'}
+        ).then((data:GetUserResponse) => {
+
+          console.log(data);
+
+          navigateTo({ path: "/"+`${data.workspaces[0]}` });
+          
+        }).catch((error) => {
+          console.log(error);
+          });
+
+      } else {
+        //useLogout();
+        this.showError = true;
+      }
     }
   }
 }
