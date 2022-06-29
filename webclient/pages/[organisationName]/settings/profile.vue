@@ -135,8 +135,7 @@ export default {
           this.user.firstName = data.first_name;
           this.user.lastName = data.last_name;
           this.user.email = data.username;
-          this.user.password = data.password;
-
+          
         }).catch((error) => {
           console.log(error);
           });
