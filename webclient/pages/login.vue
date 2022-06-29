@@ -79,11 +79,7 @@ export default {
         const getUserWorkspace = await useFetchAuth(
         'http://localhost:8000/user',{ method: 'GET'}
         ).then((data:GetUserResponse) => {
-
-          console.log(data);
-
           navigateTo({ path: "/"+`${data.workspaces[0]}` });
-          
         }).catch((error) => {
           console.log(error);
           });
