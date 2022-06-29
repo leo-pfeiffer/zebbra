@@ -1,12 +1,12 @@
 from datetime import datetime, timedelta
 
-import jose
 import pyotp
 from fastapi import APIRouter, Depends, HTTPException, status
 from jose import jwt
+from jose.exceptions import ExpiredSignatureError
 
 from core.dao.token_blacklist import add_to_blacklist
-from core.dao.users import get_user, create_user
+from core.dao.users import create_user, get_user_by_username, username_exists
 from core.schemas.tokens import Token, BlacklistToken
 from core.schemas.users import RegisterUser, UserInDB, User
 from core.schemas.utils import Message, OAuth2PasswordRequestFormWithOTP, ExpiredMessage
@@ -23,7 +23,7 @@ router = APIRouter()
 
 
 async def authenticate_user(username: str, password: str) -> UserInDB | bool:
-    user = await get_user(username)
+    user = await get_user_by_username(username)
     if not user:
         return False
     if not verify_password(password, user.hashed_password):
@@ -85,7 +85,7 @@ async def token_expired(token: str = Depends(get_current_active_user_token)):
     expired = False
     try:
         decode_token(token)
-    except jose.exceptions.ExpiredSignatureError:
+    except ExpiredSignatureError:
         expired = True
     return {"expired": expired}
 
@@ -112,7 +112,7 @@ async def register_user(form_data: RegisterUser):
     """
 
     # make sure username is not already taken
-    if (await get_user(form_data.username)) is not None:
+    if await username_exists(form_data.username):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Username already exists",
@@ -131,4 +131,4 @@ async def register_user(form_data: RegisterUser):
     await create_user(new_user)
 
     # return user object
-    return await get_user(new_user.username)
+    return await get_user_by_username(new_user.username)

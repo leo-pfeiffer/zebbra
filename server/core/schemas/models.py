@@ -9,9 +9,9 @@ from core.schemas.sheets import Sheet
 
 class ModelMeta(BaseModel):
     name: str
-    admins: list[str]  # list of usernames
-    editors: list[str]  # list of usernames
-    viewers: list[str]  # list of usernames
+    admins: list[PyObjectId]  # list of user_ids
+    editors: list[PyObjectId]  # list of user_ids
+    viewers: list[PyObjectId]  # list of user_ids
     workspace: str  # workspace name
     # todo what else?
 

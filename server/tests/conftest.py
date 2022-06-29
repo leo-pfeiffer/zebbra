@@ -2,6 +2,7 @@ import os
 
 # need this before the other import
 # environment variables setup
+
 os.environ["ENV"] = "test"
 os.environ["MONGODB_DB"] = "zebbra_test"
 
@@ -9,13 +10,8 @@ import pytest
 from fastapi.testclient import TestClient
 from main import app
 from tests.factory import (
-    create_user_data,
-    create_workspace_data,
-    create_model_data,
-    teardown_users,
-    teardown_workspaces,
-    teardown_token_blacklist,
-    teardown_models,
+    create,
+    teardown,
 )
 
 
@@ -28,15 +24,11 @@ def anyio_backend():
 @pytest.fixture(autouse=True)
 async def mongodb():
     # before test
-    await create_user_data()
-    await create_workspace_data()
-    await create_model_data()
+    await teardown()
+    await create()
     yield
     # after test
-    await teardown_users()
-    await teardown_workspaces()
-    await teardown_token_blacklist()
-    await teardown_models()
+    await teardown()
 
 
 @pytest.fixture
@@ -73,3 +65,20 @@ def access_token_zeus():
     }
     response = client.post("/token", data=user_form)
     return response.json()["access_token"]
+
+
+@pytest.fixture
+def users() -> dict:
+    return {
+        "johndoe@example.com": "62bb11835529faba0704639d",
+        "alice@example.com": "62bb11835529faba07046398",
+        "bob@example.com": "62bb11835529faba0704639b",
+        "charlie@example.com": "62bb11835529faba0704639a",
+        "darwin@example.com": "62bb11835529faba0704639c",
+        "zeus@example.com": "62bb11835529faba07046399",
+    }
+
+
+@pytest.fixture
+def not_a_user_id():
+    return "12ab12345678faba1234567d"

@@ -1,5 +1,3 @@
-from typing import Literal
-
 import pyotp
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import EmailStr
@@ -14,6 +12,7 @@ from core.dao.users import (
     set_user_otp_secret_validated,
     update_user_field,
     update_username,
+    username_exists,
 )
 from core.dao.workspaces import get_admin_workspaces_of_user
 from core.schemas.users import User
@@ -48,14 +47,14 @@ async def delete_user(current_user: User = Depends(get_current_active_user)):
     """
 
     # check if user is workspace admin
-    if len(await get_admin_workspaces_of_user(current_user.username)) > 0:
+    if len(await get_admin_workspaces_of_user(current_user.id)) > 0:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Attempting to delete workspace admin. Set another admin first.",
         )
 
     # check if user is model admin
-    if len(await get_admin_models_for_user(current_user.username)) > 0:
+    if len(await get_admin_models_for_user(current_user.id)) > 0:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Attempting to delete model admin. Set another admin first.",
@@ -63,7 +62,7 @@ async def delete_user(current_user: User = Depends(get_current_active_user)):
 
     # TODO: check if user is any other admin
 
-    await delete_user_full(current_user.username)
+    await delete_user_full(current_user.id)
 
     return JSONResponse(status_code=200, content={"message": "User deleted."})
 
@@ -80,28 +79,23 @@ async def update_user(
     Update a user object.
     """
 
-    username_to_get = current_user.username
-
     if username is not None and username != current_user.username:
         # make sure username is not already taken
-        if (await get_user(username)) is not None:
+        if await username_exists(username):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Username already exists",
             )
-        await update_username(current_user.username, username)
-        username_to_get = username
+        await update_username(current_user.id, username)
     if first_name is not None:
-        await update_user_field(current_user.username, "first_name", first_name)
+        await update_user_field(current_user.id, "first_name", first_name)
     if last_name is not None:
-        await update_user_field(current_user.username, "last_name", last_name)
+        await update_user_field(current_user.id, "last_name", last_name)
     if password is not None:
         hashed_password = get_password_hash(password)
-        await update_user_field(
-            current_user.username, "hashed_password", hashed_password
-        )
+        await update_user_field(current_user.id, "hashed_password", hashed_password)
 
-    return await get_user(username_to_get)
+    return await get_user(current_user.id)
 
 
 @router.post(
@@ -121,7 +115,7 @@ async def user_otp_create(current_user: User = Depends(get_current_active_user))
     name = current_user.username
     url = pyotp.totp.TOTP(secret).provisioning_uri(name=name, issuer_name=issuer)
 
-    await set_user_otp_secret(current_user.username, secret)
+    await set_user_otp_secret(current_user.id, secret)
 
     return OtpUrl(url=url, name=name, issuer=issuer, secret=secret)
 
@@ -139,7 +133,7 @@ async def user_otp_validate(
     Validate an OTP.
     """
 
-    user = await get_user(current_user.username)
+    user = await get_user(current_user.id)
 
     if user.otp_secret is None:
         raise HTTPException(
@@ -151,6 +145,6 @@ async def user_otp_validate(
     valid = totp.verify(otp)
 
     if valid:
-        await set_user_otp_secret_validated(current_user.username)
+        await set_user_otp_secret_validated(current_user.id)
 
     return OtpValidation(otp=otp, valid=valid)

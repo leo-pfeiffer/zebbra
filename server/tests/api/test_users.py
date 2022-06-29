@@ -4,7 +4,7 @@ from fastapi.testclient import TestClient
 from starlette import status
 
 from core.dao.models import get_models_for_user
-from core.dao.users import get_user, set_user_otp_secret
+from core.dao.users import get_user, set_user_otp_secret, get_user_by_username
 from core.dao.workspaces import change_workspace_admin, get_workspaces_of_user
 from dependencies import get_password_hash
 from main import app
@@ -45,11 +45,11 @@ def test_cannot_delete_user_who_is_workspace_admin(access_token):
 
 
 @pytest.mark.anyio
-async def test_cannot_delete_user_who_is_model_admin(access_token):
+async def test_cannot_delete_user_who_is_model_admin(access_token, users):
     # make sure current user is no longer an admin
     wsp = "ACME Inc."
-    username = "alice@example.com"
-    await change_workspace_admin(wsp, username)
+    user_id = users["alice@example.com"]
+    await change_workspace_admin(wsp, user_id)
 
     client = TestClient(app)
     response = client.post(
@@ -61,21 +61,21 @@ async def test_cannot_delete_user_who_is_model_admin(access_token):
 
 
 @pytest.mark.anyio
-async def test_create_otp(access_token):
+async def test_create_otp(access_token, users):
     client = TestClient(app)
     response = client.post(
         "/user/otp/create", headers={"Authorization": f"Bearer {access_token}"}
     )
-    user = await get_user("johndoe@example.com")
+    user = await get_user(users["johndoe@example.com"])
     assert user.otp_secret == response.json()["secret"]
 
 
 @pytest.mark.anyio
-async def test_validate_otp_true(access_token):
+async def test_validate_otp_true(access_token, users):
     client = TestClient(app)
 
     secret = pyotp.random_base32()
-    await set_user_otp_secret("johndoe@example.com", secret)
+    await set_user_otp_secret(users["johndoe@example.com"], secret)
 
     totp = pyotp.TOTP(secret)
     otp = totp.now()
@@ -89,11 +89,11 @@ async def test_validate_otp_true(access_token):
 
 
 @pytest.mark.anyio
-async def test_validate_otp_sets_validated_true(access_token):
+async def test_validate_otp_sets_validated_true(access_token, users):
     client = TestClient(app)
 
     secret = pyotp.random_base32()
-    await set_user_otp_secret("johndoe@example.com", secret)
+    await set_user_otp_secret(users["johndoe@example.com"], secret)
 
     totp = pyotp.TOTP(secret)
     otp = totp.now()
@@ -103,15 +103,15 @@ async def test_validate_otp_sets_validated_true(access_token):
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
-    user = await get_user("johndoe@example.com")
+    user = await get_user(users["johndoe@example.com"])
     assert user.otp_validated
 
 
 @pytest.mark.anyio
-async def test_validate_otp_false(access_token):
+async def test_validate_otp_false(access_token, users):
     client = TestClient(app)
 
-    await set_user_otp_secret("johndoe@example.com", pyotp.random_base32())
+    await set_user_otp_secret(users["johndoe@example.com"], pyotp.random_base32())
 
     otp = "not the right secret"
 
@@ -127,7 +127,7 @@ async def test_validate_otp_false(access_token):
 async def test_update_username(access_token):
     client = TestClient(app)
 
-    username = "johndoe@example.com"
+    old_username = "johndoe@example.com"
     new_username = "nolongerjohn@example.com"
 
     response = client.post(
@@ -138,11 +138,8 @@ async def test_update_username(access_token):
     assert response.status_code == status.HTTP_200_OK
     assert response.json()["username"] == new_username
 
-    assert await get_user(new_username) is not None
-    assert await get_user(username) is None
-
-    assert len(await get_workspaces_of_user(username)) == 0
-    assert len(await get_models_for_user(username)) == 0
+    assert await get_user_by_username(new_username) is not None
+    assert await get_user_by_username(old_username) is None
 
 
 @pytest.mark.anyio
@@ -160,7 +157,7 @@ async def test_update_username_duplicate(access_token):
 
 
 @pytest.mark.anyio
-async def test_update_first_name(access_token):
+async def test_update_first_name(access_token, users):
     username = "johndoe@example.com"
     first_name = "Alfred"
     client = TestClient(app)
@@ -173,12 +170,12 @@ async def test_update_first_name(access_token):
     assert response.status_code == status.HTTP_200_OK
     assert response.json()["first_name"] == first_name
 
-    user = await get_user(username)
+    user = await get_user(users[username])
     assert user.first_name == first_name
 
 
 @pytest.mark.anyio
-async def test_update_last_name(access_token):
+async def test_update_last_name(access_token, users):
     username = "johndoe@example.com"
     value = "Hitchcock"
 
@@ -192,18 +189,18 @@ async def test_update_last_name(access_token):
     assert response.status_code == status.HTTP_200_OK
     assert response.json()["last_name"] == value
 
-    user = await get_user(username)
+    user = await get_user(users[username])
     assert user.last_name == value
 
 
 @pytest.mark.anyio
-async def test_update_password(access_token):
+async def test_update_password(access_token, users):
     username = "johndoe@example.com"
     value = "secret"
 
     client = TestClient(app)
 
-    user_before = await get_user(username)
+    user_before = await get_user(users[username])
 
     response = client.post(
         f"/user/update?password={value}",
@@ -212,5 +209,5 @@ async def test_update_password(access_token):
 
     assert response.status_code == status.HTTP_200_OK
 
-    user_after = await get_user(username)
+    user_after = await get_user(users[username])
     assert user_before.hashed_password != user_after.hashed_password

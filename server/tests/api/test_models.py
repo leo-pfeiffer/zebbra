@@ -93,7 +93,7 @@ def test_model_get_workspace_forbidden(access_token):
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
-def test_model_user(access_token):
+def test_model_user(access_token, users):
     client = TestClient(app)
     response = client.get(
         f"/model/?user=true",
@@ -101,7 +101,7 @@ def test_model_user(access_token):
     )
     assert response.status_code == status.HTTP_200_OK
 
-    user = "johndoe@example.com"
+    user = users["johndoe@example.com"]
     for m in response.json():
         assert (
             (user in m["meta"]["admins"])
@@ -111,13 +111,13 @@ def test_model_user(access_token):
 
 
 @pytest.mark.anyio
-async def test_grant_permission_admin(access_token):
+async def test_grant_permission_admin(access_token, users):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
-    user = "darwin@example.com"
+    user = users["darwin@example.com"]
     role = "admin"
     response = client.post(
-        f"/model/grant?model_id={model_id}&role={role}&user={user}",
+        f"/model/grant?model_id={model_id}&role={role}&user_id={user}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -128,13 +128,13 @@ async def test_grant_permission_admin(access_token):
 
 
 @pytest.mark.anyio
-async def test_grant_permission_editor(access_token):
+async def test_grant_permission_editor(access_token, users):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
-    user = "johndoe@example.com"
+    user = users["johndoe@example.com"]
     role = "editor"
     response = client.post(
-        f"/model/grant?model_id={model_id}&role={role}&user={user}",
+        f"/model/grant?model_id={model_id}&role={role}&user_id={user}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -145,13 +145,13 @@ async def test_grant_permission_editor(access_token):
 
 
 @pytest.mark.anyio
-async def test_grant_permission_viewer(access_token):
+async def test_grant_permission_viewer(access_token, users):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
-    user = "johndoe@example.com"
+    user = users["johndoe@example.com"]
     role = "viewer"
     response = client.post(
-        f"/model/grant?model_id={model_id}&role={role}&user={user}",
+        f"/model/grant?model_id={model_id}&role={role}&user_id={user}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -162,13 +162,13 @@ async def test_grant_permission_viewer(access_token):
 
 
 @pytest.mark.anyio
-async def test_grant_permission_no_access(access_token_alice):
+async def test_grant_permission_no_access(access_token_alice, users):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
-    user = "johndoe@example.com"
+    user = users["johndoe@example.com"]
     role = "viewer"
     response = client.post(
-        f"/model/grant?model_id={model_id}&role={role}&user={user}",
+        f"/model/grant?model_id={model_id}&role={role}&user_id={user}",
         headers={"Authorization": f"Bearer {access_token_alice}"},
     )
 
@@ -178,13 +178,13 @@ async def test_grant_permission_no_access(access_token_alice):
 
 
 @pytest.mark.anyio
-async def test_grant_permission_non_existent_model(access_token):
+async def test_grant_permission_non_existent_model(access_token, users):
     client = TestClient(app)
     model_id = "not a model"
-    user = "johndoe@example.com"
+    user = users["johndoe@example.com"]
     role = "viewer"
     response = client.post(
-        f"/model/grant?model_id={model_id}&role={role}&user={user}",
+        f"/model/grant?model_id={model_id}&role={role}&user_id={user}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -192,14 +192,14 @@ async def test_grant_permission_non_existent_model(access_token):
 
 
 @pytest.mark.anyio
-async def test_revoke_permission_editor(access_token):
+async def test_revoke_permission_editor(access_token, users):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
-    user = "darwin@example.com"
+    user = users["darwin@example.com"]
     role = "editor"
 
     response = client.post(
-        f"/model/revoke?model_id={model_id}&role={role}&user={user}",
+        f"/model/revoke?model_id={model_id}&role={role}&user_id={user}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -210,13 +210,13 @@ async def test_revoke_permission_editor(access_token):
 
 
 @pytest.mark.anyio
-async def test_revoke_permission_viewer(access_token):
+async def test_revoke_permission_viewer(access_token, users):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
-    user = "charlie@example.com"
+    user = users["charlie@example.com"]
     role = "viewer"
     response = client.post(
-        f"/model/revoke?model_id={model_id}&role={role}&user={user}",
+        f"/model/revoke?model_id={model_id}&role={role}&user_id={user}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -227,17 +227,17 @@ async def test_revoke_permission_viewer(access_token):
 
 
 @pytest.mark.anyio
-async def test_revoke_permission_admin(access_token):
+async def test_revoke_permission_admin(access_token, users):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
-    user = "charlie@example.com"
+    user = users["charlie@example.com"]
     role = "admin"
 
     await add_admin_to_model(user, model_id)
     assert await is_admin(model_id, user)
 
     response = client.post(
-        f"/model/revoke?model_id={model_id}&role={role}&user={user}",
+        f"/model/revoke?model_id={model_id}&role={role}&user_id={user}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -246,13 +246,13 @@ async def test_revoke_permission_admin(access_token):
 
 
 @pytest.mark.anyio
-async def test_revoke_permission_admin_no_admins_left(access_token):
+async def test_revoke_permission_admin_no_admins_left(access_token, users):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
-    user = "johndoe@example.com"
+    user = users["johndoe@example.com"]
     role = "admin"
     response = client.post(
-        f"/model/revoke?model_id={model_id}&role={role}&user={user}",
+        f"/model/revoke?model_id={model_id}&role={role}&user_id={user}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -262,18 +262,18 @@ async def test_revoke_permission_admin_no_admins_left(access_token):
 
 
 @pytest.mark.anyio
-async def test_revoke_permission_admin_workspace_admin(access_token):
+async def test_revoke_permission_admin_workspace_admin(access_token, users):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
-    user = "johndoe@example.com"
-    dummy_user = "charlie@example.com"
+    user = users["johndoe@example.com"]
+    dummy_user = users["charlie@example.com"]
     role = "admin"
 
     await add_admin_to_model(dummy_user, model_id)
     assert await is_admin(model_id, dummy_user)
 
     response = client.post(
-        f"/model/revoke?model_id={model_id}&role={role}&user={user}",
+        f"/model/revoke?model_id={model_id}&role={role}&user_id={user}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -283,13 +283,13 @@ async def test_revoke_permission_admin_workspace_admin(access_token):
 
 
 @pytest.mark.anyio
-async def test_revoke_permission_no_access(access_token_alice):
+async def test_revoke_permission_no_access(access_token_alice, users):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
-    user = "charlie@example.com"
+    user = users["charlie@example.com"]
     role = "viewer"
     response = client.post(
-        f"/model/revoke?model_id={model_id}&role={role}&user={user}",
+        f"/model/revoke?model_id={model_id}&role={role}&user_id={user}",
         headers={"Authorization": f"Bearer {access_token_alice}"},
     )
 
@@ -299,13 +299,13 @@ async def test_revoke_permission_no_access(access_token_alice):
 
 
 @pytest.mark.anyio
-async def test_revoke_permission_non_existent_model(access_token):
+async def test_revoke_permission_non_existent_model(access_token, users):
     client = TestClient(app)
     model_id = "not a model"
-    user = "charlie@example.com"
+    user = users["charlie@example.com"]
     role = "viewer"
     response = client.post(
-        f"/model/revoke?model_id={model_id}&role={role}&user={user}",
+        f"/model/revoke?model_id={model_id}&role={role}&user_id={user}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -359,7 +359,7 @@ async def test_rename_model_non_existent_model(access_token):
 
 
 @pytest.mark.anyio
-async def test_add_model(access_token):
+async def test_add_model(access_token, users):
     client = TestClient(app)
     new_name = "new_name"
     workspace = "ACME Inc."
@@ -372,7 +372,7 @@ async def test_add_model(access_token):
     model = response.json()
     assert model["meta"]["name"] == new_name
     assert model["meta"]["workspace"] == workspace
-    assert "johndoe@example.com" in model["meta"]["admins"]
+    assert users["johndoe@example.com"] in model["meta"]["admins"]
 
 
 @pytest.mark.anyio
@@ -515,7 +515,7 @@ async def test_update_sheet_data_non_existent_model(access_token):
 
 
 @pytest.mark.anyio
-async def test_get_users_of_model(access_token):
+async def test_get_users_of_model(access_token, users):
     model_id = "62b488ba433720870b60ec0a"
 
     client = TestClient(app)
@@ -528,7 +528,7 @@ async def test_get_users_of_model(access_token):
 
     assert response.status_code == status.HTTP_200_OK
 
-    users = response.json()
+    res = response.json()
 
     unique = set()
     model = await get_model_by_id(model_id)
@@ -539,22 +539,22 @@ async def test_get_users_of_model(access_token):
 
     usernames = list(admin_set.union(editor_set).union(viewer_set))
 
-    for u in users:
+    for u in res:
         if u["username"] == "johndoe@example.com":
             assert u["user_role"] == "Admin"
 
         if u["user_role"] == "Admin":
-            assert u["username"] in admin_set
+            assert users[u["username"]] in admin_set
         elif u["user_role"] == "Editor":
-            assert u["username"] in editor_set
+            assert users[u["username"]] in editor_set
         elif u["user_role"] == "Viewer":
-            assert u["username"] in viewer_set
+            assert users[u["username"]] in viewer_set
 
         unique.add(u["username"])
 
-        assert u["username"] in usernames
+        assert users[u["username"]] in usernames
 
-    assert len(users) == len(unique)
+    assert len(res) == len(unique)
     assert len(usernames) == len(unique)
 
 

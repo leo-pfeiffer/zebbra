@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
 from typing import Literal
+
+from fastapi import APIRouter, Depends, HTTPException
 from starlette import status
 
 from core.dao.models import (
@@ -31,6 +32,7 @@ from core.exceptions import (
     CardinalityConstraintFailedException,
     BusinessLogicException,
 )
+from core.objects import PyObjectId
 from core.schemas.models import Model, ModelUser
 from core.schemas.sheets import SheetMeta, Section, Sheet
 from core.schemas.users import User
@@ -70,11 +72,11 @@ async def get_model(
 
     if model_id is not None:
         await _assert_model_exists(model_id)
-        await _assert_access(current_user.username, model_id)
+        await _assert_access(current_user.id, model_id)
         return [await get_model_by_id(model_id)]
 
     if workspace is not None:
-        if not await is_user_in_workspace(current_user.username, workspace):
+        if not await is_user_in_workspace(current_user.id, workspace):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="User does not have access to this workspace.",
@@ -82,7 +84,7 @@ async def get_model(
         return await get_models_for_workspace(workspace)
 
     if user:
-        return await get_models_for_user(current_user.username)
+        return await get_models_for_user(current_user.id)
 
 
 @router.post(
@@ -96,23 +98,23 @@ async def get_model(
 async def model_grant_permission(
     model_id: str,
     role: Literal["admin", "editor", "viewer"],
-    user: str,
+    user_id: PyObjectId,
     current_user: User = Depends(get_current_active_user),
 ):
     await _assert_model_exists(model_id)
 
     # granting user must be admin
-    await _assert_access_admin(current_user.username, model_id)
+    await _assert_access_admin(current_user.id, model_id)
 
     try:
         if role == "admin":
-            await add_admin_to_model(user, model_id)
+            await add_admin_to_model(user_id, model_id)
 
         elif role == "editor":
-            await add_editor_to_model(user, model_id)
+            await add_editor_to_model(user_id, model_id)
 
         elif role == "viewer":
-            await add_viewer_to_model(user, model_id)
+            await add_viewer_to_model(user_id, model_id)
 
         return {"message": f"Access granted ({role})"}
 
@@ -134,18 +136,18 @@ async def model_grant_permission(
 async def model_revoke_permission(
     model_id: str,
     role: Literal["admin", "editor", "viewer"],
-    user: str,
+    user_id: PyObjectId,
     current_user: User = Depends(get_current_active_user),
 ):
     await _assert_model_exists(model_id)
 
     # granting user must be admin
-    await _assert_access_admin(current_user.username, model_id)
+    await _assert_access_admin(current_user.id, model_id)
 
     try:
         if role == "admin":
             try:
-                await remove_admin_from_model(user, model_id)
+                await remove_admin_from_model(user_id, model_id)
             except CardinalityConstraintFailedException:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
@@ -158,10 +160,10 @@ async def model_revoke_permission(
                 )
 
         elif role == "editor":
-            await remove_editor_from_model(user, model_id)
+            await remove_editor_from_model(user_id, model_id)
 
         elif role == "viewer":
-            await remove_viewer_from_model(user, model_id)
+            await remove_viewer_from_model(user_id, model_id)
 
         return {"message": f"Access revoked ({role})"}
 
@@ -187,7 +189,7 @@ async def model_rename(
 ):
     await _assert_model_exists(model_id)
     # only editor can rename
-    await _assert_access_can_edit(current_user.username, model_id)
+    await _assert_access_can_edit(current_user.id, model_id)
     await set_name(model_id, name)
     return {"message": f"Model renamed ({name})"}
 
@@ -206,7 +208,7 @@ async def model_add(
     current_user: User = Depends(get_current_active_user),
 ):
     try:
-        r = await create_model(current_user.username, name, workspace)
+        r = await create_model(current_user.id, name, workspace)
         return await get_model_by_id(r.inserted_id)
     except NoAccessException:
         raise HTTPException(
@@ -231,7 +233,7 @@ async def update_sheet_data(
 ):
     await _assert_model_exists(model_id)
     # only editor can update sheet
-    await _assert_access_can_edit(current_user.username, model_id)
+    await _assert_access_can_edit(current_user.id, model_id)
     await update_sheet_sections_in_model(model_id, name, sheet_data)
     return await get_sheet_by_name(model_id, name)
 
@@ -254,7 +256,7 @@ async def update_sheet_meta(
 ):
     await _assert_model_exists(model_id)
     # only editor can update sheet
-    await _assert_access_can_edit(current_user.username, model_id)
+    await _assert_access_can_edit(current_user.id, model_id)
     try:
         await update_sheet_meta_in_model(model_id, name, sheet_meta)
         return await get_sheet_by_name(model_id, sheet_meta.name)
@@ -280,7 +282,7 @@ async def get_model_users(
     # model must exist
     await _assert_model_exists(model_id)
     # user must be in workspace
-    await _assert_access(current_user.username, model_id)
+    await _assert_access(current_user.id, model_id)
     return await get_users_for_model(model_id)
 
 
@@ -292,26 +294,24 @@ async def _assert_model_exists(model_id: str):
         )
 
 
-async def _assert_access(username: str, model_id: str):
-    if not await has_access_to_model(model_id, username):
+async def _assert_access(user_id: PyObjectId, model_id: str):
+    if not await has_access_to_model(model_id, user_id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="User does not have access to this model.",
         )
 
 
-async def _assert_access_admin(username: str, model_id: str):
-    if not await is_admin(model_id, username):
+async def _assert_access_admin(user_id: PyObjectId, model_id: str):
+    if not await is_admin(model_id, user_id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="User is not admin.",
         )
 
 
-async def _assert_access_can_edit(username: str, model_id: str):
-    if not await is_admin(model_id, username) and not await is_editor(
-        model_id, username
-    ):
+async def _assert_access_can_edit(user_id: PyObjectId, model_id: str):
+    if not await is_admin(model_id, user_id) and not await is_editor(model_id, user_id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="User cannot edit this model.",
