@@ -18,14 +18,16 @@ export const useFetchAuth = (url: string, opts?: FetchOptions) => {
   }).then((data:GetTokenExpiredResponse) => {
     console.log("Checking AuthToken");
     if (data.expired) {
-      useLogout();
+      useToken().deleteTokenCookie();
+      navigateTo('/login');
       console.log("Logged out because AuthToken was expired. Please login again.");
-      return false
+      return false;
     }
     console.log("AuthToken up to date.");
   }).catch((error) => {
     console.log(error);
-    useLogout();
+    useToken().deleteTokenCookie();
+    navigateTo('/login');
     return false;
   }
   )
