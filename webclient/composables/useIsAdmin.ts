@@ -6,10 +6,11 @@ export const useIsAdmin = async () => {
     var adminUsername: String;
 
     type GetUserResponse = {
+        username: String;
         first_name: String;
         last_name: String;
-        username: String;
-        password: String;
+        workspaces: String[];
+        disabled: Boolean;
     }
 
     type GetWorkspaceResponse = {
