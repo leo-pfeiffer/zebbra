@@ -1,4 +1,5 @@
 <template>
+<div>
     <button @click="toggleDots"><i class="bi bi-three-dots"></i></button>
     <div v-show="clicked"
         class="absolute z-10 -translate-x-full bg-white border border-zinc-300 shadow-sm rounded text-sm w-max">
@@ -50,7 +51,7 @@
             </form>
         </div>
     </div>
-
+</div>
 </template>
 
 <script>
