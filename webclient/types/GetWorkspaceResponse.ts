@@ -1,5 +1,5 @@
 export interface GetWorkspaceResponse {
-    name: String;
-    admin: String;
-    users: String[];
+    name: string;
+    admin: string;
+    users: string[];
 } 

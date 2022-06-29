@@ -1,3 +1,3 @@
 export interface GetTokenExpiredResponse {
-    expired: Boolean;
+    expired: boolean;
 }
