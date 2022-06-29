@@ -25,7 +25,6 @@ async def test_create_user():
             "username": "another@example.com",
             "first_name": "John",
             "last_name": "Doe",
-            "workspaces": ["ACME Inc."],
             "hashed_password": "$2b$12$JObcoGR6lNWg3ztKdhEK/OtPjUoltMlHJIg99ctXPaBCNQH1EMts.",
             "disabled": False,
         }
@@ -42,7 +41,6 @@ async def test_cannot_create_user_with_duplicate_username():
             "username": "johndoe@example.com",
             "first_name": "John",
             "last_name": "Doe",
-            "workspaces": ["ACME Inc."],
             "hashed_password": "$2b$12$JObcoGR6lNWg3ztKdhEK/OtPjUoltMlHJIg99ctXPaBCNQH1EMts.",
             "disabled": False,
         }
@@ -82,9 +80,6 @@ async def test_add_user_to_workspace(users, workspaces):
     u = users["johndoe@example.com"]
     workspace_before = await get_workspace(wsp)
     await add_user_to_workspace(u, wsp)
-    user = await get_user(u)
-    assert len(user.workspaces) == 2
-    assert wsp in user.workspaces
     workspace_after = await get_workspace(wsp)
     assert len(workspace_after.users) - len(workspace_before.users) == 1
     assert u in [str(x) for x in workspace_after.users]
@@ -181,8 +176,6 @@ async def test_remove_user_from_workspace(users, workspaces):
     await remove_user_from_workspace(u, w)
     wsp = await get_workspace(w)
     assert u not in wsp.users
-    charlie = await get_user(u)
-    assert w not in charlie.workspaces
 
 
 @pytest.mark.anyio

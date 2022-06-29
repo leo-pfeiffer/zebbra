@@ -4,9 +4,6 @@
     "username": "johndoe@example.com",
     "first_name": "John",
     "last_name": "Doe",
-    "workspaces": [
-      "62bc5706a40e85213c27ce29"
-    ],
     "hashed_password": "$2b$12$JObcoGR6lNWg3ztKdhEK/OtPjUoltMlHJIg99ctXPaBCNQH1EMts.",
     "disabled": false
   },
@@ -15,9 +12,6 @@
     "username": "alice@example.com",
     "first_name": "Alice",
     "last_name": "Wonderson",
-    "workspaces": [
-      "62bc5706a40e85213c27ce28"
-    ],
     "hashed_password": "$2b$12$JObcoGR6lNWg3ztKdhEK/OtPjUoltMlHJIg99ctXPaBCNQH1EMts.",
     "disabled": false
   },
@@ -26,9 +20,6 @@
     "username": "bob@example.com",
     "first_name": "Bob",
     "last_name": "Babish",
-    "workspaces": [
-      "62bc5706a40e85213c27ce28"
-    ],
     "hashed_password": "$2b$12$JObcoGR6lNWg3ztKdhEK/OtPjUoltMlHJIg99ctXPaBCNQH1EMts.",
     "disabled": false
   },
@@ -37,9 +28,6 @@
     "username": "charlie@example.com",
     "first_name": "Charlie",
     "last_name": "Carlson",
-    "workspaces": [
-      "62bc5706a40e85213c27ce29"
-    ],
     "hashed_password": "$2b$12$JObcoGR6lNWg3ztKdhEK/OtPjUoltMlHJIg99ctXPaBCNQH1EMts.",
     "disabled": false
   },
@@ -48,9 +36,6 @@
     "username": "darwin@example.com",
     "first_name": "Darwin",
     "last_name": "Dobson",
-    "workspaces": [
-      "62bc5706a40e85213c27ce29"
-    ],
     "hashed_password": "$2b$12$JObcoGR6lNWg3ztKdhEK/OtPjUoltMlHJIg99ctXPaBCNQH1EMts.",
     "disabled": false
   },
@@ -59,9 +44,6 @@
     "username": "zeus@example.com",
     "first_name": "Zeus",
     "last_name": "Olympus",
-    "workspaces": [
-      "62bc5706a40e85213c27ce29"
-    ],
     "hashed_password": "$2b$12$JObcoGR6lNWg3ztKdhEK/OtPjUoltMlHJIg99ctXPaBCNQH1EMts.",
     "disabled": false
   }

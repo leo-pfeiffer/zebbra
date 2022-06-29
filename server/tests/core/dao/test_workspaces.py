@@ -205,6 +205,6 @@ async def test_get_users_of_workspace(access_token, users, workspaces):
 
 
 @pytest.mark.anyio
-async def test_get_users_of_workspace_workspace_non_existent(access_token):
+async def test_get_users_of_workspace_workspace_non_existent(access_token, not_an_id):
     with pytest.raises(DoesNotExistException):
-        await get_users_of_workspace("Not a workspace.")
+        await get_users_of_workspace(not_an_id)

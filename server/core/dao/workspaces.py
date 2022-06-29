@@ -7,6 +7,10 @@ from core.objects import PyObjectId
 from core.schemas.workspaces import Workspace, WorkspaceUser
 
 
+async def workspace_exists(workspace_id: PyObjectId):
+    return get_workspace(workspace_id) is not None
+
+
 async def get_workspace(workspace_id: PyObjectId):
     """
     Get a workspace by its name
@@ -148,13 +152,8 @@ async def change_workspace_name(workspace_id: PyObjectId, new_name: str):
     if await get_workspace_by_name(new_name) is not None:
         raise UniqueConstraintFailedException("Workspace name must be unique")
 
-    # todo remove this!
     await db.workspaces.update_one(
         {"_id": str(workspace_id)}, {"$set": {"name": new_name}}
-    )
-
-    await db.users.update_many(
-        {"workspaces": str(workspace_id)}, {"$pull": {"workspaces": str(workspace_id)}}
     )
 
     # change models

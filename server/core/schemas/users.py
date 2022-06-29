@@ -9,7 +9,6 @@ class User(BaseModel):
     username: str
     first_name: str | None = None
     last_name: str | None = None
-    workspaces: list[str] | None = None
     disabled: bool | None = None
 
     class Config:
@@ -22,7 +21,30 @@ class User(BaseModel):
                 "username": "johndoe@example.com",
                 "first_name": "John",
                 "last_name": "Doe",
-                "workspaces": ["ACME Inc.", "Boring Co."],
+                "disabled": False,
+            }
+        }
+
+
+class UserInfo(BaseModel):
+    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    username: str
+    first_name: str | None = None
+    last_name: str | None = None
+    disabled: bool | None = None
+
+    # todo
+
+    class Config:
+        allow_population_by_field_name = True
+        arbitrary_types_allowed = True
+        json_encoders = {ObjectId: str}
+        schema_extra = {
+            "example": {
+                "_id": "62bb11835529faba0704639d",
+                "username": "johndoe@example.com",
+                "first_name": "John",
+                "last_name": "Doe",
                 "disabled": False,
             }
         }
@@ -32,7 +54,7 @@ class RegisterUser(BaseModel):
     username: str
     first_name: str
     last_name: str
-    workspaces: str
+    workspace_id: PyObjectId
     password: str
 
     class Config(User.Config):
@@ -41,7 +63,7 @@ class RegisterUser(BaseModel):
                 "username": "jdoe@example.com",
                 "first_name": "John",
                 "last_name": "Doe",
-                "workspaces": "ACME Inc.",
+                "workspace_id": "62bc5706a40e85213c27ce28",
                 "password": "secret",
             }
         }

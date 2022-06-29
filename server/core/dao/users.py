@@ -43,8 +43,7 @@ async def get_username(user_id: PyObjectId) -> str:
 async def create_user(user: UserInDB):
     if await username_exists(user.username):
         raise UniqueConstraintFailedException("Username must be unique")
-    res = await db.users.insert_one(jsonable_encoder(user))
-    return res
+    return await db.users.insert_one(jsonable_encoder(user))
 
 
 async def update_username(user_id: PyObjectId, new_username: str):
@@ -117,10 +116,6 @@ async def remove_user_from_workspace(user_id: PyObjectId, workspace_id: PyObject
     ):
         raise BusinessLogicException("Cannot remove sole admin from model.")
 
-    await db.users.update_one(
-        {"_id": str(user_id)}, {"$pull": {"workspaces": str(workspace_id)}}
-    )
-
     # remove user from workspace
     await db.workspaces.update_one(
         {"_id": str(workspace_id)}, {"$pull": {"users": str(user_id)}}
@@ -140,11 +135,6 @@ async def remove_user_from_workspace(user_id: PyObjectId, workspace_id: PyObject
 
 
 async def add_user_to_workspace(user_id: PyObjectId, workspace_id: PyObjectId):
-    # add workspace to user
-    await db.users.update_one(
-        {"_id": str(user_id)}, {"$push": {"workspaces": str(workspace_id)}}
-    )
-
     # add user to workspace
     await db.workspaces.update_one(
         {"_id": str(workspace_id)}, {"$push": {"users": str(user_id)}}

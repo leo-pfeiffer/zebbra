@@ -18,9 +18,8 @@ async def test_get_workspaces_for_user(access_token, users):
 
     assert response.status_code == status.HTTP_200_OK
     user = await get_user(users["johndoe@example.com"])
-    assert len(response.json()) == len(user.workspaces)
-    for w in user.workspaces:
-        assert w in [x["_id"] for x in response.json()]
+    for w in [x["users"] for x in response.json()]:
+        assert str(user.id) in w
 
 
 @pytest.mark.anyio
@@ -126,8 +125,6 @@ async def test_workspace_remove(access_token, users, workspaces):
     assert response.status_code == status.HTTP_200_OK
     wsp = await get_workspace_by_name("ACME Inc.")
     assert u not in [str(x) for x in wsp.users]
-    charlie = await get_user(u)
-    assert workspaces["ACME Inc."] not in charlie.workspaces
 
 
 @pytest.mark.anyio
