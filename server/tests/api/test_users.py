@@ -19,6 +19,42 @@ def test_users_me(access_token):
     assert response.json()["username"] == "johndoe@example.com"
 
 
+@pytest.mark.anyio
+async def test_users_me_includes_workspaces(access_token, users):
+    client = TestClient(app)
+    response = client.get("/user", headers={"Authorization": f"Bearer {access_token}"})
+
+    assert response.status_code == status.HTTP_200_OK
+
+    workspaces = await get_workspaces_of_user(users["johndoe@example.com"])
+    workspace_names = [x["name"] for x in response.json()["workspaces"]]
+    workspace_ids = [x["id"] for x in response.json()["workspaces"]]
+
+    assert len(response.json()["workspaces"]) == len(workspaces)
+
+    for w in workspaces:
+        assert w.name in workspace_names
+        assert str(w.id) in workspace_ids
+
+
+@pytest.mark.anyio
+async def test_users_me_includes_models(access_token, users):
+    client = TestClient(app)
+    response = client.get("/user", headers={"Authorization": f"Bearer {access_token}"})
+
+    assert response.status_code == status.HTTP_200_OK
+
+    models = await get_models_for_user(users["johndoe@example.com"])
+
+    assert len(response.json()["models"]) == len(models)
+    model_names = [x["name"] for x in response.json()["models"]]
+    model_ids = [x["id"] for x in response.json()["models"]]
+
+    for m in models:
+        assert m["meta"]["name"] in model_names
+        assert str(m["_id"]) in model_ids
+
+
 def test_user_protected():
     assert_unauthorized_login_checked("/user")
 

@@ -4,7 +4,7 @@ from pydantic import EmailStr
 from starlette import status
 from starlette.responses import JSONResponse
 
-from core.dao.models import get_admin_models_for_user
+from core.dao.models import get_admin_models_for_user, get_models_for_user
 from core.dao.users import (
     delete_user_full,
     set_user_otp_secret,
@@ -14,8 +14,8 @@ from core.dao.users import (
     update_username,
     username_exists,
 )
-from core.dao.workspaces import get_admin_workspaces_of_user
-from core.schemas.users import User
+from core.dao.workspaces import get_admin_workspaces_of_user, get_workspaces_of_user
+from core.schemas.users import User, UserInfo
 from core.schemas.utils import Message, OtpUrl, OtpValidation
 from dependencies import get_current_active_user, get_password_hash
 
@@ -24,14 +24,39 @@ router = APIRouter()
 
 @router.get(
     "/user",
-    response_model=User,
+    response_model=UserInfo,
     tags=["user"],
 )
 async def read_user(current_user: User = Depends(get_current_active_user)):
     """
     Retrieve current user's data.
     """
-    return current_user
+
+    workspaces = []
+    for workspace in await get_workspaces_of_user(current_user.id):
+        workspaces.append(
+            UserInfo.WorkspaceInfo(**{"name": workspace.name, "id": str(workspace.id)})
+        )
+
+    models = []
+    for model in await get_models_for_user(current_user.id):
+        models.append(
+            UserInfo.ModelInfo(**{"name": model["meta"]["name"], "id": model["_id"]})
+        )
+
+    print(models)
+    print(workspaces)
+
+    return UserInfo(
+        **{
+            "id": str(current_user.id),
+            "username": current_user.username,
+            "first_name": current_user.first_name,
+            "last_name": current_user.last_name,
+            "workspaces": workspaces,
+            "models": models,
+        }
+    )
 
 
 @router.post(

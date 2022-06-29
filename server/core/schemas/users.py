@@ -27,27 +27,20 @@ class User(BaseModel):
 
 
 class UserInfo(BaseModel):
-    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    class WorkspaceInfo(BaseModel):
+        id: str
+        name: str
+
+    class ModelInfo(BaseModel):
+        id: str
+        name: str
+
+    id: str
     username: str
     first_name: str | None = None
     last_name: str | None = None
-    disabled: bool | None = None
-
-    # todo
-
-    class Config:
-        allow_population_by_field_name = True
-        arbitrary_types_allowed = True
-        json_encoders = {ObjectId: str}
-        schema_extra = {
-            "example": {
-                "_id": "62bb11835529faba0704639d",
-                "username": "johndoe@example.com",
-                "first_name": "John",
-                "last_name": "Doe",
-                "disabled": False,
-            }
-        }
+    workspaces: list[WorkspaceInfo]
+    models: list[ModelInfo]
 
 
 class RegisterUser(BaseModel):
