@@ -1,7 +1,7 @@
 from fastapi.encoders import jsonable_encoder
 
 from core.dao.database import db
-from core.dao.users import user_exists
+from core.dao.users import user_exists, get_user
 from core.dao.workspaces import is_user_in_workspace, get_workspace
 from core.exceptions import (
     DoesNotExistException,
@@ -10,7 +10,7 @@ from core.exceptions import (
     CardinalityConstraintFailedException,
     BusinessLogicException,
 )
-from core.schemas.models import ModelMeta, UpdateModel
+from core.schemas.models import ModelMeta, UpdateModel, ModelUser
 from core.schemas.sheets import Sheet, SheetMeta, Section
 from core.settings import get_settings
 
@@ -78,6 +78,54 @@ async def get_admin_models_for_user(username: str):
     return await db.models.find({"meta.admins": username}).to_list(
         length=settings.MAX_MODELS
     )
+
+
+async def get_users_for_model(model_id: str):
+    model = await get_model_by_id(model_id)
+    if model is None:
+        raise DoesNotExistException("Model does not exist")
+
+    admin_set = set(model["meta"]["admins"])
+    editor_set = set(model["meta"]["editors"])
+    viewer_set = set(model["meta"]["viewers"])
+
+    usernames = list(admin_set.union(editor_set).union(viewer_set))
+    admins = []
+    editors = []
+    viewers = []
+
+    def get_user_role(_username):
+        if _username in admin_set:
+            return "Admin"
+        if _username in editor_set:
+            return "Editor"
+        if _username in viewer_set:
+            return "Viewer"
+
+    def add_to_list(_user: ModelUser):
+        if _user.username in admin_set:
+            admins.append(_user)
+        if _user.username in editor_set:
+            editors.append(_user)
+        if _user.username in viewer_set:
+            viewers.append(_user)
+
+    for username in usernames:
+        user = await get_user(username)
+        user_role = get_user_role(user.username)
+        add_to_list(
+            ModelUser(
+                username=username,
+                first_name=user.first_name,
+                last_name=user.last_name,
+                user_role=user_role,
+            )
+        )
+
+    admins.sort(key=lambda x: x.last_name)
+    editors.sort(key=lambda x: x.last_name)
+    viewers.sort(key=lambda x: x.last_name)
+    return admins + editors + viewers
 
 
 async def add_admin_to_model(username: str, model_id: str):

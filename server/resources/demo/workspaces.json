@@ -1,12 +1,20 @@
 [
-    {
-        "name": "ACME Inc.",
-        "admin": "johndoe@example.com",
-        "users": ["johndoe@example.com", "charlie@example.com", "darwin@example.com", "zeus@example.com"]
-    },
-    {
-        "name": "Boring Co.",
-        "admin": "alice@example.com",
-        "users": ["alice@example.com", "bob@example.com"]
-    }
+  {
+    "name": "ACME Inc.",
+    "admin": "johndoe@example.com",
+    "users": [
+      "johndoe@example.com",
+      "charlie@example.com",
+      "darwin@example.com",
+      "zeus@example.com"
+    ]
+  },
+  {
+    "name": "Boring Co.",
+    "admin": "alice@example.com",
+    "users": [
+      "alice@example.com",
+      "bob@example.com"
+    ]
+  }
 ]

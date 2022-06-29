@@ -17,6 +17,7 @@ pip install -r requirements.txt
 ```
 
 ### Database
+
 ```shell
 # install mongo db on MacOS with homebrew
 brew install mongodb-community@5.0.7

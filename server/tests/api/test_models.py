@@ -512,3 +512,61 @@ async def test_update_sheet_data_non_existent_model(access_token):
     )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.anyio
+async def test_get_users_of_model(access_token):
+    model_id = "62b488ba433720870b60ec0a"
+
+    client = TestClient(app)
+
+    response = client.get(
+        f"/model/users?model_id={model_id}",
+        headers={"Authorization": f"Bearer {access_token}"},
+        json=jsonable_encoder([]),
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+    users = response.json()
+
+    unique = set()
+    model = await get_model_by_id(model_id)
+
+    admin_set = set(model["meta"]["admins"])
+    editor_set = set(model["meta"]["editors"])
+    viewer_set = set(model["meta"]["viewers"])
+
+    usernames = list(admin_set.union(editor_set).union(viewer_set))
+
+    for u in users:
+        if u["username"] == "johndoe@example.com":
+            assert u["user_role"] == "Admin"
+
+        if u["user_role"] == "Admin":
+            assert u["username"] in admin_set
+        elif u["user_role"] == "Editor":
+            assert u["username"] in editor_set
+        elif u["user_role"] == "Viewer":
+            assert u["username"] in viewer_set
+
+        unique.add(u["username"])
+
+        assert u["username"] in usernames
+
+    assert len(users) == len(unique)
+    assert len(usernames) == len(unique)
+
+
+@pytest.mark.anyio
+async def test_get_users_for_model_model_non_existent(access_token):
+    model_id = "not_a_model"
+    client = TestClient(app)
+
+    response = client.get(
+        f"/model/users?model_id={model_id}",
+        headers={"Authorization": f"Bearer {access_token}"},
+        json=jsonable_encoder([]),
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST

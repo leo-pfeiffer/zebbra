@@ -2,7 +2,7 @@ from typing import Any
 
 from fastapi.encoders import jsonable_encoder
 
-from core.exceptions import UniqueConstraintFailedException
+from core.exceptions import UniqueConstraintFailedException, BusinessLogicException
 from core.dao.database import db
 from core.schemas.users import UserInDB, RegisterUser
 
@@ -101,13 +101,37 @@ async def delete_user_full(username: str):
 
 async def remove_user_from_workspace(username: str, workspace: str):
 
-    # todo handle cases where user to be removed is admin
+    # cannot remove admin from workspace
+    if await db.workspaces.count_documents({"admin": username, "name": workspace}) > 0:
+        raise BusinessLogicException("Cannot remove admin from workspace.")
+
+    # cannot remove user if they are sole admin of model
+    if (
+        await db.models.count_documents(
+            {"meta.admins": username, "meta.admins.1": {"$exists": False}}
+        )
+        > 0
+    ):
+        raise BusinessLogicException("Cannot remove sole admin from model.")
 
     await db.users.update_one(
         {"username": username}, {"$pull": {"workspaces": workspace}}
     )
 
+    # remove user from workspace
     await db.workspaces.update_one({"name": workspace}, {"$pull": {"users": username}})
+
+    # remove user from all models of workspace
+    await db.models.update_many(
+        {"meta.workspace": workspace},
+        {
+            "$pull": {
+                "meta.admins": username,
+                "meta.editors": username,
+                "meta.viewers": username,
+            },
+        },
+    )
 
 
 async def add_user_to_workspace(username: str, workspace: str):

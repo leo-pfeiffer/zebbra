@@ -3,7 +3,7 @@ from fastapi.encoders import jsonable_encoder
 from core.exceptions import UniqueConstraintFailedException, DoesNotExistException
 from core.dao.database import db
 from core.dao.users import get_user
-from core.schemas.workspaces import Workspace
+from core.schemas.workspaces import Workspace, WorkspaceUser
 
 
 async def get_workspace(name: str):
@@ -25,6 +25,37 @@ async def get_workspaces_of_user(username: str):
     cursor = db.workspaces.find({"users": username})
     lis = [Workspace(**w) for w in await cursor.to_list(length=num)]
     return lis
+
+
+async def get_users_of_workspace(workspace: str):
+    # get unique users
+    wsp = await get_workspace(workspace)
+    if wsp is None:
+        raise DoesNotExistException("Workspace does not exist")
+
+    user_set = set(wsp.users)
+    user_set.add(wsp.admin)
+    usernames = list(user_set)
+    users = []
+    admins = []
+
+    for username in usernames:
+        user = await get_user(username)
+        user_role = "Admin" if username == wsp.admin else "Member"
+        wsp_user = WorkspaceUser(
+            username=username,
+            first_name=user.first_name,
+            last_name=user.last_name,
+            user_role=user_role,
+        )
+        if username == wsp.admin:
+            admins.append(wsp_user)
+        else:
+            users.append(wsp_user)
+
+    admins.sort(key=lambda x: x.last_name)
+    users.sort(key=lambda x: x.last_name)
+    return admins + users
 
 
 async def is_user_in_workspace(username: str, workspace: str):
