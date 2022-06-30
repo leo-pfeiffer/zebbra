@@ -1,5 +1,5 @@
 from bson import ObjectId
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator, ValidationError
 
 from core.objects import PyObjectId
 
@@ -47,19 +47,9 @@ class RegisterUser(BaseModel):
     username: str
     first_name: str
     last_name: str
-    workspace_id: PyObjectId
+    workspace_id: str | None  # todo should be invite code
+    new_workspace_name: str | None
     password: str
-
-    class Config(User.Config):
-        schema_extra = {
-            "example": {
-                "username": "jdoe@example.com",
-                "first_name": "John",
-                "last_name": "Doe",
-                "workspace_id": "62bc5706a40e85213c27ce28",
-                "password": "secret",
-            }
-        }
 
 
 class UserInDB(User):

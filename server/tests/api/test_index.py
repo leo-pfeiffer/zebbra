@@ -1,12 +1,8 @@
 import pytest
-from fastapi.encoders import jsonable_encoder
 from fastapi.testclient import TestClient
 from starlette import status
 
-from core.dao.workspaces import get_workspace
-from core.schemas.users import RegisterUser
 from main import app
-from tests.utils import count_documents
 
 client = TestClient(app)
 
@@ -38,59 +34,3 @@ async def test_cannot_use_token_after_logout(access_token):
     )
 
     assert test_response.status_code == status.HTTP_401_UNAUTHORIZED
-
-
-@pytest.mark.anyio
-async def test_register(workspaces):
-    user = RegisterUser(
-        **{
-            "username": "new_user@example.com",
-            "first_name": "John",
-            "last_name": "Doe",
-            "workspace_id": workspaces["ACME Inc."],
-            "password": "secret",
-        }
-    )
-
-    response = client.post("/register", json=jsonable_encoder(user))
-
-    assert response.status_code == status.HTTP_200_OK
-    assert response.json()["username"] == "new_user@example.com"
-
-
-@pytest.mark.anyio
-async def test_register_adds_to_workspace(workspaces):
-    user = RegisterUser(
-        **{
-            "username": "new_user@example.com",
-            "first_name": "John",
-            "last_name": "Doe",
-            "workspace_id": workspaces["ACME Inc."],
-            "password": "secret",
-        }
-    )
-
-    response = client.post("/register", json=jsonable_encoder(user))
-
-    user_id = response.json()["_id"]
-    workspace = await get_workspace(workspaces["ACME Inc."])
-    assert user_id in [str(x) for x in workspace.users]
-
-
-@pytest.mark.anyio
-async def test_cannot_register_existing_username(workspaces):
-    user = RegisterUser(
-        **{
-            "username": "johndoe@example.com",
-            "first_name": "John",
-            "last_name": "Doe",
-            "workspace_id": workspaces["ACME Inc."],
-            "password": "secret",
-        }
-    )
-
-    users_initial = await count_documents("users")
-    response = client.post("/register", json=jsonable_encoder(user))
-
-    assert response.status_code == status.HTTP_409_CONFLICT
-    assert await count_documents("users") == users_initial

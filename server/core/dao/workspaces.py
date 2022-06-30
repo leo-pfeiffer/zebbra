@@ -8,7 +8,11 @@ from core.schemas.workspaces import Workspace, WorkspaceUser
 
 
 async def workspace_exists(workspace_id: PyObjectId):
-    return get_workspace(workspace_id) is not None
+    return await get_workspace(workspace_id) is not None
+
+
+async def workspace_name_exists(workspace_name: str):
+    return await get_workspace_by_name(workspace_name) is not None
 
 
 async def get_workspace(workspace_id: PyObjectId):
