@@ -24,18 +24,18 @@ export default {
         <div class="w-48 min-w-[12rem] bg-zinc-100 px-3 py-4 border-r border-zinc-300 overflow-hidden">
             <div class="text-sm ml-0.5">
                 <span class="px-2 py-1 rounded-md bg-green-500 text-neutral-50 shadow-sm">
-                    {{ user.workspaces[0][0] }}
+                    {{ user.workspaces[0].name[0] }}
                 </span>
                 <span class="ml-2 text-zinc-900">
-                    {{ user.workspaces[0] }}
+                    {{ user.workspaces[0].name }}
                 </span>
             </div>
             <div class="text-xs my-4">
-                <NuxtLink :to="`/${user.workspaces[0]}/settings/workspace`"><div class="px-2 hover:bg-zinc-200 py-1.5 rounded text-zinc-500">
+                <NuxtLink :to="`/${user.workspaces[0].name}/settings/workspace`"><div class="px-2 hover:bg-zinc-200 py-1.5 rounded text-zinc-500">
                     <i class="bi bi-gear-fill text-zinc-400"></i><span
                             class="pl-2">Settings</span>
                 </div></NuxtLink>
-                <NuxtLink :to="`/${user.workspaces[0]}/settings/integrations`"><div class="px-2 hover:bg-zinc-200 py-1.5 rounded text-zinc-500">
+                <NuxtLink :to="`/${user.workspaces[0].name}/settings/integrations`"><div class="px-2 hover:bg-zinc-200 py-1.5 rounded text-zinc-500">
                     <i class="bi bi-cloud-fill text-zinc-400"></i><span
                             class="pl-2">Integrations</span>
                 </div></NuxtLink>
