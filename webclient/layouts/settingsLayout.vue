@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 //update the user state
-await updateUserState();
+//await updateUserState();
 //get the current user state
 const user = useUserState();
 

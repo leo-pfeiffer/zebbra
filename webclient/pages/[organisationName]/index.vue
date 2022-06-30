@@ -1,12 +1,8 @@
 <script setup>
     definePageMeta({
-        middleware: ["auth"]
+        middleware: ["auth", "route-check"]
     })
-
     const user = useUserState();
-
-    
-    
 </script>
 
 <template>
