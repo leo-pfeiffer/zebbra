@@ -3,7 +3,7 @@ export interface GetUserResponse {
     username: string;
     first_name: string;
     last_name: string;
-    workspaces: string[];
-    models: string[];
+    workspaces: { _id: string, name: string }[];
+    models: { _id: string, name: string }[];
     disabled: boolean;
 }
