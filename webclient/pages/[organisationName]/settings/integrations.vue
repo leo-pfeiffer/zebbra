@@ -1,3 +1,9 @@
+<script setup>
+definePageMeta({
+  middleware: ["auth", "route-check"]
+})
+</script>
+
 <template>
     <NuxtLayout name="settings-layout">
         <div>

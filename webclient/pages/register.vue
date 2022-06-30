@@ -44,7 +44,7 @@
             <div class="mt-1">
               <input required
                 class="w-full border-zinc-300 border rounded text-sm focus:ring-sky-500 focus:border-sky-500 px-2.5 py-1 placeholder:text-zinc-400"
-                id="register-workspace-name" type="text" placeholder="Space X" v-model="form.workspaces">
+                id="register-workspace-name" type="text" placeholder="Space X" v-model="form.new_workspace_name">
             </div>
           </div>
           <div class="mt-3">
@@ -70,7 +70,7 @@ export default {
         username: "",
         first_name: "",
         last_name: "",
-        workspaces: "",
+        new_workspace_name: "",
         password: ""
       },
       showError: false,
