@@ -18,8 +18,8 @@ definePageMeta({
               <div class="mt-1">
                 <input required v-bind:disabled="!userIsWorkspaceAdmin"
                   class="w-64 border-zinc-300 border rounded text-sm focus:ring-sky-500 focus:border-sky-500 px-2.5 py-1 placeholder:text-zinc-400"
-                  id="workspace-name-update" type="text" :placeholder="workspace.currentName"
-                  v-model="workspace.currentName">
+                  id="workspace-name-update" type="text" :placeholder="workspace.name"
+                  v-model="workspace.name">
               </div>
             </div>
             <button v-show="userIsWorkspaceAdmin" type="submit" class="bg-sky-600  drop-shadow-sm
@@ -45,8 +45,8 @@ export default {
   data() {
     return {
       workspace: {
-        currentName: "",
-        oldName: "",
+        _id: "",
+        name: ""
       },
       showError: false,
       showSuccess: false,
@@ -59,8 +59,8 @@ export default {
 
     //get workspace name from userState
     const userState = useUserState();
-    this.workspace.oldName = userState.value.workspaces[0];
-    this.workspace.currentName = userState.value.workspaces[0];
+    this.workspace._id = userState.value.workspaces[0]._id;
+    this.workspace.name = userState.value.workspaces[0].name;
 
   },
   methods: {
@@ -74,11 +74,9 @@ export default {
         'http://localhost:8000/workspace/rename', {
           method: 'POST',
         params: {
-          old_name: this.workspace.oldName,
-          new_name: this.workspace.currentName }
+          workspace_id: this.workspace._id,
+          new_name: this.workspace.name }
       }).then((data) => {
-        console.log(data);
-        this.workspace.oldName = data.name;
         this.showSuccess = true;
 
       }).catch((error) => {
