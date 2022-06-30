@@ -11,7 +11,7 @@ from core.exceptions import (
     BusinessLogicException,
 )
 from core.objects import PyObjectId
-from core.schemas.models import ModelMeta, UpdateModel, ModelUser
+from core.schemas.models import ModelMeta, UpdateModel, ModelUser, Model
 from core.schemas.sheets import Sheet, SheetMeta, Section
 from core.settings import get_settings
 
@@ -54,17 +54,19 @@ async def is_viewer(model_id: str, user_id: PyObjectId):
 
 
 async def get_model_by_id(model_id: str):
-    return await db.models.find_one({"_id": model_id})
+    if (model := await db.models.find_one({"_id": model_id})) is not None:
+        return Model(**model)
 
 
 async def get_models_for_workspace(workspace_id: PyObjectId):
-    return await db.models.find({"meta.workspace": str(workspace_id)}).to_list(
+    models = await db.models.find({"meta.workspace": str(workspace_id)}).to_list(
         length=settings.MAX_MODELS
     )
+    return [Model(**m) for m in models]
 
 
 async def get_models_for_user(user_id: PyObjectId):
-    return await db.models.find(
+    models = await db.models.find(
         {
             "$or": [
                 {"meta.admins": str(user_id)},
@@ -73,12 +75,14 @@ async def get_models_for_user(user_id: PyObjectId):
             ]
         }
     ).to_list(length=settings.MAX_MODELS)
+    return [Model(**m) for m in models]
 
 
 async def get_admin_models_for_user(user_id: PyObjectId):
-    return await db.models.find({"meta.admins": str(user_id)}).to_list(
+    models = await db.models.find({"meta.admins": str(user_id)}).to_list(
         length=settings.MAX_MODELS
     )
+    return [Model(**m) for m in models]
 
 
 async def get_users_for_model(model_id: str):
@@ -86,9 +90,12 @@ async def get_users_for_model(model_id: str):
     if model is None:
         raise DoesNotExistException("Model does not exist")
 
-    admin_set = set(model["meta"]["admins"])
-    editor_set = set(model["meta"]["editors"])
-    viewer_set = set(model["meta"]["viewers"])
+    # admin_set = set([str(x) for x in model.meta.admins])
+    # editor_set = set([str(x) for x in model.meta.editors])
+    # viewer_set = set([str(x) for x in model.meta.viewers])
+    admin_set = set(model.meta.admins)
+    editor_set = set(model.meta.editors)
+    viewer_set = set(model.meta.viewers)
 
     user_ids = list(admin_set.union(editor_set).union(viewer_set))
     admins = []
@@ -103,12 +110,12 @@ async def get_users_for_model(model_id: str):
         if _user_id in viewer_set:
             return "Viewer"
 
-    def add_to_list(_user: ModelUser):
-        if _user.id in admin_set:
+    def add_to_list(_user: ModelUser, _user_id):
+        if _user_id in admin_set:
             admins.append(_user)
-        if _user.id in editor_set:
+        if _user_id in editor_set:
             editors.append(_user)
-        if _user.id in viewer_set:
+        if _user_id in viewer_set:
             viewers.append(_user)
 
     for user_id in user_ids:
@@ -121,7 +128,8 @@ async def get_users_for_model(model_id: str):
                 first_name=user.first_name,
                 last_name=user.last_name,
                 user_role=user_role,
-            )
+            ),
+            user.id,
         )
 
     admins.sort(key=lambda x: x.last_name)
@@ -168,11 +176,11 @@ async def remove_admin_from_model(user_id: PyObjectId, model_id: str):
     model = await get_model_by_id(model_id)
 
     # must have at least one admin
-    if len(model["meta"]["admins"]) == 1:
+    if len(model.meta.admins) == 1:
         raise CardinalityConstraintFailedException("Model must have at least one admin")
 
     # must not remove workspace admin
-    workspace = await get_workspace(model["meta"]["workspace"])
+    workspace = await get_workspace(model.meta.workspace)
     if str(user_id) == str(workspace.admin):
         raise BusinessLogicException("Cannot remove workspace admin from model.")
 

@@ -193,6 +193,6 @@ async def test_remove_user_from_workspace_remove_from_models(users, workspaces):
     await remove_user_from_workspace(u, w)
     models = await get_models_for_workspace(w)
     for m in models:
-        assert u not in m["meta"]["admins"]
-        assert u not in m["meta"]["editors"]
-        assert u not in m["meta"]["viewers"]
+        assert u not in [str(x) for x in m.meta.admins]
+        assert u not in [str(x) for x in m.meta.editors]
+        assert u not in [str(x) for x in m.meta.viewers]

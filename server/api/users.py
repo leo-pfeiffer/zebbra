@@ -41,7 +41,7 @@ async def read_user(current_user: User = Depends(get_current_active_user)):
     models = []
     for model in await get_models_for_user(current_user.id):
         models.append(
-            UserInfo.ModelInfo(**{"name": model["meta"]["name"], "_id": model["_id"]})
+            UserInfo.ModelInfo(**{"name": model.meta.name, "_id": str(model.id)})
         )
 
     print(models)

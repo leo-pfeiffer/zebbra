@@ -326,7 +326,7 @@ async def test_rename_model(access_token):
     assert response.json()["message"] == f"Model renamed ({new_name})"
 
     model = await get_model_by_id(model_id)
-    assert model["meta"]["name"] == new_name
+    assert model.meta.name == new_name
 
 
 @pytest.mark.anyio
@@ -342,7 +342,7 @@ async def test_rename_model_no_access(access_token_alice):
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
     model = await get_model_by_id(model_id)
-    assert model["meta"]["name"] != new_name
+    assert model.meta.name != new_name
 
 
 @pytest.mark.anyio
@@ -392,7 +392,7 @@ async def test_update_sheet_meta(access_token):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
     model1 = await get_model_by_id(model_id)
-    old_sheet_name = model1["sheets"][0]["meta"]["name"]
+    old_sheet_name = model1.sheets[0].meta.name
     new_sheet_name = "new sheet name"
     new_meta = SheetMeta(name=new_sheet_name)
 
@@ -428,7 +428,7 @@ async def test_update_sheet_meta_no_access(access_token_alice):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
     model1 = await get_model_by_id(model_id)
-    old_sheet_name = model1["sheets"][0]["meta"]["name"]
+    old_sheet_name = model1.sheets[0].meta.name
     new_sheet_name = "new sheet name"
     new_meta = SheetMeta(name=new_sheet_name)
 
@@ -446,7 +446,7 @@ async def test_update_sheet_meta_duplicate_name(access_token):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
     model1 = await get_model_by_id(model_id)
-    old_sheet_name = model1["sheets"][0]["meta"]["name"]
+    old_sheet_name = model1.sheets[0].meta.name
     new_meta = SheetMeta(name=old_sheet_name)
 
     response = client.post(
@@ -463,7 +463,7 @@ async def test_update_sheet_data(access_token):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
     model1 = await get_model_by_id(model_id)
-    old_sheet_name = model1["sheets"][0]["meta"]["name"]
+    old_sheet_name = model1.sheets[0].meta.name
 
     new_data = [
         Section(**{"name": "section1", "rows": [], "end_row": None}),
@@ -489,7 +489,7 @@ async def test_update_sheet_data_no_access(access_token_alice):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
     model1 = await get_model_by_id(model_id)
-    old_sheet_name = model1["sheets"][0]["meta"]["name"]
+    old_sheet_name = model1.sheets[0].meta.name
 
     response = client.post(
         f"/model/sheet/update/data?model_id={model_id}&name={old_sheet_name}",
@@ -533,9 +533,9 @@ async def test_get_users_of_model(access_token, users):
     unique = set()
     model = await get_model_by_id(model_id)
 
-    admin_set = set(model["meta"]["admins"])
-    editor_set = set(model["meta"]["editors"])
-    viewer_set = set(model["meta"]["viewers"])
+    admin_set = set([str(x) for x in model.meta.admins])
+    editor_set = set([str(x) for x in model.meta.editors])
+    viewer_set = set([str(x) for x in model.meta.viewers])
 
     usernames = list(admin_set.union(editor_set).union(viewer_set))
 

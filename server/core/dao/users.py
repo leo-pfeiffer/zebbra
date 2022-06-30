@@ -60,8 +60,7 @@ async def update_user_field(user_id: PyObjectId, field: str, value: Any):
     assert field != "username"
     if field not in RegisterUser.__fields__ and field != "hashed_password":
         raise ValueError(f"Setting {field} not supported.")
-    await db.users.update_one({"_id": str(user_id)}, {"$set": {field: value}})
-    return await db.users.find_one({"_id": str(user_id)})
+    return await db.users.update_one({"_id": str(user_id)}, {"$set": {field: value}})
 
 
 async def delete_user_full(user_id: PyObjectId):
@@ -136,20 +135,20 @@ async def remove_user_from_workspace(user_id: PyObjectId, workspace_id: PyObject
 
 async def add_user_to_workspace(user_id: PyObjectId, workspace_id: PyObjectId):
     # add user to workspace
-    await db.workspaces.update_one(
+    return await db.workspaces.update_one(
         {"_id": str(workspace_id)}, {"$push": {"users": str(user_id)}}
     )
 
 
 async def set_user_otp_secret(user_id: PyObjectId, otp_secret: str):
-    await db.users.update_one(
+    return await db.users.update_one(
         {"_id": str(user_id)},
         {"$set": {"otp_secret": otp_secret, "otp_validated": False}},
     )
 
 
 async def set_user_otp_secret_validated(user_id: PyObjectId):
-    await db.users.update_one(
+    return await db.users.update_one(
         {"_id": str(user_id)},
         {"$set": {"otp_validated": True}},
     )

@@ -144,9 +144,9 @@ async def test_workspace_remove_user_removes_from_models(
     assert response.status_code == status.HTTP_200_OK
     models = await get_models_for_workspace(workspaces["ACME Inc."])
     for m in models:
-        assert u not in m["meta"]["admins"]
-        assert u not in m["meta"]["editors"]
-        assert u not in m["meta"]["viewers"]
+        assert u not in m.meta.admins
+        assert u not in m.meta.editors
+        assert u not in m.meta.viewers
 
 
 @pytest.mark.anyio

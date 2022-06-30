@@ -63,8 +63,8 @@ async def test_has_access_to_model_false(users):
 @pytest.mark.anyio
 async def test_get_model_by_id():
     model_id = "62b488ba433720870b60ec0a"
-    models = await get_model_by_id(model_id)
-    assert models["_id"] == model_id
+    model = await get_model_by_id(model_id)
+    assert str(model.id) == model_id
 
 
 @pytest.mark.anyio
@@ -79,7 +79,7 @@ async def test_get_models_for_workspace(workspaces):
     models = await get_models_for_workspace(wsp)
     assert len(models) == 1
     for m in models:
-        assert m["meta"]["workspace"] == wsp
+        assert str(m.meta.workspace) == wsp
 
 
 @pytest.mark.anyio
@@ -94,7 +94,7 @@ async def test_get_models_for_user_admin(users):
     models = await get_models_for_user(u)
     assert len(models) == 1
     for m in models:
-        assert u in m["meta"]["admins"]
+        assert u in [str(x) for x in m.meta.admins]
 
 
 @pytest.mark.anyio
@@ -103,7 +103,7 @@ async def test_get_models_for_user_editor(users):
     models = await get_models_for_user(user)
     assert len(models) == 1
     for m in models:
-        assert user in m["meta"]["editors"]
+        assert user in [str(x) for x in m.meta.editors]
 
 
 @pytest.mark.anyio
@@ -112,7 +112,7 @@ async def test_get_models_for_user_viewer(users):
     models = await get_models_for_user(user)
     assert len(models) == 1
     for m in models:
-        assert user in m["meta"]["viewers"]
+        assert user in [str(x) for x in m.meta.viewers]
 
 
 @pytest.mark.anyio
@@ -260,7 +260,7 @@ async def test_set_name():
     new_name = "new_name"
     await set_name(model_id, new_name)
     model = await get_model_by_id(model_id)
-    assert model["meta"]["name"] == new_name
+    assert model.meta.name == new_name
 
 
 @pytest.mark.anyio
@@ -271,10 +271,10 @@ async def test_add_model(users, workspaces):
     r = await create_model(admin, new_name, workspace)
     model = await get_model_by_id(r.inserted_id)
     wsp = await get_workspace(workspace)
-    assert model["meta"]["name"] == new_name
-    assert model["meta"]["workspace"] == workspace
-    assert admin in model["meta"]["admins"]
-    assert str(wsp.admin) in model["meta"]["admins"]
+    assert model.meta.name == new_name
+    assert str(model.meta.workspace) == workspace
+    assert admin in [str(x) for x in model.meta.admins]
+    assert str(wsp.admin) in [str(x) for x in model.meta.admins]
 
 
 @pytest.mark.anyio
@@ -324,21 +324,21 @@ async def test_get_sheet_by_name_non_existent():
 async def test_update_sheet_meta():
     model_id = "62b488ba433720870b60ec0a"
     model1 = await get_model_by_id(model_id)
-    old_sheet_name = model1["sheets"][0]["meta"]["name"]
+    old_sheet_name = model1.sheets[0].meta.name
     new_sheet_name = "new sheet name"
     new_meta = SheetMeta(name=new_sheet_name)
 
     await update_sheet_meta_in_model(model_id, old_sheet_name, new_meta)
 
-    model1 = await get_model_by_id(model_id)
-    assert model1["sheets"][0]["meta"]["name"] == new_sheet_name
+    model2 = await get_model_by_id(model_id)
+    assert model2.sheets[0].meta.name == new_sheet_name
 
 
 @pytest.mark.anyio
 async def test_update_sheet_meta_duplicate_name():
     model_id = "62b488ba433720870b60ec0a"
     model1 = await get_model_by_id(model_id)
-    old_sheet_name = model1["sheets"][0]["meta"]["name"]
+    old_sheet_name = model1.sheets[0].meta.name
     new_meta = SheetMeta(name=old_sheet_name)
 
     with pytest.raises(UniqueConstraintFailedException):
@@ -349,7 +349,7 @@ async def test_update_sheet_meta_duplicate_name():
 async def test_update_sheet_data():
     model_id = "62b488ba433720870b60ec0a"
     model1 = await get_model_by_id(model_id)
-    old_sheet_name = model1["sheets"][0]["meta"]["name"]
+    old_sheet_name = model1.sheets[0].meta.name
 
     new_data = [
         Section(**{"name": "section1", "rows": [], "end_row": None}),
@@ -359,9 +359,9 @@ async def test_update_sheet_data():
     await update_sheet_sections_in_model(model_id, old_sheet_name, new_data)
 
     model2 = await get_model_by_id(model_id)
-    assert len(model2["sheets"][0]["sections"]) == 2
-    assert model2["sheets"][0]["sections"][0]["name"] == "section1"
-    assert model2["sheets"][0]["sections"][1]["name"] == "section2"
+    assert len(model2.sheets[0].sections) == 2
+    assert model2.sheets[0].sections[0].name == "section1"
+    assert model2.sheets[0].sections[1].name == "section2"
 
 
 @pytest.mark.anyio
@@ -372,9 +372,9 @@ async def test_get_users_of_model(access_token, users):
     unique = set()
     model = await get_model_by_id(model_id)
 
-    admin_set = set(model["meta"]["admins"])
-    editor_set = set(model["meta"]["editors"])
-    viewer_set = set(model["meta"]["viewers"])
+    admin_set = set([str(x) for x in model.meta.admins])
+    editor_set = set([str(x) for x in model.meta.editors])
+    viewer_set = set([str(x) for x in model.meta.viewers])
 
     usernames = list(admin_set.union(editor_set).union(viewer_set))
 

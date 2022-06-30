@@ -50,8 +50,8 @@ async def test_users_me_includes_models(access_token, users):
     model_ids = [x["_id"] for x in response.json()["models"]]
 
     for m in models:
-        assert m["meta"]["name"] in model_names
-        assert str(m["_id"]) in model_ids
+        assert m.meta.name in model_names
+        assert str(m.id) in model_ids
 
 
 def test_user_protected():
