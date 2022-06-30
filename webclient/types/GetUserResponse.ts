@@ -5,5 +5,4 @@ export interface GetUserResponse {
     last_name: string;
     workspaces: { _id: string, name: string }[];
     models: { _id: string, name: string }[];
-    disabled: boolean;
 }
