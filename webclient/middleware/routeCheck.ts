@@ -5,8 +5,8 @@ export default defineNuxtRouteMiddleware( async (to, from) => {
 
     console.log("route check middleware");
 
-    await updateUserState();
     const user = useUserState();
+    user.value = await updateUserState();
 
     const userWorkspace = user.value.workspaces[0];
     const path = to.fullPath.split("/");
@@ -19,8 +19,6 @@ export default defineNuxtRouteMiddleware( async (to, from) => {
             navigateTo(`/${userWorkspace}/${path[2]}`);
         } else if (path.length === 4) {
             navigateTo(`/${userWorkspace}/${path[2]}/${path[3]}`);
-        } else {
-            abortNavigation()
         }
     }
 });
