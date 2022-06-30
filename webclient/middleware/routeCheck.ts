@@ -8,7 +8,7 @@ export default defineNuxtRouteMiddleware( async (to, from) => {
     const user = useUserState();
     user.value = await updateUserState();
 
-    const userWorkspace = user.value.workspaces[0];
+    const userWorkspace = user.value.workspaces[0].name;
     const path = to.fullPath.split("/");
 
                             //handle case where name includes a space (%20)
