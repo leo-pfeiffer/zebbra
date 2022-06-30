@@ -22,6 +22,7 @@ class _DAO:
     users = _db["users"]
     workspaces = _db["workspaces"]
     token_blacklist = _db["token_blacklist"]
+    invite_codes = _db["invite_codes"]
     models = _db["models"]
 
     @staticmethod

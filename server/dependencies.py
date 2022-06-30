@@ -13,6 +13,7 @@ settings = get_settings()
 SECRET_KEY = settings.dict()["AUTH_SECRET"]
 ALGORITHM = settings.dict()["AUTH_ALGO"]
 ACCESS_TOKEN_EXPIRE_MINUTES = settings.dict()["AUTH_TOKEN_EXPIRE"]
+INVITE_CODE_EXPIRES_MINUTES = settings.dict()["INVITE_CODE_EXPIRE"]
 
 pwd_context: CryptContext = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
