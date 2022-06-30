@@ -18,6 +18,7 @@ class Workspace(BaseModel):
         json_encoders = {ObjectId: str}
         schema_extra = {
             "example": {
+                "_id": "62bb11835529faba0704639d",
                 "name": "ACME Inc.",
                 "admin": "62bb11835529faba0704639d",
                 "users": [
@@ -52,6 +53,7 @@ class UpdateWorkspace(BaseModel):
 
 
 class WorkspaceUser(BaseModel):
+    id: str = Field(alias="_id")
     username: str
     first_name: str | None
     last_name: str | None

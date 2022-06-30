@@ -58,6 +58,7 @@ async def get_users_of_workspace(workspace_id: PyObjectId):
         user = await get_user(user_id)
         user_role = "Admin" if user_id == wsp.admin else "Member"
         wsp_user = WorkspaceUser(
+            _id=str(user.id),
             username=user.username,
             first_name=user.first_name,
             last_name=user.last_name,

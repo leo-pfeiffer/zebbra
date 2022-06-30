@@ -27,7 +27,7 @@ async def test_users_me_includes_workspaces(access_token, users):
 
     workspaces = await get_workspaces_of_user(users["johndoe@example.com"])
     workspace_names = [x["name"] for x in response.json()["workspaces"]]
-    workspace_ids = [x["id"] for x in response.json()["workspaces"]]
+    workspace_ids = [x["_id"] for x in response.json()["workspaces"]]
 
     assert len(response.json()["workspaces"]) == len(workspaces)
 
@@ -47,7 +47,7 @@ async def test_users_me_includes_models(access_token, users):
 
     assert len(response.json()["models"]) == len(models)
     model_names = [x["name"] for x in response.json()["models"]]
-    model_ids = [x["id"] for x in response.json()["models"]]
+    model_ids = [x["_id"] for x in response.json()["models"]]
 
     for m in models:
         assert m["meta"]["name"] in model_names

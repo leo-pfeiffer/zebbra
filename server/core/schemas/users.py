@@ -28,14 +28,14 @@ class User(BaseModel):
 
 class UserInfo(BaseModel):
     class WorkspaceInfo(BaseModel):
-        id: str
+        id: str = Field(alias="_id")
         name: str
 
     class ModelInfo(BaseModel):
-        id: str
+        id: str = Field(alias="_id")
         name: str
 
-    id: str
+    id: str = Field(alias="_id")
     username: str
     first_name: str | None = None
     last_name: str | None = None

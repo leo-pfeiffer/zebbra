@@ -35,13 +35,13 @@ async def read_user(current_user: User = Depends(get_current_active_user)):
     workspaces = []
     for workspace in await get_workspaces_of_user(current_user.id):
         workspaces.append(
-            UserInfo.WorkspaceInfo(**{"name": workspace.name, "id": str(workspace.id)})
+            UserInfo.WorkspaceInfo(**{"name": workspace.name, "_id": str(workspace.id)})
         )
 
     models = []
     for model in await get_models_for_user(current_user.id):
         models.append(
-            UserInfo.ModelInfo(**{"name": model["meta"]["name"], "id": model["_id"]})
+            UserInfo.ModelInfo(**{"name": model["meta"]["name"], "_id": model["_id"]})
         )
 
     print(models)
@@ -49,7 +49,7 @@ async def read_user(current_user: User = Depends(get_current_active_user)):
 
     return UserInfo(
         **{
-            "id": str(current_user.id),
+            "_id": str(current_user.id),
             "username": current_user.username,
             "first_name": current_user.first_name,
             "last_name": current_user.last_name,
