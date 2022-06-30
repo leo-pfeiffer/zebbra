@@ -55,6 +55,9 @@ export default {
   },
   methods: {
     async login() {
+
+      useToken().deleteTokenCookie();
+
       const loginBody = new FormData();
       loginBody.append("username", this.form.username);
       loginBody.append("password", this.form.password);
@@ -73,15 +76,12 @@ export default {
 
       const token:string = useToken().getToken();
 
+      //if token is defined, get user information by updating user state and navigate to workspace
       if(token != undefined) {
 
-        const getUserWorkspace = await useFetchAuth(
-        'http://localhost:8000/user',{ method: 'GET'}
-        ).then((data:GetUserResponse) => {
-          navigateTo({ path: "/"+`${data.workspaces[0]}` });
-        }).catch((error) => {
-          console.log(error);
-          });
+        await updateUserState();
+        const user = useUserState();
+        navigateTo({ path: "/"+`${user.value.workspaces[0]}` });
 
       } else {
         this.showError = true;
