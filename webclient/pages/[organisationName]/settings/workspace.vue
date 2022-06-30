@@ -1,7 +1,10 @@
 <script setup>
 definePageMeta({
-  middleware: ["auth"]
+  middleware: ["auth", "route-check"]
 })
+
+
+
 </script>
 
 <template>
