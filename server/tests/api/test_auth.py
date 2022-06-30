@@ -23,11 +23,11 @@ def test_oauth_with_valid_user():
 
 
 @pytest.mark.anyio
-async def test_oauth_with_valid_user_does_with_valid_otp():
+async def test_oauth_with_valid_user_does_with_valid_otp(users):
     username = "johndoe@example.com"
     secret = pyotp.random_base32()
-    await set_user_otp_secret(username, secret)
-    await set_user_otp_secret_validated(username)
+    await set_user_otp_secret(users[username], secret)
+    await set_user_otp_secret_validated(users[username])
     totp = pyotp.TOTP(secret)
     otp = totp.now()
 
@@ -47,12 +47,12 @@ async def test_oauth_with_valid_user_does_with_valid_otp():
 
 
 @pytest.mark.anyio
-async def test_oauth_with_valid_user_does_with_invalid_otp():
+async def test_oauth_with_valid_user_does_with_invalid_otp(users):
     username = "johndoe@example.com"
 
     secret = pyotp.random_base32()
-    await set_user_otp_secret("johndoe@example.com", secret)
-    await set_user_otp_secret_validated(username)
+    await set_user_otp_secret(users[username], secret)
+    await set_user_otp_secret_validated(users[username])
 
     user_form = {
         "grant_type": "password",

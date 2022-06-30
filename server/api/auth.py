@@ -1,12 +1,18 @@
 from datetime import datetime, timedelta
 
-import jose
 import pyotp
 from fastapi import APIRouter, Depends, HTTPException, status
 from jose import jwt
+from jose.exceptions import ExpiredSignatureError
 
 from core.dao.token_blacklist import add_to_blacklist
-from core.dao.users import get_user, create_user
+from core.dao.users import (
+    create_user,
+    get_user_by_username,
+    username_exists,
+    add_user_to_workspace,
+)
+from core.dao.workspaces import workspace_exists
 from core.schemas.tokens import Token, BlacklistToken
 from core.schemas.users import RegisterUser, UserInDB, User
 from core.schemas.utils import Message, OAuth2PasswordRequestFormWithOTP, ExpiredMessage
@@ -23,7 +29,7 @@ router = APIRouter()
 
 
 async def authenticate_user(username: str, password: str) -> UserInDB | bool:
-    user = await get_user(username)
+    user = await get_user_by_username(username)
     if not user:
         return False
     if not verify_password(password, user.hashed_password):
@@ -85,7 +91,7 @@ async def token_expired(token: str = Depends(get_current_active_user_token)):
     expired = False
     try:
         decode_token(token)
-    except jose.exceptions.ExpiredSignatureError:
+    except ExpiredSignatureError:
         expired = True
     return {"expired": expired}
 
@@ -112,23 +118,31 @@ async def register_user(form_data: RegisterUser):
     """
 
     # make sure username is not already taken
-    if (await get_user(form_data.username)) is not None:
+    if await username_exists(form_data.username):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Username already exists",
+        )
+
+    if not await workspace_exists(form_data.workspace_id):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Workspace does not exist",
         )
 
     # convert into UserInDb object
     hashed_password = get_password_hash(form_data.password)
 
     user_data = form_data.dict()
-    user_data["workspaces"] = [user_data["workspaces"]]
     user_data["hashed_password"] = hashed_password
     user_data["disabled"] = False
     new_user = UserInDB(**user_data)
 
     # insert user
-    await create_user(new_user)
+    res = await create_user(new_user)
+
+    # add to workspace
+    await add_user_to_workspace(res.inserted_id, form_data.workspace_id)
 
     # return user object
-    return await get_user(new_user.username)
+    return await get_user_by_username(new_user.username)

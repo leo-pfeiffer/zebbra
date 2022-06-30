@@ -7,7 +7,7 @@ from core.dao.token_blacklist import is_token_blacklisted
 from core.schemas.tokens import TokenData
 from core.schemas.users import User
 from core.settings import get_settings
-from core.dao.users import get_user
+from core.dao.users import get_user_by_username
 
 settings = get_settings()
 SECRET_KEY = settings.dict()["AUTH_SECRET"]
@@ -46,7 +46,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         token_data = TokenData(username=username)
     except JWTError:
         raise credentials_exception
-    user = await get_user(username=token_data.username)
+    user = await get_user_by_username(username=token_data.username)
     if user is None:
         raise credentials_exception
     return user

@@ -5,8 +5,6 @@ from core.schemas.rows import Row, Relation, Manual
 
 class SheetMeta(BaseModel):
     name: str
-    # todo what else?
-    #
 
 
 class Section(BaseModel):

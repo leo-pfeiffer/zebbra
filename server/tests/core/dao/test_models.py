@@ -33,30 +33,38 @@ from core.schemas.sheets import SheetMeta, Section
 
 
 @pytest.mark.anyio
-async def test_has_access_to_model_admin():
-    assert await has_access_to_model("62b488ba433720870b60ec0a", "johndoe@example.com")
+async def test_has_access_to_model_admin(users):
+    assert await has_access_to_model(
+        "62b488ba433720870b60ec0a", users["johndoe@example.com"]
+    )
 
 
 @pytest.mark.anyio
-async def test_has_access_to_model_editor():
-    assert await has_access_to_model("62b488ba433720870b60ec0a", "darwin@example.com")
+async def test_has_access_to_model_editor(users):
+    assert await has_access_to_model(
+        "62b488ba433720870b60ec0a", users["darwin@example.com"]
+    )
 
 
 @pytest.mark.anyio
-async def test_has_access_to_model_viewer():
-    assert await has_access_to_model("62b488ba433720870b60ec0a", "charlie@example.com")
+async def test_has_access_to_model_viewer(users):
+    assert await has_access_to_model(
+        "62b488ba433720870b60ec0a", users["charlie@example.com"]
+    )
 
 
 @pytest.mark.anyio
-async def test_has_access_to_model_false():
-    assert not await has_access_to_model("62b488ba433720870b60ec0a", "bob@example.com")
+async def test_has_access_to_model_false(users):
+    assert not await has_access_to_model(
+        "62b488ba433720870b60ec0a", users["bob@example.com"]
+    )
 
 
 @pytest.mark.anyio
 async def test_get_model_by_id():
     model_id = "62b488ba433720870b60ec0a"
-    models = await get_model_by_id(model_id)
-    assert models["_id"] == model_id
+    model = await get_model_by_id(model_id)
+    assert str(model.id) == model_id
 
 
 @pytest.mark.anyio
@@ -66,182 +74,184 @@ async def test_get_model_by_id_no_results():
 
 
 @pytest.mark.anyio
-async def test_get_models_for_workspace():
-    wsp = "ACME Inc."
+async def test_get_models_for_workspace(workspaces):
+    wsp = workspaces["ACME Inc."]
     models = await get_models_for_workspace(wsp)
     assert len(models) == 1
     for m in models:
-        assert m["meta"]["workspace"] == wsp
+        assert str(m.meta.workspace) == wsp
 
 
 @pytest.mark.anyio
-async def test_get_models_for_workspace_no_results():
-    wsp = "Not a workspace"
-    models = await get_models_for_workspace(wsp)
+async def test_get_models_for_workspace_no_results(not_an_id):
+    models = await get_models_for_workspace(not_an_id)
     assert len(models) == 0
 
 
 @pytest.mark.anyio
-async def test_get_models_for_user_admin():
-    user = "johndoe@example.com"
-    models = await get_models_for_user(user)
+async def test_get_models_for_user_admin(users):
+    u = users["johndoe@example.com"]
+    models = await get_models_for_user(u)
     assert len(models) == 1
     for m in models:
-        assert user in m["meta"]["admins"]
+        assert u in [str(x) for x in m.meta.admins]
 
 
 @pytest.mark.anyio
-async def test_get_models_for_user_editor():
-    user = "darwin@example.com"
+async def test_get_models_for_user_editor(users):
+    user = users["darwin@example.com"]
     models = await get_models_for_user(user)
     assert len(models) == 1
     for m in models:
-        assert user in m["meta"]["editors"]
+        assert user in [str(x) for x in m.meta.editors]
 
 
 @pytest.mark.anyio
-async def test_get_models_for_user_viewer():
-    user = "charlie@example.com"
+async def test_get_models_for_user_viewer(users):
+    user = users["charlie@example.com"]
     models = await get_models_for_user(user)
     assert len(models) == 1
     for m in models:
-        assert user in m["meta"]["viewers"]
+        assert user in [str(x) for x in m.meta.viewers]
 
 
 @pytest.mark.anyio
-async def test_get_models_for_user_no_results():
-    user = "not-a-user@example.com"
-    models = await get_models_for_user(user)
+async def test_get_models_for_user_no_results(not_an_id):
+    models = await get_models_for_user(not_an_id)
     assert len(models) == 0
 
 
 @pytest.mark.anyio
-async def test_is_admin_true():
-    assert await is_admin("62b488ba433720870b60ec0a", "johndoe@example.com")
+async def test_is_admin_true(users):
+    assert await is_admin("62b488ba433720870b60ec0a", users["johndoe@example.com"])
 
 
 @pytest.mark.anyio
-async def test_is_admin_false():
-    assert not await is_admin("62b488ba433720870b60ec0a", "darwin@example.com")
+async def test_is_admin_false(users):
+    assert not await is_admin("62b488ba433720870b60ec0a", users["darwin@example.com"])
 
 
 @pytest.mark.anyio
-async def test_is_editor_true():
-    assert await is_editor("62b488ba433720870b60ec0a", "darwin@example.com")
+async def test_is_editor_true(users):
+    assert await is_editor("62b488ba433720870b60ec0a", users["darwin@example.com"])
 
 
 @pytest.mark.anyio
-async def test_is_editor_false():
-    assert not await is_editor("62b488ba433720870b60ec0a", "charlie@example.com")
+async def test_is_editor_false(users):
+    assert not await is_editor("62b488ba433720870b60ec0a", users["charlie@example.com"])
 
 
 @pytest.mark.anyio
-async def test_is_viewer_true():
-    assert await is_viewer("62b488ba433720870b60ec0a", "charlie@example.com")
+async def test_is_viewer_true(users):
+    assert await is_viewer("62b488ba433720870b60ec0a", users["charlie@example.com"])
 
 
 @pytest.mark.anyio
-async def test_is_viewer_false():
-    assert not await is_viewer("62b488ba433720870b60ec0a", "darwing@example.com")
+async def test_is_viewer_false(users):
+    assert not await is_viewer("62b488ba433720870b60ec0a", users["darwin@example.com"])
 
 
 @pytest.mark.anyio
-async def test_set_admin():
-    assert await is_admin("62b488ba433720870b60ec0a", "johndoe@example.com")
-    await add_admin_to_model("charlie@example.com", "62b488ba433720870b60ec0a")
-    assert await is_admin("62b488ba433720870b60ec0a", "charlie@example.com")
+async def test_set_admin(users):
+    assert await is_admin("62b488ba433720870b60ec0a", users["johndoe@example.com"])
+    await add_admin_to_model(users["charlie@example.com"], "62b488ba433720870b60ec0a")
+    assert await is_admin("62b488ba433720870b60ec0a", users["charlie@example.com"])
 
 
 @pytest.mark.anyio
-async def test_set_admin_non_existing_user():
+async def test_set_admin_non_existing_user(not_an_id):
     with pytest.raises(DoesNotExistException):
-        await add_admin_to_model("not-a-user@example.com", "62b488ba433720870b60ec0a")
+        await add_admin_to_model(not_an_id, "62b488ba433720870b60ec0a")
 
 
 @pytest.mark.anyio
-async def test_add_editor_to_model():
-    assert not await is_editor("62b488ba433720870b60ec0a", "johndoe@example.com")
-    await add_editor_to_model("darwin@example.com", "62b488ba433720870b60ec0a")
-    assert await is_editor("62b488ba433720870b60ec0a", "darwin@example.com")
+async def test_add_editor_to_model(users):
+    assert not await is_editor("62b488ba433720870b60ec0a", users["johndoe@example.com"])
+    await add_editor_to_model(users["darwin@example.com"], "62b488ba433720870b60ec0a")
+    assert await is_editor("62b488ba433720870b60ec0a", users["darwin@example.com"])
 
 
 @pytest.mark.anyio
-async def test_add_editor_to_model_non_existing_user():
+async def test_add_editor_to_model_non_existing_user(not_an_id):
     with pytest.raises(DoesNotExistException):
-        await add_editor_to_model("not-a-user@example.com", "62b488ba433720870b60ec0a")
+        await add_editor_to_model(not_an_id, "62b488ba433720870b60ec0a")
 
 
 @pytest.mark.anyio
-async def test_add_viewer_to_model():
-    assert not await is_viewer("62b488ba433720870b60ec0a", "darwin@example.com")
-    await add_viewer_to_model("darwin@example.com", "62b488ba433720870b60ec0a")
-    assert await is_viewer("62b488ba433720870b60ec0a", "charlie@example.com")
+async def test_add_viewer_to_model(users):
+    assert not await is_viewer("62b488ba433720870b60ec0a", users["darwin@example.com"])
+    await add_viewer_to_model(users["darwin@example.com"], "62b488ba433720870b60ec0a")
+    assert await is_viewer("62b488ba433720870b60ec0a", users["charlie@example.com"])
 
 
 @pytest.mark.anyio
-async def test_add_viewer_to_model_non_existing_user():
+async def test_add_viewer_to_model_non_existing_user(not_an_id):
     with pytest.raises(DoesNotExistException):
-        await add_viewer_to_model("not-a-user@example.com", "62b488ba433720870b60ec0a")
+        await add_viewer_to_model(not_an_id, "62b488ba433720870b60ec0a")
 
 
 @pytest.mark.anyio
-async def test_remove_viewer_from_model():
-    assert await is_viewer("62b488ba433720870b60ec0a", "charlie@example.com")
-    await remove_viewer_from_model("charlie@example.com", "62b488ba433720870b60ec0a")
-    assert not await is_viewer("62b488ba433720870b60ec0a", "charlie@example.com")
+async def test_remove_viewer_from_model(users):
+    assert await is_viewer("62b488ba433720870b60ec0a", users["charlie@example.com"])
+    await remove_viewer_from_model(
+        users["charlie@example.com"], "62b488ba433720870b60ec0a"
+    )
+    assert not await is_viewer("62b488ba433720870b60ec0a", users["charlie@example.com"])
 
 
 @pytest.mark.anyio
-async def test_remove_viewer_from_model_non_existing_user():
+async def test_remove_viewer_from_model_non_existing_user(not_an_id):
     with pytest.raises(DoesNotExistException):
-        await remove_viewer_from_model(
-            "not-a-user@example.com", "62b488ba433720870b60ec0a"
-        )
+        await remove_viewer_from_model(not_an_id, "62b488ba433720870b60ec0a")
 
 
 @pytest.mark.anyio
-async def test_remove_admin_from_model():
-    await add_admin_to_model("charlie@example.com", "62b488ba433720870b60ec0a")
-    assert await is_admin("62b488ba433720870b60ec0a", "charlie@example.com")
-    await remove_admin_from_model("charlie@example.com", "62b488ba433720870b60ec0a")
-    assert not await is_admin("62b488ba433720870b60ec0a", "charlie@example.com")
+async def test_remove_admin_from_model(users):
+    await add_admin_to_model(users["charlie@example.com"], "62b488ba433720870b60ec0a")
+    assert await is_admin("62b488ba433720870b60ec0a", users["charlie@example.com"])
+    await remove_admin_from_model(
+        users["charlie@example.com"], "62b488ba433720870b60ec0a"
+    )
+    assert not await is_admin("62b488ba433720870b60ec0a", users["charlie@example.com"])
 
 
 @pytest.mark.anyio
-async def test_remove_admin_from_model_non_existing_user():
+async def test_remove_admin_from_model_non_existing_user(not_an_id):
     with pytest.raises(DoesNotExistException):
-        await remove_admin_from_model(
-            "not-a-user@example.com", "62b488ba433720870b60ec0a"
-        )
+        await remove_admin_from_model(not_an_id, "62b488ba433720870b60ec0a")
 
 
 @pytest.mark.anyio
-async def test_remove_admin_from_model_only_one_admin():
+async def test_remove_admin_from_model_only_one_admin(users):
     with pytest.raises(CardinalityConstraintFailedException):
-        await remove_admin_from_model("johndoe@example.com", "62b488ba433720870b60ec0a")
-
-
-@pytest.mark.anyio
-async def test_remove_admin_from_model_workspace_admin():
-    await add_admin_to_model("charlie@example.com", "62b488ba433720870b60ec0a")
-    assert await is_admin("62b488ba433720870b60ec0a", "charlie@example.com")
-    with pytest.raises(BusinessLogicException):
-        await remove_admin_from_model("johndoe@example.com", "62b488ba433720870b60ec0a")
-
-
-@pytest.mark.anyio
-async def test_remove_editor_from_model():
-    assert await is_editor("62b488ba433720870b60ec0a", "darwin@example.com")
-    await remove_editor_from_model("darwin@example.com", "62b488ba433720870b60ec0a")
-    assert not await is_editor("62b488ba433720870b60ec0a", "darwin@example.com")
-
-
-@pytest.mark.anyio
-async def test_remove_editor_from_model_non_existing_user():
-    with pytest.raises(DoesNotExistException):
-        await remove_editor_from_model(
-            "not-a-user@example.com", "62b488ba433720870b60ec0a"
+        await remove_admin_from_model(
+            users["johndoe@example.com"], "62b488ba433720870b60ec0a"
         )
+
+
+@pytest.mark.anyio
+async def test_remove_admin_from_model_workspace_admin(users):
+    await add_admin_to_model(users["charlie@example.com"], "62b488ba433720870b60ec0a")
+    assert await is_admin("62b488ba433720870b60ec0a", users["charlie@example.com"])
+    with pytest.raises(BusinessLogicException):
+        await remove_admin_from_model(
+            users["johndoe@example.com"], "62b488ba433720870b60ec0a"
+        )
+
+
+@pytest.mark.anyio
+async def test_remove_editor_from_model(users):
+    assert await is_editor("62b488ba433720870b60ec0a", users["darwin@example.com"])
+    await remove_editor_from_model(
+        users["darwin@example.com"], "62b488ba433720870b60ec0a"
+    )
+    assert not await is_editor("62b488ba433720870b60ec0a", users["darwin@example.com"])
+
+
+@pytest.mark.anyio
+async def test_remove_editor_from_model_non_existing_user(not_an_id):
+    with pytest.raises(DoesNotExistException):
+        await remove_editor_from_model(not_an_id, "62b488ba433720870b60ec0a")
 
 
 @pytest.mark.anyio
@@ -250,51 +260,49 @@ async def test_set_name():
     new_name = "new_name"
     await set_name(model_id, new_name)
     model = await get_model_by_id(model_id)
-    assert model["meta"]["name"] == new_name
+    assert model.meta.name == new_name
 
 
 @pytest.mark.anyio
-async def test_add_model():
+async def test_add_model(users, workspaces):
     new_name = "some_new_model"
-    workspace = "ACME Inc."
-    admin = "johndoe@example.com"
+    workspace = workspaces["ACME Inc."]
+    admin = users["johndoe@example.com"]
     r = await create_model(admin, new_name, workspace)
     model = await get_model_by_id(r.inserted_id)
     wsp = await get_workspace(workspace)
-    assert model["meta"]["name"] == new_name
-    assert model["meta"]["workspace"] == workspace
-    assert admin in model["meta"]["admins"]
-    assert wsp.admin in model["meta"]["admins"]
+    assert model.meta.name == new_name
+    assert str(model.meta.workspace) == workspace
+    assert admin in [str(x) for x in model.meta.admins]
+    assert str(wsp.admin) in [str(x) for x in model.meta.admins]
 
 
 @pytest.mark.anyio
-async def test_add_model_no_access():
+async def test_add_model_no_access(users, workspaces):
     new_name = "some_new_model"
-    workspace = "Boring Co."
-    admin = "johndoe@example.com"
+    workspace = workspaces["Boring Co."]
+    admin = users["johndoe@example.com"]
 
     with pytest.raises(NoAccessException):
         await create_model(admin, new_name, workspace)
 
 
 @pytest.mark.anyio
-async def test_add_model_non_existent_user():
+async def test_add_model_non_existent_user(not_an_id, workspaces):
     new_name = "some_new_model"
-    workspace = "ACME Inc."
-    admin = "not-a-user@example.com"
+    workspace = workspaces["ACME Inc."]
 
     with pytest.raises(DoesNotExistException):
-        await create_model(admin, new_name, workspace)
+        await create_model(not_an_id, new_name, workspace)
 
 
 @pytest.mark.anyio
-async def test_add_model_non_existent_workspace():
+async def test_add_model_non_existent_workspace(not_an_id, users):
     new_name = "some_new_model"
-    workspace = "Not a workspace"
-    admin = "johndoe@example.com"
+    admin = users["johndoe@example.com"]
 
     with pytest.raises(DoesNotExistException):
-        await create_model(admin, new_name, workspace)
+        await create_model(admin, new_name, not_an_id)
 
 
 @pytest.mark.anyio
@@ -316,21 +324,21 @@ async def test_get_sheet_by_name_non_existent():
 async def test_update_sheet_meta():
     model_id = "62b488ba433720870b60ec0a"
     model1 = await get_model_by_id(model_id)
-    old_sheet_name = model1["sheets"][0]["meta"]["name"]
+    old_sheet_name = model1.sheets[0].meta.name
     new_sheet_name = "new sheet name"
     new_meta = SheetMeta(name=new_sheet_name)
 
     await update_sheet_meta_in_model(model_id, old_sheet_name, new_meta)
 
-    model1 = await get_model_by_id(model_id)
-    assert model1["sheets"][0]["meta"]["name"] == new_sheet_name
+    model2 = await get_model_by_id(model_id)
+    assert model2.sheets[0].meta.name == new_sheet_name
 
 
 @pytest.mark.anyio
 async def test_update_sheet_meta_duplicate_name():
     model_id = "62b488ba433720870b60ec0a"
     model1 = await get_model_by_id(model_id)
-    old_sheet_name = model1["sheets"][0]["meta"]["name"]
+    old_sheet_name = model1.sheets[0].meta.name
     new_meta = SheetMeta(name=old_sheet_name)
 
     with pytest.raises(UniqueConstraintFailedException):
@@ -341,7 +349,7 @@ async def test_update_sheet_meta_duplicate_name():
 async def test_update_sheet_data():
     model_id = "62b488ba433720870b60ec0a"
     model1 = await get_model_by_id(model_id)
-    old_sheet_name = model1["sheets"][0]["meta"]["name"]
+    old_sheet_name = model1.sheets[0].meta.name
 
     new_data = [
         Section(**{"name": "section1", "rows": [], "end_row": None}),
@@ -351,41 +359,41 @@ async def test_update_sheet_data():
     await update_sheet_sections_in_model(model_id, old_sheet_name, new_data)
 
     model2 = await get_model_by_id(model_id)
-    assert len(model2["sheets"][0]["sections"]) == 2
-    assert model2["sheets"][0]["sections"][0]["name"] == "section1"
-    assert model2["sheets"][0]["sections"][1]["name"] == "section2"
+    assert len(model2.sheets[0].sections) == 2
+    assert model2.sheets[0].sections[0].name == "section1"
+    assert model2.sheets[0].sections[1].name == "section2"
 
 
 @pytest.mark.anyio
-async def test_get_users_of_model(access_token):
+async def test_get_users_of_model(access_token, users):
     model_id = "62b488ba433720870b60ec0a"
-    users = await get_users_for_model(model_id)
+    all_users = await get_users_for_model(model_id)
 
     unique = set()
     model = await get_model_by_id(model_id)
 
-    admin_set = set(model["meta"]["admins"])
-    editor_set = set(model["meta"]["editors"])
-    viewer_set = set(model["meta"]["viewers"])
+    admin_set = set([str(x) for x in model.meta.admins])
+    editor_set = set([str(x) for x in model.meta.editors])
+    viewer_set = set([str(x) for x in model.meta.viewers])
 
     usernames = list(admin_set.union(editor_set).union(viewer_set))
 
-    for u in users:
+    for u in all_users:
         if u.username == "johndoe@example.com":
             assert u.user_role == "Admin"
 
         if u.user_role == "Admin":
-            assert u.username in admin_set
+            assert users[u.username] in admin_set
         elif u.user_role == "Editor":
-            assert u.username in editor_set
+            assert users[u.username] in editor_set
         elif u.user_role == "Viewer":
-            assert u.username in viewer_set
+            assert users[u.username] in viewer_set
 
         unique.add(u.username)
 
-        assert u.username in usernames
+        assert users[u.username] in usernames
 
-    assert len(users) == len(unique)
+    assert len(all_users) == len(unique)
     assert len(usernames) == len(unique)
 
 

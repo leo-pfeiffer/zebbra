@@ -5,8 +5,7 @@ from core.schemas.tokens import BlacklistToken
 
 
 async def add_to_blacklist(token: BlacklistToken):
-    res = await db.token_blacklist.insert_one(jsonable_encoder(token))
-    return res
+    return await db.token_blacklist.insert_one(jsonable_encoder(token))
 
 
 async def get_blacklisted(access_token: str):
