@@ -79,10 +79,13 @@ export default {
       //if token is defined, get user information by updating user state and navigate to workspace
       if(token != undefined) {
 
-        await updateUserState();
-        const user = useUserState();
-        navigateTo({ path: "/"+`${user.value.workspaces[0]}` });
-
+        const getUserWorkspace = await useFetchAuth(
+        'http://localhost:8000/user',{ method: 'GET'}
+        ).then((data:GetUserResponse) => {
+          navigateTo({ path: "/"+`${data.workspaces[0]}` });
+        }).catch((error) => {
+          console.log(error);
+          });
       } else {
         this.showError = true;
       }
