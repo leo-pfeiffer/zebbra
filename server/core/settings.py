@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     ENV: str = "prod"
 
     MAX_MODELS: int = 10000
-    INVITE_CODE_EXPIRE: int
+    INVITE_CODE_EXPIRE: int = 10080
 
     AUTH_SECRET: str
     AUTH_ALGO: str
