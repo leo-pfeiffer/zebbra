@@ -12,10 +12,16 @@ from core.dao.users import (
     username_exists,
     add_user_to_workspace,
 )
-from core.dao.workspaces import workspace_exists
+from core.dao.workspaces import (
+    workspace_exists,
+    create_workspace,
+    workspace_name_exists,
+)
+from core.exceptions import UniqueConstraintFailedException
 from core.schemas.tokens import Token, BlacklistToken
 from core.schemas.users import RegisterUser, UserInDB, User
 from core.schemas.utils import Message, OAuth2PasswordRequestFormWithOTP, ExpiredMessage
+from core.schemas.workspaces import Workspace
 from dependencies import (
     ACCESS_TOKEN_EXPIRE_MINUTES,
     get_current_active_user_token,
@@ -110,12 +116,16 @@ async def logout(token: str = Depends(get_current_active_user_token)):
     "/register",
     tags=["auth"],
     response_model=User,
-    responses={409: {"description": "Username already exists"}},
+    responses={409: {"description": "Username or workspace already exists"}},
 )
 async def register_user(form_data: RegisterUser):
     """
-    Register a new user.
+    Register a new user. To add the user to an existing workspace, specify the
+    workspace_id. To create a new workspace with the user as admin, specify
+    new_workspace_name. You cannot specify both.
     """
+
+    # todo process invite code rather than directly the workspace_id
 
     # make sure username is not already taken
     if await username_exists(form_data.username):
@@ -124,7 +134,22 @@ async def register_user(form_data: RegisterUser):
             detail="Username already exists",
         )
 
-    if not await workspace_exists(form_data.workspace_id):
+    user_current_user = form_data.workspace_id is not None
+    create_new_wsp = form_data.new_workspace_name is not None
+
+    if user_current_user == create_new_wsp:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Exactly one of workspace_id and new_workspace_name must be specified.",
+        )
+
+    if create_new_wsp and await workspace_name_exists(form_data.new_workspace_name):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Workspace name already exists",
+        )
+
+    elif not create_new_wsp and not await workspace_exists(form_data.workspace_id):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Workspace does not exist",
@@ -141,8 +166,16 @@ async def register_user(form_data: RegisterUser):
     # insert user
     res = await create_user(new_user)
 
+    # create workspace
+    if create_new_wsp:
+        workspace = Workspace(
+            name=form_data.new_workspace_name, admin=new_user.id, users=[new_user.id]
+        )
+        await create_workspace(workspace)
+
     # add to workspace
-    await add_user_to_workspace(res.inserted_id, form_data.workspace_id)
+    else:
+        await add_user_to_workspace(res.inserted_id, form_data.workspace_id)
 
     # return user object
     return await get_user_by_username(new_user.username)
