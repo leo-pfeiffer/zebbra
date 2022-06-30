@@ -16,13 +16,13 @@ definePageMeta({
             <div class="mb-4">
               <label class="block text-xs font-medium text-zinc-500" for="workspace-name-update">Workspace Name</label>
               <div class="mt-1">
-                <input required v-bind:disabled="!userIsAdmin"
+                <input required v-bind:disabled="!userIsWorkspaceAdmin"
                   class="w-64 border-zinc-300 border rounded text-sm focus:ring-sky-500 focus:border-sky-500 px-2.5 py-1 placeholder:text-zinc-400"
                   id="workspace-name-update" type="text" :placeholder="workspace.currentName"
                   v-model="workspace.currentName">
               </div>
             </div>
-            <button v-show="userIsAdmin" type="submit" class="bg-sky-600  drop-shadow-sm
+            <button v-show="userIsWorkspaceAdmin" type="submit" class="bg-sky-600  drop-shadow-sm
                         shadow-zinc-50 text-sm font-medium px-2.5 py-1 
                         border border-sky-600 rounded text-neutral-100">
               Update
@@ -51,12 +51,11 @@ export default {
       showError: false,
       showSuccess: false,
       errorMessage: "Somthing went wrong. Try again!",
-      userIsAdmin: false,
+      userIsWorkspaceAdmin: false,
     };
   }, async beforeMount() {
     //check if user is admin
-    this.userIsAdmin = await useIsAdmin();
-    console.log("is admin:" + this.userIsAdmin);
+    this.userIsWorkspaceAdmin = await useIsWorkspaceAdmin();
 
     //get workspace name from userState
     const userState = useUserState();
