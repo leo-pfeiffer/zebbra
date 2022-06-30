@@ -22,6 +22,7 @@ export const useIsWorkspaceAdmin = async () => {
     const getAdminUsername = await useFetchAuth(
     'http://localhost:8000/workspace',{ method: 'GET'}
     ).then((data:GetWorkspaceResponse) => {
+        //get first workspace in response (user can only have one workspace)
         adminUsername = data[0].admin;
     }).catch((error) => {
         console.log(error);
