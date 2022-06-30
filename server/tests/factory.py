@@ -12,16 +12,19 @@ def _read_json(path):
 USERS_PATH = "resources/demo/users.json"
 WORKSPACE_PATH = "resources/demo/workspaces.json"
 MODELS_PATH = "resources/demo/models.json"
+INVITE_CODES_PATH = "resources/demo/invite_codes.json"
 
 workspaces = _read_json(WORKSPACE_PATH)
 users = _read_json(USERS_PATH)
 models = _read_json(MODELS_PATH)
+invite_codes = _read_json(INVITE_CODES_PATH)
 
 
 async def create():
     await create_user_data()
     await create_workspace_data()
     await create_model_data()
+    await create_invite_codes_data()
 
 
 async def teardown():
@@ -29,10 +32,15 @@ async def teardown():
     await teardown_workspaces()
     await teardown_token_blacklist()
     await teardown_models()
+    await teardown_invite_codes()
 
 
 def create_user_data():
     return db.users.insert_many(users)
+
+
+def create_invite_codes_data():
+    return db.invite_codes.insert_many(invite_codes)
 
 
 def create_workspace_data():
@@ -57,3 +65,7 @@ def teardown_token_blacklist():
 
 def teardown_models():
     return db.models.delete_many({})
+
+
+def teardown_invite_codes():
+    return db.invite_codes.delete_many({})

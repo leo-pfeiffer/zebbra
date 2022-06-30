@@ -47,7 +47,7 @@ class RegisterUser(BaseModel):
     username: str
     first_name: str
     last_name: str
-    workspace_id: str | None  # todo should be invite code
+    invite_code: str | None
     new_workspace_name: str | None
     password: str
 

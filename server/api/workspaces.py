@@ -1,6 +1,10 @@
+from datetime import timedelta, datetime
+
+import pyotp
 from fastapi import APIRouter, Depends, HTTPException
 from starlette import status
 
+from core.dao.invite_codes import add_invite_code
 from core.dao.users import (
     add_user_to_workspace,
     remove_user_from_workspace,
@@ -22,8 +26,9 @@ from core.exceptions import (
 )
 from core.objects import PyObjectId
 from core.schemas.users import User
+from core.schemas.utils import InviteCode
 from core.schemas.workspaces import Workspace, WorkspaceUser
-from dependencies import get_current_active_user
+from dependencies import get_current_active_user, INVITE_CODE_EXPIRES_MINUTES
 
 router = APIRouter()
 
@@ -155,6 +160,28 @@ async def change_admin(
 
     await change_workspace_admin(workspace_id, user_id)
     return await get_workspace(workspace_id)
+
+
+@router.post("/workspace/inviteCode", response_model=InviteCode, tags=["workspace"])
+async def create_invite_code(
+    workspace_id: PyObjectId, current_user: User = Depends(get_current_active_user)
+):
+    await _assert_workspace_access_admin(current_user.id, workspace_id)
+
+    invite_code = pyotp.random_base32()
+    invite_code_expires = datetime.utcnow() + timedelta(
+        minutes=INVITE_CODE_EXPIRES_MINUTES
+    )
+
+    obj = InviteCode(
+        invite_code=invite_code,
+        workspace_id=str(workspace_id),
+        expires=invite_code_expires,
+    )
+
+    await add_invite_code(obj)
+
+    return obj
 
 
 # POST invite user to workspace

@@ -90,13 +90,13 @@ async def test_oauth_with_invalid_user():
 
 
 @pytest.mark.anyio
-async def test_register_with_existing_wsp(workspaces):
+async def test_register_with_invite(invite_codes, workspaces):
     new_user_form = RegisterUser(
         **{
             "username": "test_user@example.com",
             "first_name": "Henry",
             "last_name": "Ford",
-            "workspace_id": workspaces["ACME Inc."],
+            "invite_code": invite_codes["valid"],
             "new_workspace_name": None,
             "password": "secret",
         }
@@ -126,7 +126,7 @@ async def test_register_with_new_wsp(workspaces):
         username="test_user@example.com",
         first_name="Henry",
         last_name="Ford",
-        workspace_id=None,
+        invite_code=None,
         new_workspace_name="Ford Motors",
         password="secret",
     )
@@ -151,12 +151,12 @@ async def test_register_with_new_wsp(workspaces):
 
 
 @pytest.mark.anyio
-async def test_register_can_login(workspaces):
+async def test_register_can_login(invite_codes):
     new_user_form = {
         "username": "test_user@example.com",
         "first_name": "Henry",
         "last_name": "Ford",
-        "workspace_id": workspaces["ACME Inc."],
+        "invite_code": invite_codes["valid"],
         "new_workspace_name": None,
         "password": "secret",
     }
@@ -179,12 +179,12 @@ async def test_register_can_login(workspaces):
 
 
 @pytest.mark.anyio
-async def test_register_cannot_specify_both_new_workspace_and_existing(workspaces):
+async def test_register_cannot_specify_both_new_workspace_and_existing(invite_codes):
     new_user_form = {
         "username": "test_user@example.com",
         "first_name": "Henry",
         "last_name": "Ford",
-        "workspace_id": workspaces["ACME Inc."],
+        "invite_code": invite_codes["valid"],
         "new_workspace_name": "Ford Motors",
         "password": "secret",
     }
@@ -196,13 +196,13 @@ async def test_register_cannot_specify_both_new_workspace_and_existing(workspace
 
 
 @pytest.mark.anyio
-async def test_register_cannot_specify_neither_new_workspace_and_existing(workspaces):
+async def test_register_cannot_specify_neither_new_workspace_and_existing():
     new_user_form = {
         "username": "test_user@example.com",
         "first_name": "Henry",
         "last_name": "Ford",
         "password": "secret",
-        "workspace_id": None,
+        "invite_code": None,
         "new_workspace_name": None,
     }
 
@@ -213,13 +213,13 @@ async def test_register_cannot_specify_neither_new_workspace_and_existing(worksp
 
 
 @pytest.mark.anyio
-async def test_cannot_register_existing_username(workspaces):
+async def test_cannot_register_existing_username(invite_codes):
     user = RegisterUser(
         **{
             "username": "johndoe@example.com",
             "first_name": "John",
             "last_name": "Doe",
-            "workspace_id": workspaces["ACME Inc."],
+            "invite_code": invite_codes["valid"],
             "new_workspace_name": None,
             "password": "secret",
         }
@@ -231,4 +231,48 @@ async def test_cannot_register_existing_username(workspaces):
     response = client.post("/register", json=jsonable_encoder(user))
 
     assert response.status_code == status.HTTP_409_CONFLICT
+    assert await count_documents("users") == users_initial
+
+
+@pytest.mark.anyio
+async def test_cannot_register_with_used_invite(invite_codes):
+    user = RegisterUser(
+        **{
+            "username": "marcus@example.com",
+            "first_name": "Marcus",
+            "last_name": "Aurelius",
+            "invite_code": invite_codes["used"],
+            "new_workspace_name": None,
+            "password": "secret",
+        }
+    )
+
+    users_initial = await count_documents("users")
+
+    client = TestClient(app)
+    response = client.post("/register", json=jsonable_encoder(user))
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert await count_documents("users") == users_initial
+
+
+@pytest.mark.anyio
+async def test_cannot_register_with_expired_invite(invite_codes):
+    user = RegisterUser(
+        **{
+            "username": "marcus@example.com",
+            "first_name": "Marcus",
+            "last_name": "Aurelius",
+            "invite_code": invite_codes["expired"],
+            "new_workspace_name": None,
+            "password": "secret",
+        }
+    )
+
+    users_initial = await count_documents("users")
+
+    client = TestClient(app)
+    response = client.post("/register", json=jsonable_encoder(user))
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert await count_documents("users") == users_initial
