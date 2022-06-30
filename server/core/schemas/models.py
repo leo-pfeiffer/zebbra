@@ -37,6 +37,7 @@ class UpdateModel(BaseModel):
 
 
 class ModelUser(BaseModel):
+    id: str = Field(alias="_id")
     username: str
     first_name: str | None
     last_name: str | None

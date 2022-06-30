@@ -103,12 +103,12 @@ async def get_users_for_model(model_id: str):
         if _user_id in viewer_set:
             return "Viewer"
 
-    def add_to_list(_user: ModelUser, _user_id: str):
-        if _user_id in admin_set:
+    def add_to_list(_user: ModelUser):
+        if _user.id in admin_set:
             admins.append(_user)
-        if _user_id in editor_set:
+        if _user.id in editor_set:
             editors.append(_user)
-        if _user_id in viewer_set:
+        if _user.id in viewer_set:
             viewers.append(_user)
 
     for user_id in user_ids:
@@ -116,12 +116,12 @@ async def get_users_for_model(model_id: str):
         user_role = get_user_role(user_id)
         add_to_list(
             ModelUser(
+                _id=str(user.id),
                 username=user.username,
                 first_name=user.first_name,
                 last_name=user.last_name,
                 user_role=user_role,
-            ),
-            user_id,
+            )
         )
 
     admins.sort(key=lambda x: x.last_name)
