@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from jose import jwt
 from jose.exceptions import ExpiredSignatureError
 
+from core.dao.invite_codes import get_invite_code, set_used_by
 from core.dao.token_blacklist import add_to_blacklist
 from core.dao.users import (
     create_user,
@@ -125,8 +126,6 @@ async def register_user(form_data: RegisterUser):
     new_workspace_name. You cannot specify both.
     """
 
-    # todo process invite code rather than directly the workspace_id
-
     # make sure username is not already taken
     if await username_exists(form_data.username):
         raise HTTPException(
@@ -134,10 +133,12 @@ async def register_user(form_data: RegisterUser):
             detail="Username already exists",
         )
 
-    user_current_user = form_data.workspace_id is not None
+    use_current_wsp = form_data.invite_code is not None
     create_new_wsp = form_data.new_workspace_name is not None
 
-    if user_current_user == create_new_wsp:
+    workspace_id = None
+
+    if use_current_wsp == create_new_wsp:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Exactly one of workspace_id and new_workspace_name must be specified.",
@@ -149,11 +150,25 @@ async def register_user(form_data: RegisterUser):
             detail="Workspace name already exists",
         )
 
-    elif not create_new_wsp and not await workspace_exists(form_data.workspace_id):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Workspace does not exist",
-        )
+    if use_current_wsp:
+        invite_code = await get_invite_code(form_data.invite_code)
+        if invite_code is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invite code does not exist",
+            )
+        if invite_code.expired():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invite code has expired",
+            )
+        if not await workspace_exists(invite_code.workspace_id):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Workspace does not exist",
+            )
+
+        workspace_id = invite_code.workspace_id
 
     # convert into UserInDb object
     hashed_password = get_password_hash(form_data.password)
@@ -174,8 +189,9 @@ async def register_user(form_data: RegisterUser):
         await create_workspace(workspace)
 
     # add to workspace
-    else:
-        await add_user_to_workspace(res.inserted_id, form_data.workspace_id)
+    elif use_current_wsp:
+        await add_user_to_workspace(res.inserted_id, workspace_id)
+        await set_used_by(form_data.invite_code, new_user.id)
 
     # return user object
     return await get_user_by_username(new_user.username)

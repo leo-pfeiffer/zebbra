@@ -90,3 +90,12 @@ def workspaces() -> dict:
 @pytest.fixture
 def not_an_id():
     return "12ab12345678faba1234567d"
+
+
+@pytest.fixture
+def invite_codes() -> dict:
+    return {
+        "valid": "never_expires",
+        "expired": "already_expired",
+        "used": "already_used",
+    }

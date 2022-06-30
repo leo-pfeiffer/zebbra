@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
 from fastapi.param_functions import Form
@@ -21,6 +23,16 @@ class OtpUrl(BaseModel):
 class OtpValidation(BaseModel):
     otp: str
     valid: bool
+
+
+class InviteCode(BaseModel):
+    invite_code: str
+    workspace_id: str
+    expires: datetime
+    used_by: str | None
+
+    def expired(self):
+        return datetime.utcnow() > self.expires
 
 
 class OAuth2PasswordRequestFormWithOTP(OAuth2PasswordRequestForm):
