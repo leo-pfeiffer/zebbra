@@ -52,8 +52,6 @@ async def test_register(workspaces):
         }
     )
 
-    users_initial = await count_documents("users")
-
     response = client.post("/register", json=jsonable_encoder(user))
 
     assert response.status_code == status.HTTP_200_OK

@@ -4,7 +4,7 @@ from starlette import status
 
 from core.dao.models import get_models_for_workspace
 from core.dao.users import get_user
-from core.dao.workspaces import get_workspace, get_workspace_by_name
+from core.dao.workspaces import get_workspace_by_name
 from main import app
 
 

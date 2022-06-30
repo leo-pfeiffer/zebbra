@@ -1,6 +1,6 @@
 import pytest
 
-from core.dao.models import get_models_for_user, get_models_for_workspace
+from core.dao.models import get_models_for_workspace
 from core.exceptions import UniqueConstraintFailedException, BusinessLogicException
 from core.dao.users import (
     get_user,
@@ -14,7 +14,7 @@ from core.dao.users import (
     remove_user_from_workspace,
     get_user_by_username,
 )
-from core.dao.workspaces import get_workspaces_of_user, create_workspace, get_workspace
+from core.dao.workspaces import get_workspaces_of_user, get_workspace
 from core.schemas.users import UserInDB
 
 
@@ -179,19 +179,19 @@ async def test_remove_user_from_workspace(users, workspaces):
 
 
 @pytest.mark.anyio
-async def test_remove_user_from_workspace_cannot_remove_admin(users):
+async def test_remove_user_from_workspace_cannot_remove_admin(users, workspaces):
     u = users["johndoe@example.com"]
-    w = "ACME Inc."
+    w = workspaces["ACME Inc."]
     with pytest.raises(BusinessLogicException):
         await remove_user_from_workspace(u, w)
 
 
 @pytest.mark.anyio
-async def test_remove_user_from_workspace_remove_from_models(users):
+async def test_remove_user_from_workspace_remove_from_models(users, workspaces):
     u = users["charlie@example.com"]
-    w = "ACME Inc."
+    w = workspaces["ACME Inc."]
     await remove_user_from_workspace(u, w)
-    models = await get_models_for_workspace("ACME Inc.")
+    models = await get_models_for_workspace(w)
     for m in models:
         assert u not in m["meta"]["admins"]
         assert u not in m["meta"]["editors"]

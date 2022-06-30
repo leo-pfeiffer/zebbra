@@ -6,7 +6,6 @@ from starlette import status
 from core.dao.models import get_models_for_user
 from core.dao.users import get_user, set_user_otp_secret, get_user_by_username
 from core.dao.workspaces import change_workspace_admin, get_workspaces_of_user
-from dependencies import get_password_hash
 from main import app
 from tests.utils import assert_unauthorized_login_checked
 
