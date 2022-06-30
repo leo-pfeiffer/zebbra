@@ -20,7 +20,7 @@ definePageMeta({
                   NAME</td>
                 <td class="py-3 px-3 text-xs uppercase font-medium text-zinc-500 bg-zinc-100 border-zinc-300">EMAIL</td>
                 <td class="py-3 px-3 text-xs uppercase font-medium text-zinc-500 bg-zinc-100">ROLE</td>
-                <td class="py-3 px-3 text-xs uppercase font-medium text-zinc-500 bg-zinc-100 rounded-tr"></td>
+                <td v-show="userIsWorkspaceAdmin" class="py-3 px-3 text-xs uppercase font-medium text-zinc-500 bg-zinc-100 rounded-tr"></td>
               </tr>
               <tr v-for="member in members" class="border-b border-zinc-300 last:border-0">
                 <td class="py-3 px-3 text-zinc-900"><span
@@ -28,7 +28,7 @@ definePageMeta({
                   {{ member.last_name }}</td>
                 <td class="py-3 px-3 text-zinc-500">{{ member.username }}</td>
                 <td class="py-3 px-3 text-zinc-500">{{ member.user_role }}</td>
-                <td class="py-3 px-3 text-zinc-500">
+                <td v-show="userIsWorkspaceAdmin" class="py-3 px-3 text-zinc-500">
                   <MemberListDropdown :username="member.username"></MemberListDropdown>
                 </td>
               </tr>
@@ -70,24 +70,14 @@ export default {
         },
       ],
       showError: false,
+      userIsWorkspaceAdmin: false
     };
   },
   async beforeMount() {
+    //check if user is admin
+    this.userIsWorkspaceAdmin = await useIsWorkspaceAdmin();
 
-    //get user data and pre fill the form
-    /* const data = await useFetchAuth(
-      'http://localhost:8000/workspace/users', {
-        method: 'GET',
-      params: {
-        name: "",
-      }
-    },
-    ).then((data) => {
-      console.log(data);
-    }).catch((error) => {
-      console.log(error);
-      this.showError = true;
-    }); */
+    
   },
   methods: {}
 }
