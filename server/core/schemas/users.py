@@ -1,5 +1,5 @@
 from bson import ObjectId
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator, ValidationError
 
 from core.objects import PyObjectId
 
@@ -9,7 +9,6 @@ class User(BaseModel):
     username: str
     first_name: str | None = None
     last_name: str | None = None
-    workspaces: list[str] | None = None
     disabled: bool | None = None
 
     class Config:
@@ -18,32 +17,39 @@ class User(BaseModel):
         json_encoders = {ObjectId: str}
         schema_extra = {
             "example": {
-                "username": "jdoe@example.com",
+                "_id": "62bb11835529faba0704639d",
+                "username": "johndoe@example.com",
                 "first_name": "John",
                 "last_name": "Doe",
-                "workspaces": ["ACME Inc.", "Boring Co."],
                 "disabled": False,
             }
         }
+
+
+class UserInfo(BaseModel):
+    class WorkspaceInfo(BaseModel):
+        id: str = Field(alias="_id")
+        name: str
+
+    class ModelInfo(BaseModel):
+        id: str = Field(alias="_id")
+        name: str
+
+    id: str = Field(alias="_id")
+    username: str
+    first_name: str | None = None
+    last_name: str | None = None
+    workspaces: list[WorkspaceInfo]
+    models: list[ModelInfo]
 
 
 class RegisterUser(BaseModel):
     username: str
     first_name: str
     last_name: str
-    workspaces: str
+    workspace_id: str | None  # todo should be invite code
+    new_workspace_name: str | None
     password: str
-
-    class Config(User.Config):
-        schema_extra = {
-            "example": {
-                "username": "jdoe@example.com",
-                "first_name": "John",
-                "last_name": "Doe",
-                "workspaces": "ACME Inc.",
-                "password": "secret",
-            }
-        }
 
 
 class UserInDB(User):

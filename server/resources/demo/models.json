@@ -4,15 +4,15 @@
     "meta": {
       "name": "model1",
       "admins": [
-        "johndoe@example.com"
+        "62bb11835529faba0704639d"
       ],
       "editors": [
-        "darwin@example.com"
+        "62bb11835529faba0704639c"
       ],
       "viewers": [
-        "charlie@example.com"
+        "62bb11835529faba0704639a"
       ],
-      "workspace": "ACME Inc."
+      "workspace": "62bc5706a40e85213c27ce29"
     },
     "sheets": [
       {
@@ -67,15 +67,15 @@
     "meta": {
       "name": "model2",
       "admins": [
-        "alice@example.com"
+        "62bb11835529faba07046398"
       ],
       "editors": [
-        "alice@example.com"
+        "62bb11835529faba07046398"
       ],
       "viewers": [
-        "bob@example.com"
+        "62bb11835529faba0704639b"
       ],
-      "workspace": "Boring Co."
+      "workspace": "62bc5706a40e85213c27ce28"
     },
     "sheets": [
       {

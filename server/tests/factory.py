@@ -18,6 +18,19 @@ users = _read_json(USERS_PATH)
 models = _read_json(MODELS_PATH)
 
 
+async def create():
+    await create_user_data()
+    await create_workspace_data()
+    await create_model_data()
+
+
+async def teardown():
+    await teardown_users()
+    await teardown_workspaces()
+    await teardown_token_blacklist()
+    await teardown_models()
+
+
 def create_user_data():
     return db.users.insert_many(users)
 

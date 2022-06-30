@@ -9,11 +9,10 @@ from core.schemas.sheets import Sheet
 
 class ModelMeta(BaseModel):
     name: str
-    admins: list[str]  # list of usernames
-    editors: list[str]  # list of usernames
-    viewers: list[str]  # list of usernames
-    workspace: str  # workspace name
-    # todo what else?
+    admins: list[PyObjectId]  # list of user_ids
+    editors: list[PyObjectId]  # list of user_ids
+    viewers: list[PyObjectId]  # list of user_ids
+    workspace: PyObjectId  # workspace id
 
 
 class Model(BaseModel):
@@ -38,6 +37,7 @@ class UpdateModel(BaseModel):
 
 
 class ModelUser(BaseModel):
+    id: str = Field(alias="_id")
     username: str
     first_name: str | None
     last_name: str | None

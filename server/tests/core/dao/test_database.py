@@ -1,4 +1,3 @@
-import pytest
 from core.settings import get_settings
 
 
