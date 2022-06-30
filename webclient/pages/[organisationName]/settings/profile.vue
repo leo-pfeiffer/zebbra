@@ -128,17 +128,13 @@ export default {
   },
   async beforeMount() {
     //get user data and pre fill the form
-    const data = await useFetchAuth(
-        'http://localhost:8000/user',{ method: 'GET'}
-        ).then((data) => {
-          console.log(data);
-          this.user.firstName = data.first_name;
-          this.user.lastName = data.last_name;
-          this.user.email = data.username;
-          
-        }).catch((error) => {
-          console.log(error);
-          });
+
+    const userState = useUserState();
+
+    this.user.firstName = userState.value.first_name;
+    this.user.lastName = userState.value.last_name;
+    this.user.email = userState.value.username;
+
   },
   methods: {
     async updateUserInformation() {

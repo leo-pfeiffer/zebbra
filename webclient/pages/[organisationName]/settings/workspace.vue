@@ -2,9 +2,6 @@
 definePageMeta({
   middleware: ["auth", "route-check"]
 })
-
-
-
 </script>
 
 <template>
@@ -61,15 +58,11 @@ export default {
     this.userIsAdmin = await useIsAdmin();
     console.log("is admin:" + this.userIsAdmin);
 
-    //get workspace name
-    const data = await useFetchAuth(
-      'http://localhost:8000/workspace', { method: 'GET' }
-    ).then((data) => {
-      this.workspace.oldName = data[0].name;
-      this.workspace.currentName = data[0].name;
-    }).catch((error) => {
-      console.log(error);
-    });
+    //get workspace name from userState
+    const userState = useUserState();
+    this.workspace.oldName = userState.value.workspaces[0];
+    this.workspace.currentName = userState.value.workspaces[0];
+
   },
   methods: {
     async updateWorkspaceName() {
