@@ -29,7 +29,6 @@ class InviteCode(BaseModel):
     invite_code: str
     workspace_id: str
     expires: datetime
-    used_by: str | None
 
     def expired(self):
         return datetime.utcnow() > self.expires

@@ -121,6 +121,49 @@ async def test_register_with_invite(invite_codes, workspaces):
 
 
 @pytest.mark.anyio
+async def test_reuse_invite_code(invite_codes, workspaces):
+    new_user_form1 = RegisterUser(
+        **{
+            "username": "test_user@example.com",
+            "first_name": "Henry",
+            "last_name": "Ford",
+            "invite_code": invite_codes["valid"],
+            "new_workspace_name": None,
+            "password": "secret",
+        }
+    )
+
+    new_user_form2 = RegisterUser(
+        **{
+            "username": "test_user2@example.com",
+            "first_name": "Cornelius",
+            "last_name": "Vanderbilt",
+            "invite_code": invite_codes["valid"],
+            "new_workspace_name": None,
+            "password": "secret",
+        }
+    )
+
+    client = TestClient(app)
+    client.post("/register", json=jsonable_encoder(new_user_form1))
+    res = client.post("/register", json=jsonable_encoder(new_user_form2))
+
+    assert res.status_code == status.HTTP_200_OK
+
+    assert res.json()["username"] == "test_user2@example.com"
+    user_id = res.json()["_id"]
+
+    user = await get_user(user_id)
+
+    assert user.username == new_user_form2.username
+    assert user.first_name == new_user_form2.first_name
+    assert user.last_name == new_user_form2.last_name
+
+    workspace = await get_workspace(workspaces["ACME Inc."])
+    assert user_id in [str(x) for x in workspace.users]
+
+
+@pytest.mark.anyio
 async def test_register_with_new_wsp(workspaces):
     new_user_form = RegisterUser(
         username="test_user@example.com",
@@ -231,28 +274,6 @@ async def test_cannot_register_existing_username(invite_codes):
     response = client.post("/register", json=jsonable_encoder(user))
 
     assert response.status_code == status.HTTP_409_CONFLICT
-    assert await count_documents("users") == users_initial
-
-
-@pytest.mark.anyio
-async def test_cannot_register_with_used_invite(invite_codes):
-    user = RegisterUser(
-        **{
-            "username": "marcus@example.com",
-            "first_name": "Marcus",
-            "last_name": "Aurelius",
-            "invite_code": invite_codes["used"],
-            "new_workspace_name": None,
-            "password": "secret",
-        }
-    )
-
-    users_initial = await count_documents("users")
-
-    client = TestClient(app)
-    response = client.post("/register", json=jsonable_encoder(user))
-
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert await count_documents("users") == users_initial
 
 

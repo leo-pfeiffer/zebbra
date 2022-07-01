@@ -94,8 +94,4 @@ def not_an_id():
 
 @pytest.fixture
 def invite_codes() -> dict:
-    return {
-        "valid": "never_expires",
-        "expired": "already_expired",
-        "used": "already_used",
-    }
+    return {"valid": "never_expires", "expired": "already_expired"}
