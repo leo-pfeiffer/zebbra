@@ -1,5 +1,7 @@
 # Server
 
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
 ## Setup
 
 ### Python virtual environment
@@ -11,10 +13,11 @@
 python -m venv venv
 source venv/bin/activate
 pip install --upgrade pip
-pip install -r requirements
+pip install -r requirements.txt
 ```
 
 ### Database
+
 ```shell
 # install mongo db on MacOS with homebrew
 brew install mongodb-community@5.0.7
