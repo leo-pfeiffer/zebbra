@@ -3,11 +3,11 @@
     <button @click="toggleDots"><i class="bi bi-three-dots"></i></button>
     <div v-show="clicked"
         class="absolute z-10 -translate-x-full bg-white border border-zinc-300 shadow rounded text-xs w-max">
-        <div class="text-zinc-500 py-1 border-b border-zinc-300">
-            <button @click="toggleChangeUserTypeModal" class="hover:bg-zinc-200 px-3 py-2 w-full text-left"><i class="bi bi-layers-fill mr-1.5 text-zinc-400"></i>Change role</button>
+        <div class="text-zinc-700 py-1 border-b border-zinc-300">
+            <button @click="toggleChangeUserTypeModal" class="hover:bg-zinc-100 px-3 py-2 w-full text-left"><i class="bi bi-layers-fill mr-1.5 text-zinc-400"></i>Change role</button>
         </div>
-        <div class="text-zinc-500 py-1">
-            <button @click="toggleDeleteUserModal" class="hover:bg-zinc-200 px-3 py-2 w-full text-left"><i class="bi bi-person-dash-fill mr-1.5 text-zinc-400"></i>Remove user</button>
+        <div class="text-zinc-700 py-1">
+            <button @click="toggleDeleteUserModal" class="hover:bg-zinc-100 px-3 py-2 w-full text-left"><i class="bi bi-person-dash-fill mr-1.5 text-zinc-400"></i>Remove user</button>
         </div>
     </div>
     <div v-show="clicked" @click="toggleDots" class="fixed top-0 left-0 w-[100vw] h-[100vh] z-0"></div>
