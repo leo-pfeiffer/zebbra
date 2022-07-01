@@ -10,15 +10,9 @@ async def add_invite_code(invite_code: InviteCode):
 
 
 async def get_invite_code(invite_code: str):
-    obj = await db.invite_codes.find_one({"invite_code": invite_code, "used_by": None})
+    obj = await db.invite_codes.find_one({"invite_code": invite_code})
     if obj is not None:
         return InviteCode(**obj)
-
-
-async def set_used_by(invite_code: str, user_id: PyObjectId):
-    return await db.invite_codes.update_one(
-        {"invite_code": invite_code}, {"$set": {"used_by": str(user_id)}}
-    )
 
 
 async def invite_code_exists(invite_code: str):

@@ -3,7 +3,6 @@ import pytest
 from core.dao.invite_codes import (
     add_invite_code,
     get_invite_code,
-    set_used_by,
     invite_code_exists,
 )
 from core.schemas.utils import InviteCode
@@ -19,7 +18,6 @@ async def test_add_invite_code(workspaces):
             "invite_code": "somecode",
             "workspace_id": workspaces["ACME Inc."],
             "expires": datetime.utcnow() + timedelta(minutes=100),
-            "used_by": None,
         }
     )
 
@@ -35,7 +33,6 @@ async def test_get_invite_code(workspaces):
             "invite_code": "somecode",
             "workspace_id": workspaces["ACME Inc."],
             "expires": datetime.utcnow() + timedelta(minutes=100),
-            "used_by": None,
         }
     )
 
@@ -51,26 +48,9 @@ async def test_get_invite_code_no_used_ones(workspaces, users):
             "invite_code": "somecode",
             "workspace_id": workspaces["ACME Inc."],
             "expires": datetime.utcnow() + timedelta(minutes=100),
-            "used_by": users["alice@example.com"],
         }
     )
     await add_invite_code(token)
-    assert await get_invite_code(token.invite_code) is None
-
-
-@pytest.mark.anyio
-async def test_set_used_by(workspaces, users):
-    token = InviteCode(
-        **{
-            "invite_code": "somecode",
-            "workspace_id": workspaces["ACME Inc."],
-            "expires": datetime.utcnow() + timedelta(minutes=100),
-            "used_by": None,
-        }
-    )
-
-    await add_invite_code(token)
-    await set_used_by(token.invite_code, users["alice@example.com"])
     assert await get_invite_code(token.invite_code) is None
 
 
@@ -81,7 +61,6 @@ async def test_invite_code_exists(workspaces):
             "invite_code": "somecode",
             "workspace_id": workspaces["ACME Inc."],
             "expires": datetime.utcnow() + timedelta(minutes=100),
-            "used_by": None,
         }
     )
 

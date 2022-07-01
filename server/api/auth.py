@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from jose import jwt
 from jose.exceptions import ExpiredSignatureError
 
-from core.dao.invite_codes import get_invite_code, set_used_by
+from core.dao.invite_codes import get_invite_code
 from core.dao.token_blacklist import add_to_blacklist
 from core.dao.users import (
     create_user,
@@ -191,7 +191,6 @@ async def register_user(form_data: RegisterUser):
     # add to workspace
     elif use_current_wsp:
         await add_user_to_workspace(res.inserted_id, workspace_id)
-        await set_used_by(form_data.invite_code, new_user.id)
 
     # return user object
     return await get_user_by_username(new_user.username)

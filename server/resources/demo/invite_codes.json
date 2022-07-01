@@ -3,21 +3,12 @@
     "_id": "62bb11835529faba0704321d",
     "invite_code": "never_expires",
     "workspace_id": "62bc5706a40e85213c27ce29",
-    "expires": "4760-05-26 18:54:26.050353",
-    "used_by": null
+    "expires": "4760-05-26 18:54:26.050353"
   },
   {
     "_id": "62bb11835529faba0704313d",
     "invite_code": "already_expired",
     "workspace_id": "62bc5706a40e85213c27ce29",
-    "expires": "2005-05-26 18:54:26.050353",
-    "used_by": null
-  },
-  {
-    "_id": "62bb11835529faba0222313d",
-    "invite_code": "already_used",
-    "workspace_id": "62bc5706a40e85213c27ce29",
-    "expires": "4760-05-26 18:54:26.050353",
-    "used_by": "62bb11835529faba0704639b"
+    "expires": "2005-05-26 18:54:26.050353"
   }
 ]
