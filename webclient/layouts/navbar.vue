@@ -8,13 +8,7 @@ const user = useUserState();
 <script lang="ts">
 export default {
     data() {
-        return {
-            models: [
-                { name: 'Model S', id: "1" },
-                { name: 'Model 3', id: "2" },
-                { name: 'Model X', id: "3" }
-            ]
-        }
+        return {}
     }
 }
 </script>
@@ -54,10 +48,8 @@ export default {
             <div class="pb-3">
                 <div>
                     <span class="text-xs text-zinc-500">Your Models</span>
-                    <div v-if="true" class="overflow-auto min-h-[55vh] max-h-[55vh]">
-                        <div v-for="model in models">
-                            <ModelDropdown :model=model></ModelDropdown>
-                        </div>
+                    <div v-if="true" class="overflow-auto min-h-[55vh] max-h-[55vh] px-2">
+                        <ModelDropdown v-for="model in user.models" :model=model></ModelDropdown>
                     </div>
                     <div v-else>
                         <p class="text-xs mt-2 text-zinc-500">Start by creating your first model.</p>

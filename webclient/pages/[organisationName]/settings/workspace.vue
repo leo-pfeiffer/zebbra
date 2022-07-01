@@ -22,9 +22,9 @@ definePageMeta({
                   v-model="workspace.name">
               </div>
             </div>
-            <button v-show="userIsWorkspaceAdmin" type="submit" class="bg-sky-600  drop-shadow-sm
+            <button v-show="userIsWorkspaceAdmin" type="submit" class="bg-sky-600 drop-shadow-sm
                         shadow-zinc-50 text-sm font-medium px-2.5 py-1 
-                        border border-sky-600 rounded text-neutral-100">
+                        border border-sky-500 rounded text-neutral-100">
               Update
             </button>
           </form>

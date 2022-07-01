@@ -39,7 +39,7 @@ definePageMeta({
             </div>
             <button type="submit" class="bg-sky-600  drop-shadow-sm
                         shadow-zinc-50 text-sm font-medium px-2.5 py-1 
-                        border border-sky-600 rounded text-neutral-100">
+                        border border-sky-500 rounded text-neutral-100">
               Update
             </button>
           </form>
@@ -63,7 +63,7 @@ definePageMeta({
             </div>
             <button type="submit" class="bg-sky-600  drop-shadow-sm
                         shadow-zinc-50 text-sm font-medium px-2.5 py-1 
-                        border border-sky-600 rounded text-neutral-100">
+                        border border-sky-500 rounded text-neutral-100">
               Change
             </button>
           </form>
@@ -80,26 +80,30 @@ definePageMeta({
             able to undo this. So be very careful here.</p>
           <button @click="toggleDeleteModal" class="bg-red-600  drop-shadow-sm
                         shadow-zinc-50 text-sm font-medium px-2.5 py-1 
-                        border border-red-600 rounded text-neutral-100">
+                        border border-red-500 rounded text-neutral-100">
             Delete your account
           </button>
           <div v-show="showErrorDeleteAccount" class="w-full flex justify-center">
             <ErrorMessage :error-message="errorMessageDeleteAccount"></ErrorMessage>
           </div>
         </div>
-        <div v-show="deleteModalOpen" class="absolute left-0 top-1/3 w-full h-full flex justify-center align-middle">
-          <div class="p-3 border h-max shadow bg-white border-zinc-300 rounded">
-            <p class="text-zinc-900 text-sm mb-3">Are you sure you want to delete your account?</p>
+        <div v-show="deleteModalOpen" class="absolute left-0 top-1/3 w-full flex justify-center align-middle">
+          <div class="p-6 border h-max shadow-lg bg-white border-zinc-300 rounded z-50">
+            <div>
+                <h3 class="text-zinc-900 font-medium text-sm mb-2">Delete your account?</h3>
+            </div>
+            <p class="text-zinc-500 text-xs mb-3">Deleting your account will be permanent and can't be undone.</p>
             <div class="float-right">
               <button
                 class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-xs px-2 py-1 border border-zinc-300 rounded text-zinc-700"
                 @click="toggleDeleteModal">Cancel</button>
               <button class="ml-2 bg-red-600  drop-shadow-sm
                           shadow-zinc-50 text-xs font-medium px-2 py-1 
-                          border border-red-600 rounded text-neutral-100" @click="deleteAccount">Delete</button>
+                          border border-red-500 rounded text-neutral-100" @click="deleteAccount">Delete</button>
             </div>
           </div>
         </div>
+        <div v-show="deleteModalOpen" @click="toggleDeleteModal" class="fixed top-0 left-0 w-[100vw] h-[100vh] z-0 bg-zinc-100/50"></div>
       </div>
     </div>
   </NuxtLayout>
@@ -128,12 +132,12 @@ export default {
   },
   async beforeMount() {
     //get user data and pre fill the form
-
     const userState = useUserState();
 
     this.user.firstName = userState.value.first_name;
     this.user.lastName = userState.value.last_name;
     this.user.email = userState.value.username;
+
 
   },
   methods: {
