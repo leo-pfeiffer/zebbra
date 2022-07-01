@@ -10,12 +10,12 @@
             <button @click="toggleDeleteUserModal" class="hover:bg-zinc-200 px-3 py-2 w-full text-left"><i class="bi bi-person-dash-fill mr-1.5 text-zinc-400"></i>Remove user</button>
         </div>
     </div>
-    <div v-show="clicked" @click="toggleDots" class="absolute top-0 left-0 w-[100vw] h-[100vh] z-0"></div>
+    <div v-show="clicked" @click="toggleDots" class="fixed top-0 left-0 w-[100vw] h-[100vh] z-0"></div>
 
     <div v-show="deleteUserModalOpen" class="absolute -translate-x-full w-max h-max flex justify-center align-middle text-xs">
-        <div class="p-4 border h-max shadow-lg bg-white border-zinc-300 rounded">
+        <div class="p-6 border h-max shadow-lg bg-white border-zinc-300 rounded">
             <div>
-                <h3 class="text-zinc-900 font-medium text-sm mb-1">Do you want to remove this user?</h3>
+                <h3 class="text-zinc-900 font-medium text-sm mb-2">Do you want to remove this user?</h3>
             </div>
             <p class="text-zinc-500 mb-4">Removing <span class="font-semibold">{{ username }}</span> can't be undone.</p>
             <div class="float-right">
@@ -30,9 +30,9 @@
     </div>
 
     <div v-show="changeUserTypeModalOpen" class="absolute -translate-x-full w-max h-max flex justify-center align-middle text-xs">
-        <div class="p-4 border h-max shadow-lg bg-white border-zinc-300 rounded">
+        <div class="p-6 border h-max shadow-lg bg-white border-zinc-300 rounded">
             <div>
-                <h3 class="text-zinc-900 font-medium text-sm mb-1">Change User Role</h3>
+                <h3 class="text-zinc-900 font-medium text-sm mb-2">Change User Role</h3>
             </div>
             <form @submit.prevent="updateUserType">
                 <div class="flex align-middle mb-4">

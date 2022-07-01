@@ -87,8 +87,8 @@ definePageMeta({
             <ErrorMessage :error-message="errorMessageDeleteAccount"></ErrorMessage>
           </div>
         </div>
-        <div v-show="deleteModalOpen" class="absolute left-0 top-1/3 w-full h-full flex justify-center align-middle">
-          <div class="p-4 border h-max shadow-lg bg-white border-zinc-300 rounded">
+        <div v-show="deleteModalOpen" class="absolute left-0 top-1/3 w-full flex justify-center align-middle">
+          <div class="p-6 border h-max shadow-lg bg-white border-zinc-300 rounded z-50">
             <div>
                 <h3 class="text-zinc-900 font-medium text-sm mb-2">Delete your account?</h3>
             </div>
@@ -103,6 +103,7 @@ definePageMeta({
             </div>
           </div>
         </div>
+        <div v-show="deleteModalOpen" @click="toggleDeleteModal" class="fixed top-0 left-0 w-[100vw] h-[100vh] z-0 bg-zinc-100/50"></div>
       </div>
     </div>
   </NuxtLayout>
@@ -131,12 +132,12 @@ export default {
   },
   async beforeMount() {
     //get user data and pre fill the form
-
     const userState = useUserState();
 
     this.user.firstName = userState.value.first_name;
     this.user.lastName = userState.value.last_name;
     this.user.email = userState.value.username;
+
 
   },
   methods: {
