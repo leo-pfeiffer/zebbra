@@ -42,19 +42,6 @@ async def test_get_invite_code(workspaces):
 
 
 @pytest.mark.anyio
-async def test_get_invite_code_no_used_ones(workspaces, users):
-    token = InviteCode(
-        **{
-            "invite_code": "somecode",
-            "workspace_id": workspaces["ACME Inc."],
-            "expires": datetime.utcnow() + timedelta(minutes=100),
-        }
-    )
-    await add_invite_code(token)
-    assert await get_invite_code(token.invite_code) is None
-
-
-@pytest.mark.anyio
 async def test_invite_code_exists(workspaces):
     token = InviteCode(
         **{
