@@ -39,7 +39,7 @@ definePageMeta({
             </div>
             <button type="submit" class="bg-sky-600  drop-shadow-sm
                         shadow-zinc-50 text-sm font-medium px-2.5 py-1 
-                        border border-sky-600 rounded text-neutral-100">
+                        border border-sky-500 rounded text-neutral-100">
               Update
             </button>
           </form>
@@ -63,7 +63,7 @@ definePageMeta({
             </div>
             <button type="submit" class="bg-sky-600  drop-shadow-sm
                         shadow-zinc-50 text-sm font-medium px-2.5 py-1 
-                        border border-sky-600 rounded text-neutral-100">
+                        border border-sky-500 rounded text-neutral-100">
               Change
             </button>
           </form>
@@ -80,7 +80,7 @@ definePageMeta({
             able to undo this. So be very careful here.</p>
           <button @click="toggleDeleteModal" class="bg-red-600  drop-shadow-sm
                         shadow-zinc-50 text-sm font-medium px-2.5 py-1 
-                        border border-red-600 rounded text-neutral-100">
+                        border border-red-500 rounded text-neutral-100">
             Delete your account
           </button>
           <div v-show="showErrorDeleteAccount" class="w-full flex justify-center">
@@ -99,7 +99,7 @@ definePageMeta({
                 @click="toggleDeleteModal">Cancel</button>
               <button class="ml-2 bg-red-600  drop-shadow-sm
                           shadow-zinc-50 text-xs font-medium px-2 py-1 
-                          border border-red-600 rounded text-neutral-100" @click="deleteAccount">Delete</button>
+                          border border-red-500 rounded text-neutral-100" @click="deleteAccount">Delete</button>
             </div>
           </div>
         </div>
