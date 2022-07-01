@@ -26,7 +26,7 @@
             <button type="submit"
               class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-sm px-2.5 py-1 border border-zinc-300 rounded text-zinc-700">Login</button>
             <small class="ml-2 text-zinc-400">
-              <NuxtLink to="/register" class="text-green-500 hover:text-green-700">Login</NuxtLink>
+              <NuxtLink to="/register" class="text-green-500 hover:text-green-700">Register</NuxtLink>
               or
               <NuxtLink to="/join" class="text-green-500 hover:text-green-700">join a workspace</NuxtLink>.</small>
           </div>
