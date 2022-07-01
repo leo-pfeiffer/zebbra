@@ -88,8 +88,11 @@ definePageMeta({
           </div>
         </div>
         <div v-show="deleteModalOpen" class="absolute left-0 top-1/3 w-full h-full flex justify-center align-middle">
-          <div class="p-3 border h-max shadow bg-white border-zinc-300 rounded">
-            <p class="text-zinc-900 text-sm mb-3">Are you sure you want to delete your account?</p>
+          <div class="p-4 border h-max shadow-lg bg-white border-zinc-300 rounded">
+            <div>
+                <h3 class="text-zinc-900 font-medium text-sm mb-2">Delete your account?</h3>
+            </div>
+            <p class="text-zinc-500 text-xs mb-3">Deleting your account will be permanent and can't be undone.</p>
             <div class="float-right">
               <button
                 class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-xs px-2 py-1 border border-zinc-300 rounded text-zinc-700"
