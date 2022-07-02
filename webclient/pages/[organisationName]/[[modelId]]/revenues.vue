@@ -1,14 +1,17 @@
 <script setup>
+
 definePageMeta({
   middleware: ["auth", "route-check"]
 })
+
+const currentDate = new Date();
+const dates = useState('dates', () => useDateArray(currentDate));
+
 </script>
 
 <template>
     <NuxtLayout name="navbar">
         <div>
-            <h1>Model ID: {{ $route.params.modelId }}</h1>
-            <p>Revenues</p>
             <div class="mt-3 ml-1 py-3 pl-2 mr-0 overflow-x-hidden">
                 <div class="flex">
                     <div class="">
@@ -20,7 +23,7 @@ definePageMeta({
                     </div>
                     <div class="overflow-x-auto">
                         <div class="flex mb-4">
-                            <div class="text-xs py-2 px-2 border-y border-r border-zinc-300 min-w-[75px] max-w-[75px] text-center uppercase bg-zinc-100 text-zinc-700" v-for="index in 24" :key="index">{{index}}</div>
+                            <div class="text-xs py-2 px-2 border-y border-r border-zinc-300 min-w-[75px] max-w-[75px] text-center uppercase bg-zinc-100 text-zinc-700" v-for="date in dates">{{date}}</div>
                         </div>
                         <GridColumn v-for="index in assumptions"></GridColumn>
                     </div>
@@ -40,19 +43,19 @@ export default {
                     variableType: "Number",
                     timeSeries: false,
                     formula: null,
-                    initialValue: 1000,
+                    initialValue: "1000",
                     consequValues: null  },
                 {   name: 'Churn Rate',
                     variableType: "Percentage",
                     timeSeries: false,
                     formula: null,
-                    initialValue: 0.05,
+                    initialValue: "0.05",
                     consequValues: null  },
                 {   name: 'Churn Rate',
                     variableType: "Percentage",
                     timeSeries: false,
                     formula: null,
-                    initialValue: 0.05,
+                    initialValue: "0.05",
                     consequValues: null  },
                 ]
         }
