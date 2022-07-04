@@ -19,6 +19,6 @@ class IntegrationAccessToken(BaseModel):
 
 
 class IntegrationAccess(BaseModel):
-    user_id: PyObjectId
+    workspace_id: PyObjectId
     integration: IntegrationProvider
     token: IntegrationAccessToken
