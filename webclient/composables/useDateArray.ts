@@ -16,7 +16,6 @@ export const useDateArray = (dateInput: Date) => {
 
         const month:string = monthNames[dateArray[i].getMonth()];
         const year:string = dateArray[i].getFullYear().toString()[2] + dateArray[i].getFullYear().toString()[3];
-        console.log(year);
         const arrayInput:string = month + " " + year;
         dateNamesArray.push(arrayInput);
 
