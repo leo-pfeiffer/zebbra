@@ -9,7 +9,7 @@ from xero_python.api_client.oauth2 import OAuth2Token
 import json
 
 from core.schemas.users import User
-from dependencies import (
+from api.utils.dependencies import (
     get_current_active_user_url,
 )
 

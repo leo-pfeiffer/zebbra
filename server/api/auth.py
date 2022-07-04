@@ -23,14 +23,14 @@ from core.schemas.tokens import Token, BlacklistToken
 from core.schemas.users import RegisterUser, UserInDB, User
 from core.schemas.utils import Message, OAuth2PasswordRequestFormWithOTP, ExpiredMessage
 from core.schemas.workspaces import Workspace
-from dependencies import (
+from api.utils.dependencies import (
     ACCESS_TOKEN_EXPIRE_MINUTES,
     get_current_active_user_token,
     verify_password,
     get_password_hash,
     decode_token,
 )
-from dependencies import SECRET_KEY, ALGORITHM
+from api.utils.dependencies import SECRET_KEY, ALGORITHM
 
 router = APIRouter()
 
