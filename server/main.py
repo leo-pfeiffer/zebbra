@@ -1,7 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.sessions import SessionMiddleware
 
 from api import users, models, auth, workspaces, integrations
+from api.utils.dependencies import SECRET_KEY
 from core.schemas.utils import Message
 
 app = FastAPI(
@@ -15,6 +17,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# todo check if this is necessary
+app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
 
 
 @app.get("/", response_model=Message)

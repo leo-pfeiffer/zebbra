@@ -9,7 +9,7 @@ settings = get_settings()
 
 
 async def get_integrations_for_workspace(
-    workspace_id: PyObjectId,
+    workspace_id: str,
 ) -> list[IntegrationAccess]:
     """
     Get a list of all integration providers that have been set up for a workspace.
@@ -17,13 +17,13 @@ async def get_integrations_for_workspace(
     :return: list of integration access objects
     """
     integrations = await db.integration_access.find(
-        {"workspace_id": str(workspace_id)}
+        {"workspace_id": workspace_id}
     ).to_list(length=settings.MAX_MODELS)
     return [IntegrationAccess(**obj) for obj in integrations]
 
 
 async def get_integration_for_workspace(
-    workspace_id: PyObjectId, integration: IntegrationProvider
+    workspace_id: str, integration: IntegrationProvider
 ) -> IntegrationAccess | None:
     """
     Returns an integration access object for a workspace and an integration.
@@ -32,14 +32,14 @@ async def get_integration_for_workspace(
     :return: Integration access object
     """
     res = await db.integration_access.find_one(
-        {"workspace_id": str(workspace_id), "integration": integration}
+        {"workspace_id": workspace_id, "integration": integration}
     )
     if res is not None:
         return IntegrationAccess(**res)
 
 
 async def workspace_has_integration(
-    workspace_id: PyObjectId, integration: IntegrationProvider
+    workspace_id: str, integration: IntegrationProvider
 ) -> bool:
     """
     Returns true if a workspace has set up an integration with the given provider.
@@ -49,7 +49,7 @@ async def workspace_has_integration(
     """
     return (
         await db.integration_access.count_documents(
-            {"workspace_id": str(workspace_id), "integration": integration}
+            {"workspace_id": workspace_id, "integration": integration}
         )
         > 0
     )
@@ -66,12 +66,10 @@ async def add_integration_for_workspace(integration_access: IntegrationAccess):
     ):
         return db.integration_access.replace_one(
             {
-                {
-                    "workspace_id": str(integration_access.workspace_id),
-                    "integration": integration_access.integration,
-                }
+                "workspace_id": integration_access.workspace_id,
+                "integration": integration_access.integration,
             },
-            jsonable_encoder(integration_access),
+            {**integration_access.dict()},
         )
     # add new integration access
     else:

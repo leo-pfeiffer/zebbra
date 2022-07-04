@@ -8,6 +8,13 @@ from xero_python.api_client.configuration import Configuration
 from xero_python.api_client.oauth2 import OAuth2Token
 import json
 
+from api.utils.assertions import assert_workspace_access
+from core.dao.integrations import (
+    add_integration_for_workspace,
+    get_integration_for_workspace,
+)
+from core.dao.workspaces import get_workspaces_of_user
+from core.schemas.integrations import IntegrationAccess, IntegrationAccessToken
 from core.schemas.users import User
 from api.utils.dependencies import (
     get_current_active_user_url,
@@ -46,23 +53,28 @@ api_client = ApiClient(
 
 
 @api_client.oauth2_token_getter
-def obtain_xero_oauth2_token():
-    with open("token.json", "r") as f:
-        token = json.load(f)
-    return token
+async def obtain_xero_oauth2_token(workspace_id: str):
+    integration_access = await get_integration_for_workspace(workspace_id, "Xero")
+    return integration_access.token
 
 
 @api_client.oauth2_token_saver
-def store_xero_oauth2_token(token):
-    if "userinfo" in token:
-        token.pop("userinfo")
-    json_object = json.dumps(dict(token), indent=4)
-    with open("token.json", "w") as f:
-        f.write(json_object)
+async def store_xero_oauth2_token(token, workspace_id):
+
+    integration = "Xero"
+
+    integration_access = IntegrationAccess(
+        integration=integration,
+        workspace_id=workspace_id,
+        token=IntegrationAccessToken(**token),
+    )
+
+    return await add_integration_for_workspace(integration_access)
 
 
 @router.get("/api/integration/xero/login", tags=["integration"])
 async def integration_xero_login(
+    workspace_id: str,
     access_token: str,
     request: Request,
     current_user: User = Depends(get_current_active_user_url),
@@ -70,9 +82,17 @@ async def integration_xero_login(
     """
     Starting point for the OAuth integration workflow with Xero. Zebbra access token
     (as normally passed to Auth header) must be passed as query parameter
-    'access_token'.
+    'access_token' together with the workspace ID
     """
+
+    # user must be in workspace
+    await assert_workspace_access(current_user.id, workspace_id)
+
     redirect_uri = request.url_for("integration_xero_callback")
+
+    # add session info
+    request.session["workspace_id"] = workspace_id
+
     return await oauth.xero.authorize_redirect(request, redirect_uri)
 
 
@@ -85,12 +105,17 @@ async def integration_xero_callback(request: Request):
     """
     token = await oauth.xero.authorize_access_token(request)
 
-    if token:
-        store_xero_oauth2_token(token)
+    workspace_id = request.session["workspace_id"]
 
-    user = token.get("userinfo")
-    if user:
-        request.session["user"] = user
+    if token and "workspace_id" in request.session:
+        await store_xero_oauth2_token(token, workspace_id)
+    else:
+        # todo raise exception
+        ...
+
+    # user = token.get("userinfo")
+    # if user:
+    #     request.session["user"] = user
 
     # do something with the token
     return RedirectResponse(url="/api/integration/connected")
