@@ -1,11 +1,18 @@
-<script setup>
+<script setup lang="ts">
 
 definePageMeta({
   middleware: ["auth", "route-check"]
 })
 
-const currentDate = new Date();
-const dates = useState('dates', () => useDateArray(currentDate));
+const model = useDummyModelState();
+
+/* const route = useRoute()
+const user = useUserState();
+
+const model = useModelState();
+model.value = await updateModelState(route.params.modelId); */
+
+const dates = useState('dates', () => useDateArray(model.value.meta.starting_month));
 
 </script>
 
@@ -17,15 +24,15 @@ const dates = useState('dates', () => useDateArray(currentDate));
                     <div class="">
                         <div class="flex mb-4">
                             <div class="text-xs text-center font-mono italic py-2 px-2 border-b border border-zinc-300 min-w-[50px] max-w-[50px]">fx</div>
-                            <div class="text-xs border-y border-r border-zinc-300 min-w-[325px] max-w-[325px] text-right"><input type="text" class="font-mono w-full h-full px-2"></div>
+                            <div class="text-xs border-y border-r border-zinc-300 min-w-[325px] max-w-[325px] text-right"><form class="w-full h-full"><input type="text" class="font-mono w-full h-full px-2"></form></div>
                         </div>
-                        <ColumnHeader v-for="variable in assumptions" :name="variable.name" :value="variable.initialValue"></ColumnHeader>
+                        <ColumnHeader v-for="assumption, index in model.sheets[0].assumptions" :assumption="assumption" :key="index" :assumptionIndex="index"></ColumnHeader>
                     </div>
                     <div class="overflow-x-auto">
                         <div class="flex mb-4">
                             <div class="text-xs py-2 px-2 border-y border-r border-zinc-300 min-w-[75px] max-w-[75px] text-center uppercase bg-zinc-100 text-zinc-700" v-for="date in dates">{{date}}</div>
                         </div>
-                        <GridColumn v-for="index in assumptions"></GridColumn>
+                        <GridColumn v-for="assumption in model.sheets[0].assumptions" :assumption="assumption"></GridColumn>
                     </div>
                 </div>
             </div>
@@ -33,36 +40,16 @@ const dates = useState('dates', () => useDateArray(currentDate));
     </NuxtLayout>
 </template>
 
-<script>
+<script lang="ts">
 export default {
     data() {
         return {
-            assumptions: [
-                {
-                    name: 'Initial Customers',
-                    variableType: "Number",
-                    timeSeries: false,
-                    formula: null,
-                    initialValue: "1000",
-                    consequValues: null  },
-                {   name: 'Churn Rate',
-                    variableType: "Percentage",
-                    timeSeries: false,
-                    formula: null,
-                    initialValue: "0.05",
-                    consequValues: null  },
-                {   name: 'Churn Rate',
-                    variableType: "Percentage",
-                    timeSeries: false,
-                    formula: null,
-                    initialValue: "0.05",
-                    consequValues: null  },
-                ]
+            
         }
     },
     props: {
     },
-    methods: {},
+    methods: {}
 }
 
 </script>
