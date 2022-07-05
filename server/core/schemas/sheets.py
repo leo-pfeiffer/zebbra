@@ -1,6 +1,6 @@
 from bson import ObjectId
 from pydantic import BaseModel
-from core.schemas.rows import Row, Relation, Manual
+from core.schemas.rows import Row
 
 
 class SheetMeta(BaseModel):
@@ -10,12 +10,12 @@ class SheetMeta(BaseModel):
 class Section(BaseModel):
     name: str
     rows: list[Row]
-    end_row: Relation | None
+    end_row: Row | None
 
 
 class Sheet(BaseModel):
     meta: SheetMeta
-    assumptions: list[Manual]
+    assumptions: list[Row]
     sections: list[Section]
 
     class Config:

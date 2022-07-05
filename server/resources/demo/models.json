@@ -23,12 +23,15 @@
         "assumptions": [
           {
             "name": "assumption1",
-            "valType": "number",
+            "val_type": "number",
             "editable": true,
-            "varType": "manual",
-            "data": {
-              "column1": 1.23
-            }
+            "var_type": "value",
+            "time_series": false,
+            "starting_at": 0,
+            "first_value_diff": false,
+            "value": "100",
+            "value_1": null,
+            "integration_values": null
           }
         ],
         "sections": [
@@ -36,27 +39,29 @@
             "name": "section1",
             "rows": [
               {
-                "name": "string",
-                "valType": "number",
+                "name": "row1",
+                "val_type": "number",
                 "editable": true,
-                "varType": "manual",
-                "data": {
-                  "column1": 1.23,
-                  "column2": 12.3,
-                  "column3": 123
-                }
+                "var_type": "formula",
+                "time_series": true,
+                "starting_at": 0,
+                "first_value_diff": true,
+                "value": "$-1 * 1.05",
+                "value_1": "100",
+                "integration_values": null
               }
             ],
             "end_row": {
-              "name": "end_row",
-              "valType": "number",
-              "editable": true,
-              "varType": "relation",
-              "data": {
-                "expression": "RowRef('row1') + RowRef('row2')",
-                "has_starting_value": true,
-                "starting_value": 123
-              }
+                "name": "end_row",
+                "val_type": "number",
+                "editable": true,
+                "var_type": "formula",
+                "time_series": true,
+                "starting_at": 0,
+                "first_value_diff": false,
+                "value": "#1 + #2",
+                "value_1": null,
+                "integration_values": null
             }
           }
         ]
@@ -87,12 +92,15 @@
         "assumptions": [
           {
             "name": "assumption1",
-            "valType": "number",
+            "val_type": "number",
             "editable": true,
-            "varType": "manual",
-            "data": {
-              "column1": 1.23
-            }
+            "var_type": "value",
+            "time_series": false,
+            "starting_at": 0,
+            "first_value_diff": false,
+            "value": "100",
+            "value_1": null,
+            "integration_values": null
           }
         ],
         "sections": [
@@ -100,27 +108,29 @@
             "name": "section1",
             "rows": [
               {
-                "name": "string",
-                "valType": "number",
+                "name": "row1",
+                "val_type": "number",
                 "editable": true,
-                "varType": "manual",
-                "data": {
-                  "column1": 1.23,
-                  "column2": 12.3,
-                  "column3": 123
-                }
+                "var_type": "formula",
+                "time_series": true,
+                "starting_at": 0,
+                "first_value_diff": true,
+                "value": "$-1 * 1.05",
+                "value_1": "100",
+                "integration_values": null
               }
             ],
             "end_row": {
-              "name": "end_row",
-              "valType": "number",
-              "editable": true,
-              "varType": "relation",
-              "data": {
-                "expression": "RowRef('row1') + RowRef('row2')",
-                "has_starting_value": true,
-                "starting_value": 123
-              }
+                "name": "end_row",
+                "val_type": "number",
+                "editable": true,
+                "var_type": "formula",
+                "time_series": true,
+                "starting_at": 0,
+                "first_value_diff": false,
+                "value": "#1 + #2",
+                "value_1": null,
+                "integration_values": null
             }
           }
         ]
