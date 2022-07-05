@@ -1,11 +1,17 @@
-from fastapi import APIRouter, Depends, Request
+import time
+from base64 import b64encode
 
 from authlib.integrations.starlette_client import OAuth
+from fastapi import APIRouter, Depends, Request
 from starlette.responses import RedirectResponse, HTMLResponse
 
 from api.utils.assertions import (
     assert_workspace_access,
     assert_workspace_has_integration,
+)
+from api.utils.dependencies import (
+    get_current_active_user_url,
+    get_current_active_user,
 )
 from core.dao.integrations import (
     add_integration_for_workspace,
@@ -13,10 +19,6 @@ from core.dao.integrations import (
 )
 from core.schemas.integrations import IntegrationAccess, IntegrationAccessToken
 from core.schemas.users import User
-from api.utils.dependencies import (
-    get_current_active_user_url,
-    get_current_active_user,
-)
 
 router = APIRouter()
 
@@ -26,7 +28,7 @@ CONF_URL = "https://login.xero.com/identity/.well-known/openid-configuration"
 API_URL_SUFFIX = "api.xro/2.0/"
 CLIENT_ID = "47CE7326F904481589E07C9073DD5770"
 CLIENT_SECRET = "TwnktHFAVllhDM2Pdip1DcBkLVkSZztIAUDfT_LnoAOkq4C0"
-
+REFRESH_URL = "https://identity.xero.com/connect/token"
 
 xero = oauth.register(
     name="xero",
@@ -44,20 +46,64 @@ xero = oauth.register(
 )
 
 
+async def perform_token_refresh(integration_access):
+    basic_auth = b64encode(str.encode(f"{CLIENT_ID}:{CLIENT_SECRET}")).decode("utf-8")
+    token = await xero.post(
+        REFRESH_URL,
+        withhold_token=True,
+        headers={"Authorization": f"Basic {basic_auth}"},
+        data={
+            "grant_type": "refresh_token",
+            "refresh_token": integration_access.token.refresh_token,
+        },
+    )
+
+    if token.status_code == 200:
+        token_data = token.json()
+        if "expires_at" not in token_data:
+            token_data["expires_at"] = token_data["expires_in"] + int(time.time())
+        updated_token = IntegrationAccessToken(**token_data)
+        await store_xero_oauth2_token(integration_access.workspace_id, updated_token)
+        integration_access = await get_integration_for_workspace(
+            integration_access.workspace_id, "Xero"
+        )
+
+    else:
+        # todo
+        # can't refresh token
+        # -> invalidate integration in a way that the user can reconnect and the
+        #  references in the data are not lost.
+        ...
+
+    return integration_access
+
+
 async def get_xero_integration_access(workspace_id: str) -> IntegrationAccess:
-    return await get_integration_for_workspace(workspace_id, "Xero")
+    integration_access = await get_integration_for_workspace(workspace_id, "Xero")
+
+    expiry = integration_access.token.expires_at
+    now = int(time.time())
+
+    # requires refresh if less than 60 seconds left before expiration
+    if expiry - 60 < now:
+        integration_access = await perform_token_refresh(integration_access)
+
+    print(integration_access.token.expires_at)
+    integration_access = await perform_token_refresh(integration_access)
+    print(integration_access.token.expires_at)
+
+    return integration_access
 
 
-async def store_xero_oauth2_token(workspace_id, token):
-
+async def store_xero_oauth2_token(workspace_id, token: IntegrationAccessToken):
     integration = "Xero"
 
-    tenant_id = await get_xero_tenant_id(workspace_id, token)
+    tenant_id = await get_xero_tenant_id(workspace_id, token.dict())
 
     integration_access = IntegrationAccess(
         integration=integration,
         workspace_id=workspace_id,
-        token=IntegrationAccessToken(**token),
+        token=token,
         tenant_id=tenant_id,
     )
 
@@ -98,8 +144,15 @@ async def integration_xero_callback(request: Request):
     token = await oauth.xero.authorize_access_token(request)
 
     if token and "workspace_id" in request.session:
+
+        if "expires_at" not in (token_data := {**token}):
+            token_data["expires_at"] = token_data["expires_in"] + int(time.time())
+
         workspace_id = request.session["workspace_id"]
-        await store_xero_oauth2_token(workspace_id, token)
+
+        await store_xero_oauth2_token(
+            workspace_id, IntegrationAccessToken(**token_data)
+        )
     else:
         # todo raise exception
         ...
@@ -121,7 +174,6 @@ async def integration_xero_done():
 async def tenants(
     workspace_id: str, current_user: User = Depends(get_current_active_user)
 ):
-
     # user must be in workspace
     await assert_workspace_access(current_user.id, workspace_id)
 
@@ -137,7 +189,6 @@ async def tenants(
 async def transactions(
     workspace_id: str, current_user: User = Depends(get_current_active_user)
 ):
-
     # user must be in workspace
     await assert_workspace_access(current_user.id, workspace_id)
     await assert_workspace_has_integration(workspace_id, "Xero")

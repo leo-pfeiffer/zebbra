@@ -16,11 +16,13 @@ USERS_PATH = "resources/demo/users.json"
 WORKSPACE_PATH = "resources/demo/workspaces.json"
 MODELS_PATH = "resources/demo/models.json"
 INVITE_CODES_PATH = "resources/demo/invite_codes.json"
+INTEGRATION_ACCESS_PATH = "resources/demo/integration_access.json"
 
 workspaces = _read_json(WORKSPACE_PATH)
 users = _read_json(USERS_PATH)
 models = _read_json(MODELS_PATH)
 invite_codes = _read_json(INVITE_CODES_PATH)
+integration_access = _read_json(INTEGRATION_ACCESS_PATH)
 
 
 async def create():
@@ -57,7 +59,7 @@ def create_model_data():
 
 
 def create_integration_access():
-    return setup_integration_access("62bc5706a40e85213c27ce29")
+    return setup_integration_access(integration_access)
 
 
 def teardown_users():
