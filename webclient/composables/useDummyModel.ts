@@ -51,7 +51,7 @@ const assumption4:Variable = {
     timeSeries: true,
     startingAt: 0,
     firstValueDiff: true,
-    value: "$-1 * (1 + #1)",
+    value: "$1*(1+#1)",
     value_1: "#2",
     integration_values: undefined
 }
