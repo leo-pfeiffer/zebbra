@@ -1,6 +1,7 @@
 from fastapi import HTTPException
 from starlette import status
 
+from core.dao.integrations import workspace_has_integration
 from core.dao.models import model_exists, has_access_to_model, is_admin, is_editor
 from core.dao.users import user_exists
 from core.dao.workspaces import (
@@ -9,6 +10,7 @@ from core.dao.workspaces import (
     workspace_exists,
 )
 from core.objects import PyObjectId
+from core.schemas.integrations import IntegrationProvider
 
 
 async def assert_workspace_access(user_id: PyObjectId, workspace_id: PyObjectId | str):
@@ -72,4 +74,14 @@ async def assert_model_access_can_edit(user_id: PyObjectId, model_id: str):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="User cannot edit this model.",
+        )
+
+
+async def assert_workspace_has_integration(
+    workspace_id: str, integration: IntegrationProvider
+):
+    if not await workspace_has_integration(workspace_id, integration):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Integration is not connected for workspace.",
         )

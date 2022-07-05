@@ -22,7 +22,6 @@ pyotp==2.6.0
 black==22.3.0
 
 # integrations
-xero-python==1.16.0
 Authlib==1.0.1
 httpx==0.23.0
 itsdangerous==2.1.2
