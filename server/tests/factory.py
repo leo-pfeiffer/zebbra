@@ -59,7 +59,7 @@ def create_model_data():
 
 
 def create_integration_access():
-    return setup_integration_access(integration_access)
+    return db.integration_access.insert_many(integration_access)
 
 
 def teardown_users():

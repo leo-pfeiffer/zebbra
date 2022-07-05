@@ -1,12 +1,10 @@
 import pytest
 
 from core.dao.integrations import (
-    add_integration_for_workspace,
     get_integrations_for_workspace,
     get_integration_for_workspace,
     workspace_has_integration,
 )
-from core.schemas.integrations import IntegrationAccess, IntegrationAccessToken
 from tests.factory import setup_integration_access
 from tests.utils import count_documents
 
