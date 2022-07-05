@@ -30,6 +30,7 @@ from core.exceptions import (
     CardinalityConstraintFailedException,
 )
 from core.schemas.sheets import SheetMeta, Section
+from datetime import date
 
 
 @pytest.mark.anyio
@@ -272,9 +273,13 @@ async def test_add_model(users, workspaces):
     model = await get_model_by_id(r.inserted_id)
     wsp = await get_workspace(workspace)
     assert model.meta.name == new_name
+    assert model.meta.starting_month == date.today()
     assert str(model.meta.workspace) == workspace
     assert admin in [str(x) for x in model.meta.admins]
     assert str(wsp.admin) in [str(x) for x in model.meta.admins]
+    assert len(model.sheets) == 2
+    assert "Revenues" in [m.meta.name for m in model.sheets]
+    assert "Costs" in [m.meta.name for m in model.sheets]
 
 
 @pytest.mark.anyio
@@ -308,7 +313,7 @@ async def test_add_model_non_existent_workspace(not_an_id, users):
 @pytest.mark.anyio
 async def test_get_sheet_by_name():
     model_id = "62b488ba433720870b60ec0a"
-    sheet_name = "sheet1"
+    sheet_name = "Revenues"
     sheet = await get_sheet_by_name(model_id, sheet_name)
     assert sheet.meta.name == sheet_name
 
@@ -320,12 +325,14 @@ async def test_get_sheet_by_name_non_existent():
     assert await get_sheet_by_name(model_id, sheet_name) is None
 
 
+# todo obsolete after sheets can only be Revenues and Costs
 @pytest.mark.anyio
+@pytest.mark.skip(reason="obsolete")
 async def test_update_sheet_meta():
     model_id = "62b488ba433720870b60ec0a"
     model1 = await get_model_by_id(model_id)
     old_sheet_name = model1.sheets[0].meta.name
-    new_sheet_name = "new sheet name"
+    new_sheet_name = "Costs" if old_sheet_name == "Revenues" else "Revenues"
     new_meta = SheetMeta(name=new_sheet_name)
 
     await update_sheet_meta_in_model(model_id, old_sheet_name, new_meta)
@@ -334,7 +341,9 @@ async def test_update_sheet_meta():
     assert model2.sheets[0].meta.name == new_sheet_name
 
 
+# todo obsolete after sheets can only be Revenues and Costs
 @pytest.mark.anyio
+@pytest.mark.skip(reason="obsolete")
 async def test_update_sheet_meta_duplicate_name():
     model_id = "62b488ba433720870b60ec0a"
     model1 = await get_model_by_id(model_id)
