@@ -277,6 +277,9 @@ async def test_add_model(users, workspaces):
     assert str(model.meta.workspace) == workspace
     assert admin in [str(x) for x in model.meta.admins]
     assert str(wsp.admin) in [str(x) for x in model.meta.admins]
+    assert len(model.sheets) == 2
+    assert "Revenues" in [m.meta.name for m in model.sheets]
+    assert "Costs" in [m.meta.name for m in model.sheets]
 
 
 @pytest.mark.anyio
@@ -310,7 +313,7 @@ async def test_add_model_non_existent_workspace(not_an_id, users):
 @pytest.mark.anyio
 async def test_get_sheet_by_name():
     model_id = "62b488ba433720870b60ec0a"
-    sheet_name = "sheet1"
+    sheet_name = "Revenues"
     sheet = await get_sheet_by_name(model_id, sheet_name)
     assert sheet.meta.name == sheet_name
 

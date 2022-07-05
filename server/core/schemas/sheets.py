@@ -22,3 +22,10 @@ class Sheet(BaseModel):
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
+
+
+def create_default_sheets():
+    return [
+        Sheet(meta=SheetMeta(name="Revenues"), assumptions=[], sections=[]),
+        Sheet(meta=SheetMeta(name="Costs"), assumptions=[], sections=[]),
+    ]

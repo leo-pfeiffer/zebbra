@@ -14,7 +14,7 @@ from core.exceptions import (
 )
 from core.objects import PyObjectId
 from core.schemas.models import ModelMeta, UpdateModel, ModelUser, Model
-from core.schemas.sheets import Sheet, SheetMeta, Section
+from core.schemas.sheets import Sheet, SheetMeta, Section, create_default_sheets
 from core.settings import get_settings
 
 settings = get_settings()
@@ -238,7 +238,8 @@ async def create_model(admin_id: PyObjectId, model_name: str, workspace_id: PyOb
             "starting_month": date.today(),
         }
     )
-    model = UpdateModel(**{"meta": meta, "sheets": []})
+    sheets = create_default_sheets()
+    model = UpdateModel(**{"meta": meta, "sheets": sheets})
     return await db.models.insert_one(jsonable_encoder(model))
 
 
