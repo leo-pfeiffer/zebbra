@@ -33,6 +33,7 @@ async def teardown():
     await teardown_token_blacklist()
     await teardown_models()
     await teardown_invite_codes()
+    await teardown_integration_access()
 
 
 def create_user_data():
@@ -69,3 +70,7 @@ def teardown_models():
 
 def teardown_invite_codes():
     return db.invite_codes.delete_many({})
+
+
+def teardown_integration_access():
+    return db.integration_access.delete_many({})
