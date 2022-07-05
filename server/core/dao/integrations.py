@@ -73,3 +73,19 @@ async def add_integration_for_workspace(integration_access: IntegrationAccess):
     # add new integration access
     else:
         return db.integration_access.insert_one(jsonable_encoder(integration_access))
+
+
+# todo test
+async def set_requires_reconnect(
+    workspace_id: str, integration: IntegrationProvider, requires_reconnect: bool
+):
+    """
+    Set the requires_reconnect field of the integration access data.
+    :param workspace_id: ID of the workspace
+    :param integration: Name of the integration
+    :param requires_reconnect: True / False
+    """
+    return await db.integration_access.update_one(
+        {"workspace_id": workspace_id, "integration": integration},
+        {"$set": {"requires_reconnect": requires_reconnect}},
+    )

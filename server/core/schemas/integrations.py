@@ -21,3 +21,4 @@ class IntegrationAccess(BaseModel):
     integration: IntegrationProvider
     token: IntegrationAccessToken
     tenant_id: str
+    requires_reconnect: bool = False

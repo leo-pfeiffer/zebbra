@@ -1,11 +1,13 @@
 import time
 from base64 import b64encode
-
+from fastapi import HTTPException
 from authlib.integrations.starlette_client import OAuth
+from starlette import status
 
 from core.dao.integrations import (
     get_integration_for_workspace,
     add_integration_for_workspace,
+    set_requires_reconnect,
 )
 from core.schemas.integrations import IntegrationAccessToken, IntegrationAccess
 
@@ -65,11 +67,16 @@ async def perform_token_refresh(integration_access):
         )
 
     else:
-        # todo
-        # can't refresh token
-        # -> invalidate integration in a way that the user can reconnect and the
-        #  references in the data are not lost.
-        ...
+        # Can't refresh token -> set the requires_reconnect value of the integration
+        #  access to True, indicating that the user has to go through the OAuth
+        #  connection workflow to reconnect the integration. The integration access ID
+        #  remains the same.
+        await set_requires_reconnect(integration_access.workspace_id, "Xero", True)
+
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Token refresh failed.",
+        )
 
     return integration_access
 
@@ -109,6 +116,7 @@ async def store_xero_oauth2_token(workspace_id, token: IntegrationAccessToken):
         workspace_id=workspace_id,
         token=token,
         tenant_id=tenant_id,
+        requires_reconnect=False,
     )
 
     return await add_integration_for_workspace(integration_access)
