@@ -30,6 +30,7 @@ from core.exceptions import (
     CardinalityConstraintFailedException,
 )
 from core.schemas.sheets import SheetMeta, Section
+from datetime import date
 
 
 @pytest.mark.anyio
@@ -272,6 +273,7 @@ async def test_add_model(users, workspaces):
     model = await get_model_by_id(r.inserted_id)
     wsp = await get_workspace(workspace)
     assert model.meta.name == new_name
+    assert model.meta.starting_month == date.today()
     assert str(model.meta.workspace) == workspace
     assert admin in [str(x) for x in model.meta.admins]
     assert str(wsp.admin) in [str(x) for x in model.meta.admins]

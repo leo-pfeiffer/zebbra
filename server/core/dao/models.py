@@ -1,3 +1,5 @@
+from datetime import date
+
 from fastapi.encoders import jsonable_encoder
 
 from core.dao.database import db
@@ -233,6 +235,7 @@ async def create_model(admin_id: PyObjectId, model_name: str, workspace_id: PyOb
             "workspace": workspace_id,
             "editors": [],
             "viewers": [],
+            "starting_month": date.today(),
         }
     )
     model = UpdateModel(**{"meta": meta, "sheets": []})
