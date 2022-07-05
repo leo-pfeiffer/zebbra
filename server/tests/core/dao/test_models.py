@@ -19,6 +19,8 @@ from core.dao.models import (
     get_users_for_model,
     get_revenues_sheet,
     get_costs_sheet,
+    update_costs_sheet,
+    update_revenues_sheet,
 )
 from core.dao.workspaces import get_workspace
 from core.exceptions import (
@@ -28,6 +30,8 @@ from core.exceptions import (
     CardinalityConstraintFailedException,
 )
 from datetime import date
+
+from core.schemas.sheets import Sheet
 
 
 @pytest.mark.anyio
@@ -323,28 +327,56 @@ async def test_get_costs_sheet():
     assert sheet.meta.name == sheet_name
 
 
-# todo replace with new tests
-# @pytest.mark.anyio
-# async def test_update_sheet_data():
-#     model_id = "62b488ba433720870b60ec0a"
-#     model1 = await get_model_by_id(model_id)
-#     old_sheet_name = model1.sheets[0].meta.name
-#
-#     new_data = [
-#         Section(**{"name": "section1", "rows": [], "end_row": None}),
-#         Section(**{"name": "section2", "rows": [], "end_row": None}),
-#     ]
-#
-#     await update_sheet_sections_in_model(model_id, old_sheet_name, new_data)
-#
-#     model2 = await get_model_by_id(model_id)
-#     assert len(model2.sheets[0].sections) == 2
-#     assert model2.sheets[0].sections[0].name == "section1"
-#     assert model2.sheets[0].sections[1].name == "section2"
+@pytest.mark.anyio
+async def test_update_costs_sheet():
+    model_id = "62b488ba433720870b60ec0a"
+    sheet = await get_costs_sheet(model_id)
+    sheet_new = Sheet(**sheet.dict())
+    for sec in sheet_new.sections:
+        sec.name = sec.name + "_changed"
+    await update_costs_sheet(model_id, sheet_new)
+    sheet2 = await get_costs_sheet(model_id)
+    for sec in sheet2.sections:
+        assert sec.name.endswith("_changed")
 
 
 @pytest.mark.anyio
-async def test_get_users_of_model(access_token, users):
+async def test_update_costs_sheet_cannot_change_meta():
+    model_id = "62b488ba433720870b60ec0a"
+    sheet = await get_costs_sheet(model_id)
+    sheet_new = Sheet(**sheet.dict())
+    sheet_new.meta.name = "Revenues"
+    await update_costs_sheet(model_id, sheet_new)
+    sheet2 = await get_costs_sheet(model_id)
+    assert sheet2.meta.name == sheet.meta.name
+
+
+@pytest.mark.anyio
+async def test_update_revenues_sheet():
+    model_id = "62b488ba433720870b60ec0a"
+    sheet = await get_revenues_sheet(model_id)
+    sheet_new = Sheet(**sheet.dict())
+    for sec in sheet_new.sections:
+        sec.name = sec.name + "_changed"
+    await update_revenues_sheet(model_id, sheet_new)
+    sheet2 = await get_revenues_sheet(model_id)
+    for sec in sheet2.sections:
+        assert sec.name.endswith("_changed")
+
+
+@pytest.mark.anyio
+async def test_update_revenues_sheet_cannot_change_meta():
+    model_id = "62b488ba433720870b60ec0a"
+    sheet = await get_revenues_sheet(model_id)
+    sheet_new = Sheet(**sheet.dict())
+    sheet_new.meta.name = "Costs"
+    await update_revenues_sheet(model_id, sheet_new)
+    sheet2 = await get_revenues_sheet(model_id)
+    assert sheet2.meta.name == sheet.meta.name
+
+
+@pytest.mark.anyio
+async def test_get_users_of_model(users):
     model_id = "62b488ba433720870b60ec0a"
     all_users = await get_users_for_model(model_id)
 
@@ -377,6 +409,6 @@ async def test_get_users_of_model(access_token, users):
 
 
 @pytest.mark.anyio
-async def test_get_users_for_model_model_non_existent(access_token):
+async def test_get_users_for_model_model_non_existent():
     with pytest.raises(DoesNotExistException):
         await get_users_for_model("Not a model.")

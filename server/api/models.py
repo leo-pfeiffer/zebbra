@@ -276,7 +276,6 @@ async def retrieve_model_sheet_revenues(
     Retrieve the 'Revenues' sheet of a model.\n
         model_id: Model for which to retrieve the sheet
     """
-    # todo test
     await _assert_model_exists(model_id)
     await _assert_access(current_user.id, model_id)
 
@@ -302,10 +301,12 @@ async def update_model_sheet_revenues(
         model_id: Model for which to update the sheet
         sheet_data: New data of the sheet
     """
-    # todo test
     await _assert_model_exists(model_id)
     # only editor can update sheet
     await _assert_access_can_edit(current_user.id, model_id)
+
+    assert sheet_data.meta.name == "Revenues"  # todo test, refactor
+
     await update_revenues_sheet(model_id, sheet_data)
     return await get_revenues_sheet(model_id)
 
@@ -315,7 +316,6 @@ async def update_model_sheet_revenues(
     response_model=Sheet,
     tags=["model"],
     responses={
-        400: {"description": "Model does not exist."},
         403: {"description": "User does not have access to the resource."},
     },
 )
@@ -326,7 +326,6 @@ async def retrieve_model_sheet_costs(
     Retrieve the 'Costs' sheet of a model.\n
         model_id: Model for which to retrieve the sheet
     """
-    # todo test
     await _assert_model_exists(model_id)
     await _assert_access(current_user.id, model_id)
 
@@ -338,7 +337,6 @@ async def retrieve_model_sheet_costs(
     response_model=Sheet,
     tags=["model"],
     responses={
-        400: {"description": "Model does not exist."},
         403: {"description": "User does not have access to the resource."},
     },
 )
@@ -352,10 +350,12 @@ async def update_model_sheet_costs(
         model_id: Model for which to update the sheet
         sheet_data: New data of the sheet
     """
-    # todo test
     await _assert_model_exists(model_id)
     # only editor can update sheet
     await _assert_access_can_edit(current_user.id, model_id)
+
+    assert sheet_data.meta.name == "Costs"  # todo test, refactor
+
     await update_costs_sheet(model_id, sheet_data)
     return await get_costs_sheet(model_id)
 
