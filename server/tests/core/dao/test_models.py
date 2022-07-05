@@ -325,12 +325,14 @@ async def test_get_sheet_by_name_non_existent():
     assert await get_sheet_by_name(model_id, sheet_name) is None
 
 
+# todo obsolete after sheets can only be Revenues and Costs
 @pytest.mark.anyio
+@pytest.mark.skip(reason="obsolete")
 async def test_update_sheet_meta():
     model_id = "62b488ba433720870b60ec0a"
     model1 = await get_model_by_id(model_id)
     old_sheet_name = model1.sheets[0].meta.name
-    new_sheet_name = "new sheet name"
+    new_sheet_name = "Costs" if old_sheet_name == "Revenues" else "Revenues"
     new_meta = SheetMeta(name=new_sheet_name)
 
     await update_sheet_meta_in_model(model_id, old_sheet_name, new_meta)
@@ -339,7 +341,9 @@ async def test_update_sheet_meta():
     assert model2.sheets[0].meta.name == new_sheet_name
 
 
+# todo obsolete after sheets can only be Revenues and Costs
 @pytest.mark.anyio
+@pytest.mark.skip(reason="obsolete")
 async def test_update_sheet_meta_duplicate_name():
     model_id = "62b488ba433720870b60ec0a"
     model1 = await get_model_by_id(model_id)

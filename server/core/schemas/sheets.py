@@ -1,10 +1,12 @@
+from typing import Literal
+
 from bson import ObjectId
 from pydantic import BaseModel
 from core.schemas.rows import Row
 
 
 class SheetMeta(BaseModel):
-    name: str
+    name: Literal["Revenues", "Costs"]
 
 
 class Section(BaseModel):
