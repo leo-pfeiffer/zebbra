@@ -1,8 +1,7 @@
 from fastapi import APIRouter, Depends, Request
 
 from authlib.integrations.starlette_client import OAuth
-from fastapi.encoders import jsonable_encoder
-from starlette.responses import RedirectResponse, HTMLResponse, JSONResponse
+from starlette.responses import RedirectResponse, HTMLResponse
 
 from api.utils.assertions import (
     assert_workspace_access,
@@ -12,7 +11,6 @@ from core.dao.integrations import (
     add_integration_for_workspace,
     get_integration_for_workspace,
 )
-from core.dao.workspaces import get_workspaces_of_user
 from core.schemas.integrations import IntegrationAccess, IntegrationAccessToken
 from core.schemas.users import User
 from api.utils.dependencies import (
@@ -79,8 +77,8 @@ async def integration_xero_login(
     'access_token' together with the workspace ID
     """
 
-    # user must be in workspace todo
-    # await assert_workspace_access(current_user.id, workspace_id)
+    # user must be in workspace
+    await assert_workspace_access(current_user.id, workspace_id)
 
     redirect_uri = request.url_for("integration_xero_callback")
 
@@ -124,8 +122,8 @@ async def tenants(
     workspace_id: str, current_user: User = Depends(get_current_active_user)
 ):
 
-    # user must be in workspace todo
-    # await assert_workspace_access(current_user.id, workspace_id)
+    # user must be in workspace
+    await assert_workspace_access(current_user.id, workspace_id)
 
     integration_access = await get_xero_integration_access(workspace_id)
     token = integration_access.token.dict()
@@ -140,8 +138,9 @@ async def transactions(
     workspace_id: str, current_user: User = Depends(get_current_active_user)
 ):
 
-    # user must be in workspace todo
-    # await assert_workspace_access(current_user.id, workspace_id)
+    # user must be in workspace
+    await assert_workspace_access(current_user.id, workspace_id)
+    await assert_workspace_has_integration(workspace_id, "Xero")
 
     integration_access = await get_xero_integration_access(workspace_id)
 
