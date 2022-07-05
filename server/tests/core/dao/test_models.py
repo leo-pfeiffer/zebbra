@@ -15,21 +15,18 @@ from core.dao.models import (
     remove_editor_from_model,
     set_name,
     create_model,
-    update_sheet_meta_in_model,
-    update_sheet_sections_in_model,
-    get_sheet_by_name,
     remove_admin_from_model,
     get_users_for_model,
+    get_revenues_sheet,
+    get_costs_sheet,
 )
 from core.dao.workspaces import get_workspace
 from core.exceptions import (
     DoesNotExistException,
     NoAccessException,
-    UniqueConstraintFailedException,
     BusinessLogicException,
     CardinalityConstraintFailedException,
 )
-from core.schemas.sheets import SheetMeta, Section
 from datetime import date
 
 
@@ -311,66 +308,39 @@ async def test_add_model_non_existent_workspace(not_an_id, users):
 
 
 @pytest.mark.anyio
-async def test_get_sheet_by_name():
+async def test_get_revenues_sheet():
     model_id = "62b488ba433720870b60ec0a"
     sheet_name = "Revenues"
-    sheet = await get_sheet_by_name(model_id, sheet_name)
+    sheet = await get_revenues_sheet(model_id)
     assert sheet.meta.name == sheet_name
 
 
 @pytest.mark.anyio
-async def test_get_sheet_by_name_non_existent():
+async def test_get_costs_sheet():
     model_id = "62b488ba433720870b60ec0a"
-    sheet_name = "not a sheet"
-    assert await get_sheet_by_name(model_id, sheet_name) is None
+    sheet_name = "Costs"
+    sheet = await get_costs_sheet(model_id)
+    assert sheet.meta.name == sheet_name
 
 
-# todo obsolete after sheets can only be Revenues and Costs
-@pytest.mark.anyio
-@pytest.mark.skip(reason="obsolete")
-async def test_update_sheet_meta():
-    model_id = "62b488ba433720870b60ec0a"
-    model1 = await get_model_by_id(model_id)
-    old_sheet_name = model1.sheets[0].meta.name
-    new_sheet_name = "Costs" if old_sheet_name == "Revenues" else "Revenues"
-    new_meta = SheetMeta(name=new_sheet_name)
-
-    await update_sheet_meta_in_model(model_id, old_sheet_name, new_meta)
-
-    model2 = await get_model_by_id(model_id)
-    assert model2.sheets[0].meta.name == new_sheet_name
-
-
-# todo obsolete after sheets can only be Revenues and Costs
-@pytest.mark.anyio
-@pytest.mark.skip(reason="obsolete")
-async def test_update_sheet_meta_duplicate_name():
-    model_id = "62b488ba433720870b60ec0a"
-    model1 = await get_model_by_id(model_id)
-    old_sheet_name = model1.sheets[0].meta.name
-    new_meta = SheetMeta(name=old_sheet_name)
-
-    with pytest.raises(UniqueConstraintFailedException):
-        await update_sheet_meta_in_model(model_id, old_sheet_name, new_meta)
-
-
-@pytest.mark.anyio
-async def test_update_sheet_data():
-    model_id = "62b488ba433720870b60ec0a"
-    model1 = await get_model_by_id(model_id)
-    old_sheet_name = model1.sheets[0].meta.name
-
-    new_data = [
-        Section(**{"name": "section1", "rows": [], "end_row": None}),
-        Section(**{"name": "section2", "rows": [], "end_row": None}),
-    ]
-
-    await update_sheet_sections_in_model(model_id, old_sheet_name, new_data)
-
-    model2 = await get_model_by_id(model_id)
-    assert len(model2.sheets[0].sections) == 2
-    assert model2.sheets[0].sections[0].name == "section1"
-    assert model2.sheets[0].sections[1].name == "section2"
+# todo replace with new tests
+# @pytest.mark.anyio
+# async def test_update_sheet_data():
+#     model_id = "62b488ba433720870b60ec0a"
+#     model1 = await get_model_by_id(model_id)
+#     old_sheet_name = model1.sheets[0].meta.name
+#
+#     new_data = [
+#         Section(**{"name": "section1", "rows": [], "end_row": None}),
+#         Section(**{"name": "section2", "rows": [], "end_row": None}),
+#     ]
+#
+#     await update_sheet_sections_in_model(model_id, old_sheet_name, new_data)
+#
+#     model2 = await get_model_by_id(model_id)
+#     assert len(model2.sheets[0].sections) == 2
+#     assert model2.sheets[0].sections[0].name == "section1"
+#     assert model2.sheets[0].sections[1].name == "section2"
 
 
 @pytest.mark.anyio

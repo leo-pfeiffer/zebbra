@@ -184,10 +184,6 @@ async def create_invite_code(
     return obj
 
 
-# POST invite user to workspace
-# todo
-
-
 async def _assert_workspace_access(user_id: PyObjectId, workspace_id: PyObjectId):
     if not await is_user_in_workspace(user_id, workspace_id):
         raise HTTPException(

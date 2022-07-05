@@ -1,7 +1,6 @@
 from fastapi.encoders import jsonable_encoder
 
 from core.dao.database import db
-from core.objects import PyObjectId
 from core.schemas.utils import InviteCode
 
 

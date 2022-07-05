@@ -10,7 +10,7 @@ from core.dao.models import (
     get_model_by_id,
     add_admin_to_model,
 )
-from core.schemas.sheets import SheetMeta, Section
+from core.schemas.sheets import Section
 from main import app
 from tests.utils import assert_unauthorized_login_checked
 
@@ -387,139 +387,63 @@ async def test_add_model_no_access(access_token, workspaces):
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
-# todo obsolete after sheets can only be Revenues and Costs
-@pytest.mark.anyio
-@pytest.mark.skip(reason="obsolete")
-async def test_update_sheet_meta(access_token):
-    client = TestClient(app)
-    model_id = "62b488ba433720870b60ec0a"
-    model1 = await get_model_by_id(model_id)
-    old_sheet_name = model1.sheets[0].meta.name
-    new_sheet_name = "Costs" if old_sheet_name == "Revenues" else "Revenues"
-    new_meta = SheetMeta(name=new_sheet_name)
-
-    response = client.post(
-        f"/model/sheet/update/meta?model_id={model_id}&name={old_sheet_name}",
-        headers={"Authorization": f"Bearer {access_token}"},
-        json=jsonable_encoder(new_meta),
-    )
-
-    assert response.status_code == status.HTTP_200_OK
-
-    assert response.json()["meta"]["name"] == new_sheet_name
-
-
-# todo obsolete after sheets can only be Revenues and Costs
-@pytest.mark.anyio
-@pytest.mark.skip(reason="obsolete")
-async def test_update_sheet_meta_non_existent_model(access_token):
-    client = TestClient(app)
-    model_id = "not a model"
-    new_sheet_name = "Revenues"
-    new_meta = SheetMeta(name=new_sheet_name)
-
-    response = client.post(
-        f"/model/sheet/update/meta?model_id={model_id}&name=foo",
-        headers={"Authorization": f"Bearer {access_token}"},
-        json=jsonable_encoder(new_meta),
-    )
-
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
+# todo replace with updated
+# @pytest.mark.anyio
+# async def test_update_sheet_data(access_token):
+#     client = TestClient(app)
+#     model_id = "62b488ba433720870b60ec0a"
+#     model1 = await get_model_by_id(model_id)
+#     old_sheet_name = model1.sheets[0].meta.name
+#
+#     new_data = [
+#         Section(**{"name": "section1", "rows": [], "end_row": None}),
+#         Section(**{"name": "section2", "rows": [], "end_row": None}),
+#     ]
+#
+#     response = client.post(
+#         f"/model/sheet/update/data?model_id={model_id}&name={old_sheet_name}",
+#         headers={"Authorization": f"Bearer {access_token}"},
+#         json=jsonable_encoder(new_data),
+#     )
+#
+#     assert response.status_code == status.HTTP_200_OK
+#
+#     sheet = response.json()
+#     assert len(sheet["sections"]) == 2
+#     assert sheet["sections"][0]["name"] == "section1"
+#     assert sheet["sections"][1]["name"] == "section2"
 
 
-# todo obsolete after sheets can only be Revenues and Costs
-@pytest.mark.anyio
-@pytest.mark.skip(reason="obsolete")
-async def test_update_sheet_meta_no_access(access_token_alice):
-    client = TestClient(app)
-    model_id = "62b488ba433720870b60ec0a"
-    model1 = await get_model_by_id(model_id)
-    old_sheet_name = model1.sheets[0].meta.name
-    new_sheet_name = "Costs" if old_sheet_name == "Revenues" else "Revenues"
-    new_meta = SheetMeta(name=new_sheet_name)
-
-    response = client.post(
-        f"/model/sheet/update/meta?model_id={model_id}&name={old_sheet_name}",
-        headers={"Authorization": f"Bearer {access_token_alice}"},
-        json=jsonable_encoder(new_meta),
-    )
-
-    assert response.status_code == status.HTTP_403_FORBIDDEN
+# todo replace with updated
+# @pytest.mark.anyio
+# async def test_update_sheet_data_no_access(access_token_alice):
+#     client = TestClient(app)
+#     model_id = "62b488ba433720870b60ec0a"
+#     model1 = await get_model_by_id(model_id)
+#     old_sheet_name = model1.sheets[0].meta.name
+#
+#     response = client.post(
+#         f"/model/sheet/update/data?model_id={model_id}&name={old_sheet_name}",
+#         headers={"Authorization": f"Bearer {access_token_alice}"},
+#         json=jsonable_encoder([]),
+#     )
+#
+#     assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
-# todo obsolete after sheets can only be Revenues and Costs
-@pytest.mark.anyio
-@pytest.mark.skip(reason="obsolete")
-async def test_update_sheet_meta_duplicate_name(access_token):
-    client = TestClient(app)
-    model_id = "62b488ba433720870b60ec0a"
-    model1 = await get_model_by_id(model_id)
-    old_sheet_name = model1.sheets[0].meta.name
-    new_meta = SheetMeta(name=old_sheet_name)
-
-    response = client.post(
-        f"/model/sheet/update/meta?model_id={model_id}&name={old_sheet_name}",
-        headers={"Authorization": f"Bearer {access_token}"},
-        json=jsonable_encoder(new_meta),
-    )
-
-    assert response.status_code == status.HTTP_409_CONFLICT
-
-
-@pytest.mark.anyio
-async def test_update_sheet_data(access_token):
-    client = TestClient(app)
-    model_id = "62b488ba433720870b60ec0a"
-    model1 = await get_model_by_id(model_id)
-    old_sheet_name = model1.sheets[0].meta.name
-
-    new_data = [
-        Section(**{"name": "section1", "rows": [], "end_row": None}),
-        Section(**{"name": "section2", "rows": [], "end_row": None}),
-    ]
-
-    response = client.post(
-        f"/model/sheet/update/data?model_id={model_id}&name={old_sheet_name}",
-        headers={"Authorization": f"Bearer {access_token}"},
-        json=jsonable_encoder(new_data),
-    )
-
-    assert response.status_code == status.HTTP_200_OK
-
-    sheet = response.json()
-    assert len(sheet["sections"]) == 2
-    assert sheet["sections"][0]["name"] == "section1"
-    assert sheet["sections"][1]["name"] == "section2"
-
-
-@pytest.mark.anyio
-async def test_update_sheet_data_no_access(access_token_alice):
-    client = TestClient(app)
-    model_id = "62b488ba433720870b60ec0a"
-    model1 = await get_model_by_id(model_id)
-    old_sheet_name = model1.sheets[0].meta.name
-
-    response = client.post(
-        f"/model/sheet/update/data?model_id={model_id}&name={old_sheet_name}",
-        headers={"Authorization": f"Bearer {access_token_alice}"},
-        json=jsonable_encoder([]),
-    )
-
-    assert response.status_code == status.HTTP_403_FORBIDDEN
-
-
-@pytest.mark.anyio
-async def test_update_sheet_data_non_existent_model(access_token):
-    client = TestClient(app)
-    model_id = "not a model"
-
-    response = client.post(
-        f"/model/sheet/update/data?model_id={model_id}&name=foo",
-        headers={"Authorization": f"Bearer {access_token}"},
-        json=jsonable_encoder([]),
-    )
-
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
+# todo replace with updated
+# @pytest.mark.anyio
+# async def test_update_sheet_data_non_existent_model(access_token):
+#     client = TestClient(app)
+#     model_id = "not a model"
+#
+#     response = client.post(
+#         f"/model/sheet/update/data?model_id={model_id}&name=foo",
+#         headers={"Authorization": f"Bearer {access_token}"},
+#         json=jsonable_encoder([]),
+#     )
+#
+#     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
 @pytest.mark.anyio

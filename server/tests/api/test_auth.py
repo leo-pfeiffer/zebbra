@@ -7,7 +7,6 @@ from starlette import status
 from core.dao.users import (
     set_user_otp_secret,
     set_user_otp_secret_validated,
-    get_user_by_username,
     get_user,
 )
 from core.dao.workspaces import get_workspace, get_workspace_by_name

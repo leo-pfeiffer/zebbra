@@ -1,5 +1,5 @@
 from bson import ObjectId
-from pydantic import BaseModel, Field, validator, ValidationError
+from pydantic import BaseModel, Field
 
 from core.objects import PyObjectId
 

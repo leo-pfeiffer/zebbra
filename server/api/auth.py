@@ -18,7 +18,6 @@ from core.dao.workspaces import (
     create_workspace,
     workspace_name_exists,
 )
-from core.exceptions import UniqueConstraintFailedException
 from core.schemas.tokens import Token, BlacklistToken
 from core.schemas.users import RegisterUser, UserInDB, User
 from core.schemas.utils import Message, OAuth2PasswordRequestFormWithOTP, ExpiredMessage
