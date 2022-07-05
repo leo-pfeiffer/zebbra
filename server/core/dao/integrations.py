@@ -12,7 +12,7 @@ async def get_integrations_for_workspace(
 ) -> list[IntegrationAccess]:
     """
     Get a list of all integration providers that have been set up for a workspace.
-    :param workspace_id: the id of the worksapce
+    :param workspace_id: the id of the workspace
     :return: list of integration access objects
     """
     integrations = await db.integration_access.find(
