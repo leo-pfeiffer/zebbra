@@ -3,6 +3,12 @@ from typing import Literal
 from fastapi import APIRouter, Depends, HTTPException
 from starlette import status
 
+from api.utils.assertions import (
+    assert_model_access,
+    assert_model_exists,
+    assert_model_access_can_edit,
+    assert_model_access_admin,
+)
 from core.dao.models import (
     has_access_to_model,
     get_model_by_id,
@@ -37,7 +43,7 @@ from core.schemas.models import Model, ModelUser
 from core.schemas.sheets import Sheet
 from core.schemas.users import User
 from core.schemas.utils import Message
-from dependencies import get_current_active_user
+from api.utils.dependencies import get_current_active_user
 
 router = APIRouter()
 
@@ -71,8 +77,8 @@ async def retrieve_list_of_models(
         )
 
     if model_id is not None:
-        await _assert_model_exists(model_id)
-        await _assert_access(current_user.id, model_id)
+        await assert_model_exists(model_id)
+        await assert_model_access(current_user.id, model_id)
         models = [await get_model_by_id(model_id)]
         return models
 
@@ -128,10 +134,10 @@ async def grant_permission_for_model(
         role: Permission to be granted ["admin", "editor", "viewer"]
         user_id: User to whom the permission is granted
     """
-    await _assert_model_exists(model_id)
+    await assert_model_exists(model_id)
 
     # granting user must be admin
-    await _assert_access_admin(current_user.id, model_id)
+    await assert_model_access_admin(current_user.id, model_id)
 
     try:
         if role == "admin":
@@ -173,9 +179,10 @@ async def revoke_permission_for_model(
         user_id: User from whom the permission is revoked
     """
     await _assert_model_exists(model_id)
+    await assert_model_exists(model_id)
 
     # granting user must be admin
-    await _assert_access_admin(current_user.id, model_id)
+    await assert_model_access_admin(current_user.id, model_id)
 
     try:
         if role == "admin":
@@ -227,7 +234,7 @@ async def rename_existing_model(
     """
     await _assert_model_exists(model_id)
     # only editor can rename
-    await _assert_access_can_edit(current_user.id, model_id)
+    await assert_model_access_can_edit(current_user.id, model_id)
     await set_name(model_id, name)
     return {"message": f"Model renamed ({name})"}
 

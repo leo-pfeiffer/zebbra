@@ -17,7 +17,7 @@ from core.dao.users import (
 from core.dao.workspaces import get_admin_workspaces_of_user, get_workspaces_of_user
 from core.schemas.users import User, UserInfo
 from core.schemas.utils import Message, OtpUrl, OtpValidation
-from dependencies import get_current_active_user, get_password_hash
+from api.utils.dependencies import get_current_active_user, get_password_hash
 
 router = APIRouter()
 

@@ -2,6 +2,7 @@ import os
 
 # need this before the other import
 # environment variables setup
+from core.schemas.integrations import IntegrationAccess, IntegrationAccessToken
 
 os.environ["ENV"] = "test"
 os.environ["MONGODB_DB"] = "zebbra_test"
@@ -95,3 +96,39 @@ def not_an_id():
 @pytest.fixture
 def invite_codes() -> dict:
     return {"valid": "never_expires", "expired": "already_expired"}
+
+
+@pytest.fixture
+def expired_xero_token() -> IntegrationAccess:
+    return IntegrationAccess(
+        workspace_id="62bc5706a40e85213c27ce29",
+        integration="Xero",
+        token=IntegrationAccessToken(
+            id_token="id-token",
+            access_token="access-token",
+            expires_in=1800,
+            token_type="Bearer",
+            refresh_token="refresh-token",
+            scope="some scope",
+            expires_at=1656898425,
+        ),
+        tenant_id="tenant-id",
+    )
+
+
+@pytest.fixture
+def never_expired_xero_token() -> IntegrationAccess:
+    return IntegrationAccess(
+        workspace_id="62bc5706a40e85213c27ce29",
+        integration="Xero",
+        token=IntegrationAccessToken(
+            id_token="id-token",
+            access_token="access-token",
+            expires_in=1800,
+            token_type="Bearer",
+            refresh_token="refresh-token",
+            scope="some scope",
+            expires_at=3756898425,
+        ),
+        tenant_id="tenant-id",
+    )

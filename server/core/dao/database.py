@@ -24,6 +24,7 @@ class _DAO:
     token_blacklist = _db["token_blacklist"]
     invite_codes = _db["invite_codes"]
     models = _db["models"]
+    integration_access = _db["integration_access"]
 
     @staticmethod
     def get_collection(collection):
