@@ -13,6 +13,7 @@ from core.dao.invite_codes import add_invite_code
 from core.dao.users import (
     add_user_to_workspace,
     remove_user_from_workspace,
+    user_exists,
 )
 from core.dao.workspaces import (
     is_user_in_workspace,
@@ -20,6 +21,7 @@ from core.dao.workspaces import (
     create_workspace,
     get_workspace,
     change_workspace_name,
+    is_user_admin_of_workspace,
     change_workspace_admin,
     get_users_of_workspace,
 )
@@ -187,5 +189,25 @@ async def create_invite_code(
     return obj
 
 
-# POST invite user to workspace
-# todo
+async def _assert_workspace_access(user_id: PyObjectId, workspace_id: PyObjectId):
+    if not await is_user_in_workspace(user_id, workspace_id):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User is not in workspace.",
+        )
+
+
+async def _assert_workspace_access_admin(user_id: PyObjectId, workspace_id: PyObjectId):
+    if not await is_user_admin_of_workspace(user_id, workspace_id):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User is not admin.",
+        )
+
+
+async def _assert_user_exists(user_id: PyObjectId):
+    if not await user_exists(user_id):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User does not exist.",
+        )

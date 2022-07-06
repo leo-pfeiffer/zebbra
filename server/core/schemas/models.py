@@ -1,5 +1,6 @@
 from typing import Literal
 
+from datetime import date
 from bson import ObjectId
 from pydantic import BaseModel, Field
 
@@ -13,6 +14,7 @@ class ModelMeta(BaseModel):
     editors: list[PyObjectId]  # list of user_ids
     viewers: list[PyObjectId]  # list of user_ids
     workspace: PyObjectId  # workspace id
+    starting_month: date
 
 
 class Model(BaseModel):
