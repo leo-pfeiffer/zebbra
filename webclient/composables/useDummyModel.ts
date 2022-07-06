@@ -35,7 +35,7 @@ const assumption3:Variable = {
     editable: true,
     varType: "value",
     timeSeries: false,
-    startingAt: 0,
+    startingAt: 10,
     firstValueDiff: false,
     value: "200",
     value_1: undefined,
@@ -44,12 +44,40 @@ const assumption3:Variable = {
 
 const assumption4:Variable = {
     _id: "4",
-    name: "Customers",
+    name: "Static Formula",
+    valType: "number",
+    editable: true,
+    varType: "formula",
+    timeSeries: false,
+    startingAt: 2,
+    firstValueDiff: false,
+    value: "2*100",
+    value_1: "#2",
+    integration_values: undefined
+}
+
+const assumption5:Variable = {
+    _id: "5",
+    name: "Reducing Number",
     valType: "number",
     editable: true,
     varType: "formula",
     timeSeries: true,
     startingAt: 0,
+    firstValueDiff: true,
+    value: "$1*(1-0.01)",
+    value_1: "10000",
+    integration_values: undefined
+}
+
+const assumption6:Variable = {
+    _id: "6",
+    name: "Customers",
+    valType: "number",
+    editable: true,
+    varType: "formula",
+    timeSeries: true,
+    startingAt: 1,
     firstValueDiff: true,
     value: "$1*(1+#1)",
     value_1: "#2",
@@ -61,7 +89,7 @@ const dummyRevenueSheet:Sheet = {
         name: "Revenues"
     },
     assumptions: [
-        assumption1, assumption2, assumption3, assumption4
+        assumption1, assumption2, assumption3, assumption4, assumption5, assumption6
     ],
     sections: [{
         name: "Dummy Product",
