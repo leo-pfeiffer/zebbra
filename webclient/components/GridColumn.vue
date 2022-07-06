@@ -9,40 +9,13 @@
 
 <script lang="ts">
 
-import { Variable } from "~~/types/Model"
-
 export default {
     data() {
         return {
         }
     },
     props: {
-        assumption: Object as () => Variable,
-    },
-    computed: {
-        values() {
-
-            var returnArray = [];
-            if(!this.assumption.timeSeries || typeof this.assumption.value != "string") {
-                for(let i=0; i < 24; i++) {
-                    returnArray.push("–");
-                }
-                return returnArray;
-            } else {
-                console.log("true");
-                try {
-                    console.log("assumption value: " + this.assumption.value);
-                    returnArray = useFormulaParser().getValuesToDisplay(this.assumption);
-                } catch(e) {
-                    console.log(e);
-                    console.log("assumption value: " + this.assumption.value);
-                    for(let i=0; i < 24; i++) {
-                    returnArray.push("#REF!");
-                    }
-                }
-                return returnArray;
-            }
-        }
+        values: Object as () => string[],
     }
 }
 </script>
