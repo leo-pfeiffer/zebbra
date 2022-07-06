@@ -5,6 +5,13 @@ from pydantic import BaseModel
 
 
 IntegrationProvider = Literal["Xero"]
+supported_providers = ["Xero"]
+
+
+class IntegrationProviderInfo(BaseModel):
+    name: str
+    connected: bool
+    requires_reconnect: bool
 
 
 class IntegrationAccessToken(BaseModel):
