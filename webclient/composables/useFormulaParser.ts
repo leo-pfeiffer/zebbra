@@ -1,5 +1,7 @@
 import { Variable } from "~~/types/Model";
 
+import * as MathParser from 'math-expression-evaluator';
+
 export const useFormulaParser = () => {
 
     type ValueObject = {
@@ -9,14 +11,15 @@ export const useFormulaParser = () => {
     
     //composable that takes a variable and return the values to be displayed based on the value string
     const getValuesToDisplay = (variableInput:Variable) => {
-    
-        const valueString:string = variableInput.value;
+
+        var valueString:string = variableInput.value;
     
         //object that stores splits out the refs from the value string and stores their location
         const valueObject:ValueObject = getValueObject(valueString);
+
     
         //stores all the values that need to be displayed e.g. are returned at the end
-        var valuesToDisplay:string[];
+        var valuesToDisplay:string[] = [];
     
         //push empty values for startingAt
         for(let i=0; i < variableInput.startingAt; i++) {
@@ -37,27 +40,29 @@ export const useFormulaParser = () => {
         }
     
         for(let i=startingPointForI; i < 24; i++) {
+            
+            //store valueArray with refs in new array so refs can be overwritten
+            var valueArrayToBeOverwritten:string[] = [...valueObject.valueArray];
     
             //get the refs in the valueArray and replace them with the actual value
             for(let j=0; j < valueObject.indexes.length; j++) {
-                let ref:string = valueObject.valueArray[valueObject.indexes[j]];
-                let refValue = getRefValue(ref, i, valuesToDisplay);
-                valueObject.valueArray[valueObject.indexes[j]] = refValue;
+                var ref:string = valueArrayToBeOverwritten[valueObject.indexes[j]];
+                var refValue = getRefValue(ref, i, valuesToDisplay);
+                valueArrayToBeOverwritten[valueObject.indexes[j]] = refValue;
             }
     
             //concatinate the updated valueArray to single string
-            var stringForParser;
-            for(let x=0; x < valueObject.valueArray.length; x++) {
-                stringForParser = stringForParser + valueObject.valueArray[x];
+            var stringForParser:string = "";
+            for(let x=0; x < valueArrayToBeOverwritten.length; x++) {
+                stringForParser = stringForParser + valueArrayToBeOverwritten[x];
             }
-    
+            
             //run the string through the maths parser
-            //const valueToDisplay = mathParser(stringForParser);
+            const valueToDisplay:string = Math.floor(MathParser.eval(stringForParser)).toString();
             
             //add the solution of maths parser to the valuesToDisplay string
-            //valuesToDisplay.push(valueToDisplay);
+            valuesToDisplay.push(valueToDisplay);
         }
-    
         return valuesToDisplay;
     
     }
@@ -80,7 +85,6 @@ export const useFormulaParser = () => {
         /* loop over the valueString and separate refs from rest and store the different parts 
         in the valueArray while storing the indexes of the refs in the indexes array */
         for(let i=0; i < valueString.length; i++) {
-            console.log("i is: " + i);
             let char = valueString[i];
             if(char === "$") {
                 var internalRef:string = char;
@@ -106,7 +110,6 @@ export const useFormulaParser = () => {
                         break;
                     }
                 }
-                console.log("externalRef: " + externalRef);
                 valueArray.push(externalRef);
                 indexes.push(index);
                 index++;
@@ -121,7 +124,6 @@ export const useFormulaParser = () => {
                         break;
                     }
                 }
-                console.log("nonRefPart: " + nonRefPart);
                 valueArray.push(nonRefPart);
                 index++;
                 i = i + counter -1;
@@ -130,7 +132,6 @@ export const useFormulaParser = () => {
     
         valueObjectOut.valueArray = valueArray;
         valueObjectOut.indexes = indexes;
-        console.log("valueObjectOut: " + valueObjectOut);
         return valueObjectOut;
     }
     
@@ -162,7 +163,7 @@ export const useFormulaParser = () => {
     const getExternalRefValue = (externalRef:string, index:number) => {
     
         //todo
-        return "";
+        return "0.05";
     
     }
     
