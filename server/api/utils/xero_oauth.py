@@ -10,12 +10,16 @@ from core.dao.integrations import (
     set_requires_reconnect,
 )
 from core.schemas.integrations import IntegrationAccessToken, IntegrationAccess
+from core.settings import get_settings
 
-CONF_URL = "https://login.xero.com/identity/.well-known/openid-configuration"
-API_URL_SUFFIX = "api.xro/2.0/"
-CLIENT_ID = "47CE7326F904481589E07C9073DD5770"
-CLIENT_SECRET = "TwnktHFAVllhDM2Pdip1DcBkLVkSZztIAUDfT_LnoAOkq4C0"
-REFRESH_URL = "https://identity.xero.com/connect/token"
+settings = get_settings()
+
+CLIENT_ID = settings.XERO_CLIENT_ID
+CLIENT_SECRET = settings.XERO_CLIENT_SECRET
+CONF_URL = settings.XERO_CONF_URL
+API_BASE_URL = settings.XERO_API_BASE_URL
+API_URL_SUFFIX = settings.XERO_API_URL_SUFFIX
+REFRESH_URL = settings.XERO_API_URL_SUFFIX
 
 oauth = OAuth()
 
@@ -24,7 +28,7 @@ xero = oauth.register(
     client_id=CLIENT_ID,
     client_secret=CLIENT_SECRET,
     server_metadata_url=CONF_URL,
-    api_base_url="https://api.xero.com/",
+    api_base_url=API_BASE_URL,
     client_kwargs={
         "scope": "offline_access openid profile email "
         "accounting.transactions accounting.reports.read "
