@@ -22,9 +22,6 @@ from core.dao.models import (
     is_admin,
     set_name,
     create_model,
-    update_sheet_meta_in_model,
-    update_sheet_sections_in_model,
-    get_sheet_by_name,
     is_editor,
     model_exists,
     remove_admin_from_model,
@@ -43,7 +40,7 @@ from core.exceptions import (
 )
 from core.objects import PyObjectId
 from core.schemas.models import Model, ModelUser
-from core.schemas.sheets import SheetMeta, Section, Sheet
+from core.schemas.sheets import Sheet
 from core.schemas.users import User
 from core.schemas.utils import Message
 from api.utils.dependencies import get_current_active_user

@@ -12,7 +12,7 @@ from core.dao.models import (
     get_revenues_sheet,
     get_costs_sheet,
 )
-from core.schemas.sheets import Section, Sheet
+from core.schemas.sheets import Sheet
 from main import app
 from tests.utils import assert_unauthorized_login_checked
 
