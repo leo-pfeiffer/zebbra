@@ -34,7 +34,7 @@ def decode_token(token):
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
     """
-    Get the currently logged in user from the provided token.
+    Get the currently logged-in user from the provided token.
     """
     blacklist_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -66,7 +66,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 
 async def get_current_user_url(token: str = Depends(oauth2_scheme_url)):
     """
-    Get the currently logged in user from the provided token when the token is passed
+    Get the currently logged-in user from the provided token when the token is passed
     through a URL query param.
     """
     return await get_current_user(token)

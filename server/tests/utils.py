@@ -7,7 +7,7 @@ from main import app
 
 def assert_unauthorized_login_checked(endpoint: str) -> None:
     """
-    Assert that unauthorized users cannot access an endpoint.
+    Assert that unauthorized users cannot access an endpoint
     :param endpoint: Endpoint to check.
     """
     client = TestClient(app)

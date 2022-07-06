@@ -4,6 +4,7 @@ from core.dao.integrations import (
     get_integrations_for_workspace,
     get_integration_for_workspace,
     workspace_has_integration,
+    set_requires_reconnect,
 )
 from tests.factory import setup_integration_access
 from tests.utils import count_documents
@@ -66,3 +67,20 @@ async def test_add_integration_for_workspace_override(workspaces):
     await setup_integration_access(workspace_id1)
     count_after = await count_documents("integration_access")
     assert count_after - count_before == 0
+
+
+@pytest.mark.anyio
+async def test_set_requires_reconnect_true(workspaces):
+    workspace_id = workspaces["ACME Inc."]
+    await set_requires_reconnect(workspace_id, "Xero", True)
+    integration_access = await get_integration_for_workspace(workspace_id, "Xero")
+    assert integration_access.requires_reconnect
+
+
+@pytest.mark.anyio
+async def test_set_requires_reconnect_false(workspaces):
+    workspace_id = workspaces["ACME Inc."]
+    await set_requires_reconnect(workspace_id, "Xero", True)
+    await set_requires_reconnect(workspace_id, "Xero", False)
+    integration_access = await get_integration_for_workspace(workspace_id, "Xero")
+    assert not integration_access.requires_reconnect

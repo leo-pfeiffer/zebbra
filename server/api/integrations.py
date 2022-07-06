@@ -1,6 +1,7 @@
 import time
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, HTTPException
+from starlette import status
 from starlette.responses import RedirectResponse, HTMLResponse
 
 from api.utils.assertions import (
@@ -11,7 +12,7 @@ from api.utils.dependencies import (
     get_current_active_user_url,
     get_current_active_user,
 )
-from api.utils.xero_oauth import (
+from core.unification.xero_oauth import (
     xero,
     store_xero_oauth2_token,
     get_xero_integration_access,
@@ -67,8 +68,10 @@ async def integration_xero_callback(request: Request):
             workspace_id, IntegrationAccessToken(**token_data)
         )
     else:
-        # todo raise exception
-        ...
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Connecting to the integration failed.",
+        )
 
     return RedirectResponse(url="/api/integration/connected")
 

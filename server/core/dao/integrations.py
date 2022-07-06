@@ -11,7 +11,7 @@ async def get_integrations_for_workspace(
     workspace_id: str,
 ) -> list[IntegrationAccess]:
     """
-    Get a list of all integration providers that have been set up for a workspace.
+    Get a list of all integration providers that have been set up for a workspace
     :param workspace_id: the id of the workspace
     :return: list of integration access objects
     """
@@ -25,7 +25,7 @@ async def get_integration_for_workspace(
     workspace_id: str, integration: IntegrationProvider
 ) -> IntegrationAccess | None:
     """
-    Returns an integration access object for a workspace and an integration.
+    Returns an integration access object for a workspace and an integration
     :param workspace_id: the id of the workspace
     :param integration: the name of the integration
     :return: Integration access object
@@ -41,7 +41,7 @@ async def workspace_has_integration(
     workspace_id: str, integration: IntegrationProvider
 ) -> bool:
     """
-    Returns true if a workspace has set up an integration with the given provider.
+    Returns true if a workspace has set up an integration with the given provider
     :param workspace_id: the user's id
     :param integration: the name of the integration
     :return: True if the integration is set up, false otherwise
@@ -56,7 +56,7 @@ async def workspace_has_integration(
 
 async def add_integration_for_workspace(integration_access: IntegrationAccess):
     """
-    Add an integration access object to the database.
+    Add an integration access object to the database
     :param integration_access: the new object
     """
     # replace existing integration access
@@ -75,12 +75,11 @@ async def add_integration_for_workspace(integration_access: IntegrationAccess):
         return db.integration_access.insert_one(jsonable_encoder(integration_access))
 
 
-# todo test
 async def set_requires_reconnect(
     workspace_id: str, integration: IntegrationProvider, requires_reconnect: bool
 ):
     """
-    Set the requires_reconnect field of the integration access data.
+    Set the requires_reconnect field of the integration access data
     :param workspace_id: ID of the workspace
     :param integration: Name of the integration
     :param requires_reconnect: True / False

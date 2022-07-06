@@ -39,15 +39,14 @@ xero = oauth.register(
 )
 
 
-# todo test
 async def perform_token_refresh(integration_access):
     """
-    Exchange the current access token with a new token using the OAuth refresh workflow.
+    Exchange the current access token with a new token using the OAuth refresh workflow
     :param integration_access: Current integration access
     :return: Refreshed integration access
     """
     basic_auth = b64encode(str.encode(f"{CLIENT_ID}:{CLIENT_SECRET}")).decode("utf-8")
-    token = await xero.post(
+    response = await xero.post(
         REFRESH_URL,
         withhold_token=True,
         headers={"Authorization": f"Basic {basic_auth}"},
@@ -57,54 +56,55 @@ async def perform_token_refresh(integration_access):
         },
     )
 
-    if token.status_code == 200:
+    token = await process_refresh_response(response, integration_access)
+    # update token in DB
+    await store_xero_oauth2_token(integration_access.workspace_id, token)
+    return await get_integration_for_workspace(integration_access.workspace_id, "Xero")
+
+
+async def process_refresh_response(
+    response, integration_access: IntegrationAccess
+) -> IntegrationAccessToken:
+    """
+    Process the response from the POST request to refresh the OAuth token
+    :param response: Response to the refresh request
+    :param integration_access: integration access data
+    :return: Refreshed token
+    """
+    if response.status_code == 200:
         # add expiry information
-        token_data = token.json()
+        token_data = response.json()
         if "expires_at" not in token_data:
             token_data["expires_at"] = token_data["expires_in"] + int(time.time())
-        updated_token = IntegrationAccessToken(**token_data)
+        return IntegrationAccessToken(**token_data)
 
-        # update token in DB
-        await store_xero_oauth2_token(integration_access.workspace_id, updated_token)
-        integration_access = await get_integration_for_workspace(
-            integration_access.workspace_id, "Xero"
-        )
+    # Can't refresh token -> set the requires_reconnect value of the integration
+    #  access to True, indicating that the user has to go through the OAuth
+    #  connection workflow to reconnect the integration. The integration access ID
+    #  remains the same.
+    await set_requires_reconnect(integration_access.workspace_id, "Xero", True)
 
-    else:
-        # Can't refresh token -> set the requires_reconnect value of the integration
-        #  access to True, indicating that the user has to go through the OAuth
-        #  connection workflow to reconnect the integration. The integration access ID
-        #  remains the same.
-        await set_requires_reconnect(integration_access.workspace_id, "Xero", True)
-
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Token refresh failed.",
-        )
-
-    return integration_access
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Token refresh failed.",
+    )
 
 
-# todo test
 async def get_xero_integration_access(workspace_id: str) -> IntegrationAccess:
     """
-    Retrieve the current integration access data for a workspace for Xero.
+    Retrieve the current integration access data for a workspace for Xero
     :param workspace_id: ID of the workspace
     :return: integration access.
     """
     integration_access = await get_integration_for_workspace(workspace_id, "Xero")
 
     # requires refresh if less than 60 seconds left before expiration
-    expiry = integration_access.token.expires_at
-    now = int(time.time())
-
-    if expiry - 60 < now:
+    if integration_access.has_expired():
         integration_access = await perform_token_refresh(integration_access)
 
     return integration_access
 
 
-# todo test
 async def store_xero_oauth2_token(workspace_id, token: IntegrationAccessToken):
     """
     Store Xero integration access for a workspace data in the DB
@@ -126,7 +126,6 @@ async def store_xero_oauth2_token(workspace_id, token: IntegrationAccessToken):
     return await add_integration_for_workspace(integration_access)
 
 
-# todo test
 async def get_xero_tenant_id(workspace_id, token: dict | None = None):
     """
     Get the first available tenant ID
@@ -134,7 +133,7 @@ async def get_xero_tenant_id(workspace_id, token: dict | None = None):
      is always used.
     :param workspace_id: Workspace for which to get the xero data.
     :param token: OAuth token. If not provided, it is retreived from the DB.
-    :return:
+    :return: Tenant ID
     """
     if token is None:
         integration_access = await get_xero_integration_access(workspace_id)

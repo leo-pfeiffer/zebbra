@@ -18,7 +18,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# todo check if this is necessary
 app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
 
 
