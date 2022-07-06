@@ -7,7 +7,7 @@ definePageMeta({
 
 const model = useDummyModelState();
 
-const rowValuesState = useState('rowValues');
+const assumptionValuesToDisplay = useState('assumptionValues');
 
 /* const route = useRoute()
 const user = useUserState();
@@ -36,15 +36,15 @@ const dates = useState('dates', () => useDateArray(model.value.meta.starting_mon
                                 </form>
                             </div>
                         </div>
-                        <ColumnHeader v-for="assumption, index in model.sheets[0].assumptions" :assumption="assumption"
-                            :key="index" :assumptionIndex="index"></ColumnHeader>
+                        <VariableRowHeader v-for="assumption, index in model.sheets[0].assumptions" :assumption="assumption"
+                            :key="index" :assumptionIndex="index"></VariableRowHeader>
                     </div>
                     <div class="overflow-x-auto">
                         <div class="flex mb-4">
                             <div class="text-xs py-2 px-2 border-y border-r border-zinc-300 min-w-[75px] max-w-[75px] text-center uppercase bg-zinc-100 text-zinc-700"
                                 v-for="date in dates">{{ date }}</div>
                         </div>
-                        <GridColumn v-for="valueArray in rowValuesState" :values="valueArray"></GridColumn>
+                        <VariableRow v-for="assumptionValues in assumptionValuesToDisplay" :values="assumptionValues"></VariableRow>
                     </div>
                 </div>
             </div>
@@ -64,33 +64,9 @@ export default {
         //return the display values for all the assumptions
         const model = useDummyModelState();
 
-        var rowValuesArray: string[][] = [];
+        var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(model.value.sheets[0].assumptions);
 
-        for (let i = 0; i < model.value.sheets[0].assumptions.length; i++) {
-
-            var rowValuesToDisplay: string[] = [];
-
-            var assumption: Variable = model.value.sheets[0].assumptions[i];
-
-            if (!assumption.timeSeries || typeof assumption.value != "string") {
-                for (let i = 0; i < 24; i++) {
-                    rowValuesToDisplay.push("–");
-                }
-                rowValuesArray.push(rowValuesToDisplay);
-            } else {
-                try {
-                    rowValuesToDisplay = useFormulaParser().getValuesToDisplay(assumption);
-                } catch (e) {
-                    console.log(e);
-                    for (let i = 0; i < 24; i++) {
-                        rowValuesToDisplay.push("#REF!");
-                    }
-                }
-                rowValuesArray.push(rowValuesToDisplay);
-            }
-
-        }
-        useState('rowValues', () => rowValuesArray);
+        useState('assumptionValues', () => assumptionValuesArray);
     }
 }
 

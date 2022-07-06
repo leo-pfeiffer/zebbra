@@ -8,14 +8,50 @@ export const useFormulaParser = () => {
         indexes: number[];
         valueArray: string[];
     }
+
+
+        //todo: add model context??
+    //method that takes an array of variables and returns the values to be displayed for every variable
+    const getSheetRowValues = (variables:Variable[]) => {
+
+        //todo decide the order in which the row values must be created
+
+        var rowValuesArray: string[][] = [];
+
+        for (let i = 0; i < variables.length; i++) {
+
+            var rowValuesToDisplay: string[] = [];
+
+            var variable: Variable = variables[i];
+
+            if (!variable.timeSeries || typeof variable.value != "string") {
+                for (let i = 0; i < 24; i++) {
+                    rowValuesToDisplay.push("–");
+                }
+                rowValuesArray.push(rowValuesToDisplay);
+            } else {
+                try {
+                    rowValuesToDisplay = getRowValues(variable);
+                } catch (e) {
+                    console.log(e);
+                    for (let i = 0; i < 24; i++) {
+                        rowValuesToDisplay.push("#REF!");
+                    }
+                }
+                rowValuesArray.push(rowValuesToDisplay);
+            }
+
+        }
+        return rowValuesArray;
+    }
     
     //composable that takes a variable and return the values to be displayed based on the value string
-    const getValuesToDisplay = (variableInput:Variable) => {
+    const getRowValues = (variableInput:Variable) => {
 
         var valueString:string = variableInput.value;
     
         //object that stores splits out the refs from the value string and stores their location
-        const valueObject:ValueObject = getValueObject(valueString);
+        const valueObject:ValueObject = createValueObject(valueString);
 
     
         //stores all the values that need to be displayed e.g. are returned at the end
@@ -68,7 +104,7 @@ export const useFormulaParser = () => {
     }
     
     //gets gets the valueString and returns an object with an array of the components and an array of the indexes of the refs
-    const getValueObject = (valueString:string) => {
+    const createValueObject = (valueString:string) => {
         
         //instantiate valueObject for output
         let valueObjectOut:ValueObject = {
@@ -187,7 +223,7 @@ export const useFormulaParser = () => {
     
     }
 
-    return { getValuesToDisplay, getValueObject, getRefValue }
+    return { getSheetRowValues }
 
 }
 
