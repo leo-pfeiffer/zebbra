@@ -12,13 +12,18 @@ from api.utils.dependencies import (
     get_current_active_user_url,
     get_current_active_user,
 )
+from core.dao.integrations import get_integrations_for_workspace
 from core.unification.xero_oauth import (
     xero,
     store_xero_oauth2_token,
     get_xero_integration_access,
     API_URL_SUFFIX,
 )
-from core.schemas.integrations import IntegrationAccessToken
+from core.schemas.integrations import (
+    IntegrationAccessToken,
+    IntegrationProviderInfo,
+    supported_providers,
+)
 from core.schemas.users import User
 
 router = APIRouter()
@@ -121,3 +126,32 @@ async def transactions(
     )
     resp.raise_for_status()
     return resp.json()
+
+
+# todo test
+@router.get(
+    "/api/integration/providers",
+    tags=["integration"],
+    response_model=list[IntegrationProviderInfo],
+)
+async def providers(
+    workspace_id: str, current_user: User = Depends(get_current_active_user)
+):
+    workspace_integrations = await get_integrations_for_workspace(workspace_id)
+    workspace_integrations_map = {x.integration: x for x in workspace_integrations}
+
+    all_providers = []
+    for p in supported_providers:
+        if p in workspace_integrations_map:
+            info = IntegrationProviderInfo(
+                name=p,
+                connected=True,
+                requires_reconnect=workspace_integrations_map[p].requires_reconnect,
+            )
+        else:
+            info = IntegrationProviderInfo(
+                name=p, connected=False, requires_reconnect=False
+            )
+        all_providers.append(info)
+
+    return all_providers
