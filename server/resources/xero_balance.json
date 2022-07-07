@@ -1,0 +1,1889 @@
+{
+  "Id": "7960c985-36ea-4e41-bea1-a7f10bd9190d",
+  "Status": "OK",
+  "ProviderName": "API Explorer",
+  "DateTimeUTC": "\/Date(1657221651488)\/",
+  "Reports": [
+    {
+      "ReportID": "BalanceSheet",
+      "ReportName": "Balance Sheet",
+      "ReportType": "BalanceSheet",
+      "ReportTitles": [
+        "Balance Sheet",
+        "Demo Company (UK)",
+        "As at 31 May 2022"
+      ],
+      "ReportDate": "7 July 2022",
+      "UpdatedDateUTC": "\/Date(1657221651488)\/",
+      "Fields": [],
+      "Rows": [
+        {
+          "RowType": "Header",
+          "Cells": [
+            {
+              "Value": ""
+            },
+            {
+              "Value": "31 May 2022"
+            },
+            {
+              "Value": "30 Apr 2022"
+            },
+            {
+              "Value": "31 Mar 2022"
+            },
+            {
+              "Value": "28 Feb 2022"
+            },
+            {
+              "Value": "31 Jan 2022"
+            },
+            {
+              "Value": "31 Dec 2021"
+            },
+            {
+              "Value": "30 Nov 2021"
+            },
+            {
+              "Value": "31 Oct 2021"
+            },
+            {
+              "Value": "30 Sep 2021"
+            },
+            {
+              "Value": "31 Aug 2021"
+            },
+            {
+              "Value": "31 Jul 2021"
+            },
+            {
+              "Value": "30 Jun 2021"
+            }
+          ]
+        },
+        {
+          "RowType": "Section",
+          "Title": "Assets",
+          "Rows": []
+        },
+        {
+          "RowType": "Section",
+          "Title": "Bank",
+          "Rows": [
+            {
+              "RowType": "Row",
+              "Cells": [
+                {
+                  "Value": "Business Bank Account",
+                  "Attributes": [
+                    {
+                      "Value": "bd9e85e0-0478-433d-ae9f-0b3c4f04bfe4",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "1350.50",
+                  "Attributes": [
+                    {
+                      "Value": "bd9e85e0-0478-433d-ae9f-0b3c4f04bfe4",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "253.24",
+                  "Attributes": [
+                    {
+                      "Value": "bd9e85e0-0478-433d-ae9f-0b3c4f04bfe4",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-1131.13",
+                  "Attributes": [
+                    {
+                      "Value": "bd9e85e0-0478-433d-ae9f-0b3c4f04bfe4",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-377.02",
+                  "Attributes": [
+                    {
+                      "Value": "bd9e85e0-0478-433d-ae9f-0b3c4f04bfe4",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-1470.52",
+                  "Attributes": [
+                    {
+                      "Value": "bd9e85e0-0478-433d-ae9f-0b3c4f04bfe4",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-1864.77",
+                  "Attributes": [
+                    {
+                      "Value": "bd9e85e0-0478-433d-ae9f-0b3c4f04bfe4",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-3264.17",
+                  "Attributes": [
+                    {
+                      "Value": "bd9e85e0-0478-433d-ae9f-0b3c4f04bfe4",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-3667.92",
+                  "Attributes": [
+                    {
+                      "Value": "bd9e85e0-0478-433d-ae9f-0b3c4f04bfe4",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-4076.92",
+                  "Attributes": [
+                    {
+                      "Value": "bd9e85e0-0478-433d-ae9f-0b3c4f04bfe4",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-4987.92",
+                  "Attributes": [
+                    {
+                      "Value": "bd9e85e0-0478-433d-ae9f-0b3c4f04bfe4",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-5395.92",
+                  "Attributes": [
+                    {
+                      "Value": "bd9e85e0-0478-433d-ae9f-0b3c4f04bfe4",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-5798.92",
+                  "Attributes": [
+                    {
+                      "Value": "bd9e85e0-0478-433d-ae9f-0b3c4f04bfe4",
+                      "Id": "account"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "RowType": "SummaryRow",
+              "Cells": [
+                {
+                  "Value": "Total Bank"
+                },
+                {
+                  "Value": "1350.50"
+                },
+                {
+                  "Value": "253.24"
+                },
+                {
+                  "Value": "-1131.13"
+                },
+                {
+                  "Value": "-377.02"
+                },
+                {
+                  "Value": "-1470.52"
+                },
+                {
+                  "Value": "-1864.77"
+                },
+                {
+                  "Value": "-3264.17"
+                },
+                {
+                  "Value": "-3667.92"
+                },
+                {
+                  "Value": "-4076.92"
+                },
+                {
+                  "Value": "-4987.92"
+                },
+                {
+                  "Value": "-5395.92"
+                },
+                {
+                  "Value": "-5798.92"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "RowType": "Section",
+          "Title": "Current Assets",
+          "Rows": [
+            {
+              "RowType": "Row",
+              "Cells": [
+                {
+                  "Value": "Accounts Receivable",
+                  "Attributes": [
+                    {
+                      "Value": "8add7c44-ffe0-4a42-869e-b85dadd5eac1",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "9223.08",
+                  "Attributes": [
+                    {
+                      "Value": "8add7c44-ffe0-4a42-869e-b85dadd5eac1",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "1369.95",
+                  "Attributes": [
+                    {
+                      "Value": "8add7c44-ffe0-4a42-869e-b85dadd5eac1",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "1750.00",
+                  "Attributes": [
+                    {
+                      "Value": "8add7c44-ffe0-4a42-869e-b85dadd5eac1",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "8add7c44-ffe0-4a42-869e-b85dadd5eac1",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "1200.00",
+                  "Attributes": [
+                    {
+                      "Value": "8add7c44-ffe0-4a42-869e-b85dadd5eac1",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "500.00",
+                  "Attributes": [
+                    {
+                      "Value": "8add7c44-ffe0-4a42-869e-b85dadd5eac1",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "1500.00",
+                  "Attributes": [
+                    {
+                      "Value": "8add7c44-ffe0-4a42-869e-b85dadd5eac1",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "500.00",
+                  "Attributes": [
+                    {
+                      "Value": "8add7c44-ffe0-4a42-869e-b85dadd5eac1",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "500.00",
+                  "Attributes": [
+                    {
+                      "Value": "8add7c44-ffe0-4a42-869e-b85dadd5eac1",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "1000.00",
+                  "Attributes": [
+                    {
+                      "Value": "8add7c44-ffe0-4a42-869e-b85dadd5eac1",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "500.00",
+                  "Attributes": [
+                    {
+                      "Value": "8add7c44-ffe0-4a42-869e-b85dadd5eac1",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "500.00",
+                  "Attributes": [
+                    {
+                      "Value": "8add7c44-ffe0-4a42-869e-b85dadd5eac1",
+                      "Id": "account"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "RowType": "SummaryRow",
+              "Cells": [
+                {
+                  "Value": "Total Current Assets"
+                },
+                {
+                  "Value": "9223.08"
+                },
+                {
+                  "Value": "1369.95"
+                },
+                {
+                  "Value": "1750.00"
+                },
+                {
+                  "Value": "0.00"
+                },
+                {
+                  "Value": "1200.00"
+                },
+                {
+                  "Value": "500.00"
+                },
+                {
+                  "Value": "1500.00"
+                },
+                {
+                  "Value": "500.00"
+                },
+                {
+                  "Value": "500.00"
+                },
+                {
+                  "Value": "1000.00"
+                },
+                {
+                  "Value": "500.00"
+                },
+                {
+                  "Value": "500.00"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "RowType": "Section",
+          "Title": "Fixed Assets",
+          "Rows": [
+            {
+              "RowType": "Row",
+              "Cells": [
+                {
+                  "Value": "Computer Equipment",
+                  "Attributes": [
+                    {
+                      "Value": "8d1ae68b-1251-4b44-9d7a-639b3976935c",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-985.67",
+                  "Attributes": [
+                    {
+                      "Value": "8d1ae68b-1251-4b44-9d7a-639b3976935c",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-985.67",
+                  "Attributes": [
+                    {
+                      "Value": "8d1ae68b-1251-4b44-9d7a-639b3976935c",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "1583.33",
+                  "Attributes": [
+                    {
+                      "Value": "8d1ae68b-1251-4b44-9d7a-639b3976935c",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "8d1ae68b-1251-4b44-9d7a-639b3976935c",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "8d1ae68b-1251-4b44-9d7a-639b3976935c",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "8d1ae68b-1251-4b44-9d7a-639b3976935c",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "8d1ae68b-1251-4b44-9d7a-639b3976935c",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "8d1ae68b-1251-4b44-9d7a-639b3976935c",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "8d1ae68b-1251-4b44-9d7a-639b3976935c",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "8d1ae68b-1251-4b44-9d7a-639b3976935c",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "8d1ae68b-1251-4b44-9d7a-639b3976935c",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "8d1ae68b-1251-4b44-9d7a-639b3976935c",
+                      "Id": "account"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "RowType": "Row",
+              "Cells": [
+                {
+                  "Value": "Office Equipment",
+                  "Attributes": [
+                    {
+                      "Value": "a4602fb6-2e9d-4064-b318-c409032692ba",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "2569.00",
+                  "Attributes": [
+                    {
+                      "Value": "a4602fb6-2e9d-4064-b318-c409032692ba",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "2569.00",
+                  "Attributes": [
+                    {
+                      "Value": "a4602fb6-2e9d-4064-b318-c409032692ba",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "a4602fb6-2e9d-4064-b318-c409032692ba",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "a4602fb6-2e9d-4064-b318-c409032692ba",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "a4602fb6-2e9d-4064-b318-c409032692ba",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "a4602fb6-2e9d-4064-b318-c409032692ba",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "a4602fb6-2e9d-4064-b318-c409032692ba",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "a4602fb6-2e9d-4064-b318-c409032692ba",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "a4602fb6-2e9d-4064-b318-c409032692ba",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "a4602fb6-2e9d-4064-b318-c409032692ba",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "a4602fb6-2e9d-4064-b318-c409032692ba",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "a4602fb6-2e9d-4064-b318-c409032692ba",
+                      "Id": "account"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "RowType": "SummaryRow",
+              "Cells": [
+                {
+                  "Value": "Total Fixed Assets"
+                },
+                {
+                  "Value": "1583.33"
+                },
+                {
+                  "Value": "1583.33"
+                },
+                {
+                  "Value": "1583.33"
+                },
+                {
+                  "Value": "0.00"
+                },
+                {
+                  "Value": "0.00"
+                },
+                {
+                  "Value": "0.00"
+                },
+                {
+                  "Value": "0.00"
+                },
+                {
+                  "Value": "0.00"
+                },
+                {
+                  "Value": "0.00"
+                },
+                {
+                  "Value": "0.00"
+                },
+                {
+                  "Value": "0.00"
+                },
+                {
+                  "Value": "0.00"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "RowType": "Section",
+          "Title": "",
+          "Rows": [
+            {
+              "RowType": "SummaryRow",
+              "Cells": [
+                {
+                  "Value": "Total Assets"
+                },
+                {
+                  "Value": "12156.91"
+                },
+                {
+                  "Value": "3206.52"
+                },
+                {
+                  "Value": "2202.20"
+                },
+                {
+                  "Value": "-377.02"
+                },
+                {
+                  "Value": "-270.52"
+                },
+                {
+                  "Value": "-1364.77"
+                },
+                {
+                  "Value": "-1764.17"
+                },
+                {
+                  "Value": "-3167.92"
+                },
+                {
+                  "Value": "-3576.92"
+                },
+                {
+                  "Value": "-3987.92"
+                },
+                {
+                  "Value": "-4895.92"
+                },
+                {
+                  "Value": "-5298.92"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "RowType": "Section",
+          "Title": "Liabilities",
+          "Rows": []
+        },
+        {
+          "RowType": "Section",
+          "Title": "Current Liabilities",
+          "Rows": [
+            {
+              "RowType": "Row",
+              "Cells": [
+                {
+                  "Value": "Accounts Payable",
+                  "Attributes": [
+                    {
+                      "Value": "e0faa299-ca0d-4b0a-9e32-0dfabdf9179a",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "6098.48",
+                  "Attributes": [
+                    {
+                      "Value": "e0faa299-ca0d-4b0a-9e32-0dfabdf9179a",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "4696.55",
+                  "Attributes": [
+                    {
+                      "Value": "e0faa299-ca0d-4b0a-9e32-0dfabdf9179a",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "e0faa299-ca0d-4b0a-9e32-0dfabdf9179a",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "e0faa299-ca0d-4b0a-9e32-0dfabdf9179a",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "e0faa299-ca0d-4b0a-9e32-0dfabdf9179a",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "e0faa299-ca0d-4b0a-9e32-0dfabdf9179a",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "e0faa299-ca0d-4b0a-9e32-0dfabdf9179a",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "e0faa299-ca0d-4b0a-9e32-0dfabdf9179a",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "e0faa299-ca0d-4b0a-9e32-0dfabdf9179a",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "e0faa299-ca0d-4b0a-9e32-0dfabdf9179a",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "e0faa299-ca0d-4b0a-9e32-0dfabdf9179a",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "e0faa299-ca0d-4b0a-9e32-0dfabdf9179a",
+                      "Id": "account"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "RowType": "Row",
+              "Cells": [
+                {
+                  "Value": "Historical Adjustment",
+                  "Attributes": [
+                    {
+                      "Value": "7ff95c6a-5849-4030-a361-52165fab6490",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "4130.98",
+                  "Attributes": [
+                    {
+                      "Value": "7ff95c6a-5849-4030-a361-52165fab6490",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "4130.98",
+                  "Attributes": [
+                    {
+                      "Value": "7ff95c6a-5849-4030-a361-52165fab6490",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "4130.98",
+                  "Attributes": [
+                    {
+                      "Value": "7ff95c6a-5849-4030-a361-52165fab6490",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "4130.98",
+                  "Attributes": [
+                    {
+                      "Value": "7ff95c6a-5849-4030-a361-52165fab6490",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "4130.98",
+                  "Attributes": [
+                    {
+                      "Value": "7ff95c6a-5849-4030-a361-52165fab6490",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "4130.98",
+                  "Attributes": [
+                    {
+                      "Value": "7ff95c6a-5849-4030-a361-52165fab6490",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "4130.98",
+                  "Attributes": [
+                    {
+                      "Value": "7ff95c6a-5849-4030-a361-52165fab6490",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "4130.98",
+                  "Attributes": [
+                    {
+                      "Value": "7ff95c6a-5849-4030-a361-52165fab6490",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "4130.98",
+                  "Attributes": [
+                    {
+                      "Value": "7ff95c6a-5849-4030-a361-52165fab6490",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "4130.98",
+                  "Attributes": [
+                    {
+                      "Value": "7ff95c6a-5849-4030-a361-52165fab6490",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "4130.98",
+                  "Attributes": [
+                    {
+                      "Value": "7ff95c6a-5849-4030-a361-52165fab6490",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "4130.98",
+                  "Attributes": [
+                    {
+                      "Value": "7ff95c6a-5849-4030-a361-52165fab6490",
+                      "Id": "account"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "RowType": "Row",
+              "Cells": [
+                {
+                  "Value": "Unpaid Expense Claims",
+                  "Attributes": [
+                    {
+                      "Value": "1873bf00-e52f-48e9-89d6-619c93723f60",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "34.90",
+                  "Attributes": [
+                    {
+                      "Value": "1873bf00-e52f-48e9-89d6-619c93723f60",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "34.90",
+                  "Attributes": [
+                    {
+                      "Value": "1873bf00-e52f-48e9-89d6-619c93723f60",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "1873bf00-e52f-48e9-89d6-619c93723f60",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "1873bf00-e52f-48e9-89d6-619c93723f60",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "1873bf00-e52f-48e9-89d6-619c93723f60",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "1873bf00-e52f-48e9-89d6-619c93723f60",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "1873bf00-e52f-48e9-89d6-619c93723f60",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "1873bf00-e52f-48e9-89d6-619c93723f60",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "1873bf00-e52f-48e9-89d6-619c93723f60",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "1873bf00-e52f-48e9-89d6-619c93723f60",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "1873bf00-e52f-48e9-89d6-619c93723f60",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "0.00",
+                  "Attributes": [
+                    {
+                      "Value": "1873bf00-e52f-48e9-89d6-619c93723f60",
+                      "Id": "account"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "RowType": "Row",
+              "Cells": [
+                {
+                  "Value": "VAT",
+                  "Attributes": [
+                    {
+                      "Value": "b12f79b9-a082-4b8b-971e-d321292943c7",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-170.35",
+                  "Attributes": [
+                    {
+                      "Value": "b12f79b9-a082-4b8b-971e-d321292943c7",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-1067.20",
+                  "Attributes": [
+                    {
+                      "Value": "b12f79b9-a082-4b8b-971e-d321292943c7",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-464.71",
+                  "Attributes": [
+                    {
+                      "Value": "b12f79b9-a082-4b8b-971e-d321292943c7",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-647.36",
+                  "Attributes": [
+                    {
+                      "Value": "b12f79b9-a082-4b8b-971e-d321292943c7",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-642.29",
+                  "Attributes": [
+                    {
+                      "Value": "b12f79b9-a082-4b8b-971e-d321292943c7",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-837.25",
+                  "Attributes": [
+                    {
+                      "Value": "b12f79b9-a082-4b8b-971e-d321292943c7",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-915.79",
+                  "Attributes": [
+                    {
+                      "Value": "b12f79b9-a082-4b8b-971e-d321292943c7",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-1161.21",
+                  "Attributes": [
+                    {
+                      "Value": "b12f79b9-a082-4b8b-971e-d321292943c7",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-1240.21",
+                  "Attributes": [
+                    {
+                      "Value": "b12f79b9-a082-4b8b-971e-d321292943c7",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-1319.30",
+                  "Attributes": [
+                    {
+                      "Value": "b12f79b9-a082-4b8b-971e-d321292943c7",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-1481.58",
+                  "Attributes": [
+                    {
+                      "Value": "b12f79b9-a082-4b8b-971e-d321292943c7",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-1560.29",
+                  "Attributes": [
+                    {
+                      "Value": "b12f79b9-a082-4b8b-971e-d321292943c7",
+                      "Id": "account"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "RowType": "SummaryRow",
+              "Cells": [
+                {
+                  "Value": "Total Current Liabilities"
+                },
+                {
+                  "Value": "10094.01"
+                },
+                {
+                  "Value": "7795.23"
+                },
+                {
+                  "Value": "3666.27"
+                },
+                {
+                  "Value": "3483.62"
+                },
+                {
+                  "Value": "3488.69"
+                },
+                {
+                  "Value": "3293.73"
+                },
+                {
+                  "Value": "3215.19"
+                },
+                {
+                  "Value": "2969.77"
+                },
+                {
+                  "Value": "2890.77"
+                },
+                {
+                  "Value": "2811.68"
+                },
+                {
+                  "Value": "2649.40"
+                },
+                {
+                  "Value": "2570.69"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "RowType": "Section",
+          "Title": "",
+          "Rows": [
+            {
+              "RowType": "SummaryRow",
+              "Cells": [
+                {
+                  "Value": "Total Liabilities"
+                },
+                {
+                  "Value": "10094.01"
+                },
+                {
+                  "Value": "7795.23"
+                },
+                {
+                  "Value": "3666.27"
+                },
+                {
+                  "Value": "3483.62"
+                },
+                {
+                  "Value": "3488.69"
+                },
+                {
+                  "Value": "3293.73"
+                },
+                {
+                  "Value": "3215.19"
+                },
+                {
+                  "Value": "2969.77"
+                },
+                {
+                  "Value": "2890.77"
+                },
+                {
+                  "Value": "2811.68"
+                },
+                {
+                  "Value": "2649.40"
+                },
+                {
+                  "Value": "2570.69"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "RowType": "Section",
+          "Title": "",
+          "Rows": [
+            {
+              "RowType": "Row",
+              "Cells": [
+                {
+                  "Value": "Net Assets"
+                },
+                {
+                  "Value": "2062.90"
+                },
+                {
+                  "Value": "-4588.71"
+                },
+                {
+                  "Value": "-1464.07"
+                },
+                {
+                  "Value": "-3860.64"
+                },
+                {
+                  "Value": "-3759.21"
+                },
+                {
+                  "Value": "-4658.50"
+                },
+                {
+                  "Value": "-4979.36"
+                },
+                {
+                  "Value": "-6137.69"
+                },
+                {
+                  "Value": "-6467.69"
+                },
+                {
+                  "Value": "-6799.60"
+                },
+                {
+                  "Value": "-7545.32"
+                },
+                {
+                  "Value": "-7869.61"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "RowType": "Section",
+          "Title": "Equity",
+          "Rows": [
+            {
+              "RowType": "Row",
+              "Cells": [
+                {
+                  "Value": "Current Year Earnings",
+                  "Attributes": [
+                    {
+                      "Value": "abababab-abab-abab-abab-abababababab",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "3526.97",
+                  "Attributes": [
+                    {
+                      "Value": "abababab-abab-abab-abab-abababababab",
+                      "Id": "account"
+                    },
+                    {
+                      "Value": "4/1/2022",
+                      "Id": "fromDate"
+                    },
+                    {
+                      "Value": "5/31/2022",
+                      "Id": "toDate"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-3124.64",
+                  "Attributes": [
+                    {
+                      "Value": "abababab-abab-abab-abab-abababababab",
+                      "Id": "account"
+                    },
+                    {
+                      "Value": "4/1/2022",
+                      "Id": "fromDate"
+                    },
+                    {
+                      "Value": "4/30/2022",
+                      "Id": "toDate"
+                    }
+                  ]
+                },
+                {
+                  "Value": "4591.93",
+                  "Attributes": [
+                    {
+                      "Value": "abababab-abab-abab-abab-abababababab",
+                      "Id": "account"
+                    },
+                    {
+                      "Value": "4/1/2021",
+                      "Id": "fromDate"
+                    },
+                    {
+                      "Value": "3/31/2022",
+                      "Id": "toDate"
+                    }
+                  ]
+                },
+                {
+                  "Value": "2195.36",
+                  "Attributes": [
+                    {
+                      "Value": "abababab-abab-abab-abab-abababababab",
+                      "Id": "account"
+                    },
+                    {
+                      "Value": "4/1/2021",
+                      "Id": "fromDate"
+                    },
+                    {
+                      "Value": "2/28/2022",
+                      "Id": "toDate"
+                    }
+                  ]
+                },
+                {
+                  "Value": "2296.79",
+                  "Attributes": [
+                    {
+                      "Value": "abababab-abab-abab-abab-abababababab",
+                      "Id": "account"
+                    },
+                    {
+                      "Value": "4/1/2021",
+                      "Id": "fromDate"
+                    },
+                    {
+                      "Value": "1/31/2022",
+                      "Id": "toDate"
+                    }
+                  ]
+                },
+                {
+                  "Value": "1397.50",
+                  "Attributes": [
+                    {
+                      "Value": "abababab-abab-abab-abab-abababababab",
+                      "Id": "account"
+                    },
+                    {
+                      "Value": "4/1/2021",
+                      "Id": "fromDate"
+                    },
+                    {
+                      "Value": "12/31/2021",
+                      "Id": "toDate"
+                    }
+                  ]
+                },
+                {
+                  "Value": "1076.64",
+                  "Attributes": [
+                    {
+                      "Value": "abababab-abab-abab-abab-abababababab",
+                      "Id": "account"
+                    },
+                    {
+                      "Value": "4/1/2021",
+                      "Id": "fromDate"
+                    },
+                    {
+                      "Value": "11/30/2021",
+                      "Id": "toDate"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-81.69",
+                  "Attributes": [
+                    {
+                      "Value": "abababab-abab-abab-abab-abababababab",
+                      "Id": "account"
+                    },
+                    {
+                      "Value": "4/1/2021",
+                      "Id": "fromDate"
+                    },
+                    {
+                      "Value": "10/31/2021",
+                      "Id": "toDate"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-411.69",
+                  "Attributes": [
+                    {
+                      "Value": "abababab-abab-abab-abab-abababababab",
+                      "Id": "account"
+                    },
+                    {
+                      "Value": "4/1/2021",
+                      "Id": "fromDate"
+                    },
+                    {
+                      "Value": "9/30/2021",
+                      "Id": "toDate"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-743.60",
+                  "Attributes": [
+                    {
+                      "Value": "abababab-abab-abab-abab-abababababab",
+                      "Id": "account"
+                    },
+                    {
+                      "Value": "4/1/2021",
+                      "Id": "fromDate"
+                    },
+                    {
+                      "Value": "8/31/2021",
+                      "Id": "toDate"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-1489.32",
+                  "Attributes": [
+                    {
+                      "Value": "abababab-abab-abab-abab-abababababab",
+                      "Id": "account"
+                    },
+                    {
+                      "Value": "4/1/2021",
+                      "Id": "fromDate"
+                    },
+                    {
+                      "Value": "7/31/2021",
+                      "Id": "toDate"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-1813.61",
+                  "Attributes": [
+                    {
+                      "Value": "abababab-abab-abab-abab-abababababab",
+                      "Id": "account"
+                    },
+                    {
+                      "Value": "4/1/2021",
+                      "Id": "fromDate"
+                    },
+                    {
+                      "Value": "6/30/2021",
+                      "Id": "toDate"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "RowType": "Row",
+              "Cells": [
+                {
+                  "Value": "Retained Earnings",
+                  "Attributes": [
+                    {
+                      "Value": "524c9f2d-e680-4861-82f6-4ad171b51de5",
+                      "Id": "account"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-1464.07",
+                  "Attributes": [
+                    {
+                      "Value": "524c9f2d-e680-4861-82f6-4ad171b51de5",
+                      "Id": "account"
+                    },
+                    {
+                      "Value": "",
+                      "Id": "fromDate"
+                    },
+                    {
+                      "Value": "5/31/2022",
+                      "Id": "toDate"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-1464.07",
+                  "Attributes": [
+                    {
+                      "Value": "524c9f2d-e680-4861-82f6-4ad171b51de5",
+                      "Id": "account"
+                    },
+                    {
+                      "Value": "",
+                      "Id": "fromDate"
+                    },
+                    {
+                      "Value": "4/30/2022",
+                      "Id": "toDate"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-6056.00",
+                  "Attributes": [
+                    {
+                      "Value": "524c9f2d-e680-4861-82f6-4ad171b51de5",
+                      "Id": "account"
+                    },
+                    {
+                      "Value": "",
+                      "Id": "fromDate"
+                    },
+                    {
+                      "Value": "3/31/2022",
+                      "Id": "toDate"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-6056.00",
+                  "Attributes": [
+                    {
+                      "Value": "524c9f2d-e680-4861-82f6-4ad171b51de5",
+                      "Id": "account"
+                    },
+                    {
+                      "Value": "",
+                      "Id": "fromDate"
+                    },
+                    {
+                      "Value": "2/28/2022",
+                      "Id": "toDate"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-6056.00",
+                  "Attributes": [
+                    {
+                      "Value": "524c9f2d-e680-4861-82f6-4ad171b51de5",
+                      "Id": "account"
+                    },
+                    {
+                      "Value": "",
+                      "Id": "fromDate"
+                    },
+                    {
+                      "Value": "1/31/2022",
+                      "Id": "toDate"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-6056.00",
+                  "Attributes": [
+                    {
+                      "Value": "524c9f2d-e680-4861-82f6-4ad171b51de5",
+                      "Id": "account"
+                    },
+                    {
+                      "Value": "",
+                      "Id": "fromDate"
+                    },
+                    {
+                      "Value": "12/31/2021",
+                      "Id": "toDate"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-6056.00",
+                  "Attributes": [
+                    {
+                      "Value": "524c9f2d-e680-4861-82f6-4ad171b51de5",
+                      "Id": "account"
+                    },
+                    {
+                      "Value": "",
+                      "Id": "fromDate"
+                    },
+                    {
+                      "Value": "11/30/2021",
+                      "Id": "toDate"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-6056.00",
+                  "Attributes": [
+                    {
+                      "Value": "524c9f2d-e680-4861-82f6-4ad171b51de5",
+                      "Id": "account"
+                    },
+                    {
+                      "Value": "",
+                      "Id": "fromDate"
+                    },
+                    {
+                      "Value": "10/31/2021",
+                      "Id": "toDate"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-6056.00",
+                  "Attributes": [
+                    {
+                      "Value": "524c9f2d-e680-4861-82f6-4ad171b51de5",
+                      "Id": "account"
+                    },
+                    {
+                      "Value": "",
+                      "Id": "fromDate"
+                    },
+                    {
+                      "Value": "9/30/2021",
+                      "Id": "toDate"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-6056.00",
+                  "Attributes": [
+                    {
+                      "Value": "524c9f2d-e680-4861-82f6-4ad171b51de5",
+                      "Id": "account"
+                    },
+                    {
+                      "Value": "",
+                      "Id": "fromDate"
+                    },
+                    {
+                      "Value": "8/31/2021",
+                      "Id": "toDate"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-6056.00",
+                  "Attributes": [
+                    {
+                      "Value": "524c9f2d-e680-4861-82f6-4ad171b51de5",
+                      "Id": "account"
+                    },
+                    {
+                      "Value": "",
+                      "Id": "fromDate"
+                    },
+                    {
+                      "Value": "7/31/2021",
+                      "Id": "toDate"
+                    }
+                  ]
+                },
+                {
+                  "Value": "-6056.00",
+                  "Attributes": [
+                    {
+                      "Value": "524c9f2d-e680-4861-82f6-4ad171b51de5",
+                      "Id": "account"
+                    },
+                    {
+                      "Value": "",
+                      "Id": "fromDate"
+                    },
+                    {
+                      "Value": "6/30/2021",
+                      "Id": "toDate"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "RowType": "SummaryRow",
+              "Cells": [
+                {
+                  "Value": "Total Equity"
+                },
+                {
+                  "Value": "2062.90"
+                },
+                {
+                  "Value": "-4588.71"
+                },
+                {
+                  "Value": "-1464.07"
+                },
+                {
+                  "Value": "-3860.64"
+                },
+                {
+                  "Value": "-3759.21"
+                },
+                {
+                  "Value": "-4658.50"
+                },
+                {
+                  "Value": "-4979.36"
+                },
+                {
+                  "Value": "-6137.69"
+                },
+                {
+                  "Value": "-6467.69"
+                },
+                {
+                  "Value": "-6799.60"
+                },
+                {
+                  "Value": "-7545.32"
+                },
+                {
+                  "Value": "-7869.61"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

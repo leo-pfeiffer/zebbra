@@ -14,7 +14,13 @@ def test_create_batch_periods():
 
 
 def test_process_batch():
-    batch = _read_json("resources/xero.json")
+    batch = _read_json("resources/xero_profitloss.json")
+    x = process_batch(batch)
+    assert True
+
+
+def test_process_batch_balance():
+    batch = _read_json("resources/xero_balance.json")
     x = process_batch(batch)
     assert True
 

@@ -22,7 +22,7 @@ from core.unification.config import (
 from core.unification.fetch import (
     get_transactions,
     get_tenants,
-    get_profit_and_loss_from_date,
+    get_xero_data_from_data,
     get_available_data_points,
 )
 from core.unification.xero_oauth import (
@@ -120,8 +120,8 @@ async def transactions(
     return await get_transactions(workspace_id)
 
 
-@router.get("/api/integration/xero/profit-and-loss", tags=["integration"])
-async def profit_and_loss(
+@router.get("/api/integration/xero", tags=["integration"])
+async def get_xero_data(
     workspace_id: str,
     from_date: str,
     current_user: User = Depends(get_current_active_user),
@@ -132,7 +132,7 @@ async def profit_and_loss(
 
     from_date = datetime.date.fromisoformat(from_date)
 
-    return await get_profit_and_loss_from_date(workspace_id, from_date)
+    return await get_xero_data_from_data(workspace_id, from_date)
 
 
 # todo test

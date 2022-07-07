@@ -10,6 +10,13 @@ from core.unification.xero_oauth import (
 )
 
 
+def date_from_string(date_string):
+    try:
+        return datetime.strptime(date_string, "%d %b %y").date()
+    except ValueError:
+        return datetime.strptime(date_string, "%d %b %Y").date()
+
+
 def date_to_string_in_batch(batch):
     """
     Convert all dates in a batch into string format YYYY-MM-DD
@@ -79,7 +86,7 @@ def process_batch(batch):
     # get the dates
     assert report["Rows"][0]["RowType"] == "Header"
     dates = [
-        datetime.strptime(cell["Value"], "%d %b %y").date()
+        date_from_string(cell["Value"])
         for cell in report["Rows"][0]["Cells"]
         if cell["Value"] != ""
     ]
@@ -152,15 +159,16 @@ def create_batch_periods(from_date: date, to_date: date):
 
 
 # todo from_date should be retrieved from model
-async def get_profit_and_loss_from_date(workspace_id: str, from_date: date):
+async def get_xero_data_from_data(workspace_id: str, from_date: date):
     """
-    Retrieve and process the P&L data from XERO
+    Retrieve and process the P&L and balance sheet data from XERO
     :param workspace_id: ID of the workspace
     :param from_date: date from which onwards to get the data
-    :return: P&L data
+    :return: P&L and balance sheet data
     """
-    batches = await retrieve_profit_and_loss_from_date(workspace_id, from_date)
-    processed = [process_batch(batch) for batch in batches]
+    pl_batches = await retrieve_profit_and_loss_from_date(workspace_id, from_date)
+    bs_batches = await retrieve_balance_sheet_from_date(workspace_id, from_date)
+    processed = [process_batch(batch) for batch in pl_batches + bs_batches]
     merged = merge_batches(processed)
     return date_to_string_in_batch(merged)
 
@@ -180,13 +188,28 @@ async def retrieve_profit_and_loss_from_date(workspace_id: str, from_date: date)
     )
 
 
+async def retrieve_balance_sheet_from_date(workspace_id: str, from_date: date):
+    """
+    Retrieve the balance_sheet data from the XERO API from a certain date onwards
+    :param workspace_id: ID of the workspace
+    :param from_date: date from which onwards to get the data
+    :return: P&L data
+    """
+    batch_periods = create_batch_periods(from_date, date.today())
+
+    # asynchronously gather data
+    return await asyncio.gather(
+        *[retrieve_balance_sheet(workspace_id, p[1]) for p in batch_periods]
+    )
+
+
 async def retrieve_profit_and_loss(workspace_id: str, from_date: date, to_date: date):
     """
     Retrieve the P&L data from the XERO API between two dates. The dates must be within
     365 days of each other
     :param workspace_id: ID of the workspace
     :param from_date: date from which onwards to get the data
-    :param to_date:
+    :param to_date: date until which to get data
     :return:
     """
 
@@ -214,18 +237,48 @@ async def retrieve_profit_and_loss(workspace_id: str, from_date: date, to_date: 
     return resp.json()
 
 
+async def retrieve_balance_sheet(workspace_id: str, to_date: date):
+    """
+    Retrieve the P&L data from the XERO API between two dates. The dates must be within
+    365 days of each other
+    :param workspace_id: ID of the workspace
+    :param to_date: date until which to get data
+    :return:
+    """
+
+    integration_access = await get_xero_integration_access(workspace_id)
+
+    resp = await xero.get(
+        f"{API_URL_SUFFIX}Reports/BalanceSheet",
+        token=integration_access.token.dict(),
+        params={
+            "date": str(to_date),
+            "timeframe": "MONTH",
+            "standardLayout": True,
+            "periods": 11,
+        },
+        headers={
+            "Xero-Tenant-Id": integration_access.tenant_id,
+            "Accept": "application/json",
+        },
+    )
+    resp.raise_for_status()
+    return resp.json()
+
+
 # todo from_date should be retrieved from model
 async def get_available_data_points(workspace_id: str, from_date: date) -> list[str]:
     """
-    Retrieve all data points that are available for XERO from a certain date onwards.
+    Retrieve all data points that are available for XERO from a certain date onwards
     :param workspace_id: ID of the workspace
     :param from_date: date from which onwards to find the endpoints
     :return: list of endpoints
     """
-    batches = await retrieve_profit_and_loss_from_date(workspace_id, from_date)
+    pl_batches = await retrieve_profit_and_loss_from_date(workspace_id, from_date)
+    bs_batches = await retrieve_balance_sheet_from_date(workspace_id, from_date)
     data_points = set()
 
-    for batch in batches:
+    for batch in pl_batches + bs_batches:
         assert batch["Status"] == "OK"
         assert len(batch["Reports"]) == 1
         report = batch["Reports"][0]
