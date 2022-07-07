@@ -36,8 +36,7 @@ const dates = useState('dates', () => useDateArray(model.value.meta.starting_mon
                                 </form>
                             </div>
                         </div>
-                        <VariableRowHeader v-for="assumption, index in model.sheets[0].assumptions" :assumption="assumption"
-                            :key="index" :assumptionIndex="index"></VariableRowHeader>
+                        <VariableRowHeader v-for="(assumption, index) in model.sheets[0].assumptions" :assumption="assumption" :assumptionIndex="index"></VariableRowHeader>
                     </div>
                     <div class="overflow-x-auto">
                         <div class="flex mb-4">
@@ -64,8 +63,8 @@ export default {
         //return the display values for all the assumptions
         const model = useDummyModelState();
 
+        //todo not only assumptions but all variables
         var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(model.value.sheets[0].assumptions);
-
         useState('assumptionValues', () => assumptionValuesArray);
     }
 }
