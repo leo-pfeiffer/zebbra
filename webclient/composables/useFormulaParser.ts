@@ -14,6 +14,11 @@ export const useFormulaParser = () => {
         refs: string[];
     }
 
+    type VariableInfo = {
+        rowValues:string[];
+        timeSeries:boolean;
+        value:string;
+    }
 
     //todo: add model context??
     //method that takes an array of variables and returns the values to be displayed for every variable
@@ -22,7 +27,8 @@ export const useFormulaParser = () => {
         //get the order in which the variables get created
         var order: string[] = getCreationOrder(variables);
 
-        var rowValuesMap = new Map<string, string[]>();
+        var variablesMap = new Map<string, VariableInfo>();
+        //var rowTimeSeriesMap = new Map<string, boolean>();
 
         for (let i = 0; i < order.length; i++) {
 
@@ -32,127 +38,55 @@ export const useFormulaParser = () => {
             while (variables[index]._id != order[i]) {
                 index++
             }
-
-            var variable: Variable = variables[index]; // !!! not sure if that's correct
+            var variable: Variable = variables[index];
 
             if (!variable.timeSeries || typeof variable.value != "string") {
                 for (let i = 0; i < 24; i++) {
                     rowValuesToDisplay.push("–");
                 }
+
+                var varInfo:VariableInfo = {
+                    rowValues: rowValuesToDisplay,
+                    timeSeries: variable.timeSeries,
+                    value: variable.value
+                }
+                variablesMap.set(variable._id, varInfo);
                 
-                rowValuesMap.set(variable._id, rowValuesToDisplay);
-                //rowValuesArray.push(rowValuesToDisplay);
             } else {
                 try {
-                    rowValuesToDisplay = getRowValues(variable);
+                    rowValuesToDisplay = getRowValues(variable, variablesMap);
                 } catch (e) {
                     console.log(e);
                     for (let i = 0; i < 24; i++) {
                         rowValuesToDisplay.push("#REF!");
                     }
                 }
-                rowValuesMap.set(variable._id, rowValuesToDisplay);
-                //rowValuesArray.push(rowValuesToDisplay);
+                var varInfo:VariableInfo = {
+                    rowValues: rowValuesToDisplay,
+                    timeSeries: variable.timeSeries,
+                    value: variable.value
+                }
+                variablesMap.set(variable._id, varInfo);
             }
 
         }
         //reset original order
         var rowValuesArray: string[][] = [];
         
-        for(let i=0; i<variables.length; i++) {
-            rowValuesArray.push(rowValuesMap.get(variables[i]._id));
+        for(let i=0; i < variables.length; i++) {
+            rowValuesArray.push(variablesMap.get(variables[i]._id).rowValues);
         }
 
         return rowValuesArray;
     }
 
-    //method that defines the order in which the variables must be calculated based on their hierarchy
-    //return an ordered array of ids
-    const getCreationOrder = (variables: Variable[]) => {
-
-        var referenceArray: Reference[] = getReferenceArray(variables);
-
-        //use Kahns algo to get the order in which the variables need to be handled based on references
-        var order: string[] = kahnTopologicalSort(referenceArray);
-        return order;
-    }
-
-    //method that creates an array of references (e.g. objects containing variable ids and an array of ids they are referenced in)
-    const getReferenceArray = (variables: Variable[]) => {
-
-        //first create an (inverted) referenceArray where for every id the references occurring in their value are stored
-        var referenceArrayInverted: Reference[] = [];
-
-        for (let i = 0; i < variables.length; i++) {
-
-            //get the values_1 and value_2 from all variables in the sheet
-            const valueString = variables[i].value + variables[i].value_1;
-            console.log("concat string: " + valueString);
-
-            //for every variable get the external refs (#) and store them in the reference
-            var refsArray: string[] = [];
-
-            for (let i = 0; i < valueString.length; i++) {
-                let char = valueString[i];
-                if (char === "#") {
-                    var ref: string = ""; //empty string to store id (ie number after the #)
-                    var counter = 1;
-                    //only getting the numerical because only the ids are needed not the point in time (e.g. t-1)
-                    while (charIsNumerical(valueString[i + counter]) && (valueString[i + counter] != undefined)) {
-                        ref = ref + valueString[i + counter];
-                        counter++;
-                        if ((i + counter >= valueString.length)) {
-                            break;
-                        }
-                    }
-                    refsArray.push(ref);
-                    i = i + counter - 1;
-                }
-            }
-
-            var reference: Reference = {
-                id: variables[i]._id,
-                refs: []
-            };
-
-            if (refsArray.length > 0) {
-                reference.refs = refsArray;
-            }
-            referenceArrayInverted.push(reference);
-        }
-
-        //the inverted referenceArray must be turned, so for every ID the ids are stored in which the ID is reverenced in
-        var referenceArrayOut: Reference[] = []
-
-        //populate a referenceArray only with the ids of the variables
-        for (let i = 0; i < referenceArrayInverted.length; i++) {
-            var reference: Reference = {
-                id: referenceArrayInverted[i].id,
-                refs: []
-            }
-            referenceArrayOut.push(reference);
-        }
-
-        //for every variable check if id is included in references of other ids and add other ids if yes
-        for (let i = 0; i < referenceArrayOut.length; i++) {
-            let id = referenceArrayOut[i].id;
-            for (let j = 0; j < referenceArrayInverted.length; j++) {
-                if (referenceArrayInverted[j].refs.includes(id)) {
-                    referenceArrayOut[i].refs.push(referenceArrayInverted[j].id);
-                }
-            }
-        }
-        return referenceArrayOut;
-    }
-
-    //method that takes a variable and return the values to be displayed based on the value string
-    const getRowValues = (variableInput: Variable) => {
+    //method that takes a variable and returns the values to be displayed based on the value string
+    const getRowValues = (variableInput: Variable, variablesAlreadyCovered: Map<string, VariableInfo>) => {
 
         var valueString: string = variableInput.value;
 
         //object that stores splits out the refs from the value string and stores their location
         const valueObject: ValueObject = createValueObject(valueString);
-
 
         //stores all the values that need to be displayed e.g. are returned at the end
         var valuesToDisplay: string[] = [];
@@ -163,9 +97,12 @@ export const useFormulaParser = () => {
         }
 
         if (variableInput.firstValueDiff) {
-            //TODO: push the starting value if available
-            //var firstValue:string = variableInput.value_1;
-            var firstValue: string = "1000";
+            var firstValue:string;
+            if(variableInput.value_1.includes("#")) {
+                firstValue = getExternalRefValue(variableInput.value_1, variableInput.startingAt, variablesAlreadyCovered);
+            } else {
+                firstValue = MathParser.eval(variableInput.value_1).toString();
+            }
             valuesToDisplay.push(firstValue);
         }
 
@@ -183,7 +120,7 @@ export const useFormulaParser = () => {
             //get the refs in the valueArray and replace them with the actual value
             for (let j = 0; j < valueObject.indexes.length; j++) {
                 var ref: string = valueArrayToBeOverwritten[valueObject.indexes[j]];
-                var refValue = getRefValue(ref, i, valuesToDisplay);
+                var refValue = getRefValue(ref, i, valuesToDisplay, variablesAlreadyCovered);
                 valueArrayToBeOverwritten[valueObject.indexes[j]] = refValue;
             }
 
@@ -239,7 +176,7 @@ export const useFormulaParser = () => {
             } else if (char === "#") {
                 var externalRef: string = char;
                 var counter = 1;
-                while (charIsNumerical(valueString[i + counter]) && (valueString[i + counter] != undefined)) {
+                while ((charIsNumerical(valueString[i + counter]) || valueString[i + counter] === "$") && (valueString[i + counter] != undefined)) {
                     externalRef = externalRef + valueString[i + counter];
                     counter++;
                     if ((i + counter >= valueString.length)) {
@@ -272,16 +209,15 @@ export const useFormulaParser = () => {
     }
 
     /* takes any ref and returns its value */
-    const getRefValue = (ref: string, index: number, valuesToDisplay: string[]) => {
+    const getRefValue = (ref: string, index: number, valuesToDisplay: string[], variablesAlreadyCovered: Map<string, VariableInfo>) => {
 
         let returnValue: string;
 
         if (ref[0] == "$") {
             returnValue = getInternalRefValue(ref, index, valuesToDisplay);
         } else if (ref[0] == "#") {
-            returnValue = getExternalRefValue(ref, index);
+            returnValue = getExternalRefValue(ref, index, variablesAlreadyCovered);
         }
-
         return returnValue;
 
     }
@@ -290,16 +226,32 @@ export const useFormulaParser = () => {
     const getInternalRefValue = (internalRef: string, index: number, valuesToDisplay: string[]) => {
 
         const indexDiff: number = +internalRef.substring(1);
-        
+
         return valuesToDisplay[index - indexDiff];
 
     }
 
     /* takes external ref and returns the value */
-    const getExternalRefValue = (externalRef: string, index: number) => {
+    const getExternalRefValue = (externalRef: string, index: number, variablesAlreadyCovered: Map<string, VariableInfo>) => {
 
-        //todo
-        return "0.05";
+        var ref:string;
+        var indexDiff:number = 0;
+        var outputValue:string;
+
+        if(externalRef.includes("$")) {
+            ref = externalRef.slice(0, externalRef.indexOf("$")).substring(1)
+            indexDiff = +externalRef.slice(externalRef.indexOf("$")).substring(1);
+        } else {
+            ref = externalRef.substring(1);
+        }
+
+        if(variablesAlreadyCovered.get(ref).timeSeries) {
+            outputValue = variablesAlreadyCovered.get(ref).rowValues[index - indexDiff];
+        } else {
+            outputValue = MathParser.eval(variablesAlreadyCovered.get(ref).value).toString();
+        }
+
+        return outputValue;
 
     }
 
@@ -321,6 +273,84 @@ export const useFormulaParser = () => {
             return false;
         }
 
+    }
+
+    //method that defines the order in which the variables must be calculated based on their hierarchy
+    //return an ordered array of ids
+    const getCreationOrder = (variables: Variable[]) => {
+
+        var referenceArray: Reference[] = getReferenceArray(variables);
+
+        //use Kahns algo to get the order in which the variables need to be handled based on references
+        var order: string[] = kahnTopologicalSort(referenceArray);
+        return order;
+    }
+
+    //method that creates an array of references (e.g. objects containing variable ids and an array of ids they are referenced in)
+    const getReferenceArray = (variables: Variable[]) => {
+
+        //first create an (inverted) referenceArray where for every id the references occurring in their value are stored
+        var referenceArrayInverted: Reference[] = [];
+
+        for (let i = 0; i < variables.length; i++) {
+
+            //get the values_1 and value_2 from all variables in the sheet
+            const valueString = variables[i].value + variables[i].value_1;
+
+            //for every variable get the external refs (#) and store them in the reference
+            var refsArray: string[] = [];
+
+            for (let i = 0; i < valueString.length; i++) {
+                let char = valueString[i];
+                if (char === "#") {
+                    var ref: string = ""; //empty string to store id (ie number after the #)
+                    var counter = 1;
+                    //only getting the numerical because only the ids are needed not the point in time (e.g. t-1)
+                    while (charIsNumerical(valueString[i + counter]) && (valueString[i + counter] != undefined)) {
+                        ref = ref + valueString[i + counter];
+                        counter++;
+                        if ((i + counter >= valueString.length)) {
+                            break;
+                        }
+                    }
+                    refsArray.push(ref);
+                    i = i + counter - 1;
+                }
+            }
+
+            var reference: Reference = {
+                id: variables[i]._id,
+                refs: []
+            };
+
+            if (refsArray.length > 0) {
+                reference.refs = refsArray;
+            }
+            referenceArrayInverted.push(reference);
+        }
+
+        //the inverted referenceArray must be turned, so for every ID the ids are stored in which the ID is reverenced in
+        var referenceArrayOut: Reference[] = []
+
+        //populate a referenceArray only with the ids of the variables
+        for (let i = 0; i < referenceArrayInverted.length; i++) {
+            var reference: Reference = {
+                id: referenceArrayInverted[i].id,
+                refs: []
+            }
+            referenceArrayOut.push(reference);
+        }
+
+        //for every variable check if id is included in references of other ids and add other ids if yes
+        for (let i = 0; i < referenceArrayOut.length; i++) {
+            let id = referenceArrayOut[i].id;
+            for (let j = 0; j < referenceArrayInverted.length; j++) {
+                if (referenceArrayInverted[j].refs.includes(id)) {
+                    referenceArrayOut[i].refs.push(referenceArrayInverted[j].id);
+                }
+            }
+        }
+        return referenceArrayOut;
     }
 
     //adopted from https://www.geeksforgeeks.org/topological-sorting-indegree-based-solution/
