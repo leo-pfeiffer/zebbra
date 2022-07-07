@@ -5,7 +5,6 @@ from pydantic import BaseModel
 
 
 IntegrationProvider = Literal["Xero"]
-supported_providers = ["Xero"]
 
 
 class IntegrationProviderInfo(BaseModel):
