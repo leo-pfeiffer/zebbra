@@ -1,7 +1,7 @@
 import { Model, Sheet, Variable } from "~~/types/Model"
 
 const assumption1:Variable = {
-    _id: "1",
+    _id: "123456",
     name: "Customer Growth Rate",
     valType: "percentage",
     editable: true,
@@ -9,13 +9,13 @@ const assumption1:Variable = {
     timeSeries: false,
     startingAt: 0,
     firstValueDiff: false,
-    value: "0.2",
+    value: "0.01",
     value_1: undefined,
     integration_values: undefined
 }
 
 const assumption2:Variable = {
-    _id: "2",
+    _id: "1235642",
     name: "Initial Customers",
     valType: "number",
     editable: true,
@@ -35,9 +35,9 @@ const assumption3:Variable = {
     editable: true,
     varType: "value",
     timeSeries: false,
-    startingAt: 10,
+    startingAt: 0,
     firstValueDiff: false,
-    value: "200",
+    value: "20",
     value_1: undefined,
     integration_values: undefined
 }
@@ -52,7 +52,7 @@ const assumption4:Variable = {
     startingAt: 2,
     firstValueDiff: false,
     value: "2*100",
-    value_1: "#2",
+    value_1: undefined,
     integration_values: undefined
 }
 
@@ -66,7 +66,7 @@ const assumption5:Variable = {
     startingAt: 0,
     firstValueDiff: true,
     value: "$1*(1-0.01)",
-    value_1: "10000",
+    value_1: "1000",
     integration_values: undefined
 }
 
@@ -77,10 +77,52 @@ const assumption6:Variable = {
     editable: true,
     varType: "formula",
     timeSeries: true,
-    startingAt: 1,
+    startingAt: 0,
     firstValueDiff: true,
-    value: "$1*(1+#1)",
+    value: "$1*(1+#123456$1)",
+    value_1: "#1235642",
+    integration_values: undefined
+}
+
+const assumption7:Variable = {
+    _id: "7",
+    name: "Revenue",
+    valType: "currency",
+    editable: true,
+    varType: "formula",
+    timeSeries: true,
+    startingAt: 4,
+    firstValueDiff: false,
+    value: "#6$2*#1",
+    value_1: undefined,
+    integration_values: undefined
+}
+
+const variable1:Variable = {
+    _id: "7",
+    name: "Customers",
+    valType: "number",
+    editable: true,
+    varType: "formula",
+    timeSeries: true,
+    startingAt: 0,
+    firstValueDiff: true,
+    value: "$1*(1+#123456&1)",
     value_1: "#2",
+    integration_values: undefined
+}
+
+const variable2:Variable = {
+    _id: "8",
+    name: "Avg. Price",
+    valType: "number",
+    editable: true,
+    varType: "value",
+    timeSeries: false,
+    startingAt: 0,
+    firstValueDiff: false,
+    value: "123",
+    value_1: undefined,
     integration_values: undefined
 }
 
@@ -89,11 +131,13 @@ const dummyRevenueSheet:Sheet = {
         name: "Revenues"
     },
     assumptions: [
-        assumption1, assumption2, assumption3, assumption4, assumption5, assumption6
+        assumption1, assumption2, assumption3, assumption4, assumption5, assumption6, assumption7
     ],
     sections: [{
         name: "Dummy Product",
-        rows: undefined,
+        rows: [
+            variable1, variable2
+        ],
         endrow: undefined
     }]
 }
