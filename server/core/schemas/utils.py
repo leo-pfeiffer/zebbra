@@ -4,6 +4,14 @@ from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
 from fastapi.param_functions import Form
 
+from core.schemas.integrations import IntegrationProvider
+
+
+class DataPointRegistryEntry(BaseModel):
+    integration: IntegrationProvider
+    name: str
+    description: str
+
 
 class ExpiredMessage(BaseModel):
     expired: bool

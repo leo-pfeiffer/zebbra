@@ -13,6 +13,11 @@ from api.utils.dependencies import (
     get_current_active_user,
 )
 from core.dao.integrations import get_integrations_for_workspace
+from core.schemas.utils import DataPointRegistryEntry
+from core.unification.config import (
+    get_supported_providers,
+    get_data_point_registry_list,
+)
 from core.unification.xero_oauth import (
     xero,
     store_xero_oauth2_token,
@@ -22,7 +27,6 @@ from core.unification.xero_oauth import (
 from core.schemas.integrations import (
     IntegrationAccessToken,
     IntegrationProviderInfo,
-    supported_providers,
 )
 from core.schemas.users import User
 
@@ -137,11 +141,18 @@ async def transactions(
 async def providers(
     workspace_id: str, current_user: User = Depends(get_current_active_user)
 ):
+    """
+    Return all integration providers for a workspace including information if the
+    integration is connected.\n
+        :param workspace_id: ID of the workspace
+        :param current_user: Currently logged-in user
+        :return:List of IntegrationProviderInfo
+    """
     workspace_integrations = await get_integrations_for_workspace(workspace_id)
     workspace_integrations_map = {x.integration: x for x in workspace_integrations}
 
     all_providers = []
-    for p in supported_providers:
+    for p in get_supported_providers():
         if p in workspace_integrations_map:
             info = IntegrationProviderInfo(
                 name=p,
@@ -155,3 +166,29 @@ async def providers(
         all_providers.append(info)
 
     return all_providers
+
+
+# todo test
+@router.get(
+    "/api/integration/dataEndpoints",
+    tags=["integration"],
+    response_model=list[DataPointRegistryEntry],
+)
+async def data_endpoints(
+    workspace_id: str, current_user: User = Depends(get_current_active_user)
+):
+    """
+    Return all endpoints for all integrations available to a workspace including.\n
+        :param workspace_id: ID of the workspace
+        :param current_user: Currently logged-in user
+        :return:List of DataPointRegistryEntry
+    """
+    workspace_integrations = await get_integrations_for_workspace(workspace_id)
+    workspace_integrations_map = {x.integration: x for x in workspace_integrations}
+
+    all_endpoints = []
+    for integration in workspace_integrations:
+        endpoints = get_data_point_registry_list(integration.integration)
+        all_endpoints.extend(endpoints)
+
+    return all_endpoints
