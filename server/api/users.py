@@ -44,9 +44,6 @@ async def read_user(current_user: User = Depends(get_current_active_user)):
             UserInfo.ModelInfo(**{"name": model.meta.name, "_id": str(model.id)})
         )
 
-    print(models)
-    print(workspaces)
-
     return UserInfo(
         **{
             "_id": str(current_user.id),

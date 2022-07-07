@@ -1,4 +1,6 @@
+import datetime
 import time
+from typing import Optional
 
 from fastapi import APIRouter, Depends, Request, HTTPException
 from starlette import status
@@ -17,6 +19,12 @@ from core.schemas.utils import DataPointRegistryEntry
 from core.unification.config import (
     get_supported_providers,
     get_data_point_registry_list,
+)
+from core.unification.fetch import (
+    get_transactions,
+    get_tenants,
+    get_profit_and_loss,
+    get_profit_and_loss_from_date,
 )
 from core.unification.xero_oauth import (
     xero,
@@ -101,13 +109,7 @@ async def tenants(
 ):
     # user must be in workspace
     await assert_workspace_access(current_user.id, workspace_id)
-
-    integration_access = await get_xero_integration_access(workspace_id)
-    token = integration_access.token.dict()
-
-    resp = await xero.get("connections", token=token)
-    resp.raise_for_status()
-    return resp.json()
+    return await get_tenants(workspace_id)
 
 
 @router.get("/api/integration/xero/transactions", tags=["integration"])
@@ -118,18 +120,22 @@ async def transactions(
     await assert_workspace_access(current_user.id, workspace_id)
     await assert_workspace_has_integration(workspace_id, "Xero")
 
-    integration_access = await get_xero_integration_access(workspace_id)
+    return await get_transactions(workspace_id)
 
-    resp = await xero.get(
-        f"{API_URL_SUFFIX}BankTransactions",
-        token=integration_access.token.dict(),
-        headers={
-            "Xero-Tenant-Id": integration_access.tenant_id,
-            "Accept": "application/json",
-        },
-    )
-    resp.raise_for_status()
-    return resp.json()
+
+@router.get("/api/integration/xero/profit-and-loss", tags=["integration"])
+async def profit_and_loss(
+    workspace_id: str,
+    from_date: str,
+    current_user: User = Depends(get_current_active_user),
+):
+    # user must be in workspace
+    await assert_workspace_access(current_user.id, workspace_id)
+    await assert_workspace_has_integration(workspace_id, "Xero")
+
+    from_date = datetime.date.fromisoformat(from_date)
+
+    return await get_profit_and_loss_from_date(workspace_id, from_date)
 
 
 # todo test
