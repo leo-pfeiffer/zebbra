@@ -1,5 +1,5 @@
 from core.schemas.integrations import IntegrationProvider
-from core.schemas.utils import DataPointRegistryEntry
+from core.schemas.utils import DataPoint
 
 DATA_POINT_REGISTRY = {
     "Xero": {
@@ -17,9 +17,7 @@ DATA_POINT_REGISTRY = {
 
 def get_data_point_registry_list(integration: IntegrationProvider):
     return [
-        DataPointRegistryEntry(
-            integration=integration, name=v["name"], description=v["description"]
-        )
+        DataPoint(integration=integration, name=v["name"], description=v["description"])
         for k, v in DATA_POINT_REGISTRY[integration].items()
     ]
 

@@ -56,7 +56,7 @@ def merge_batches(batches: list):
     for timestamp in list(timestamp_set):
         for _, timeseries in data.items():
             if timestamp not in timeseries:
-                timeseries[timestamp] = 0
+                timeseries[timestamp] = 0  # todo check if this should be NaN etc.
 
     dates = sorted(list(timestamp_set))
 
@@ -151,6 +151,7 @@ def create_batch_periods(from_date: date, to_date: date):
     return periods
 
 
+# todo from_date should be retrieved from model
 async def get_profit_and_loss_from_date(workspace_id: str, from_date: date):
     """
     Retrieve and process the P&L data from XERO
@@ -174,7 +175,7 @@ async def retrieve_profit_and_loss_from_date(workspace_id: str, from_date: date)
     batch_periods = create_batch_periods(from_date, date.today())
 
     # asynchronously gather data
-    return asyncio.gather(
+    return await asyncio.gather(
         *[retrieve_profit_and_loss(workspace_id, p[0], p[1]) for p in batch_periods]
     )
 
@@ -213,7 +214,8 @@ async def retrieve_profit_and_loss(workspace_id: str, from_date: date, to_date: 
     return resp.json()
 
 
-async def get_available_data_points(workspace_id: str, from_date: date) -> list:
+# todo from_date should be retrieved from model
+async def get_available_data_points(workspace_id: str, from_date: date) -> list[str]:
     """
     Retrieve all data points that are available for XERO from a certain date onwards.
     :param workspace_id: ID of the workspace

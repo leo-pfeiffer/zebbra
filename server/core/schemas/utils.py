@@ -1,16 +1,16 @@
 from datetime import datetime
 
 from fastapi.security import OAuth2PasswordRequestForm
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from fastapi.param_functions import Form
 
 from core.schemas.integrations import IntegrationProvider
 
 
-class DataPointRegistryEntry(BaseModel):
+class DataPoint(BaseModel):
+    id: str
     integration: IntegrationProvider
     name: str
-    description: str
 
 
 class ExpiredMessage(BaseModel):
