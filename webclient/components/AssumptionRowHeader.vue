@@ -48,7 +48,7 @@ export default {
         async updateValue(){
             console.log("update value");
 
-            //todo: handle if assumption or not
+            //todo: handle if revenues or not
 
             const sheet = useRevenueState();
             sheet.value.assumptions[this.assumptionIndex].value = this.inputValue.toString();
@@ -65,8 +65,12 @@ export default {
         }
     },
     beforeMount() {
-        this.inputValue = this.assumption.value;
-        this.valType = this.assumption.valType;
+        if(this.assumption.value === "" || this.assumption.value === undefined) {
+            this.inputValue = "–"
+        } else {
+            this.inputValue = this.assumption.value;
+        }
+        this.valType = this.assumption.val_type;
     },
     computed: {
         outputValue(){
