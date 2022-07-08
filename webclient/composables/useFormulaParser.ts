@@ -439,6 +439,6 @@ export const useFormulaParser = () => {
 
     }
 
-    return { getSheetRowValues }
+    return { getSheetRowValues, createValueObject, charIsNumerical, charIsRefToken, getCreationOrder, getReferenceArray, kahnTopologicalSort }
 
 }
