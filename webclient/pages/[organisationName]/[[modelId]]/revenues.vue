@@ -67,7 +67,7 @@ export default {
             const emptyAssumption:Variable = {
 
                 _id: undefined,
-                name: "New Assumption",
+                name: "",
                 val_type: "number",
                 editable: true,
                 var_type: "value",
