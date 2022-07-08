@@ -1,4 +1,4 @@
-import { expect, it, describe, test } from 'vitest';
+import { expect, it, describe } from 'vitest';
 
 import { useFormulaParser } from '../composables/useFormulaParser';
 
@@ -19,6 +19,48 @@ describe('Tests for createValueObject method', () => {
     it('should create the correct ValueObject on input with multiple refs', () => {
 
         const input:string = "$123+#345*(1+#567)";
+
+        const expectedOutput:ValueObject = {
+            indexes: [0, 2, 4],
+            valueArray: ["$123", "+", "#345", "*(1+", "#567", ")"]
+        }
+
+        const output:ValueObject = useFormulaParser().createValueObject(input);
+
+        expect(output.indexes).toStrictEqual(expectedOutput.indexes);
+        expect(output.valueArray).toStrictEqual(expectedOutput.valueArray);
+
+    });
+
+    it('should create the correct ValueObject on input with no refs', () => {
+
+        const input:string = "100*100";
+
+        const expectedOutput:ValueObject = {
+            indexes: [],
+            valueArray: ["100*100"]
+        }
+
+        const output:ValueObject = useFormulaParser().createValueObject(input);
+
+        expect(output.indexes).toStrictEqual(expectedOutput.indexes);
+        expect(output.valueArray).toStrictEqual(expectedOutput.valueArray);
+
+    });
+
+    it('should create the correct ValueObject on empty input', () => {
+
+        const input:string = "";
+
+        const expectedOutput:ValueObject = {
+            indexes: [],
+            valueArray: []
+        }
+
+        const output:ValueObject = useFormulaParser().createValueObject(input);
+
+        expect(output.indexes).toStrictEqual(expectedOutput.indexes);
+        expect(output.valueArray).toStrictEqual(expectedOutput.valueArray);
 
     });
 
