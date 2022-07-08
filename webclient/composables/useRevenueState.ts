@@ -23,7 +23,7 @@ export const getRevenueState = async (modelId: string | string[]) => {
 
 }
 
-export const updateRevenueState = async (modelId: string, revenueSheet: Sheet) => {
+export const updateRevenueState = async (modelId: string | string[], revenueSheet: Sheet) => {
 
     const postRevenues = await useFetchAuth(
         'http://localhost:8000/model/revenues', {
@@ -37,7 +37,5 @@ export const updateRevenueState = async (modelId: string, revenueSheet: Sheet) =
     }).catch((error) => {
         console.log(error);
     });
-
-    return revenueState;
 
 }

@@ -39,14 +39,14 @@ const assumptionValuesToDisplay = useState('assumptionValues');
                                 </form>
                             </div>
                         </div>
-                        <VariableRowHeader v-for="(assumption, index) in revenues.assumptions" :assumption="assumption" :assumptionIndex="index"></VariableRowHeader>
+                        <AssumptionRowHeader v-for="(assumption, index) in revenues.assumptions" :assumption="assumption" :assumptionIndex="index"></AssumptionRowHeader>
                     </div>
                     <div class="overflow-x-auto">
                         <div class="flex mb-4">
                             <div class="text-xs py-2 px-2 border-y border-r border-zinc-300 min-w-[75px] max-w-[75px] text-center uppercase bg-zinc-100 text-zinc-700"
                                 v-for="date in dates">{{ date }}</div>
                         </div>
-                        <VariableRow v-for="assumptionValues in assumptionValuesToDisplay" :values="assumptionValues"></VariableRow>
+                        <AssumptionRow v-for="assumptionValues in assumptionValuesToDisplay" :values="assumptionValues"></AssumptionRow>
                     </div>
                 </div>
             </div>

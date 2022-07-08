@@ -23,7 +23,7 @@
 
 <script lang="ts">
 
-import { Variable } from "~~/types/Model"
+import { Sheet, Variable } from "~~/types/Model"
 
 export default {
     data() {
@@ -48,33 +48,20 @@ export default {
         async updateValue(){
             console.log("update value");
 
-            const model = useDummyModelState();
-            const sheet = model.value.sheets[0].assumptions[this.assumptionIndex].value = this.inputValue.toString();
+            //todo: handle if assumption or not
 
+            const sheet = useRevenueState();
+            sheet.value.assumptions[this.assumptionIndex].value = this.inputValue.toString();
+            
+            const route = useRoute();
 
-            /* const sheet = useSheetState();
-            sheet.value.sheets[0].assumptions[0].data.column1 = this.inputValue;
-
-            const route = useRoute()
-
-            const requestBody = sheet.value.sheets;
-            console.log(requestBody);
-
-            const updateModel = await useFetchAuth(
-            'http://localhost:8000/model/sheet/update/data',{ method: 'POST',
-            params: {
-                model_id: route.params.modelId,
-                name: sheet.value.sheets[0].meta.name
-            },
-            body: { requestBody }
-            }).then((data) => {
-                console.log(data);
-            }).catch((error) => {
-            console.log(error);
-            });
-
-            sheet.value = await updateSheetState(route.params.modelId); */
-
+            //todo: proper error handling
+            try {
+                await updateRevenueState(route.params.modelId, sheet.value);
+            } catch(e) {
+                console.log(e)
+                sheet.value = await getRevenueState(route.params.modelId)
+            }
         }
     },
     beforeMount() {
