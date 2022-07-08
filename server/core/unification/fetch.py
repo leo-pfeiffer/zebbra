@@ -12,6 +12,9 @@ from core.unification.xero_oauth import (
 )
 
 
+# todo define Batch data type
+
+
 class FetchAdapter(ABC):
     @abstractmethod
     def __init__(self, workspace_id: str):
