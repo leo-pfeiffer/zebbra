@@ -15,7 +15,7 @@ const route = useRoute();
                     <span v-if="!nameChangeSelected" @dblclick="toggleNameChange">{{ assumption.name }}</span>
                     <span v-else><input autofocus @keydown.enter="updateName" v-model="newName" class="bg-zinc-100/0 focus:border-b border-sky-600 focus:outline-none placeholder:text-zinc-500" type="text"
                             placeholder="Change variable name"></span>
-                    <span class="text-xs float-right hidden group-hover:block"><button type="button" @click="deleteVariable" class="mr-1"><i class="bi bi-trash3 text-zinc-500"></i></button></span>
+                    <span class="text-xs float-right hidden group-hover:block"><button type="button" @click="toggleDeleteModal" class="mr-1"><i class="bi bi-trash3 text-zinc-500"></i></button></span>
                 </div>
             <div class="h-full w-full">
                 <div v-if="!valueInputSelected" class="text-xs border-t border-r border-zinc-300 min-w-[125px] max-w-[125px] h-full w-full text-right">
@@ -29,6 +29,29 @@ const route = useRoute();
                 </div>
             </div>
         </div>
+        <Teleport to="body">
+
+            <div v-show="deleteModalOpen" class="absolute left-0 top-1/3 w-full flex justify-center align-middle">
+            <div class="p-6 border h-max shadow-lg bg-white border-zinc-300 rounded z-50">
+              <div>
+                  <h3 class="text-zinc-900 font-medium text-sm mb-2">Do you really want to delete this variable?</h3>
+              </div>
+              <p class="text-zinc-500 text-xs mb-3">Deleting <b>{{assumption.name}}</b> cannot be undone.</p>
+              <div class="float-right">
+                <button
+                  class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-xs px-2 py-1 border border-zinc-300 rounded text-zinc-700"
+                  @click="toggleDeleteModal">Cancel</button>
+                <button class="ml-2 bg-red-600  drop-shadow-sm
+                            shadow-zinc-50 text-xs font-medium px-2 py-1 
+                            border border-red-500 rounded text-neutral-100" @click="deleteVariable">Delete</button>
+              </div>
+            </div>
+            <div v-show="deleteModalOpen" @click="toggleDeleteModal"
+              class="fixed top-0 left-0 w-[100vw] h-[100vh] z-40 bg-zinc-100/50">
+            </div>
+          </div>
+
+        </Teleport>
     </div>
 </template>
 
@@ -43,7 +66,8 @@ export default {
             newName: "",
             valType: "",
             valueInputSelected: false,
-            nameChangeSelected: false
+            nameChangeSelected: false,
+            deleteModalOpen: false
         }
     },
     props: {
@@ -121,9 +145,6 @@ export default {
                 await updateRevenueState(this.route.params.modelId, sheet.value);
             } catch(e) {
                 console.log(e) //todo: throw error message
-            } finally {
-                //retrieve actual stored sheet from DB
-                //if actual sheet and state match, if not update state to actual sheet
                 const actualSheet = await getRevenueState(this.route.params.modelId);
                 const sheet = useRevenueState();
                 if(!(actualSheet.assumptions.length === sheet.value.assumptions.length)) {
@@ -133,6 +154,14 @@ export default {
                     let index = assumptionValuesArray.length - 1;
                     assumptionValuesArrayState.value.push(assumptionValuesArray[index])
                 }
+            }
+            this.toggleDeleteModal();
+        },
+        toggleDeleteModal() {
+            if (this.deleteModalOpen === false) {
+                this.deleteModalOpen = true;
+            } else {
+                this.deleteModalOpen = false;
             }
         }
     },
