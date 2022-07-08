@@ -28,18 +28,6 @@ async def get_user_by_username(username: str) -> UserInDB | None:
         return UserInDB(**user)
 
 
-async def get_user_id(username: str) -> str:
-    user = await db.users.find_one({"username": username})
-    if user is not None:
-        return user.id
-
-
-async def get_username(user_id: PyObjectId) -> str:
-    user = await db.users.find_one({"_id": str(user_id)})
-    if user is not None:
-        return user.username
-
-
 async def create_user(user: UserInDB):
     if await username_exists(user.username):
         raise UniqueConstraintFailedException("Username must be unique")

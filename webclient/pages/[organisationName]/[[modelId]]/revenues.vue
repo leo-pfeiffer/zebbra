@@ -1,22 +1,25 @@
 <script setup lang="ts">
-import { Variable } from '~~/types/Model';
+import { Sheet, ModelMeta, Variable } from '~~/types/Model';
 
 definePageMeta({
     middleware: ["auth", "route-check"]
 })
 
-const model = useDummyModelState();
+const route = useRoute()
+//const user = useUserState();
 
-const assumptionValuesToDisplay = useState('assumptionValues');
+const modelMeta = useModelMetaState();
 
-/* const route = useRoute()
-const user = useUserState();
+modelMeta.value = await getModelMeta(route.params.modelId);
 
-const model = useModelState();
-model.value = await updateModelState(route.params.modelId); */
+const revenues = useRevenueState();
+revenues.value = await getRevenueState(route.params.modelId);
 
-const dates = useState('dates', () => useDateArray(model.value.meta.starting_month));
+//todo: find better solution
+const date:string[] = modelMeta.value.starting_month.split("-");
+const dates = useState('dates', () => useDateArray(new Date(+date[0], +date[1]-1)));
 
+const assumptionValuesToDisplay = useState<string[][]>('assumptionValues');
 
 </script>
 
@@ -24,8 +27,8 @@ const dates = useState('dates', () => useDateArray(model.value.meta.starting_mon
     <NuxtLayout name="navbar">
         <div>
             <div class="mt-3 ml-1 py-3 pl-2 mr-0 overflow-x-hidden">
-                <div class="flex">
-                    <div class="">
+                <div class="flex border-b border-zinc-300">
+                    <div>
                         <div class="flex mb-4">
                             <div
                                 class="text-xs text-center font-mono italic py-2 px-2 border-b border border-zinc-300 min-w-[50px] max-w-[50px]">
@@ -36,16 +39,17 @@ const dates = useState('dates', () => useDateArray(model.value.meta.starting_mon
                                 </form>
                             </div>
                         </div>
-                        <VariableRowHeader v-for="(assumption, index) in model.sheets[0].assumptions" :assumption="assumption" :assumptionIndex="index"></VariableRowHeader>
+                        <AssumptionRowHeader v-for="(assumption, index) in revenues.assumptions" :assumption="assumption" :assumptionIndex="index"></AssumptionRowHeader>
                     </div>
                     <div class="overflow-x-auto">
                         <div class="flex mb-4">
                             <div class="text-xs py-2 px-2 border-y border-r border-zinc-300 min-w-[75px] max-w-[75px] text-center uppercase bg-zinc-100 text-zinc-700"
                                 v-for="date in dates">{{ date }}</div>
                         </div>
-                        <VariableRow v-for="assumptionValues in assumptionValuesToDisplay" :values="assumptionValues"></VariableRow>
+                        <AssumptionRow v-for="assumptionValues in assumptionValuesToDisplay" :values="assumptionValues"></AssumptionRow>
                     </div>
                 </div>
+                <div class="mt-2"><button class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-xs pl-2.5 pr-3 py-1 border border-zinc-300 rounded text-zinc-700" @click="addAssumption">Add Assumption</button></div>
             </div>
         </div>
     </NuxtLayout>
@@ -57,14 +61,51 @@ export default {
         return {
         }
     },
-    methods: {},
-    mounted() {
+    methods: {
+        async addAssumption(){
 
+            const emptyAssumption:Variable = {
+
+                _id: undefined,
+                name: "",
+                val_type: "number",
+                editable: true,
+                var_type: "value",
+                time_series: false,
+                starting_at: 0,
+                first_value_diff: false,
+                value: "0",
+                value_1: undefined, 
+                integration_values: undefined
+
+            }
+
+            const revenues = useRevenueState();
+            revenues.value.assumptions.push(emptyAssumption);
+
+            //todo not only assumptions but all variables
+            const assumptionValuesArrayState = useState<string[][]>('assumptionValues');
+            var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(revenues.value.assumptions);
+            let index = assumptionValuesArray.length - 1;
+            assumptionValuesArrayState.value.push(assumptionValuesArray[index])
+
+            //todo: proper error handling
+            try {
+                await updateRevenueState(this.route.params.modelId, revenues.value);
+            } catch(e) {
+                console.log(e)
+                revenues.value = await getRevenueState(this.route.params.modelId)
+            }
+
+        }
+    },
+    mounted() {
         //return the display values for all the assumptions
-        const model = useDummyModelState();
+        //const model = useDummyModelState();
+        const revenues = useRevenueState();
 
         //todo not only assumptions but all variables
-        var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(model.value.sheets[0].assumptions);
+        var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(revenues.value.assumptions);
         useState('assumptionValues', () => assumptionValuesArray);
     }
 }

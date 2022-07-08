@@ -17,6 +17,15 @@ class Settings(BaseSettings):
     MONGODB_PW: str
     MONGODB_URL: str
 
+    XERO_CLIENT_ID: str
+    XERO_CLIENT_SECRET: str
+    XERO_CONF_URL: str = (
+        "https://login.xero.com/identity/.well-known/openid-configuration"
+    )
+    XERO_API_BASE_URL: str = "https://api.xero.com/"
+    XERO_API_URL_SUFFIX: str = "api.xro/2.0/"
+    XERO_REFRESH_URL: str = "https://identity.xero.com/connect/token"
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

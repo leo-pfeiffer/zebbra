@@ -6,7 +6,7 @@ export const useFormulaParser = () => {
 
     type ValueObject = {
         indexes: number[];
-        valueArray: string[];
+        value_array: string[];
     }
 
     type Reference = {
@@ -15,8 +15,8 @@ export const useFormulaParser = () => {
     }
 
     type VariableInfo = {
-        rowValues:string[];
-        timeSeries:boolean;
+        row_values:string[];
+        time_series:boolean;
         value:string;
     }
 
@@ -40,14 +40,14 @@ export const useFormulaParser = () => {
             }
             var variable: Variable = variables[index];
 
-            if (!variable.timeSeries || typeof variable.value != "string") {
+            if (!variable.time_series || typeof variable.value != "string") {
                 for (let i = 0; i < 24; i++) {
                     rowValuesToDisplay.push("–");
                 }
 
                 var varInfo:VariableInfo = {
-                    rowValues: rowValuesToDisplay,
-                    timeSeries: variable.timeSeries,
+                    row_values: rowValuesToDisplay,
+                    time_series: variable.time_series,
                     value: variable.value
                 }
                 variablesMap.set(variable._id, varInfo);
@@ -62,8 +62,8 @@ export const useFormulaParser = () => {
                     }
                 }
                 var varInfo:VariableInfo = {
-                    rowValues: rowValuesToDisplay,
-                    timeSeries: variable.timeSeries,
+                    row_values: rowValuesToDisplay,
+                    time_series: variable.time_series,
                     value: variable.value
                 }
                 variablesMap.set(variable._id, varInfo);
@@ -74,7 +74,7 @@ export const useFormulaParser = () => {
         var rowValuesArray: string[][] = [];
         
         for(let i=0; i < variables.length; i++) {
-            rowValuesArray.push(variablesMap.get(variables[i]._id).rowValues);
+            rowValuesArray.push(variablesMap.get(variables[i]._id).row_values);
         }
 
         return rowValuesArray;
@@ -92,14 +92,14 @@ export const useFormulaParser = () => {
         var valuesToDisplay: string[] = [];
 
         //push empty values for startingAt
-        for (let i = 0; i < variableInput.startingAt; i++) {
+        for (let i = 0; i < variableInput.starting_at; i++) {
             valuesToDisplay.push("–");
         }
 
-        if (variableInput.firstValueDiff) {
+        if (variableInput.first_value_diff) {
             var firstValue:string;
             if(variableInput.value_1.includes("#")) {
-                firstValue = getExternalRefValue(variableInput.value_1, variableInput.startingAt, variablesAlreadyCovered);
+                firstValue = getExternalRefValue(variableInput.value_1, variableInput.starting_at, variablesAlreadyCovered);
             } else {
                 firstValue = MathParser.eval(variableInput.value_1).toString();
             }
@@ -107,15 +107,15 @@ export const useFormulaParser = () => {
         }
 
         //change starting point of 'i' in for loop depending on startingAt and whether first value is different
-        let startingPointForI = 0 + variableInput.startingAt;
-        if (variableInput.firstValueDiff) {
+        let startingPointForI = 0 + variableInput.starting_at;
+        if (variableInput.first_value_diff) {
             startingPointForI++;
         }
 
         for (let i = startingPointForI; i < 24; i++) {
 
             //store valueArray with refs in new array so refs can be overwritten
-            var valueArrayToBeOverwritten: string[] = [...valueObject.valueArray];
+            var valueArrayToBeOverwritten: string[] = [...valueObject.value_array];
 
             //get the refs in the valueArray and replace them with the actual value
             for (let j = 0; j < valueObject.indexes.length; j++) {
@@ -146,7 +146,7 @@ export const useFormulaParser = () => {
         //instantiate valueObject for output
         let valueObjectOut: ValueObject = {
             indexes: [],
-            valueArray: []
+            value_array: []
         };
 
         let valueArray: string[] = [];
@@ -203,7 +203,7 @@ export const useFormulaParser = () => {
             }
         }
 
-        valueObjectOut.valueArray = valueArray;
+        valueObjectOut.value_array = valueArray;
         valueObjectOut.indexes = indexes;
         return valueObjectOut;
     }
@@ -245,8 +245,8 @@ export const useFormulaParser = () => {
             ref = externalRef.substring(1);
         }
 
-        if(variablesAlreadyCovered.get(ref).timeSeries) {
-            outputValue = variablesAlreadyCovered.get(ref).rowValues[index - indexDiff];
+        if(variablesAlreadyCovered.get(ref).time_series) {
+            outputValue = variablesAlreadyCovered.get(ref).row_values[index - indexDiff];
         } else {
             outputValue = MathParser.eval(variablesAlreadyCovered.get(ref).value).toString();
         }

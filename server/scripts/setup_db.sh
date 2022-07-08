@@ -37,9 +37,11 @@ mongoimport --db zebbra --collection users --drop --file $DEMO_DIR/users.json --
 mongoimport --db zebbra --collection workspaces --drop --file $DEMO_DIR/workspaces.json --jsonArray
 mongoimport --db zebbra --collection models --drop --file $DEMO_DIR/models.json --jsonArray
 mongoimport --db zebbra --collection invite_codes --drop --file $DEMO_DIR/invite_codes.json --jsonArray
+mongoimport --db zebbra --collection integration_access --drop --file $DEMO_DIR/integration_access.json --jsonArray
 
 ### test db
 mongoimport --db zebbra_test --collection users --drop --file $DEMO_DIR/users.json --jsonArray
 mongoimport --db zebbra_test --collection workspaces --drop --file $DEMO_DIR/workspaces.json --jsonArray
 mongoimport --db zebbra_test --collection models --drop --file $DEMO_DIR/models.json --jsonArray
 mongoimport --db zebbra_test --collection invite_codes --drop --file $DEMO_DIR/invite_codes.json --jsonArray
+mongoimport --db zebbra_test --collection integration_access --drop --file $DEMO_DIR/integration_access.json --jsonArray

@@ -111,7 +111,7 @@ async def is_user_admin_of_workspace(user_id: PyObjectId, workspace_id: PyObject
 
 async def get_admin_workspaces_of_user(user_id: PyObjectId):
     """
-    Return a list of the workspaces of which the user is the admin.
+    Return a list of the workspaces of which the user is the admin
     :param user_id: user id of the admin
     """
     num = await db.workspaces.count_documents({"admin": str(user_id)})
@@ -132,7 +132,7 @@ async def create_workspace(workspace: Workspace):
 
 async def change_workspace_admin(workspace_id: PyObjectId, user_id: PyObjectId):
     """
-    Change the admin of the workspace to the user with the given username.
+    Change the admin of the workspace to the user with the given username
     :param workspace_id: the workspace id whose admin to change
     :param user_id: the user id of the new admin
     """

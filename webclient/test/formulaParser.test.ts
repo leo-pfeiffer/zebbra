@@ -6,7 +6,7 @@ import { Variable } from "~~/types/Model";
 
 type ValueObject = {
     indexes: number[];
-    valueArray: string[];
+    value_array: string[];
 }
 
 type Reference = {
@@ -21,12 +21,12 @@ describe('Tests for getSheetRowValues', () => {
         const inputVariable:Variable = {
             _id: "1",
             name: undefined,
-            valType: undefined,
+            val_type: undefined,
             editable: undefined,
-            varType: undefined,
-            timeSeries: false,
-            startingAt: 0,
-            firstValueDiff: undefined,
+            var_type: undefined,
+            time_series: false,
+            starting_at: 0,
+            first_value_diff: undefined,
             value: "100",
             value_1: undefined,
             integration_values: undefined
@@ -49,12 +49,12 @@ describe('Tests for getSheetRowValues', () => {
         const inputVariable:Variable = {
             _id: "1",
             name: undefined,
-            valType: undefined,
+            val_type: undefined,
             editable: undefined,
-            varType: undefined,
-            timeSeries: true,
-            startingAt: 0,
-            firstValueDiff: true,
+            var_type: undefined,
+            time_series: true,
+            starting_at: 0,
+            first_value_diff: true,
             value: "$1+1",
             value_1: "100",
             integration_values: undefined
@@ -76,17 +76,17 @@ describe('Tests for getSheetRowValues', () => {
         
     })
 
-    it('should generate the correct values for variable with startingAt >0', () => {
+    it('should generate the correct values for variable with starting_at >0', () => {
 
         const inputVariable:Variable = {
             _id: "1",
             name: undefined,
-            valType: undefined,
+            val_type: undefined,
             editable: undefined,
-            varType: undefined,
-            timeSeries: true,
-            startingAt: 10,
-            firstValueDiff: true,
+            var_type: undefined,
+            time_series: true,
+            starting_at: 10,
+            first_value_diff: true,
             value: "$1+1",
             value_1: "1000",
             integration_values: undefined
@@ -96,13 +96,13 @@ describe('Tests for getSheetRowValues', () => {
 
         var expectedOutput:string[] = [];
 
-        for(let i=0; i < inputVariable.startingAt; i++) {
+        for(let i=0; i < inputVariable.starting_at; i++) {
             expectedOutput.push("–");
         }
         
         let startingValue:number = 1000;
 
-        for(let i=0; i < (24 - inputVariable.startingAt); i++) {
+        for(let i=0; i < (24 - inputVariable.starting_at); i++) {
             var value:number = startingValue + i;
             var valueToDisplay = value.toString();
             expectedOutput.push(valueToDisplay);
@@ -117,12 +117,12 @@ describe('Tests for getSheetRowValues', () => {
         const inputVariable1:Variable = {
             _id: "1",
             name: undefined,
-            valType: undefined,
+            val_type: undefined,
             editable: undefined,
-            varType: undefined,
-            timeSeries: true,
-            startingAt: 0,
-            firstValueDiff: true,
+            var_type: undefined,
+            time_series: true,
+            starting_at: 0,
+            first_value_diff: true,
             value: "$1+#3",
             value_1: "#2",
             integration_values: undefined
@@ -131,12 +131,12 @@ describe('Tests for getSheetRowValues', () => {
         const inputVariable2:Variable = {
             _id: "2",
             name: undefined,
-            valType: undefined,
+            val_type: undefined,
             editable: undefined,
-            varType: undefined,
-            timeSeries: false,
-            startingAt: 0,
-            firstValueDiff: false,
+            var_type: undefined,
+            time_series: false,
+            starting_at: 0,
+            first_value_diff: false,
             value: "1000",
             value_1: undefined,
             integration_values: undefined
@@ -145,12 +145,12 @@ describe('Tests for getSheetRowValues', () => {
         const inputVariable3:Variable = {
             _id: "3",
             name: undefined,
-            valType: undefined,
+            val_type: undefined,
             editable: undefined,
-            varType: undefined,
-            timeSeries: false,
-            startingAt: 0,
-            firstValueDiff: false,
+            var_type: undefined,
+            time_series: false,
+            starting_at: 0,
+            first_value_diff: false,
             value: "1",
             value_1: undefined,
             integration_values: undefined
@@ -177,12 +177,12 @@ describe('Tests for getSheetRowValues', () => {
         const inputVariable1:Variable = {
             _id: "1",
             name: undefined,
-            valType: undefined,
+            val_type: undefined,
             editable: undefined,
-            varType: undefined,
-            timeSeries: true,
-            startingAt: 0,
-            firstValueDiff: true,
+            var_type: undefined,
+            time_series: true,
+            starting_at: 0,
+            first_value_diff: true,
             value: "$1+#3", //  <------  #3 is not provided
             value_1: "#2",
             integration_values: undefined
@@ -191,12 +191,12 @@ describe('Tests for getSheetRowValues', () => {
         const inputVariable2:Variable = {
             _id: "2",
             name: undefined,
-            valType: undefined,
+            val_type: undefined,
             editable: undefined,
-            varType: undefined,
-            timeSeries: false,
-            startingAt: 0,
-            firstValueDiff: false,
+            var_type: undefined,
+            time_series: false,
+            starting_at: 0,
+            first_value_diff: false,
             value: "1000",
             value_1: undefined,
             integration_values: undefined
@@ -223,13 +223,13 @@ describe('Tests for createValueObject method', () => {
 
         const expectedOutput:ValueObject = {
             indexes: [0, 2, 4],
-            valueArray: ["$123", "+", "#345", "*(1+", "#567", ")"]
+            value_array: ["$123", "+", "#345", "*(1+", "#567", ")"]
         }
 
         const output:ValueObject = useFormulaParser().createValueObject(input);
 
         expect(output.indexes).toStrictEqual(expectedOutput.indexes);
-        expect(output.valueArray).toStrictEqual(expectedOutput.valueArray);
+        expect(output.value_array).toStrictEqual(expectedOutput.value_array);
 
     });
 
@@ -239,13 +239,13 @@ describe('Tests for createValueObject method', () => {
 
         const expectedOutput:ValueObject = {
             indexes: [],
-            valueArray: ["100*100"]
+            value_array: ["100*100"]
         }
 
         const output:ValueObject = useFormulaParser().createValueObject(input);
 
         expect(output.indexes).toStrictEqual(expectedOutput.indexes);
-        expect(output.valueArray).toStrictEqual(expectedOutput.valueArray);
+        expect(output.value_array).toStrictEqual(expectedOutput.value_array);
 
     });
 
@@ -255,13 +255,13 @@ describe('Tests for createValueObject method', () => {
 
         const expectedOutput:ValueObject = {
             indexes: [],
-            valueArray: []
+            value_array: []
         }
 
         const output:ValueObject = useFormulaParser().createValueObject(input);
 
         expect(output.indexes).toStrictEqual(expectedOutput.indexes);
-        expect(output.valueArray).toStrictEqual(expectedOutput.valueArray);
+        expect(output.value_array).toStrictEqual(expectedOutput.value_array);
 
     });
 
@@ -314,12 +314,12 @@ describe('Tests for getCreationOrder method', () => {
         const inputVariable1:Variable = {
             _id: "1",
             name: undefined,
-            valType: undefined,
+            val_type: undefined,
             editable: undefined,
-            varType: undefined,
-            timeSeries: undefined,
-            startingAt: undefined,
-            firstValueDiff: undefined,
+            var_type: undefined,
+            time_series: undefined,
+            starting_at: undefined,
+            first_value_diff: undefined,
             value: "1*1",
             value_1: undefined,
             integration_values: undefined
@@ -328,12 +328,12 @@ describe('Tests for getCreationOrder method', () => {
         const inputVariable2:Variable = {
             _id: "2",
             name: undefined,
-            valType: undefined,
+            val_type: undefined,
             editable: undefined,
-            varType: undefined,
-            timeSeries: undefined,
-            startingAt: undefined,
-            firstValueDiff: undefined,
+            var_type: undefined,
+            time_series: undefined,
+            starting_at: undefined,
+            first_value_diff: undefined,
             value: "#3*2",
             value_1: undefined,
             integration_values: undefined
@@ -342,12 +342,12 @@ describe('Tests for getCreationOrder method', () => {
         const inputVariable3:Variable = {
             _id: "3",
             name: undefined,
-            valType: undefined,
+            val_type: undefined,
             editable: undefined,
-            varType: undefined,
-            timeSeries: undefined,
-            startingAt: undefined,
-            firstValueDiff: undefined,
+            var_type: undefined,
+            time_series: undefined,
+            starting_at: undefined,
+            first_value_diff: undefined,
             value: "$1*(1+0.01)",
             value_1: "#1",
             integration_values: undefined
@@ -370,12 +370,12 @@ describe('Tests for getReferenceArray Method', () => {
         const inputVariable1:Variable = {
             _id: "123456",
             name: undefined,
-            valType: undefined,
+            val_type: undefined,
             editable: undefined,
-            varType: undefined,
-            timeSeries: undefined,
-            startingAt: undefined,
-            firstValueDiff: undefined,
+            var_type: undefined,
+            time_series: undefined,
+            starting_at: undefined,
+            first_value_diff: undefined,
             value: "1*1",
             value_1: undefined,
             integration_values: undefined
@@ -384,12 +384,12 @@ describe('Tests for getReferenceArray Method', () => {
         const inputVariable2:Variable = {
             _id: "234567",
             name: undefined,
-            valType: undefined,
+            val_type: undefined,
             editable: undefined,
-            varType: undefined,
-            timeSeries: undefined,
-            startingAt: undefined,
-            firstValueDiff: undefined,
+            var_type: undefined,
+            time_series: undefined,
+            starting_at: undefined,
+            first_value_diff: undefined,
             value: "#123456*2",
             value_1: undefined,
             integration_values: undefined
@@ -421,12 +421,12 @@ describe('Tests for getReferenceArray Method', () => {
         const inputVariable1:Variable = {
             _id: "1",
             name: undefined,
-            valType: undefined,
+            val_type: undefined,
             editable: undefined,
-            varType: undefined,
-            timeSeries: undefined,
-            startingAt: undefined,
-            firstValueDiff: undefined,
+            var_type: undefined,
+            time_series: undefined,
+            starting_at: undefined,
+            first_value_diff: undefined,
             value: "1*1",
             value_1: undefined,
             integration_values: undefined
@@ -435,12 +435,12 @@ describe('Tests for getReferenceArray Method', () => {
         const inputVariable2:Variable = {
             _id: "2",
             name: undefined,
-            valType: undefined,
+            val_type: undefined,
             editable: undefined,
-            varType: undefined,
-            timeSeries: undefined,
-            startingAt: undefined,
-            firstValueDiff: undefined,
+            var_type: undefined,
+            time_series: undefined,
+            starting_at: undefined,
+            first_value_diff: undefined,
             value: "#3*2",
             value_1: undefined,
             integration_values: undefined
@@ -449,12 +449,12 @@ describe('Tests for getReferenceArray Method', () => {
         const inputVariable3:Variable = {
             _id: "3",
             name: undefined,
-            valType: undefined,
+            val_type: undefined,
             editable: undefined,
-            varType: undefined,
-            timeSeries: undefined,
-            startingAt: undefined,
-            firstValueDiff: undefined,
+            var_type: undefined,
+            time_series: undefined,
+            starting_at: undefined,
+            first_value_diff: undefined,
             value: "$1*(1+0.01)",
             value_1: "#1",
             integration_values: undefined
