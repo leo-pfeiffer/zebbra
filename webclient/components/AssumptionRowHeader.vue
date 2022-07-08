@@ -15,7 +15,7 @@ const route = useRoute();
                     <span v-if="!nameChangeSelected" @dblclick="toggleNameChange">{{ assumption.name }}</span>
                     <span v-else><input autofocus @keydown.enter="updateName" v-model="newName" class="bg-zinc-100/0 focus:border-b border-sky-600 focus:outline-none placeholder:text-zinc-500" type="text"
                             placeholder="Change variable name"></span>
-                    <span class="text-xs float-right hidden group-hover:block"><button type="button" @click="toggleDeleteModal" class="mr-1"><i class="bi bi-x-lg text-zinc-500 shadow hover:text-zinc-700"></i></button></span>
+                    <span class="text-xs float-right hidden group-hover:block"><button type="button" @click="toggleDeleteModal" class="mr-1"><i class="bi bi-x-lg text-zinc-500 hover:text-zinc-700"></i></button></span>
                 </div>
             <div class="h-full w-full">
                 <div v-if="!valueInputSelected" class="text-xs border-t border-r border-zinc-300 min-w-[125px] max-w-[125px] h-full w-full text-right">
