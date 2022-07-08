@@ -5,14 +5,12 @@ from datetime import date, datetime
 
 from dateutil.relativedelta import relativedelta
 
+from core.schemas.utils import XeroBatch
 from core.unification.xero_oauth import (
     get_xero_integration_access,
     xero,
     API_URL_SUFFIX,
 )
-
-
-# todo define Batch data type
 
 
 class FetchAdapter(ABC):
@@ -26,11 +24,11 @@ class FetchAdapter(ABC):
         ...
 
     @abstractmethod
-    async def get_data(self, from_date: date):
+    async def get_data(self, from_date: date) -> XeroBatch:
         ...
 
     @abstractmethod
-    async def get_data_points(self, from_date: date) -> list[str]:
+    async def get_data_endpoints(self, from_date: date) -> list[str]:
         ...
 
     def verify_batch(self):
@@ -64,25 +62,25 @@ class FetchAdapter(ABC):
         day = monthrange(the_date.year, the_date.month)[1]
         return date(the_date.year, the_date.month, day)
 
-    @staticmethod
-    def _date_to_string_in_batch(batch):
-        """
-        Convert all dates in a batch into string format YYYY-MM-DD
-        :param batch: The batch to process
-        :return: Converted batch
-        """
-
-        data = {}
-
-        for title, timeseries in batch["data"].items():
-            data[title] = {}
-            for timestamp, value in timeseries.items():
-                string_date = timestamp.strftime("%Y-%m-%d")
-                data[title][string_date] = value
-
-        dates = [d.strftime("%Y-%m-%d") for d in batch["dates"]]
-
-        return {"dates": dates, "data": data}
+    # @staticmethod
+    # def _date_to_string_in_batch(batch):
+    #     """
+    #     Convert all dates in a batch into string format YYYY-MM-DD
+    #     :param batch: The batch to process
+    #     :return: Converted batch
+    #     """
+    #
+    #     data = {}
+    #
+    #     for title, timeseries in batch["data"].items():
+    #         data[title] = {}
+    #         for timestamp, value in timeseries.items():
+    #             string_date = timestamp.strftime("%Y-%m-%d")
+    #             data[title][string_date] = value
+    #
+    #     dates = [d.strftime("%Y-%m-%d") for d in batch["dates"]]
+    #
+    #     return {"dates": dates, "data": data}
 
     @staticmethod
     def _merge_batches(batches: list):
@@ -126,7 +124,7 @@ class XeroFetchAdapter(FetchAdapter):
     def workspace_id(self):
         return self._workspace_id
 
-    async def get_data(self, from_date: date):
+    async def get_data(self, from_date: date) -> XeroBatch:
         """
         Retrieve and process the P&L and balance sheet data from XERO
         :param from_date: date from which onwards to get the data
@@ -137,9 +135,10 @@ class XeroFetchAdapter(FetchAdapter):
 
         processed = [self._process_batch(batch) for batch in batches]
         merged = self._merge_batches(processed)
-        return self._date_to_string_in_batch(merged)
+        # return XeroBatch(**self._date_to_string_in_batch(merged))
+        return XeroBatch(**merged)
 
-    async def get_data_points(self, from_date: date) -> list[str]:
+    async def get_data_endpoints(self, from_date: date) -> list[str]:
         """
         Retrieve all data points that are available for XERO from a certain date onwards
         :param from_date: date from which onwards to find the endpoints

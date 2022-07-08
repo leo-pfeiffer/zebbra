@@ -4,7 +4,7 @@ from datetime import date
 from bson import ObjectId
 from pydantic import BaseModel, Field
 
-from core.objects import PyObjectId
+from core.schemas.utils import PyObjectId
 from core.schemas.sheets import Sheet
 
 

@@ -38,11 +38,10 @@ from core.exceptions import (
     CardinalityConstraintFailedException,
     BusinessLogicException,
 )
-from core.objects import PyObjectId
 from core.schemas.models import Model, ModelUser
 from core.schemas.sheets import Sheet
 from core.schemas.users import User
-from core.schemas.utils import Message
+from core.schemas.utils import Message, PyObjectId
 from api.utils.dependencies import get_current_active_user
 
 router = APIRouter()

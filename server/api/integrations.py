@@ -14,7 +14,7 @@ from api.utils.dependencies import (
     get_current_active_user,
 )
 from core.dao.integrations import get_integrations_for_workspace
-from core.schemas.utils import DataPoint
+from core.schemas.utils import DataPoint, XeroBatch
 from core.unification.config import (
     get_supported_providers,
 )
@@ -94,8 +94,7 @@ async def integration_xero_done():
     return HTMLResponse(content=html_content, status_code=200)
 
 
-# todo response model
-@router.get("/api/integration/xero", tags=["integration"])
+@router.get("/api/integration/xero", tags=["integration"], response_model=XeroBatch)
 async def get_xero_data(
     workspace_id: str,  # use model_id instead
     from_date: str,
@@ -173,6 +172,6 @@ async def data_endpoints(
     # xero
     # todo from_date should be retrieved from model
     xfa = XeroFetchAdapter(workspace_id)
-    data_points = await xfa.get_data_points(from_date)
+    data_points = await xfa.get_data_endpoints(from_date)
 
     return [DataPoint(id=f"Xero[{d}]", integration="Xero", name=d) for d in data_points]

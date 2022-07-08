@@ -29,9 +29,8 @@ from core.exceptions import (
     UniqueConstraintFailedException,
     BusinessLogicException,
 )
-from core.objects import PyObjectId
 from core.schemas.users import User
-from core.schemas.utils import InviteCode
+from core.schemas.utils import InviteCode, PyObjectId
 from core.schemas.workspaces import Workspace, WorkspaceUser
 from api.utils.dependencies import get_current_active_user, INVITE_CODE_EXPIRES_MINUTES
 

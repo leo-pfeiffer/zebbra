@@ -9,7 +9,7 @@ from core.dao.workspaces import (
     is_user_admin_of_workspace,
     workspace_exists,
 )
-from core.objects import PyObjectId
+from core.schemas.utils import PyObjectId
 from core.schemas.integrations import IntegrationProvider
 
 
