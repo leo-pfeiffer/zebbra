@@ -4,12 +4,27 @@ import { useFormulaParser } from '../composables/useFormulaParser';
 
 import { Variable } from "~~/types/Model";
 
+type ValueObject = {
+    indexes: number[];
+    valueArray: string[];
+}
+
 type Reference = {
     id: string;
     refs: string[];
 }
 
-describe('Test: charIsRefToken', () => {
+describe('Tests for createValueObject method', () => {
+
+    it('should create the correct ValueObject on input with multiple refs', () => {
+
+        const input:string = "$123+#345*(1+#567)";
+
+    });
+
+});
+
+describe('Tests for charIsRefToken method', () => {
 
     it('should return true when RefTokens are entered', () => {
         expect(useFormulaParser().charIsRefToken("$")).toBe(true);
@@ -27,7 +42,7 @@ describe('Test: charIsRefToken', () => {
 
 })
 
-describe('Test: charIsNumerical', () => {
+describe('Tests for charIsNumerical method', () => {
     it('should return true when numerical is entered', () => {
         expect(useFormulaParser().charIsNumerical("1")).toBe(true);
         expect(useFormulaParser().charIsNumerical("2")).toBe(true);
@@ -48,6 +63,62 @@ describe('Test: charIsNumerical', () => {
         expect(useFormulaParser().charIsNumerical("XAÖSLDFKJ")).toBe(false);
     })
 })
+
+describe('Tests for getCreationOrder method', () => {
+
+    it('should return the correct order', () => {
+
+        const inputVariable1:Variable = {
+            _id: "1",
+            name: undefined,
+            valType: undefined,
+            editable: undefined,
+            varType: undefined,
+            timeSeries: undefined,
+            startingAt: undefined,
+            firstValueDiff: undefined,
+            value: "1*1",
+            value_1: undefined,
+            integration_values: undefined
+        }
+
+        const inputVariable2:Variable = {
+            _id: "2",
+            name: undefined,
+            valType: undefined,
+            editable: undefined,
+            varType: undefined,
+            timeSeries: undefined,
+            startingAt: undefined,
+            firstValueDiff: undefined,
+            value: "#3*2",
+            value_1: undefined,
+            integration_values: undefined
+        }
+
+        const inputVariable3:Variable = {
+            _id: "3",
+            name: undefined,
+            valType: undefined,
+            editable: undefined,
+            varType: undefined,
+            timeSeries: undefined,
+            startingAt: undefined,
+            firstValueDiff: undefined,
+            value: "$1*(1+0.01)",
+            value_1: "#1",
+            integration_values: undefined
+        }
+
+        const input:Variable[] = [inputVariable1, inputVariable2, inputVariable3];
+
+        const expectedOutput:string[] = ["1", "3", "2"];
+
+        expect(useFormulaParser().getCreationOrder(input)).toStrictEqual(expectedOutput);
+
+    });
+
+});
 
 describe('Tests for getReferenceArray Method', () => {
 
