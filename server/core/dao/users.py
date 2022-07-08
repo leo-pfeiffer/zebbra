@@ -4,7 +4,7 @@ from fastapi.encoders import jsonable_encoder
 
 from core.exceptions import UniqueConstraintFailedException, BusinessLogicException
 from core.dao.database import db
-from core.objects import PyObjectId
+from core.schemas.utils import PyObjectId
 from core.schemas.users import UserInDB, RegisterUser
 
 

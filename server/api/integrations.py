@@ -1,3 +1,4 @@
+import datetime
 import time
 
 from fastapi import APIRouter, Depends, Request, HTTPException
@@ -13,16 +14,14 @@ from api.utils.dependencies import (
     get_current_active_user,
 )
 from core.dao.integrations import get_integrations_for_workspace
-from core.schemas.utils import DataPointRegistryEntry
+from core.schemas.utils import DataPoint, XeroBatch
 from core.unification.config import (
     get_supported_providers,
-    get_data_point_registry_list,
 )
+from core.unification.fetch import XeroFetchAdapter
 from core.unification.xero_oauth import (
     xero,
     store_xero_oauth2_token,
-    get_xero_integration_access,
-    API_URL_SUFFIX,
 )
 from core.schemas.integrations import (
     IntegrationAccessToken,
@@ -95,41 +94,20 @@ async def integration_xero_done():
     return HTMLResponse(content=html_content, status_code=200)
 
 
-@router.get("/api/integration/xero/tenants", tags=["integration"])
-async def tenants(
-    workspace_id: str, current_user: User = Depends(get_current_active_user)
-):
-    # user must be in workspace
-    await assert_workspace_access(current_user.id, workspace_id)
-
-    integration_access = await get_xero_integration_access(workspace_id)
-    token = integration_access.token.dict()
-
-    resp = await xero.get("connections", token=token)
-    resp.raise_for_status()
-    return resp.json()
-
-
-@router.get("/api/integration/xero/transactions", tags=["integration"])
-async def transactions(
-    workspace_id: str, current_user: User = Depends(get_current_active_user)
+@router.get("/api/integration/xero", tags=["integration"], response_model=XeroBatch)
+async def get_xero_data(
+    workspace_id: str,  # use model_id instead
+    from_date: str,
+    current_user: User = Depends(get_current_active_user),
 ):
     # user must be in workspace
     await assert_workspace_access(current_user.id, workspace_id)
     await assert_workspace_has_integration(workspace_id, "Xero")
 
-    integration_access = await get_xero_integration_access(workspace_id)
-
-    resp = await xero.get(
-        f"{API_URL_SUFFIX}BankTransactions",
-        token=integration_access.token.dict(),
-        headers={
-            "Xero-Tenant-Id": integration_access.tenant_id,
-            "Accept": "application/json",
-        },
-    )
-    resp.raise_for_status()
-    return resp.json()
+    from_date = datetime.date.fromisoformat(from_date)
+    # todo from_date should be retrieved from model
+    xfa = XeroFetchAdapter(workspace_id)
+    return await xfa.get_data(from_date)
 
 
 # todo test
@@ -172,23 +150,28 @@ async def providers(
 @router.get(
     "/api/integration/dataEndpoints",
     tags=["integration"],
-    response_model=list[DataPointRegistryEntry],
+    response_model=list[DataPoint],
 )
 async def data_endpoints(
-    workspace_id: str, current_user: User = Depends(get_current_active_user)
+    workspace_id: str,  # use model_id instead
+    from_date: str,
+    current_user: User = Depends(get_current_active_user),
 ):
     """
     Return all endpoints for all integrations available to a workspace including.\n
         :param workspace_id: ID of the workspace
+        :param from_date: Start date of the model
         :param current_user: Currently logged-in user
         :return:List of DataPointRegistryEntry
     """
-    workspace_integrations = await get_integrations_for_workspace(workspace_id)
-    workspace_integrations_map = {x.integration: x for x in workspace_integrations}
 
-    all_endpoints = []
-    for integration in workspace_integrations:
-        endpoints = get_data_point_registry_list(integration.integration)
-        all_endpoints.extend(endpoints)
+    await assert_workspace_access(current_user.id, workspace_id)
 
-    return all_endpoints
+    from_date = datetime.date.fromisoformat(from_date)
+
+    # xero
+    # todo from_date should be retrieved from model
+    xfa = XeroFetchAdapter(workspace_id)
+    data_points = await xfa.get_data_endpoints(from_date)
+
+    return [DataPoint(id=f"Xero[{d}]", integration="Xero", name=d) for d in data_points]

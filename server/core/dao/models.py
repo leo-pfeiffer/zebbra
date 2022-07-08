@@ -11,7 +11,7 @@ from core.exceptions import (
     CardinalityConstraintFailedException,
     BusinessLogicException,
 )
-from core.objects import PyObjectId
+from core.schemas.utils import PyObjectId
 from core.schemas.models import ModelMeta, UpdateModel, ModelUser, Model
 from core.schemas.sheets import Sheet, create_default_sheets
 from core.settings import get_settings
