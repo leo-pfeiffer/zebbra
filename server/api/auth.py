@@ -4,6 +4,7 @@ import pyotp
 from fastapi import APIRouter, Depends, HTTPException, status
 from jose import jwt
 from jose.exceptions import ExpiredSignatureError
+from starlette.responses import HTMLResponse
 
 from core.dao.invite_codes import get_invite_code
 from core.dao.token_blacklist import add_to_blacklist
@@ -18,19 +19,18 @@ from core.dao.workspaces import (
     create_workspace,
     workspace_name_exists,
 )
-from core.exceptions import UniqueConstraintFailedException
 from core.schemas.tokens import Token, BlacklistToken
 from core.schemas.users import RegisterUser, UserInDB, User
 from core.schemas.utils import Message, OAuth2PasswordRequestFormWithOTP, ExpiredMessage
 from core.schemas.workspaces import Workspace
-from dependencies import (
+from api.utils.dependencies import (
     ACCESS_TOKEN_EXPIRE_MINUTES,
     get_current_active_user_token,
     verify_password,
     get_password_hash,
     decode_token,
 )
-from dependencies import SECRET_KEY, ALGORITHM
+from api.utils.dependencies import SECRET_KEY, ALGORITHM
 
 router = APIRouter()
 
@@ -53,6 +53,25 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
+
+@router.get("/login", tags=["auth"], include_in_schema=False)
+async def login_page():
+    """
+    Helper endpoint to allow manual log in.
+    """
+    html_content = """
+        <div class="container">
+            <h1>Login</h1>
+            <form action="/token" method="POST">
+                <input type="text" name="username" placeholder="username">
+                <input type="password" name="password" placeholder="password">
+                <input type="hidden" name="grant_type" value="password">
+                <input type="submit" value="login">
+            </form>
+        </div>
+    """
+    return HTMLResponse(content=html_content, status_code=200)
 
 
 @router.post(

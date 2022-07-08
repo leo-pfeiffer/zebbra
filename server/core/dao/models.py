@@ -1,3 +1,5 @@
+from datetime import date
+
 from fastapi.encoders import jsonable_encoder
 
 from core.dao.database import db
@@ -6,13 +8,12 @@ from core.dao.workspaces import is_user_in_workspace, get_workspace
 from core.exceptions import (
     DoesNotExistException,
     NoAccessException,
-    UniqueConstraintFailedException,
     CardinalityConstraintFailedException,
     BusinessLogicException,
 )
 from core.objects import PyObjectId
 from core.schemas.models import ModelMeta, UpdateModel, ModelUser, Model
-from core.schemas.sheets import Sheet, SheetMeta, Section
+from core.schemas.sheets import Sheet, create_default_sheets
 from core.settings import get_settings
 
 settings = get_settings()
@@ -233,40 +234,35 @@ async def create_model(admin_id: PyObjectId, model_name: str, workspace_id: PyOb
             "workspace": workspace_id,
             "editors": [],
             "viewers": [],
+            "starting_month": date.today(),
         }
     )
-    model = UpdateModel(**{"meta": meta, "sheets": []})
+    sheets = create_default_sheets()
+    model = UpdateModel(**{"meta": meta, "sheets": sheets})
     return await db.models.insert_one(jsonable_encoder(model))
 
 
-async def update_sheet_meta_in_model(
-    model_id: str, sheet_name: str, new_meta: SheetMeta
-):
-    # sheet names must be unique within model
-    if (
-        await db.models.count_documents(
-            {"_id": model_id, "sheets.meta.name": new_meta.name}
-        )
-        > 0
-    ):
-        raise UniqueConstraintFailedException("Sheet names must be unique within model")
-
+async def _update_sheet_data(model_id: str, sheet_data: Sheet, sheet_name: str):
     return await db.models.update_one(
         {"_id": model_id, "sheets.meta.name": sheet_name},
-        {"$set": {"sheets.$.meta": jsonable_encoder(new_meta)}},
+        {
+            "$set": {
+                "sheets.$.assumptions": jsonable_encoder(sheet_data.assumptions),
+                "sheets.$.sections": jsonable_encoder(sheet_data.sections),
+            }
+        },
     )
 
 
-async def update_sheet_sections_in_model(
-    model_id: str, sheet_name: str, new_sections: list[Section]
-):
-    return await db.models.update_one(
-        {"_id": model_id, "sheets.meta.name": sheet_name},
-        {"$set": {"sheets.$.sections": jsonable_encoder(new_sections)}},
-    )
+async def update_revenues_sheet(model_id: str, sheet_data: Sheet):
+    return await _update_sheet_data(model_id, sheet_data, "Revenues")
 
 
-async def get_sheet_by_name(model_id: str, sheet_name: str) -> Sheet:
+async def update_costs_sheet(model_id: str, sheet_data: Sheet):
+    return await _update_sheet_data(model_id, sheet_data, "Costs")
+
+
+async def _get_sheet_by_name(model_id: str, sheet_name: str) -> Sheet:
     model = await db.models.find_one(
         {"_id": model_id, "sheets.meta.name": sheet_name},
     )
@@ -275,3 +271,11 @@ async def get_sheet_by_name(model_id: str, sheet_name: str) -> Sheet:
         for sheet in model["sheets"]:
             if sheet["meta"]["name"] == sheet_name:
                 return Sheet(**sheet)
+
+
+async def get_costs_sheet(model_id: str) -> Sheet:
+    return await _get_sheet_by_name(model_id, "Costs")
+
+
+async def get_revenues_sheet(model_id: str) -> Sheet:
+    return await _get_sheet_by_name(model_id, "Revenues")

@@ -4,6 +4,11 @@ import pyotp
 from fastapi import APIRouter, Depends, HTTPException
 from starlette import status
 
+from api.utils.assertions import (
+    assert_workspace_access_admin,
+    assert_user_exists,
+    assert_workspace_access,
+)
 from core.dao.invite_codes import add_invite_code
 from core.dao.users import (
     add_user_to_workspace,
@@ -28,7 +33,7 @@ from core.objects import PyObjectId
 from core.schemas.users import User
 from core.schemas.utils import InviteCode
 from core.schemas.workspaces import Workspace, WorkspaceUser
-from dependencies import get_current_active_user, INVITE_CODE_EXPIRES_MINUTES
+from api.utils.dependencies import get_current_active_user, INVITE_CODE_EXPIRES_MINUTES
 
 router = APIRouter()
 
@@ -59,7 +64,7 @@ async def get_workspace_users(
     Get all users for a workspace
     """
     # user needs to be in workspace
-    await _assert_workspace_access(current_user.id, workspace_id)
+    await assert_workspace_access(current_user.id, workspace_id)
     return await get_users_of_workspace(workspace_id)
 
 
@@ -93,7 +98,7 @@ async def rename_workspace(
     new_name: str,
     current_user: User = Depends(get_current_active_user),
 ):
-    await _assert_workspace_access_admin(current_user.id, workspace_id)
+    await assert_workspace_access_admin(current_user.id, workspace_id)
 
     try:
         await change_workspace_name(workspace_id, new_name)
@@ -112,8 +117,8 @@ async def add_to_workspace(
     workspace_id: PyObjectId,
     current_user: User = Depends(get_current_active_user),
 ):
-    await _assert_user_exists(user_id)
-    await _assert_workspace_access_admin(current_user.id, workspace_id)
+    await assert_user_exists(user_id)
+    await assert_workspace_access_admin(current_user.id, workspace_id)
 
     if not await is_user_in_workspace(user_id, workspace_id):
         await add_user_to_workspace(user_id, workspace_id)
@@ -127,8 +132,8 @@ async def remove_from_workspace(
     workspace_id: PyObjectId,
     current_user: User = Depends(get_current_active_user),
 ):
-    await _assert_user_exists(user_id)
-    await _assert_workspace_access_admin(current_user.id, workspace_id)
+    await assert_user_exists(user_id)
+    await assert_workspace_access_admin(current_user.id, workspace_id)
 
     if await is_user_in_workspace(user_id, workspace_id):
         try:
@@ -149,8 +154,8 @@ async def change_admin(
     workspace_id: PyObjectId,
     current_user: User = Depends(get_current_active_user),
 ):
-    await _assert_user_exists(user_id)
-    await _assert_workspace_access_admin(current_user.id, workspace_id)
+    await assert_user_exists(user_id)
+    await assert_workspace_access_admin(current_user.id, workspace_id)
 
     if not await is_user_in_workspace(user_id, workspace_id):
         raise HTTPException(
@@ -166,7 +171,7 @@ async def change_admin(
 async def create_invite_code(
     workspace_id: PyObjectId, current_user: User = Depends(get_current_active_user)
 ):
-    await _assert_workspace_access_admin(current_user.id, workspace_id)
+    await assert_workspace_access_admin(current_user.id, workspace_id)
 
     invite_code = pyotp.random_base32()
     invite_code_expires = datetime.utcnow() + timedelta(
@@ -182,10 +187,6 @@ async def create_invite_code(
     await add_invite_code(obj)
 
     return obj
-
-
-# POST invite user to workspace
-# todo
 
 
 async def _assert_workspace_access(user_id: PyObjectId, workspace_id: PyObjectId):
