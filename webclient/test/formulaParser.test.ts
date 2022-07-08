@@ -14,6 +14,207 @@ type Reference = {
     refs: string[];
 }
 
+describe('Tests for getSheetRowValues', () => {
+
+    it('should generate the correct values for variable without refs and timeSeries === false', () => {
+
+        const inputVariable:Variable = {
+            _id: "1",
+            name: undefined,
+            valType: undefined,
+            editable: undefined,
+            varType: undefined,
+            timeSeries: false,
+            startingAt: 0,
+            firstValueDiff: undefined,
+            value: "100",
+            value_1: undefined,
+            integration_values: undefined
+        }
+
+        const input:Variable[] = [ inputVariable ];
+
+        var expectedOutput:string[] = [];
+        
+        for(let i=0; i < 24; i++) {
+            expectedOutput.push("–");
+        }
+
+        expect(useFormulaParser().getSheetRowValues(input)[0]).toStrictEqual(expectedOutput);
+
+    })
+
+    it('should generate the correct values for variable with internal refs', () => {
+
+        const inputVariable:Variable = {
+            _id: "1",
+            name: undefined,
+            valType: undefined,
+            editable: undefined,
+            varType: undefined,
+            timeSeries: true,
+            startingAt: 0,
+            firstValueDiff: true,
+            value: "$1+1",
+            value_1: "100",
+            integration_values: undefined
+        }
+
+        const input:Variable[] = [ inputVariable ];
+
+        var expectedOutput:string[] = [];
+        
+        let startingValue:number = 100;
+
+        for(let i=0; i < 24; i++) {
+            var value:number = startingValue + i;
+            var valueToDisplay = value.toString();
+            expectedOutput.push(valueToDisplay);
+        }
+
+        expect(useFormulaParser().getSheetRowValues(input)[0]).toStrictEqual(expectedOutput);
+        
+    })
+
+    it('should generate the correct values for variable with startingAt >0', () => {
+
+        const inputVariable:Variable = {
+            _id: "1",
+            name: undefined,
+            valType: undefined,
+            editable: undefined,
+            varType: undefined,
+            timeSeries: true,
+            startingAt: 10,
+            firstValueDiff: true,
+            value: "$1+1",
+            value_1: "1000",
+            integration_values: undefined
+        }
+
+        const input:Variable[] = [ inputVariable ];
+
+        var expectedOutput:string[] = [];
+
+        for(let i=0; i < inputVariable.startingAt; i++) {
+            expectedOutput.push("–");
+        }
+        
+        let startingValue:number = 1000;
+
+        for(let i=0; i < (24 - inputVariable.startingAt); i++) {
+            var value:number = startingValue + i;
+            var valueToDisplay = value.toString();
+            expectedOutput.push(valueToDisplay);
+        }
+
+        expect(useFormulaParser().getSheetRowValues(input)[0]).toStrictEqual(expectedOutput);
+        
+    })
+
+    it('should generate the correct values for variables with internal and external refs', () => {
+
+        const inputVariable1:Variable = {
+            _id: "1",
+            name: undefined,
+            valType: undefined,
+            editable: undefined,
+            varType: undefined,
+            timeSeries: true,
+            startingAt: 0,
+            firstValueDiff: true,
+            value: "$1+#3",
+            value_1: "#2",
+            integration_values: undefined
+        }
+
+        const inputVariable2:Variable = {
+            _id: "2",
+            name: undefined,
+            valType: undefined,
+            editable: undefined,
+            varType: undefined,
+            timeSeries: false,
+            startingAt: 0,
+            firstValueDiff: false,
+            value: "1000",
+            value_1: undefined,
+            integration_values: undefined
+        }
+
+        const inputVariable3:Variable = {
+            _id: "3",
+            name: undefined,
+            valType: undefined,
+            editable: undefined,
+            varType: undefined,
+            timeSeries: false,
+            startingAt: 0,
+            firstValueDiff: false,
+            value: "1",
+            value_1: undefined,
+            integration_values: undefined
+        }
+
+        const input:Variable[] = [ inputVariable1, inputVariable2, inputVariable3 ];
+
+        var expectedOutput:string[] = [];
+
+        let startingValue:number = 1000;
+
+        for(let i=0; i < (24); i++) {
+            var value:number = startingValue + i;
+            var valueToDisplay = value.toString();
+            expectedOutput.push(valueToDisplay);
+        }
+
+        expect(useFormulaParser().getSheetRowValues(input)[0]).toStrictEqual(expectedOutput);
+        
+    })
+
+    it('should output #REF! on an incorrect input', () => {
+
+        const inputVariable1:Variable = {
+            _id: "1",
+            name: undefined,
+            valType: undefined,
+            editable: undefined,
+            varType: undefined,
+            timeSeries: true,
+            startingAt: 0,
+            firstValueDiff: true,
+            value: "$1+#3", //  <------  #3 is not provided
+            value_1: "#2",
+            integration_values: undefined
+        }
+
+        const inputVariable2:Variable = {
+            _id: "2",
+            name: undefined,
+            valType: undefined,
+            editable: undefined,
+            varType: undefined,
+            timeSeries: false,
+            startingAt: 0,
+            firstValueDiff: false,
+            value: "1000",
+            value_1: undefined,
+            integration_values: undefined
+        }
+
+        const input:Variable[] = [ inputVariable1, inputVariable2 ];
+
+        var expectedOutput:string[] = [];
+
+        for(let i=0; i < (24); i++) {
+            expectedOutput.push("#REF!");
+        }
+
+        expect(useFormulaParser().getSheetRowValues(input)[0]).toStrictEqual(expectedOutput);
+        
+    })
+})
+
 describe('Tests for createValueObject method', () => {
 
     it('should create the correct ValueObject on input with multiple refs', () => {
