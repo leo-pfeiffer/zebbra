@@ -46,6 +46,12 @@ async def perform_token_refresh(integration_access):
     :param integration_access: Current integration access
     :return: Refreshed integration access
     """
+
+    logger.info(
+        f"Refreshing token for "
+        f"{integration_access.workspace_id} : {integration_access.integration}"
+    )
+
     basic_auth = b64encode(str.encode(f"{CLIENT_ID}:{CLIENT_SECRET}")).decode("utf-8")
     response = await xero.post(
         REFRESH_URL,
