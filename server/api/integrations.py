@@ -17,14 +17,8 @@ from core.dao.integrations import get_integrations_for_workspace
 from core.schemas.utils import DataPoint
 from core.unification.config import (
     get_supported_providers,
-    get_data_point_registry_list,
 )
-from core.unification.fetch import (
-    get_transactions,
-    get_tenants,
-    get_xero_data_from_data,
-    get_available_data_points,
-)
+from core.unification.fetch import XeroFetchAdapter
 from core.unification.xero_oauth import (
     xero,
     store_xero_oauth2_token,
@@ -100,29 +94,10 @@ async def integration_xero_done():
     return HTMLResponse(content=html_content, status_code=200)
 
 
-@router.get("/api/integration/xero/tenants", tags=["integration"])
-async def tenants(
-    workspace_id: str, current_user: User = Depends(get_current_active_user)
-):
-    # user must be in workspace
-    await assert_workspace_access(current_user.id, workspace_id)
-    return await get_tenants(workspace_id)
-
-
-@router.get("/api/integration/xero/transactions", tags=["integration"])
-async def transactions(
-    workspace_id: str, current_user: User = Depends(get_current_active_user)
-):
-    # user must be in workspace
-    await assert_workspace_access(current_user.id, workspace_id)
-    await assert_workspace_has_integration(workspace_id, "Xero")
-
-    return await get_transactions(workspace_id)
-
-
+# todo response model
 @router.get("/api/integration/xero", tags=["integration"])
 async def get_xero_data(
-    workspace_id: str,
+    workspace_id: str,  # use model_id instead
     from_date: str,
     current_user: User = Depends(get_current_active_user),
 ):
@@ -131,8 +106,9 @@ async def get_xero_data(
     await assert_workspace_has_integration(workspace_id, "Xero")
 
     from_date = datetime.date.fromisoformat(from_date)
-
-    return await get_xero_data_from_data(workspace_id, from_date)
+    # todo from_date should be retrieved from model
+    xfa = XeroFetchAdapter(workspace_id)
+    return await xfa.get_data(from_date)
 
 
 # todo test
@@ -178,7 +154,7 @@ async def providers(
     response_model=list[DataPoint],
 )
 async def data_endpoints(
-    workspace_id: str,
+    workspace_id: str,  # use model_id instead
     from_date: str,
     current_user: User = Depends(get_current_active_user),
 ):
@@ -195,6 +171,8 @@ async def data_endpoints(
     from_date = datetime.date.fromisoformat(from_date)
 
     # xero
-    data_points = await get_available_data_points(workspace_id, from_date)
+    # todo from_date should be retrieved from model
+    xfa = XeroFetchAdapter(workspace_id)
+    data_points = await xfa.get_data_points(from_date)
 
     return [DataPoint(id=f"Xero[{d}]", integration="Xero", name=d) for d in data_points]
