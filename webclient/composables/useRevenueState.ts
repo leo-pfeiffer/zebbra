@@ -16,7 +16,7 @@ export const getRevenueState = async (modelId: string | string[]) => {
     ).then((data: Sheet) => {
         revenueState = data;
     }).catch((error) => {
-        console.log(error);
+        throw error;
     });
 
     return revenueState;
@@ -35,7 +35,7 @@ export const updateRevenueState = async (modelId: string | string[], revenueShee
     }).then((data:Sheet) => {
         revenueState = data;
     }).catch((error) => {
-        console.log(error);
+        throw error;
     });
 
 }

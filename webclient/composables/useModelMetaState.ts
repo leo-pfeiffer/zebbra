@@ -14,7 +14,6 @@ export const getModelMeta = async (modelId: string | string[]) => {
         }
     }
     ).then((data: Model[]) => {
-        console.log("Data: " + data);
         modelMetaState = data[0].meta;
     }).catch((error) => {
         console.log(error);

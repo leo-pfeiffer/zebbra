@@ -19,7 +19,7 @@ revenues.value = await getRevenueState(route.params.modelId);
 const date:string[] = modelMeta.value.starting_month.split("-");
 const dates = useState('dates', () => useDateArray(new Date(+date[0], +date[1]-1)));
 
-const assumptionValuesToDisplay = useState('assumptionValues');
+const assumptionValuesToDisplay = useState<string[][]>('assumptionValues');
 
 </script>
 
@@ -28,7 +28,7 @@ const assumptionValuesToDisplay = useState('assumptionValues');
         <div>
             <div class="mt-3 ml-1 py-3 pl-2 mr-0 overflow-x-hidden">
                 <div class="flex border-b border-zinc-300">
-                    <div class="">
+                    <div>
                         <div class="flex mb-4">
                             <div
                                 class="text-xs text-center font-mono italic py-2 px-2 border-b border border-zinc-300 min-w-[50px] max-w-[50px]">
@@ -82,21 +82,24 @@ export default {
 
             const revenues = useRevenueState();
             revenues.value.assumptions.push(emptyAssumption);
-            
-            const route = useRoute();
+
+            //todo not only assumptions but all variables
+            const assumptionValuesArrayState = useState<string[][]>('assumptionValues');
+            var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(revenues.value.assumptions);
+            let index = assumptionValuesArray.length - 1;
+            assumptionValuesArrayState.value.push(assumptionValuesArray[index])
 
             //todo: proper error handling
             try {
-                await updateRevenueState(route.params.modelId, revenues.value);
+                await updateRevenueState(this.route.params.modelId, revenues.value);
             } catch(e) {
                 console.log(e)
-                revenues.value = await getRevenueState(route.params.modelId)
+                revenues.value = await getRevenueState(this.route.params.modelId)
             }
 
         }
     },
     mounted() {
-
         //return the display values for all the assumptions
         //const model = useDummyModelState();
         const revenues = useRevenueState();
