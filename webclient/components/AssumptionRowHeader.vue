@@ -14,7 +14,7 @@ const route = useRoute();
                     <span v-show="(valType === 'number')" class="mr-2 text-zinc-500"><i class="bi bi-hash"></i></span>
                     <span v-if="!nameChangeSelected" @dblclick="toggleNameChange">{{ assumption.name }}</span>
                     <span v-else><input autofocus @keydown.enter="updateName" v-model="newName" class="bg-zinc-100/0 focus:border-b border-sky-600 focus:outline-none placeholder:text-zinc-500" type="text"
-                            placeholder="Click to set a name"></span>
+                            placeholder="Change variable name"></span>
                     <span class="text-xs float-right hidden group-hover:block"><button type="button" @click="deleteVariable" class="mr-1"><i class="bi bi-trash3 text-zinc-500"></i></button></span>
                 </div>
             <div class="h-full w-full">
@@ -22,7 +22,7 @@ const route = useRoute();
                     <div @dblclick="toggleInput" class="h-full text-right text-xs py-2 px-2 border-r-2 border-zinc-300">
                         {{ outputValue }}</div>
                 </div>
-                <div v-else class="text-xs border-zinc-300 min-w-[125px] max-w-[125px] h-full w-full text-right">
+                <div v-else class="absolute text-xs border-zinc-300 min-w-[200px] max-w-[200px] h-full w-full text-right">
                     <input v-show="valueInputSelected" autofocus @keydown.enter="updateValue" @keydown.esc="toggleInput" v-model="inputValue"
                         class="border-t w-full py-2 px-2 font-mono font-sm focus:rounded-none focus:outline-green-600 border-r-2 border-zinc-300"
                         type=text>
