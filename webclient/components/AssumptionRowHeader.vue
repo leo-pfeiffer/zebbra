@@ -6,7 +6,7 @@ const route = useRoute();
 <template>
     <div>
         <div class="flex">
-                <div class="group text-xs py-2 pl-5 pr-2 border-t border-x border-zinc-300 min-w-[250px] max-w-[250px]">
+                <div class="group text-xs py-2 pl-5 pr-2 border-t border-x border-zinc-300 min-w-[250px] max-w-[250px] hover:bg-zinc-50">
                     <span v-show="(valType === 'currency')" class="mr-2 text-green-600"><i
                             class="bi bi-currency-dollar"></i></span>
                     <span v-show="(valType === 'percentage')" class="mr-2 text-amber-600"><i
@@ -15,7 +15,7 @@ const route = useRoute();
                     <span v-if="!nameChangeSelected" @dblclick="toggleNameChange">{{ assumption.name }}</span>
                     <span v-else><input autofocus @keydown.enter="updateName" v-model="newName" class="bg-zinc-100/0 focus:border-b border-sky-600 focus:outline-none placeholder:text-zinc-500" type="text"
                             placeholder="Change variable name"></span>
-                    <span class="text-xs float-right hidden group-hover:block"><button type="button" @click="toggleDeleteModal" class="mr-1"><i class="bi bi-trash3 text-zinc-500"></i></button></span>
+                    <span class="text-xs float-right hidden group-hover:block"><button type="button" @click="toggleDeleteModal" class="mr-1"><i class="bi bi-x-lg text-zinc-500 shadow hover:text-zinc-700"></i></button></span>
                 </div>
             <div class="h-full w-full">
                 <div v-if="!valueInputSelected" class="text-xs border-t border-r border-zinc-300 min-w-[125px] max-w-[125px] h-full w-full text-right">
