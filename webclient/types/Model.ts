@@ -1,14 +1,16 @@
 export interface Model {
     _id: string;
-    meta: {
-        name: string,
-        starting_month:Date,
-        admins: string[],
-        editors: string[],
-        viewers: string[],
-        workspace: string
-    };
+    meta: ModelMeta;
     sheets: Sheet[];
+}
+
+export interface ModelMeta {
+    name: string,
+    starting_month:string,
+    admins: string[],
+    editors: string[],
+    viewers: string[],
+    workspace: string
 }
 
 export interface Sheet {

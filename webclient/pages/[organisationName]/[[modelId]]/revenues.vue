@@ -1,22 +1,25 @@
 <script setup lang="ts">
-import { Variable } from '~~/types/Model';
+import { Sheet, ModelMeta } from '~~/types/Model';
 
 definePageMeta({
     middleware: ["auth", "route-check"]
 })
 
-const model = useDummyModelState();
+const route = useRoute()
+//const user = useUserState();
+
+const modelMeta = useModelMetaState();
+
+modelMeta.value = await getModelMeta(route.params.modelId);
+
+const revenues = useRevenueState();
+revenues.value = await getRevenueState(route.params.modelId);
+
+//todo: find better solution
+const date:string[] = modelMeta.value.starting_month.split("-");
+const dates = useState('dates', () => useDateArray(new Date(+date[0], +date[1]-1)));
 
 const assumptionValuesToDisplay = useState('assumptionValues');
-
-/* const route = useRoute()
-const user = useUserState();
-
-const model = useModelState();
-model.value = await updateModelState(route.params.modelId); */
-
-const dates = useState('dates', () => useDateArray(model.value.meta.starting_month));
-
 
 </script>
 
@@ -36,7 +39,7 @@ const dates = useState('dates', () => useDateArray(model.value.meta.starting_mon
                                 </form>
                             </div>
                         </div>
-                        <VariableRowHeader v-for="(assumption, index) in model.sheets[0].assumptions" :assumption="assumption" :assumptionIndex="index"></VariableRowHeader>
+                        <VariableRowHeader v-for="(assumption, index) in revenues.assumptions" :assumption="assumption" :assumptionIndex="index"></VariableRowHeader>
                     </div>
                     <div class="overflow-x-auto">
                         <div class="flex mb-4">
@@ -61,10 +64,11 @@ export default {
     mounted() {
 
         //return the display values for all the assumptions
-        const model = useDummyModelState();
+        //const model = useDummyModelState();
+        const revenues = useRevenueState();
 
         //todo not only assumptions but all variables
-        var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(model.value.sheets[0].assumptions);
+        var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(revenues.value.assumptions);
         useState('assumptionValues', () => assumptionValuesArray);
     }
 }
