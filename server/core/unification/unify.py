@@ -48,8 +48,8 @@ def process_row(row: Row, data_batches: dict[IntegrationProvider, DataBatch]) ->
     # use sorted dates to retrieve the IntegrationValues
     integration_values = [
         IntegrationValue(
-            date=datetime.strptime(timestamp, "%d-%b-%Y").date(),
-            value=data_batches[integration].data[timestamp],
+            date=datetime.strptime(timestamp, "%Y-%m-%d").date(),
+            value=data_batches[integration].data[endpoint][timestamp],
         )
         for timestamp in data_batches[integration].dates
     ]

@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 
 class IntegrationValue(BaseModel):
     date: date
-    value: str
+    value: str | None
 
 
 class Row(BaseModel):
