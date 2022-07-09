@@ -76,7 +76,7 @@ class FetchAdapter(ABC):
         ):
             return cached.to_data_batch()
 
-    async def set_cached(self, data_batch: DataBatch, from_date: date):
+    async def set_cached(self, data_batch: DataBatch, from_date: int):
 
         cache_obj = DataBatchCache(
             data=data_batch.data,
