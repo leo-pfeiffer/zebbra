@@ -1,4 +1,4 @@
-from core.schemas.utils import XeroBatch
+from core.schemas.utils import DataBatch
 from core.unification.fetch import XeroFetchAdapter
 from tests.factory import _read_json
 from datetime import date
@@ -42,7 +42,7 @@ def test_process_batch():
     batch = _read_json("resources/xero_profitloss.json")
     processed = XeroFetchAdapter("")._process_batch(batch)
     try:
-        XeroBatch(**processed)
+        DataBatch(**processed)
         assert True
     except ValueError:
         assert False
@@ -52,7 +52,7 @@ def test_process_batch_balance():
     batch = _read_json("resources/xero_balance.json")
     processed = XeroFetchAdapter("")._process_batch(batch)
     try:
-        XeroBatch(**processed)
+        DataBatch(**processed)
         assert True
     except ValueError:
         assert False
@@ -64,7 +64,7 @@ def test_merge_batches():
     batches = [xfa._process_batch(b) for b in batches]
     merged = xfa._merge_batches(batches)
     try:
-        XeroBatch(**merged)
+        DataBatch(**merged)
         assert True
     except ValueError:
         assert False

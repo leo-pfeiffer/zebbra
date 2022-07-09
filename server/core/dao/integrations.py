@@ -1,7 +1,10 @@
+from datetime import datetime
+
 from fastapi.encoders import jsonable_encoder
 
 from core.dao.database import db
 from core.schemas.integrations import IntegrationProvider, IntegrationAccess
+from core.schemas.utils import DataBatchCache
 from core.settings import get_settings
 
 settings = get_settings()
@@ -88,3 +91,21 @@ async def set_requires_reconnect(
         {"workspace_id": workspace_id, "integration": integration},
         {"$set": {"requires_reconnect": requires_reconnect}},
     )
+
+
+async def get_integration_cache(
+        workspace_id: str, integration: IntegrationProvider, from_date: int
+) -> DataBatchCache | None:
+    cached = await db.integration_cache.find_one(
+        {
+            "workspace_id": workspace_id,
+            "integration": integration,
+            "from_date": from_date,
+        }
+    )
+    if cached:
+        return DataBatchCache(**cached)
+
+
+async def set_integration_cache(cache_obj: DataBatchCache):
+    return await db.integration_cache.insert_one(cache_obj.dict())

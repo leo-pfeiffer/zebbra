@@ -13,8 +13,8 @@ fi
 
 mongosh <<EOF
   show dbs;
-  use zebbra;
   use zebbra_test;
+  use zebbra;
 
   if (db.getUsers({filter: {'user': "$MONGODB_USER"}}).users.length != 0) {
     db.dropUser("$MONGODB_USER")
@@ -27,6 +27,9 @@ mongosh <<EOF
       roles: [ { role: "readWrite", db: "zebbra" }, { role: "readWrite", db: "zebbra_test" } ]
     }
   );
+
+  db.integration_cache.drop()
+  db.integration_cache.createIndex({ "created_at": 1 }, { expireAfterSeconds: $CACHE_TTL })
 EOF
 
 # import demo data

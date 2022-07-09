@@ -1,11 +1,13 @@
 import asyncio
 from abc import ABC, abstractmethod
 from calendar import monthrange
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 
 from dateutil.relativedelta import relativedelta
 
-from core.schemas.utils import XeroBatch
+from core.dao.integrations import get_integration_cache, set_integration_cache
+from core.schemas.integrations import IntegrationProvider
+from core.schemas.utils import DataBatch, DataBatchCache
 from core.unification.xero_oauth import (
     get_xero_integration_access,
     xero,
@@ -15,16 +17,22 @@ from core.unification.xero_oauth import (
 
 class FetchAdapter(ABC):
     @abstractmethod
-    def __init__(self, workspace_id: str):
+    def __init__(self, workspace_id: str, integration: IntegrationProvider):
         self._workspace_id = workspace_id
+        self._integration = integration
 
     @property
     @abstractmethod
     def workspace_id(self):
         ...
 
+    @property
     @abstractmethod
-    async def get_data(self, from_date: date) -> XeroBatch:
+    def integration(self):
+        ...
+
+    @abstractmethod
+    async def get_data(self, from_date: date) -> DataBatch:
         ...
 
     @abstractmethod
@@ -62,25 +70,23 @@ class FetchAdapter(ABC):
         day = monthrange(the_date.year, the_date.month)[1]
         return date(the_date.year, the_date.month, day)
 
-    # @staticmethod
-    # def _date_to_string_in_batch(batch):
-    #     """
-    #     Convert all dates in a batch into string format YYYY-MM-DD
-    #     :param batch: The batch to process
-    #     :return: Converted batch
-    #     """
-    #
-    #     data = {}
-    #
-    #     for title, timeseries in batch["data"].items():
-    #         data[title] = {}
-    #         for timestamp, value in timeseries.items():
-    #             string_date = timestamp.strftime("%Y-%m-%d")
-    #             data[title][string_date] = value
-    #
-    #     dates = [d.strftime("%Y-%m-%d") for d in batch["dates"]]
-    #
-    #     return {"dates": dates, "data": data}
+    async def get_cached(self, from_date: int) -> DataBatch | None:
+        if cached := await get_integration_cache(
+                self.workspace_id, self.integration, from_date
+        ):
+            return cached.to_data_batch()
+
+    async def set_cached(self, data_batch: DataBatch, from_date: date):
+
+        cache_obj = DataBatchCache(
+            data=data_batch.data,
+            dates=data_batch.dates,
+            created_at=datetime.now().astimezone(timezone.utc),
+            workspace_id=self.workspace_id,
+            integration=self.integration,
+            from_date=from_date,
+        )
+        return await set_integration_cache(cache_obj)
 
     @staticmethod
     def _merge_batches(batches: list):
@@ -119,24 +125,47 @@ class FetchAdapter(ABC):
 class XeroFetchAdapter(FetchAdapter):
     def __init__(self, workspace_id: str):
         self._workspace_id = workspace_id
+        self._integration = "Xero"
 
     @property
     def workspace_id(self):
         return self._workspace_id
 
-    async def get_data(self, from_date: date) -> XeroBatch:
+    @property
+    def integration(self):
+        return self._integration
+
+    async def get_data(self, from_date: date) -> DataBatch:
         """
         Retrieve and process the P&L and balance sheet data from XERO
         :param from_date: date from which onwards to get the data
         :return: P&L and balance sheet data
         """
 
+        # check if we can use cache
+        actual_from_date = self._last_of_same_month(
+            self._get_last_month_with_31_days(from_date)
+        )
+        actual_from_date = datetime.combine(actual_from_date, datetime.min.time())
+        actual_from_date = int(actual_from_date.timestamp())
+        cached = await self.get_cached(actual_from_date)
+        print("Cached:")
+        print(cached)
+        if cached:
+            return cached
+
+        # if no cache, retrieve
         batches = await self._get_batches(from_date)
 
         processed = [self._process_batch(batch) for batch in batches]
         merged = self._merge_batches(processed)
-        # return XeroBatch(**self._date_to_string_in_batch(merged))
-        return XeroBatch(**merged)
+
+        data_batch = DataBatch(**merged)
+
+        # cache result
+        await self.set_cached(data_batch, actual_from_date)
+
+        return data_batch
 
     async def get_data_endpoints(self, from_date: date) -> list[str]:
         """

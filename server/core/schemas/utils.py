@@ -99,7 +99,7 @@ class DateString(str):
 TimeSeriesDict = dict[DateString, float | None]
 
 
-class XeroBatch(BaseModel):
+class DataBatch(BaseModel):
     dates: list[DateString]
     data: dict[str, TimeSeriesDict]
 
@@ -127,6 +127,16 @@ class XeroBatch(BaseModel):
                 },
             }
         }
+
+
+class DataBatchCache(DataBatch):
+    integration: IntegrationProvider
+    workspace_id: str
+    created_at: datetime
+    from_date: int
+
+    def to_data_batch(self) -> DataBatch:
+        return DataBatch(dates=self.dates, data=self.data)
 
 
 class PyObjectId(ObjectId):
