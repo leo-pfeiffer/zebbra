@@ -2,6 +2,7 @@ from fastapi.encoders import jsonable_encoder
 
 from core.dao.database import db
 from core.schemas.integrations import IntegrationProvider, IntegrationAccess
+from core.schemas.utils import DataBatchCache
 from core.settings import get_settings
 
 settings = get_settings()
@@ -63,7 +64,7 @@ async def add_integration_for_workspace(integration_access: IntegrationAccess):
     if await workspace_has_integration(
         integration_access.workspace_id, integration_access.integration
     ):
-        return db.integration_access.replace_one(
+        return await db.integration_access.replace_one(
             {
                 "workspace_id": integration_access.workspace_id,
                 "integration": integration_access.integration,
@@ -88,3 +89,40 @@ async def set_requires_reconnect(
         {"workspace_id": workspace_id, "integration": integration},
         {"$set": {"requires_reconnect": requires_reconnect}},
     )
+
+
+async def get_integration_cache(
+        workspace_id: str, integration: IntegrationProvider, from_date: int
+) -> DataBatchCache | None:
+    cached = await db.integration_cache.find_one(
+        {
+            "workspace_id": workspace_id,
+            "integration": integration,
+            "from_date": from_date,
+        }
+    )
+    if cached:
+        return DataBatchCache(**cached)
+
+
+async def set_integration_cache(cache_obj: DataBatchCache):
+    if (
+            await db.integration_cache.count_documents(
+                {
+                    "workspace_id": cache_obj.workspace_id,
+                    "integration": cache_obj.integration,
+                    "from_date": cache_obj.from_date,
+                }
+            )
+            > 0
+    ):
+        return await db.integration_cache.replace_one(
+            {
+                "workspace_id": cache_obj.workspace_id,
+                "integration": cache_obj.integration,
+                "from_date": cache_obj.from_date,
+            },
+            {**cache_obj.dict()},
+        )
+    else:
+        return await db.integration_cache.insert_one(cache_obj.dict())

@@ -40,6 +40,7 @@ async def teardown():
     await teardown_models()
     await teardown_invite_codes()
     await teardown_integration_access()
+    await teardown_integration_cache()
 
 
 def create_user_data():
@@ -84,6 +85,10 @@ def teardown_invite_codes():
 
 def teardown_integration_access():
     return db.integration_access.delete_many({})
+
+
+def teardown_integration_cache():
+    return db.integration_cache.delete_many({})
 
 
 async def setup_integration_access(workspace_id, integration="Xero"):
