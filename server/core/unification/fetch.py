@@ -68,9 +68,10 @@ class FetchAdapter(ABC):
         return date(the_date.year, the_date.month, day)
 
     async def get_cached(self, from_date: int) -> DataBatch | None:
-        if cached := await get_integration_cache(
-                self.workspace_id, self.integration, from_date
-        ):
+        cached = await get_integration_cache(
+            self.workspace_id, self.integration, from_date
+        )
+        if cached:
             return cached.to_data_batch()
 
     async def set_cached(self, data_batch: DataBatch, from_date: int):
