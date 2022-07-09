@@ -68,9 +68,10 @@ class FetchAdapter(ABC):
         return date(the_date.year, the_date.month, day)
 
     async def get_cached(self, from_date: int) -> DataBatch | None:
-        if cached := await get_integration_cache(
-                self.workspace_id, self.integration, from_date
-        ):
+        cached = await get_integration_cache(
+            self.workspace_id, self.integration, from_date
+        )
+        if cached:
             return cached.to_data_batch()
 
     async def set_cached(self, data_batch: DataBatch, from_date: int):
@@ -146,8 +147,7 @@ class XeroFetchAdapter(FetchAdapter):
                 datetime.min.time(),
             ).timestamp()
         )
-        cached = await self.get_cached(actual_from_date)
-        if cached:
+        if cached := await self.get_cached(actual_from_date):
             return cached
 
         # if no cache, retrieve from Xero API
@@ -170,6 +170,17 @@ class XeroFetchAdapter(FetchAdapter):
         :return: list of endpoints
         """
 
+        # check if we can use cache of batch data
+        actual_from_date = int(
+            datetime.combine(
+                self._last_of_same_month(self._get_last_month_with_31_days(from_date)),
+                datetime.min.time(),
+            ).timestamp()
+        )
+        if cached := await self.get_cached(actual_from_date):
+            return sorted(list(cached.data.keys()))
+
+        # no cache available -> retrieve from Xero API and process
         batches = await self._get_batches(from_date)
 
         data_points = set()
