@@ -1,6 +1,6 @@
 import { Variable } from "~~/types/Model";
 
-import * as MathParser from 'math-expression-evaluator';
+import { useMathParser } from "./useMathParser";
 
 export const useFormulaParser = () => {
 
@@ -101,7 +101,7 @@ export const useFormulaParser = () => {
             if(variableInput.value_1.includes("#")) {
                 firstValue = getExternalRefValue(variableInput.value_1, variableInput.starting_at, variablesAlreadyCovered);
             } else {
-                firstValue = MathParser.eval(variableInput.value_1).toString();
+                firstValue = useMathParser(variableInput.value_1).toString();
             }
             valuesToDisplay.push(firstValue);
         }
@@ -131,7 +131,7 @@ export const useFormulaParser = () => {
             }
 
             //run the string through the maths parser
-            const valueToDisplay: string = Math.floor(MathParser.eval(stringForParser)).toString();
+            const valueToDisplay: string = Math.floor(useMathParser(stringForParser)).toString();
 
             //add the solution of maths parser to the valuesToDisplay string
             valuesToDisplay.push(valueToDisplay);
@@ -239,7 +239,7 @@ export const useFormulaParser = () => {
         var outputValue:string;
 
         if(externalRef.includes("$")) {
-            ref = externalRef.slice(0, externalRef.indexOf("$")).substring(1)
+            ref = externalRef.slice(0, externalRef.indexOf("$")).substring(1);
             indexDiff = +externalRef.slice(externalRef.indexOf("$")).substring(1);
         } else {
             ref = externalRef.substring(1);
@@ -248,7 +248,7 @@ export const useFormulaParser = () => {
         if(variablesAlreadyCovered.get(ref).time_series) {
             outputValue = variablesAlreadyCovered.get(ref).row_values[index - indexDiff];
         } else {
-            outputValue = MathParser.eval(variablesAlreadyCovered.get(ref).value).toString();
+            outputValue = useMathParser(variablesAlreadyCovered.get(ref).value).toString();
         }
 
         return outputValue;
