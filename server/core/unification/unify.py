@@ -1,14 +1,14 @@
 import re
-from datetime import date
+from datetime import date, datetime
 
 from core.schemas.integrations import IntegrationProvider
-from core.schemas.rows import Row
+from core.schemas.rows import Row, IntegrationValue
 from core.schemas.sheets import Sheet
 from core.schemas.utils import DataBatch
 from core.unification.fetch import XeroFetchAdapter
 
 
-def parse_value(value_string: str) -> tuple[str, str]:
+def parse_value(value_string: str) -> tuple[IntegrationProvider, str]:
     """
     Values are of format Integration[End Point]
     :param value_string: string containing the value
@@ -18,11 +18,11 @@ def parse_value(value_string: str) -> tuple[str, str]:
     if not re.compile(r"[a-zA-Z]+\[[a-zA-Z\s\d]+\]").fullmatch(value_string):  # noqa
         raise ValueError(f"Invalid value string {value_string}")
     try:
-        segments = value_string.split("[")
+        segments: list[str | IntegrationProvider] = value_string.split("[")
         assert len(segments) == 2
         assert segments[1].endswith("]")
-        integration = segments[0]
-        endpoint = segments[1][:-1]
+        integration: IntegrationProvider = segments[0]
+        endpoint: str = segments[1][:-1]
         return integration, endpoint
     except AssertionError:
         raise ValueError(f"Invalid value string {value_string}")
@@ -40,8 +40,22 @@ def process_row(row: Row, data_batches: dict[IntegrationProvider, DataBatch]) ->
 
     # catch error here?
     integration, endpoint = parse_value(row.value)
-    # todo
-    ...
+
+    # integration must be supported
+    assert integration in data_batches
+    assert endpoint in data_batches[integration].data
+
+    # use sorted dates to retrieve the IntegrationValues
+    integration_values = [
+        IntegrationValue(
+            date=datetime.strptime(timestamp, "%d-%b-%Y").date(),
+            value=data_batches[integration].data[timestamp],
+        )
+        for timestamp in data_batches[integration].dates
+    ]
+
+    row.integration_values = integration_values
+
     return row
 
 
