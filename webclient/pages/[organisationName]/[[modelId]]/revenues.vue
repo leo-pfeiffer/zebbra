@@ -39,7 +39,7 @@ const assumptionValuesToDisplay = useState<string[][]>('assumptionValues');
                                 </form>
                             </div>
                         </div>
-                        <AssumptionRowHeader v-for="(assumption, index) in revenues.assumptions" :assumption="assumption" :assumptionIndex="index"></AssumptionRowHeader>
+                        <AssumptionRowHeader v-for="(assumption, index) in revenues.assumptions" :assumption="assumption" :assumptionIndex="index" :timeSeriesMap="timeSeriesMap"></AssumptionRowHeader>
                     </div>
                     <div class="overflow-x-auto">
                         <div class="flex mb-4">
@@ -107,6 +107,15 @@ export default {
         //todo not only assumptions but all variables
         var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(revenues.value.assumptions);
         useState('assumptionValues', () => assumptionValuesArray);
+    }, computed: {
+        timeSeriesMap() {
+            const revenues = useRevenueState();
+            var timeSeriesMap:Map<string, boolean> = new Map<string, boolean>();
+            for(let i=0; i > revenues.value.assumptions.length; i++) {
+                timeSeriesMap.set(revenues.value.assumptions[i]._id, revenues.value.assumptions[i].time_series);
+            }
+            return timeSeriesMap;
+        }
     }
 }
 

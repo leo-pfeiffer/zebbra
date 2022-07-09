@@ -13,14 +13,16 @@ const route = useRoute();
                             class="bi bi-percent"></i></span>
                     <span v-show="(valType === 'number')" class="mr-2 text-zinc-500"><i class="bi bi-hash"></i></span>
                     <span v-if="!nameChangeSelected" @dblclick="toggleNameChange">{{ assumption.name }}</span>
-                    <span v-else><input autofocus @keydown.enter="updateName" v-model="newName" class="bg-zinc-100/0 focus:border-b border-sky-600 focus:outline-none placeholder:text-zinc-500" type="text"
+                    <span v-else><input ref="name" @keydown.enter="updateName" @keydown.esc="toggleNameChange" v-model="newName" class="bg-zinc-100/0 focus:border-b border-sky-600 focus:outline-none placeholder:text-zinc-500" type="text"
                             placeholder="Change variable name"></span>
-                    <span class="text-xs float-right hidden group-hover:block"><button type="button" @click="toggleDeleteModal" class="mr-1"><i class="bi bi-x-lg text-zinc-500 hover:text-zinc-700"></i></button></span>
+                    <span class="text-[10px] float-right hidden group-hover:block"><button type="button" @click="toggleDeleteModal" class="mr-1"><i title="Delete variable" class="bi bi-x-lg text-zinc-500 hover:text-zinc-700"></i></button></span>
+                    <span class="text-[9px] float-right hidden group-hover:block"><button type="button" @click="" class="mr-3"><i title="Take value from integration" class="bi bi-server text-zinc-500 hover:text-zinc-700"></i></button></span>
+                    <span class="text-[9px] float-right hidden group-hover:block"><button type="button" @click="" class="mr-3"><i title="Variable settings" class="bi bi-gear-fill text-zinc-500 hover:text-zinc-700"></i></button></span>
                 </div>
             <div class="h-full w-full">
                 <div v-if="!valueInputSelected" class="text-xs border-t border-r border-zinc-300 min-w-[125px] max-w-[125px] h-full w-full text-right">
                     <div @dblclick="toggleInput" class="h-full text-right text-xs py-2 px-2 border-r-2 border-zinc-300">
-                        {{ outputValue }}</div>
+                        <span class="bg-white">{{ outputValue }}</span></div>
                 </div>
                 <div v-else class="absolute text-xs border-zinc-300 min-w-[200px] max-w-[200px] h-full w-full text-right">
                     <input v-show="valueInputSelected" autofocus @keydown.enter="updateValue" @keydown.esc="toggleInput" v-model="inputValue"
@@ -30,7 +32,6 @@ const route = useRoute();
             </div>
         </div>
         <Teleport to="body">
-
             <div v-show="deleteModalOpen" class="absolute left-0 top-1/3 w-full flex justify-center align-middle">
             <div class="p-6 border h-max shadow-lg bg-white border-zinc-300 rounded z-50">
               <div>
@@ -50,7 +51,6 @@ const route = useRoute();
               class="fixed top-0 left-0 w-[100vw] h-[100vh] z-40 bg-zinc-100/50">
             </div>
           </div>
-
         </Teleport>
     </div>
 </template>
@@ -72,7 +72,8 @@ export default {
     },
     props: {
         assumption: Object as () => Variable,
-        assumptionIndex: Number
+        assumptionIndex: Number,
+        timeSeriesMap: Map
     },
     methods: {
         toggleNameChange() {
@@ -89,17 +90,66 @@ export default {
                 this.valueInputSelected = false;
             }
         },
+        isTimeSeries(inputValue:string) {
+            if(inputValue.includes("$")) {
+                return true;
+            } else if(inputValue.includes("#") && !inputValue.includes("$")) {
+
+                //create an array with all the refs in a variable string
+                var refsArray: string[] = [];
+
+                for (let i = 0; i < inputValue.length; i++) {
+                    let char = inputValue[i];
+                    if (char === "#") {
+                        var ref: string = ""; //empty string to store id (ie number after the #)
+                        var counter = 1;
+                        //only getting the numerical because only the ids are needed not the point in time (e.g. t-1)
+                        while (useFormulaParser().charIsNumerical(inputValue[i + counter]) && (inputValue[i + counter] != undefined)) {
+                            ref = ref + inputValue[i + counter];
+                            counter++;
+                            if ((i + counter >= inputValue.length)) {
+                                break;
+                            }
+                        }
+                        refsArray.push(ref);
+                        i = i + counter - 1;
+                    }
+                }
+
+                //for every ref check timeSeriesMap and return true if one is timeseries
+                for(let i=0; i < refsArray.length; i++) {
+                    if(this.timeSeriesMap.get(refsArray[i])) {
+                        return true;
+                    }
+                }
+                
+                return false;
+
+            } else {
+                return false;
+            }
+        },
         async updateValue() {
-            //todo: proper error handling
             if(this.inputValue.length > 0) {
                 const sheet = useRevenueState();
+                sheet.value.assumptions[this.assumptionIndex].time_series = this.isTimeSeries(this.inputValue);
                 sheet.value.assumptions[this.assumptionIndex].value = this.inputValue.toString();
+                if(this.inputValue.includes("+") || this.inputValue.includes("-") || this.inputValue.includes("*") || this.inputValue.includes("/") || this.inputValue.includes("–")) {
+                    sheet.value.assumptions[this.assumptionIndex].var_type = "formula";
+                } else {
+                    sheet.value.assumptions[this.assumptionIndex].var_type = "value";
+                }
                 try {
+                    //update RevenueState
                     await updateRevenueState(this.route.params.modelId, sheet.value);
+                    //Update sheet values valuesToDisplay
+                    const revenues = useRevenueState();
+                    const assumptionValuesArrayState = useState<string[][]>('assumptionValues');
+                    var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(revenues.value.assumptions);;
+                    assumptionValuesArrayState.value[this.assumptionIndex] = assumptionValuesArray[this.assumptionIndex];
                     this.toggleInput();
                 } catch (e) {
                     console.log(e);
-                } finally {
                     //retrieve actual stored sheet from DB
                     //if actual sheet and state match, if not update state to actual sheet
                     const actualSheet = await getRevenueState(this.route.params.modelId);
@@ -179,8 +229,27 @@ export default {
     },
     computed: {
         outputValue() {
-            return this.inputValue;
-            //todo: display calculated number or "formula sign"
+            try {
+                var output:string = useMathParser(this.assumption.value).toFixed(2).toString();
+                const splitted:string[] = output.split(".");
+                if(splitted[1] === "00") {
+                    return splitted[0];
+                } else {
+                    return output;
+                }
+            } catch(e) {
+                if (this.assumption.var_type === "formula") {
+
+                    return "Formula"
+
+                } else if (this.assumption.var_type === "integration") {
+
+                    return "Integration"
+                    
+                } else {
+                    return "!!";
+                }
+            }
         }
     }
 }
