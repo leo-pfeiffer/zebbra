@@ -13,12 +13,12 @@ fi
 
 mongosh <<EOF
   show dbs;
-  use zebbra_test;
   use zebbra;
+  use zebbra_test;
 
   if (db.getUsers({filter: {'user': "$MONGODB_USER"}}).users.length != 0) {
     db.dropUser("$MONGODB_USER")
-  }
+  };
 
   db.createUser(
     {
@@ -28,8 +28,13 @@ mongosh <<EOF
     }
   );
 
-  db.integration_cache.drop()
-  db.integration_cache.createIndex({ "created_at": 1 }, { expireAfterSeconds: $CACHE_TTL })
+  // create index for both DBs
+  use zebbra;
+  db.integration_cache.createIndex({ "created_at": 1 }, { expireAfterSeconds: $CACHE_TTL });
+
+  use zebbra_test;
+  db.integration_cache.createIndex({ "created_at": 1 }, { expireAfterSeconds: $CACHE_TTL });
+
 EOF
 
 # import demo data
