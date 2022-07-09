@@ -24,23 +24,20 @@ class FetchAdapter(ABC):
     @property
     @abstractmethod
     def workspace_id(self):
-        ...
+        raise NotImplementedError("Abstract method must be implemented by child class.")
 
     @property
     @abstractmethod
     def integration(self):
-        ...
+        raise NotImplementedError("Abstract method must be implemented by child class.")
 
     @abstractmethod
     async def get_data(self, from_date: date) -> DataBatch:
-        ...
+        raise NotImplementedError("Abstract method must be implemented by child class.")
 
     @abstractmethod
     async def get_data_endpoints(self, from_date: date) -> list[str]:
-        ...
-
-    def verify_batch(self):
-        ...
+        raise NotImplementedError("Abstract method must be implemented by child class.")
 
     @staticmethod
     def _date_from_string(date_string):
@@ -143,18 +140,17 @@ class XeroFetchAdapter(FetchAdapter):
         """
 
         # check if we can use cache
-        actual_from_date = self._last_of_same_month(
-            self._get_last_month_with_31_days(from_date)
+        actual_from_date = int(
+            datetime.combine(
+                self._last_of_same_month(self._get_last_month_with_31_days(from_date)),
+                datetime.min.time(),
+            ).timestamp()
         )
-        actual_from_date = datetime.combine(actual_from_date, datetime.min.time())
-        actual_from_date = int(actual_from_date.timestamp())
         cached = await self.get_cached(actual_from_date)
-        print("Cached:")
-        print(cached)
         if cached:
             return cached
 
-        # if no cache, retrieve
+        # if no cache, retrieve from Xero API
         batches = await self._get_batches(from_date)
 
         processed = [self._process_batch(batch) for batch in batches]

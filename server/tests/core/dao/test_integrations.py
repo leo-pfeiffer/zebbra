@@ -1,4 +1,8 @@
 import pytest
+from dateutil.relativedelta import relativedelta
+
+from core.dao.integrations import get_integration_cache, set_integration_cache
+from datetime import datetime, timezone
 
 from core.dao.integrations import (
     get_integrations_for_workspace,
@@ -6,8 +10,17 @@ from core.dao.integrations import (
     workspace_has_integration,
     set_requires_reconnect,
 )
+from core.schemas.utils import DataBatchCache
 from tests.factory import setup_integration_access
 from tests.utils import count_documents
+
+
+def compare_rounded_created_at(cached1: DataBatchCache, cached2: DataBatchCache):
+    cached1.created_at = cached1.created_at.replace(tzinfo=None)
+    cached2.created_at = cached2.created_at.replace(tzinfo=None)
+    return round(cached1.created_at.timestamp(), 2) == round(
+        cached2.created_at.timestamp(), 2
+    )
 
 
 @pytest.mark.anyio
@@ -84,3 +97,96 @@ async def test_set_requires_reconnect_false(workspaces):
     await set_requires_reconnect(workspace_id, "Xero", False)
     integration_access = await get_integration_for_workspace(workspace_id, "Xero")
     assert not integration_access.requires_reconnect
+
+
+@pytest.mark.anyio
+async def test_set_cached():
+    cache_obj = DataBatchCache(
+        data={},
+        dates=[],
+        created_at=datetime.now(tz=timezone.utc),
+        workspace_id="123",
+        integration="Xero",
+        from_date=123,
+    )
+    await set_integration_cache(cache_obj)
+    db_obj = await get_integration_cache("123", "Xero", 123)
+    assert compare_rounded_created_at(cache_obj, db_obj)
+
+
+@pytest.mark.anyio
+async def test_set_cached_replaces():
+    cache_obj = DataBatchCache(
+        data={},
+        dates=[],
+        created_at=datetime.now(tz=timezone.utc),
+        workspace_id="123",
+        integration="Xero",
+        from_date=123,
+    )
+    await set_integration_cache(cache_obj)
+
+    cache_obj2 = DataBatchCache(**cache_obj.dict())
+    cache_obj2.created_at += relativedelta(minutes=10)
+    await set_integration_cache(cache_obj2)
+
+    db_obj = await get_integration_cache("123", "Xero", 123)
+    assert not compare_rounded_created_at(cache_obj, db_obj)
+    assert compare_rounded_created_at(cache_obj2, db_obj)
+
+
+@pytest.mark.anyio
+async def test_get_cached():
+    cache_obj = DataBatchCache(
+        data={},
+        dates=[],
+        created_at=datetime.now(tz=timezone.utc),
+        workspace_id="123",
+        integration="Xero",
+        from_date=123,
+    )
+    await set_integration_cache(cache_obj)
+    db_obj = await get_integration_cache("123", "Xero", 123)
+    assert compare_rounded_created_at(cache_obj, db_obj)
+
+
+@pytest.mark.anyio
+async def test_get_cached_non_existent_from_date():
+    cache_obj = DataBatchCache(
+        data={},
+        dates=[],
+        created_at=datetime.now(tz=timezone.utc),
+        workspace_id="123",
+        integration="Xero",
+        from_date=123,
+    )
+    await set_integration_cache(cache_obj)
+    assert await get_integration_cache("123", "Xero", 321) is None
+
+
+@pytest.mark.anyio
+async def test_get_cached_non_existent_workspace():
+    cache_obj = DataBatchCache(
+        data={},
+        dates=[],
+        created_at=datetime.now(tz=timezone.utc),
+        workspace_id="123",
+        integration="Xero",
+        from_date=123,
+    )
+    await set_integration_cache(cache_obj)
+    assert await get_integration_cache("false", "Xero", 123) is None
+
+
+@pytest.mark.anyio
+async def test_get_cached_non_existent_integration():
+    cache_obj = DataBatchCache(
+        data={},
+        dates=[],
+        created_at=datetime.now(tz=timezone.utc),
+        workspace_id="123",
+        integration="Xero",
+        from_date=123,
+    )
+    await set_integration_cache(cache_obj)
+    assert await get_integration_cache("123", "false", 123) is None  # noqa
