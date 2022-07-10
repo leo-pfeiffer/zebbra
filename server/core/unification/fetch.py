@@ -145,7 +145,9 @@ class XeroFetchAdapter(FetchAdapter):
             datetime.combine(
                 self._last_of_same_month(self._get_last_month_with_31_days(from_date)),
                 datetime.min.time(),
-            ).timestamp()
+            )
+            .replace(tzinfo=None)
+            .timestamp()
         )
 
         print("=============================================")
