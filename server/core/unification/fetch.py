@@ -146,7 +146,7 @@ class XeroFetchAdapter(FetchAdapter):
                 self._last_of_same_month(self._get_last_month_with_31_days(from_date)),
                 datetime.min.time(),
             )
-            .replace(tzinfo=None)
+            .replace(tzinfo=timezone.utc)
             .timestamp()
         )
 
