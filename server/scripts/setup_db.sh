@@ -53,7 +53,8 @@ mongosh <<EOF
   db.integration_cache.getIndexes();
 EOF
 
-# todo this is unnecessary
+# todo this should be unnecessary but if I take it out the first auth test in CI fails,
+#  likely because the users aren't properly loaded
 ## test db
 mongoimport --db zebbra_test --collection users --drop --file $DEMO_DIR/users.json --jsonArray
 mongoimport --db zebbra_test --collection workspaces --drop --file $DEMO_DIR/workspaces.json --jsonArray

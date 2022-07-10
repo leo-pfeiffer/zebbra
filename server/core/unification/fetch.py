@@ -147,6 +147,13 @@ class XeroFetchAdapter(FetchAdapter):
                 datetime.min.time(),
             ).timestamp()
         )
+
+        print("=============================================")
+        print("=============================================")
+        print("=============================================")
+        print("=============================================")
+        print(from_date, actual_from_date)
+
         if cached := await self.get_cached(actual_from_date):
             return cached
 
