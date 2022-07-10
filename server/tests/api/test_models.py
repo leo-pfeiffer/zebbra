@@ -415,6 +415,28 @@ async def test_post_model_revenues(access_token):
 
 
 @pytest.mark.anyio
+async def test_post_model_revenues_contains_integration_values(access_token):
+    client = TestClient(app)
+    model_id = "62b488ba433720870b60ec0a"
+
+    sheet = await get_revenues_sheet(model_id)
+    sheet_new = Sheet(**sheet.dict())
+    for sec in sheet_new.sections:
+        sec.name = sec.name + "_changed"
+
+    response = client.post(
+        f"/model/revenues?model_id={model_id}",
+        headers={"Authorization": f"Bearer {access_token}"},
+        json=jsonable_encoder(sheet_new),
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+    assert response.json()["sections"][0]["rows"][1]["integration_values"] is not None
+    assert len(response.json()["sections"][0]["rows"][1]["integration_values"]) > 0
+
+
+@pytest.mark.anyio
 async def test_post_model_revenues_no_access(access_token_alice):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
@@ -453,6 +475,28 @@ async def test_post_model_costs(access_token):
 
     for sec in sheet2["sections"]:
         assert sec["name"].endswith("_changed")
+
+
+@pytest.mark.anyio
+async def test_post_model_costs_contains_integration_values(access_token):
+    client = TestClient(app)
+    model_id = "62b488ba433720870b60ec0a"
+
+    sheet = await get_costs_sheet(model_id)
+    sheet_new = Sheet(**sheet.dict())
+    for sec in sheet_new.sections:
+        sec.name = sec.name + "_changed"
+
+    response = client.post(
+        f"/model/costs?model_id={model_id}",
+        headers={"Authorization": f"Bearer {access_token}"},
+        json=jsonable_encoder(sheet_new),
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+    assert response.json()["sections"][0]["rows"][1]["integration_values"] is not None
+    assert len(response.json()["sections"][0]["rows"][1]["integration_values"]) > 0
 
 
 @pytest.mark.anyio
@@ -521,6 +565,22 @@ async def test_get_model_revenues(access_token):
 
 
 @pytest.mark.anyio
+async def test_get_model_revenues_contains_integration_values(access_token):
+    client = TestClient(app)
+    model_id = "62b488ba433720870b60ec0a"
+
+    response = client.get(
+        f"/model/revenues?model_id={model_id}",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+    assert response.json()["sections"][0]["rows"][1]["integration_values"] is not None
+    assert len(response.json()["sections"][0]["rows"][1]["integration_values"]) > 0
+
+
+@pytest.mark.anyio
 async def test_get_model_revenues_no_access(access_token_alice):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
@@ -559,6 +619,22 @@ async def test_get_model_costs(access_token):
     assert response.status_code == status.HTTP_200_OK
 
     assert response.json()["meta"]["name"] == "Costs"
+
+
+@pytest.mark.anyio
+async def test_get_model_costs_contains_integration_values(access_token):
+    client = TestClient(app)
+    model_id = "62b488ba433720870b60ec0a"
+
+    response = client.get(
+        f"/model/costs?model_id={model_id}",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+    assert response.json()["sections"][0]["rows"][1]["integration_values"] is not None
+    assert len(response.json()["sections"][0]["rows"][1]["integration_values"]) > 0
 
 
 @pytest.mark.anyio
