@@ -69,7 +69,7 @@ def create_integration_access():
 
 def create_integration_cache():
     for element in integration_cache:
-        element["created_at"] = datetime.now().replace(tzinfo=timezone.utc)
+        element["created_at"] = datetime.now()
     return db.integration_cache.insert_many(integration_cache)
 
 

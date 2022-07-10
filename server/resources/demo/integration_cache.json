@@ -1423,7 +1423,7 @@
       "2022-06-30",
       "2022-07-31"
     ],
-    "from_date": 1580446800,
+    "from_date": 1580428800,
     "integration": "Xero",
     "workspace_id": "62bc5706a40e85213c27ce29"
   }
