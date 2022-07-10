@@ -18,3 +18,7 @@ def assert_unauthorized_login_checked(endpoint: str) -> None:
 
 def count_documents(collection: str):
     return db.get_collection(collection).count_documents({})
+
+
+async def get_all_documents(collection: str):
+    return await db.get_collection(collection).find({}).to_list(length=1000)

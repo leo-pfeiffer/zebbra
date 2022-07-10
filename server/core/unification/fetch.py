@@ -5,6 +5,7 @@ from datetime import date, datetime, timezone
 
 from dateutil.relativedelta import relativedelta
 
+from core.dao.database import db
 from core.dao.integrations import get_integration_cache, set_integration_cache
 from core.schemas.integrations import IntegrationProvider
 from core.schemas.utils import DataBatch, DataBatchCache
@@ -150,8 +151,13 @@ class XeroFetchAdapter(FetchAdapter):
             .timestamp()
         )
 
+        from pprint import pprint
+
+        ls = await db.integration_cache.find({}).to_list(length=1000)
+
         print("=============================================")
         print("=============================================")
+        pprint(ls)
         print("=============================================")
         print("=============================================")
         print(from_date, actual_from_date)
