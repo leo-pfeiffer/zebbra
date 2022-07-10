@@ -16,10 +16,10 @@ from tests.utils import count_documents
 
 
 def compare_rounded_created_at(cached1: DataBatchCache, cached2: DataBatchCache):
-    cached1.created_at = cached1.created_at.replace(tzinfo=None)
-    cached2.created_at = cached2.created_at.replace(tzinfo=None)
-    return round(cached1.created_at.timestamp(), 2) == round(
-        cached2.created_at.timestamp(), 2
+    cached1.created_at = cached1.created_at.replace(tzinfo=timezone.utc)
+    cached2.created_at = cached2.created_at.replace(tzinfo=timezone.utc)
+    return round(cached1.created_at.timestamp(), 1) == round(
+        cached2.created_at.timestamp(), 1
     )
 
 

@@ -151,17 +151,6 @@ class XeroFetchAdapter(FetchAdapter):
             .timestamp()
         )
 
-        from pprint import pprint
-
-        ls = await db.integration_cache.find({}).to_list(length=1000)
-
-        print("=============================================")
-        print("=============================================")
-        pprint(ls)
-        print("=============================================")
-        print("=============================================")
-        print(from_date, actual_from_date)
-
         if cached := await self.get_cached(actual_from_date):
             return cached
 
