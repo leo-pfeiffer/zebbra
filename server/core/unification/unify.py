@@ -41,6 +41,8 @@ def process_row(row: Row, data_batches: dict[IntegrationProvider, DataBatch]) ->
     # catch error here?
     integration, endpoint = parse_value(row.value)
 
+    # todo should I put the assertion in a try-except block and return an empty list
+    #  if an error occurs? Might be good for recoverability...
     # integration must be supported
     assert integration in data_batches
     assert endpoint in data_batches[integration].data
@@ -60,6 +62,13 @@ def process_row(row: Row, data_batches: dict[IntegrationProvider, DataBatch]) ->
 
 
 async def unify_data(sheet: Sheet, workspace_id: str, from_date: date):
+    """
+    Adds the integration values to a sheet inplace.
+    :param sheet:
+    :param workspace_id:
+    :param from_date:
+    :return:
+    """
     adapter = XeroFetchAdapter(workspace_id)
 
     data_batches: dict[IntegrationProvider, DataBatch] = {
@@ -76,4 +85,4 @@ async def unify_data(sheet: Sheet, workspace_id: str, from_date: date):
             process_row(row, data_batches=data_batches)
         process_row(section.end_row, data_batches)
 
-    return Sheet
+    return sheet
