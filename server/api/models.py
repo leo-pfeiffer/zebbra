@@ -314,7 +314,7 @@ async def update_model_sheet_revenues(
     # only editor can update sheet
     await _assert_access_can_edit(current_user.id, model_id)
 
-    assert sheet_data.meta.name == "Revenues"  # todo test, refactor
+    assert sheet_data.meta.name == "Revenues"
 
     await update_revenues_sheet(model_id, sheet_data)
 
@@ -368,7 +368,7 @@ async def update_model_sheet_costs(
     # only editor can update sheet
     await _assert_access_can_edit(current_user.id, model_id)
 
-    assert sheet_data.meta.name == "Costs"  # todo test, refactor
+    assert sheet_data.meta.name == "Costs"
 
     await update_costs_sheet(model_id, sheet_data)
 
