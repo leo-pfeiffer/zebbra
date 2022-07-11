@@ -56,8 +56,8 @@ async def read_user(current_user: User = Depends(get_current_active_user)):
     )
 
 
-@router.post(
-    "/user/delete",
+@router.delete(
+    "/user",
     response_model=Message,
     tags=["user"],
     responses={400: {"description": "Attempting to delete admin."}},
