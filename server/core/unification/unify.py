@@ -1,6 +1,7 @@
 import re
 from datetime import date, datetime
 
+from core.logger import logger
 from core.schemas.integrations import IntegrationProvider
 from core.schemas.rows import Row, IntegrationValue
 from core.schemas.sheets import Sheet
@@ -41,20 +42,26 @@ def process_row(row: Row, data_batches: dict[IntegrationProvider, DataBatch]) ->
     # catch error here?
     integration, endpoint = parse_value(row.value)
 
-    # todo should I put the assertion in a try-except block and return an empty list
-    #  if an error occurs? Might be good for recoverability...
     # integration must be supported
-    assert integration in data_batches
-    assert endpoint in data_batches[integration].data
-
-    # use sorted dates to retrieve the IntegrationValues
-    integration_values = [
-        IntegrationValue(
-            date=datetime.strptime(timestamp, "%Y-%m-%d").date(),
-            value=data_batches[integration].data[endpoint][timestamp],
+    if (
+        integration not in data_batches
+        or endpoint not in data_batches[integration].data
+    ):
+        logger.error(
+            f"Unification mismatch: Integration {integration}, endpoint {endpoint}"
         )
-        for timestamp in data_batches[integration].dates
-    ]
+        integration_values = None
+
+    # this is the standard case
+    else:
+        # use sorted dates to retrieve the IntegrationValues
+        integration_values = [
+            IntegrationValue(
+                date=datetime.strptime(timestamp, "%Y-%m-%d").date(),
+                value=data_batches[integration].data[endpoint][timestamp],
+            )
+            for timestamp in data_batches[integration].dates
+        ]
 
     row.integration_values = integration_values
 
