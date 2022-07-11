@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -31,6 +32,7 @@ from core.dao.models import (
     get_costs_sheet,
     update_revenues_sheet,
     update_costs_sheet,
+    set_starting_month,
 )
 from core.dao.workspaces import is_user_in_workspace
 from core.exceptions import (
@@ -216,6 +218,31 @@ async def rename_existing_model(
     await assert_model_access_can_edit(current_user.id, model_id)
     await set_name(model_id, name)
     return {"message": f"Model renamed ({name})"}
+
+
+@router.post(
+    "/model/startingMonth",
+    response_model=Message,
+    tags=["model"],
+    responses={
+        403: {"description": "User does not have access to the resource."},
+    },
+)
+async def change_starting_month_of_model(
+    model_id: str,
+    starting_month: date,
+    current_user: User = Depends(get_current_active_user),
+):
+    """
+    Set the starting month of a model. The starting month is provided as a date\n
+        model_id: Model whose starting month to change
+        startingMonth: New starting month
+    """
+    await _assert_model_exists(model_id)
+    # only editor can rename
+    await assert_model_access_can_edit(current_user.id, model_id)
+    await set_starting_month(model_id, starting_month)
+    return {"message": f"Starting month set ({starting_month})"}
 
 
 @router.post(

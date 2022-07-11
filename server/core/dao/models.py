@@ -211,6 +211,13 @@ async def set_name(model_id: str, name: str):
     await db.models.update_one({"_id": model_id}, {"$set": {"meta.name": name}})
 
 
+async def set_starting_month(model_id: str, starting_month: date):
+    string_date = starting_month.strftime("%Y-%m-%d")
+    await db.models.update_one(
+        {"_id": model_id}, {"$set": {"meta.starting_month": string_date}}
+    )
+
+
 async def create_model(admin_id: PyObjectId, model_name: str, workspace_id: PyObjectId):
     if not await user_exists(admin_id):
         raise DoesNotExistException("User does not exist")
