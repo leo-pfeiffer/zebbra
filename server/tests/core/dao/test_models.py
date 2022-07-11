@@ -21,6 +21,7 @@ from core.dao.models import (
     get_costs_sheet,
     update_costs_sheet,
     update_revenues_sheet,
+    set_starting_month,
 )
 from core.dao.workspaces import get_workspace
 from core.exceptions import (
@@ -263,6 +264,15 @@ async def test_set_name():
     await set_name(model_id, new_name)
     model = await get_model_by_id(model_id)
     assert model.meta.name == new_name
+
+
+@pytest.mark.anyio
+async def test_set_starting_mont():
+    model_id = "62b488ba433720870b60ec0a"
+    new_date = date(2030, 12, 31)
+    await set_starting_month(model_id, new_date)
+    model = await get_model_by_id(model_id)
+    assert model.meta.starting_month == new_date
 
 
 @pytest.mark.anyio

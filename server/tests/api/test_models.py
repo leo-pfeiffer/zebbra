@@ -1,3 +1,5 @@
+from datetime import date
+
 import pytest
 from fastapi.encoders import jsonable_encoder
 from starlette import status
@@ -299,6 +301,52 @@ async def test_rename_model_non_existent_model(access_token):
     new_name = "new_name"
     response = client.post(
         f"/model/rename?model_id={model_id}&name={new_name}",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.anyio
+async def test_starting_month_model(access_token):
+    client = TestClient(app)
+    model_id = "62b488ba433720870b60ec0a"
+    new_date = "2030-12-31"
+    response = client.post(
+        f"/model/startingMonth?model_id={model_id}&starting_month={new_date}",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["message"] == f"Starting month set ({new_date})"
+
+    model = await get_model_by_id(model_id)
+    assert model.meta.starting_month == date(2030, 12, 31)
+
+
+@pytest.mark.anyio
+async def test_starting_month_model_no_access(access_token_alice):
+    client = TestClient(app)
+    model_id = "62b488ba433720870b60ec0a"
+    new_date = "2030-12-31"
+    response = client.post(
+        f"/model/startingMonth?model_id={model_id}&starting_month={new_date}",
+        headers={"Authorization": f"Bearer {access_token_alice}"},
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    model = await get_model_by_id(model_id)
+    assert model.meta.starting_month != date(2030, 12, 31)
+
+
+@pytest.mark.anyio
+async def test_starting_month_model_non_existent(access_token):
+    client = TestClient(app)
+    model_id = "notAModel"
+    new_date = "2030-12-31"
+    response = client.post(
+        f"/model/startingMonth?model_id={model_id}&starting_month={new_date}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
