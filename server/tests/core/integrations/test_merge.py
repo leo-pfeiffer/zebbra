@@ -6,43 +6,43 @@ from core.dao.models import get_revenues_sheet
 from core.schemas.integrations import IntegrationProvider
 from core.schemas.rows import Row, IntegrationValue
 from core.schemas.utils import DataBatch
-from core.integrations.unify import _parse_value, unify_data, _process_row
+from core.integrations.merge import parse_value, merge_integration_data, process_row
 
 
 def test_parse_value_parses_single_word():
-    a, b = _parse_value("Xero[Hello]")
+    a, b = parse_value("Xero[Hello]")
     assert a == "Xero"
     assert b == "Hello"
 
 
 def test_parse_value_parses_two_words():
-    a, b = _parse_value("Xero[Hello World]")
+    a, b = parse_value("Xero[Hello World]")
     assert a == "Xero"
     assert b == "Hello World"
 
 
 def test_parse_value_missing_endpoint():
     with pytest.raises(ValueError):
-        _parse_value("Xero[]")
+        parse_value("Xero[]")
 
 
 def test_parse_value_missing_integration():
     with pytest.raises(ValueError):
-        _parse_value("[Hello]")
+        parse_value("[Hello]")
 
 
 def test_parse_value_space_in_integration():
     with pytest.raises(ValueError):
-        _parse_value("Xe ro[Hello]")
+        parse_value("Xe ro[Hello]")
 
 
 @pytest.mark.anyio
-async def test_unify_data():
+async def test_merge_integration_data():
     sheet = await get_revenues_sheet("62b488ba433720870b60ec0a")
     workspace_id = "62bc5706a40e85213c27ce29"
     from_date = date(2020, 1, 1)
 
-    await unify_data(sheet, workspace_id, from_date)
+    await merge_integration_data(sheet, workspace_id, from_date)
 
     assert len(sheet.sections[0].rows[1].integration_values) > 0
 
@@ -68,7 +68,7 @@ def test_process_row_integration():
             }
         )
     }
-    _process_row(row, data_batches)
+    process_row(row, data_batches)
 
     assert row.integration_values == [
         IntegrationValue(date=date(2020, 5, 31), value="1.0"),
@@ -97,7 +97,7 @@ def test_process_row_ignores_formula_row():
             }
         )
     }
-    _process_row(row, data_batches)
+    process_row(row, data_batches)
 
     assert row.integration_values is None
 
@@ -123,6 +123,6 @@ def test_process_row_ignores_value_row():
             }
         )
     }
-    _process_row(row, data_batches)
+    process_row(row, data_batches)
 
     assert row.integration_values is None

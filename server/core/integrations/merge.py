@@ -9,7 +9,7 @@ from core.schemas.sheets import Sheet
 from core.schemas.utils import DataBatch
 
 
-async def unify_data(sheet: Sheet, workspace_id: str, from_date: date):
+async def merge_integration_data(sheet: Sheet, workspace_id: str, from_date: date):
     """
     Adds the integration values to a sheet inplace.
     :param sheet:
@@ -26,18 +26,18 @@ async def unify_data(sheet: Sheet, workspace_id: str, from_date: date):
 
     # assumptions
     for row in sheet.assumptions:
-        _process_row(row, data_batches)
+        process_row(row, data_batches)
 
     # sections
     for section in sheet.sections:
         for row in section.rows:
-            _process_row(row, data_batches=data_batches)
-        _process_row(section.end_row, data_batches)
+            process_row(row, data_batches=data_batches)
+        process_row(section.end_row, data_batches)
 
     return sheet
 
 
-def _parse_value(value_string: str) -> tuple[IntegrationProvider, str]:
+def parse_value(value_string: str) -> tuple[IntegrationProvider, str]:
     """
     Values are of format Integration[End Point]
     :param value_string: string containing the value
@@ -57,7 +57,7 @@ def _parse_value(value_string: str) -> tuple[IntegrationProvider, str]:
         raise ValueError(f"Invalid value string {value_string}")
 
 
-def _process_row(row: Row, data_batches: dict[IntegrationProvider, DataBatch]) -> Row:
+def process_row(row: Row, data_batches: dict[IntegrationProvider, DataBatch]) -> Row:
     """
     Inplace modification
     :param row:
@@ -68,7 +68,7 @@ def _process_row(row: Row, data_batches: dict[IntegrationProvider, DataBatch]) -
         return row
 
     # catch error here?
-    integration, endpoint = _parse_value(row.value)
+    integration, endpoint = parse_value(row.value)
 
     # integration must be supported
     if (
