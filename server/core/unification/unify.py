@@ -6,7 +6,7 @@ from core.schemas.integrations import IntegrationProvider
 from core.schemas.rows import Row, IntegrationValue
 from core.schemas.sheets import Sheet
 from core.schemas.utils import DataBatch
-from core.unification.fetch import XeroFetchAdapter
+from core.unification.xero_fetch import XeroFetchAdapter
 
 
 def parse_value(value_string: str) -> tuple[IntegrationProvider, str]:

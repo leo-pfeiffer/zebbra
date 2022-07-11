@@ -20,7 +20,7 @@ from core.schemas.utils import DataPoint, DataBatch
 from core.unification.config import (
     get_supported_providers,
 )
-from core.unification.fetch import XeroFetchAdapter
+from core.unification.xero_fetch import XeroFetchAdapter
 from core.unification.xero_oauth import (
     xero,
     store_xero_oauth2_token,
