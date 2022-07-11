@@ -6,34 +6,34 @@ from core.dao.models import get_revenues_sheet
 from core.schemas.integrations import IntegrationProvider
 from core.schemas.rows import Row, IntegrationValue
 from core.schemas.utils import DataBatch
-from core.unification.unify import parse_value, unify_data, process_row
+from core.integrations.unify import _parse_value, unify_data, _process_row
 
 
 def test_parse_value_parses_single_word():
-    a, b = parse_value("Xero[Hello]")
+    a, b = _parse_value("Xero[Hello]")
     assert a == "Xero"
     assert b == "Hello"
 
 
 def test_parse_value_parses_two_words():
-    a, b = parse_value("Xero[Hello World]")
+    a, b = _parse_value("Xero[Hello World]")
     assert a == "Xero"
     assert b == "Hello World"
 
 
 def test_parse_value_missing_endpoint():
     with pytest.raises(ValueError):
-        parse_value("Xero[]")
+        _parse_value("Xero[]")
 
 
 def test_parse_value_missing_integration():
     with pytest.raises(ValueError):
-        parse_value("[Hello]")
+        _parse_value("[Hello]")
 
 
 def test_parse_value_space_in_integration():
     with pytest.raises(ValueError):
-        parse_value("Xe ro[Hello]")
+        _parse_value("Xe ro[Hello]")
 
 
 @pytest.mark.anyio
@@ -68,7 +68,7 @@ def test_process_row_integration():
             }
         )
     }
-    process_row(row, data_batches)
+    _process_row(row, data_batches)
 
     assert row.integration_values == [
         IntegrationValue(date=date(2020, 5, 31), value="1.0"),
@@ -97,7 +97,7 @@ def test_process_row_ignores_formula_row():
             }
         )
     }
-    process_row(row, data_batches)
+    _process_row(row, data_batches)
 
     assert row.integration_values is None
 
@@ -123,6 +123,6 @@ def test_process_row_ignores_value_row():
             }
         )
     }
-    process_row(row, data_batches)
+    _process_row(row, data_batches)
 
     assert row.integration_values is None

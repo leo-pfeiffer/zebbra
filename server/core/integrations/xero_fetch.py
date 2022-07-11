@@ -4,8 +4,8 @@ from datetime import date, datetime, timezone
 from dateutil.relativedelta import relativedelta
 
 from core.schemas.utils import DataBatch
-from core.unification.fetch import FetchAdapter
-from core.unification.xero_oauth import (
+from core.integrations.fetch import FetchAdapter
+from core.integrations.xero_oauth import (
     get_xero_integration_access,
     xero,
     API_URL_SUFFIX,
@@ -13,17 +13,19 @@ from core.unification.xero_oauth import (
 
 
 class XeroFetchAdapter(FetchAdapter):
+
+    _integration = "Xero"
+
     def __init__(self, workspace_id: str):
         self._workspace_id = workspace_id
-        self._integration = "Xero"
 
     @property
     def workspace_id(self):
         return self._workspace_id
 
-    @property
-    def integration(self):
-        return self._integration
+    @classmethod
+    def integration(cls):
+        return cls._integration
 
     async def get_data(self, from_date: date) -> DataBatch:
         """

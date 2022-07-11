@@ -4,6 +4,7 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from api import users, models, auth, workspaces, integrations
 from api.utils.dependencies import SECRET_KEY
+from core.integrations.config import setup_integrations
 from core.schemas.utils import Message
 
 app = FastAPI(
@@ -19,6 +20,9 @@ app.add_middleware(
 )
 
 app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
+
+# register integration adapters etc.
+setup_integrations()
 
 
 @app.get("/", response_model=Message)

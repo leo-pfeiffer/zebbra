@@ -10,20 +10,22 @@ from core.schemas.utils import DataBatch, DataBatchCache
 
 
 class FetchAdapter(ABC):
+
+    _integration: IntegrationProvider
+
     @abstractmethod
-    def __init__(self, workspace_id: str, integration: IntegrationProvider):
+    def __init__(self, workspace_id: str):
         self._workspace_id = workspace_id
-        self._integration = integration
 
     @property
     @abstractmethod
     def workspace_id(self):
         raise NotImplementedError("Abstract method must be implemented by child class.")
 
-    @property
+    @classmethod
     @abstractmethod
-    def integration(self):
-        raise NotImplementedError("Abstract method must be implemented by child class.")
+    def integration(cls):
+        return cls._integration
 
     @abstractmethod
     async def get_data(self, from_date: date) -> DataBatch:
@@ -63,7 +65,7 @@ class FetchAdapter(ABC):
 
     async def get_cached(self, from_date: int) -> DataBatch | None:
         cached = await get_integration_cache(
-            self.workspace_id, self.integration, from_date
+            self.workspace_id, self.integration(), from_date
         )
         if cached:
             return cached.to_data_batch()

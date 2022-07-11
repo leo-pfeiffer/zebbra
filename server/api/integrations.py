@@ -17,11 +17,9 @@ from api.utils.dependencies import (
 from core.dao.integrations import get_integrations_for_workspace
 from core.dao.models import get_model_by_id
 from core.schemas.utils import DataPoint, DataBatch
-from core.unification.config import (
-    get_supported_providers,
-)
-from core.unification.xero_fetch import XeroFetchAdapter
-from core.unification.xero_oauth import (
+from core.integrations.config import INTEGRATIONS
+from core.integrations.xero_fetch import XeroFetchAdapter
+from core.integrations.xero_oauth import (
     xero,
     store_xero_oauth2_token,
 )
@@ -137,7 +135,7 @@ async def providers(
     workspace_integrations_map = {x.integration: x for x in workspace_integrations}
 
     all_providers = []
-    for p in get_supported_providers():
+    for p in INTEGRATIONS:
         if p in workspace_integrations_map:
             info = IntegrationProviderInfo(
                 name=p,
