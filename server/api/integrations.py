@@ -99,9 +99,9 @@ async def integration_xero_done():
 # todo test
 @router.get("/api/integration/xero", tags=["integration"], response_model=DataBatch)
 async def get_xero_data(
-        workspace_id: str,
-        from_date: str,
-        current_user: User = Depends(get_current_active_user),
+    workspace_id: str,
+    from_date: str,
+    current_user: User = Depends(get_current_active_user),
 ):
     """
     Retrieve all available data from the XERO API for a workspace that is connected
@@ -161,8 +161,8 @@ async def providers(
     response_model=list[DataPoint],
 )
 async def data_endpoints(
-        model_id: str,  # use model_id instead
-        current_user: User = Depends(get_current_active_user),
+    model_id: str,  # use model_id instead
+    current_user: User = Depends(get_current_active_user),
 ):
     """
     Return all endpoints for all integrations available to a workspace including.\n
