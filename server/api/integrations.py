@@ -96,6 +96,7 @@ async def integration_xero_done():
     return HTMLResponse(content=html_content, status_code=200)
 
 
+# todo test
 @router.get("/api/integration/xero", tags=["integration"], response_model=DataBatch)
 async def get_xero_data(
         workspace_id: str,
