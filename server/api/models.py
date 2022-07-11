@@ -57,12 +57,12 @@ router = APIRouter()
     },
 )
 async def retrieve_model_meta(
-        model_id: str,
-        current_user: User = Depends(get_current_active_user),
+    model_id: str,
+    current_user: User = Depends(get_current_active_user),
 ):
     """
     Retrieve metadata of a model.\n
-        model_id: retrieve a list of a single model by its ID
+        model_id: Id of the model whose meta data to retrieve
     """
 
     await assert_model_exists(model_id)
