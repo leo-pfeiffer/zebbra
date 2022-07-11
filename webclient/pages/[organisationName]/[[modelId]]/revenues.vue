@@ -25,8 +25,8 @@ const assumptionValuesToDisplay = useState<string[][]>('assumptionValues');
 
 <template>
     <NuxtLayout name="navbar">
-        <div>
-            <div class="mt-3 ml-1 py-3 pl-2 mr-0 overflow-x-hidden">
+        <div class="h-full">
+            <div class="mt-3 ml-1 py-3 pl-2 mr-0 h-full overflow-x-hidden">
                 <div class="flex border-b border-zinc-300">
                     <div>
                         <div class="flex mb-4">
