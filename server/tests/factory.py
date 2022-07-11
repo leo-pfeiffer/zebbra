@@ -1,7 +1,7 @@
 # test object factory
 from core.dao.database import db
 import json
-from datetime import datetime, timezone
+from datetime import datetime
 
 from core.dao.integrations import add_integration_for_workspace
 from core.schemas.integrations import IntegrationAccess, IntegrationAccessToken

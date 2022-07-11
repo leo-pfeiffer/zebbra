@@ -5,7 +5,6 @@ from datetime import date, datetime, timezone
 
 from dateutil.relativedelta import relativedelta
 
-from core.dao.database import db
 from core.dao.integrations import get_integration_cache, set_integration_cache
 from core.schemas.integrations import IntegrationProvider
 from core.schemas.utils import DataBatch, DataBatchCache

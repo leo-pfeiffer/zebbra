@@ -87,9 +87,7 @@ async def get_current_active_user_url(
 ):
     """
     Helper method to return the current user, or if the user is inactive, raise an
-    exception. Use this method if the token is passed as a URL query param.
-    :param current_user:
-    :return:
+    exception. Use this method if the token is passed as a URL query param
     """
     return await get_current_active_user(current_user)
 

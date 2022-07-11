@@ -37,7 +37,6 @@ router = APIRouter()
 @router.get("/api/integration/xero/login", tags=["integration"])
 async def integration_xero_login(
     workspace_id: str,
-    access_token: str,
     request: Request,
     current_user: User = Depends(get_current_active_user_url),
 ):
@@ -134,6 +133,9 @@ async def providers(
         :param current_user: Currently logged-in user
         :return:List of IntegrationProviderInfo
     """
+
+    await assert_workspace_access(current_user.id, workspace_id)
+
     workspace_integrations = await get_integrations_for_workspace(workspace_id)
     workspace_integrations_map = {x.integration: x for x in workspace_integrations}
 
