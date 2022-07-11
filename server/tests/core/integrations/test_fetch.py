@@ -1,5 +1,5 @@
 from core.schemas.utils import DataBatch
-from core.integrations.xero_fetch import XeroFetchAdapter
+from core.integrations.adapters.xero_adapter import XeroFetchAdapter
 from tests.factory import _read_json
 from datetime import date
 

@@ -3,13 +3,13 @@ from datetime import date, datetime, timezone
 
 from dateutil.relativedelta import relativedelta
 
-from core.schemas.utils import DataBatch
-from core.integrations.fetch import FetchAdapter
+from core.integrations.adapters.adapter import FetchAdapter
 from core.integrations.xero_oauth import (
     get_xero_integration_access,
     xero,
     API_URL_SUFFIX,
 )
+from core.schemas.utils import DataBatch
 
 
 class XeroFetchAdapter(FetchAdapter):

@@ -1,7 +1,7 @@
 from typing import get_args, Callable
 
-from core.integrations.fetch import FetchAdapter
-from core.integrations.xero_fetch import XeroFetchAdapter
+from core.integrations.adapters.adapter import FetchAdapter
+from core.integrations.adapters.xero_adapter import XeroFetchAdapter
 from core.schemas.integrations import IntegrationProvider
 
 
