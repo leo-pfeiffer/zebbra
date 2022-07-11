@@ -246,6 +246,7 @@ export default {
 
             sheet.value.assumptions[this.assumptionIndex].val_type = this.valType;
             sheet.value.assumptions[this.assumptionIndex].value_1 = this.value1;
+            sheet.value.assumptions[this.assumptionIndex].first_value_diff = (this.value1 != undefined || this.value1 != "");
             sheet.value.assumptions[this.assumptionIndex].starting_at = this.startingAt;
 
             try {
@@ -338,12 +339,31 @@ export default {
     computed: {
         outputValue() {
             try {
-                var output: string = useMathParser(this.assumption.value).toFixed(2).toString();
-                const splitted: string[] = output.split(".");
-                if (splitted[1] === "00") {
-                    return splitted[0];
-                } else {
-                    return output;
+                if(this.valType === "number") {
+                    var output: string = useMathParser(this.assumption.value).toFixed(2).toString();
+                    const splitted: string[] = output.split(".");
+                    if (splitted[1] === "00") {
+                        return splitted[0];
+                    } else {
+                        return output;
+                    }
+                } else if(this.valType === "percentage") {
+                    var calc1: string = useMathParser(this.assumption.value).toString();
+                    var calc2:string = useMathParser(calc1 + "*100").toFixed(2).toString();
+                    const splitted: string[] = calc2.split(".");
+                    if (splitted[1] === "00") {
+                        return splitted[0] + " %";
+                    } else {
+                        return calc2  + " %";
+                    }
+                } else if(this.valType === "currency") {
+                    var output: string = useMathParser(this.assumption.value).toFixed(2).toString();
+                    const splitted: string[] = output.split(".");
+                    if (splitted[1] === "00") {
+                        return "$ " + splitted[0];
+                    } else {
+                        return "$ " + output;
+                    }
                 }
             } catch (e) {
                 if (this.assumption.var_type === "formula") {
@@ -358,6 +378,9 @@ export default {
                     return "!!";
                 }
             }
+        },
+        outputValueIsError() {
+            return this.outputValue === "!!"
         }
     }
 }
