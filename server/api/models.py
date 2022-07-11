@@ -1,6 +1,7 @@
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.encoders import jsonable_encoder
 from starlette import status
 
 from api.utils.assertions import (
@@ -38,7 +39,7 @@ from core.exceptions import (
     CardinalityConstraintFailedException,
     BusinessLogicException,
 )
-from core.schemas.models import Model, ModelUser
+from core.schemas.models import Model, ModelUser, ModelMeta
 from core.schemas.sheets import Sheet
 from core.schemas.users import User
 from core.schemas.utils import Message, PyObjectId
@@ -48,49 +49,27 @@ router = APIRouter()
 
 
 @router.get(
-    "/model",
-    response_model=list[Model],
+    "/model/meta",
+    response_model=ModelMeta,
     tags=["model"],
     responses={
         403: {"description": "User does not have access to the resource."},
     },
 )
-async def retrieve_list_of_models(
-    model_id: str | None = None,
-    workspace_id: PyObjectId | None = None,
-    user: bool = False,
-    current_user: User = Depends(get_current_active_user),
+async def retrieve_model_meta(
+        model_id: str,
+        current_user: User = Depends(get_current_active_user),
 ):
     """
-    Retrieve models. The endpoint takes three **mutually exclusive** parameters:\n
+    Retrieve metadata of a model.\n
         model_id: retrieve a list of a single model by its ID
-        user: retrieve a list of all models of the current user
-        workspace: retrieve a list of all models of a workspace
     """
 
-    # assert that only one parameter has been specified
-    if (model_id is not None) + (workspace_id is not None) + user != 1:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Exactly one of the query parameters must be specified.",
-        )
+    await assert_model_exists(model_id)
+    await assert_model_access(current_user.id, model_id)
+    model = await get_model_by_id(model_id)
 
-    if model_id is not None:
-        await assert_model_exists(model_id)
-        await assert_model_access(current_user.id, model_id)
-        models = [await get_model_by_id(model_id)]
-        return models
-
-    if workspace_id is not None:
-        if not await is_user_in_workspace(current_user.id, workspace_id):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="User does not have access to this workspace.",
-            )
-        return await get_models_for_workspace(workspace_id)
-
-    if user:
-        return await get_models_for_user(current_user.id)
+    return model.meta
 
 
 # GET users of workspace

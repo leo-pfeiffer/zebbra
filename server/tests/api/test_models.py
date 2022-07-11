@@ -12,104 +12,49 @@ from core.dao.models import (
     get_revenues_sheet,
     get_costs_sheet,
 )
+from core.schemas.models import ModelMeta
 from core.schemas.sheets import Sheet
 from main import app
 from tests.utils import assert_unauthorized_login_checked
 
 
-def test_model_protected():
-    assert_unauthorized_login_checked("/model")
+def test_model_meta_protected():
+    assert_unauthorized_login_checked("/model/meta")
 
 
-def test_model_more_than_one_param(access_token):
-    client = TestClient(app)
-    response = client.get(
-        "/model/?user=true&model_id=some_random_id",
-        headers={"Authorization": f"Bearer {access_token}"},
-    )
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-
-
-def test_model_no_param(access_token):
-    client = TestClient(app)
-    response = client.get(
-        "/model",
-        headers={"Authorization": f"Bearer {access_token}"},
-    )
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-
-
-def test_model_get_by_id(access_token):
+@pytest.mark.anyio
+async def test_model_meta_get_by_id(access_token):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
     response = client.get(
-        f"/model/?model_id={model_id}",
+        f"/model/meta?model_id={model_id}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
     assert response.status_code == status.HTTP_200_OK
-    assert response.json()[0]["_id"] == model_id
+
+    model = await get_model_by_id(model_id)
+
+    assert ModelMeta(**response.json()) == model.meta
 
 
-def test_model_get_by_id_non_existent_model(access_token):
+def test_model_meta_get_by_id_non_existent_model(access_token):
     client = TestClient(app)
     model_id = "not a model"
     response = client.get(
-        f"/model/?model_id={model_id}",
+        f"/model/meta?model_id={model_id}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
-def test_model_get_id_forbidden(access_token):
+def test_model_meta_get_id_forbidden(access_token):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0b"
     response = client.get(
-        f"/model/?model_id={model_id}",
+        f"/model/meta?model_id={model_id}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
-
-
-def test_model_get_workspace(access_token, workspaces):
-    client = TestClient(app)
-    wsp = workspaces["ACME Inc."]
-    response = client.get(
-        f"/model/?workspace_id={wsp}",
-        headers={"Authorization": f"Bearer {access_token}"},
-    )
-
-    assert response.status_code == status.HTTP_200_OK
-
-    assert len(response.json()) == 1
-    for m in response.json():
-        assert m["meta"]["workspace"] == wsp
-
-
-def test_model_get_workspace_forbidden(access_token, workspaces):
-    client = TestClient(app)
-    wsp = workspaces["Boring Co."]
-    response = client.get(
-        f"/model/?workspace_id={wsp}",
-        headers={"Authorization": f"Bearer {access_token}"},
-    )
-    assert response.status_code == status.HTTP_403_FORBIDDEN
-
-
-def test_model_user(access_token, users):
-    client = TestClient(app)
-    response = client.get(
-        f"/model/?user=true",
-        headers={"Authorization": f"Bearer {access_token}"},
-    )
-    assert response.status_code == status.HTTP_200_OK
-
-    user = users["johndoe@example.com"]
-    for m in response.json():
-        assert (
-            (user in m["meta"]["admins"])
-            or (user in m["meta"]["editors"])
-            or (user in m["meta"]["viewers"])
-        )
 
 
 @pytest.mark.anyio
