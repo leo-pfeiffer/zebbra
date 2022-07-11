@@ -32,7 +32,7 @@ from core.schemas.users import User
 router = APIRouter()
 
 
-@router.get("/api/integration/xero/login", tags=["integration"])
+@router.get("/integration/xero/login", tags=["integration"])
 async def integration_xero_login(
     workspace_id: str,
     access_token: str,
@@ -56,9 +56,7 @@ async def integration_xero_login(
     return await xero.authorize_redirect(request, redirect_uri)
 
 
-@router.get(
-    "/api/integration/xero/callback", tags=["integration"], include_in_schema=False
-)
+@router.get("/integration/xero/callback", tags=["integration"], include_in_schema=False)
 async def integration_xero_callback(request: Request):
     """
     OAuth callback for Xero integration.
@@ -81,10 +79,10 @@ async def integration_xero_callback(request: Request):
             detail="Connecting to the integration failed.",
         )
 
-    return RedirectResponse(url="/api/integration/connected")
+    return RedirectResponse(url="/integration/connected")
 
 
-@router.get("/api/integration/connected", tags=["integration"], include_in_schema=False)
+@router.get("/integration/connected", tags=["integration"], include_in_schema=False)
 async def integration_xero_done():
     """
     Confirmation page that is called after an integration was connected.
@@ -94,7 +92,7 @@ async def integration_xero_done():
     return HTMLResponse(content=html_content, status_code=200)
 
 
-@router.get("/api/integration/xero", tags=["integration"], response_model=DataBatch)
+@router.get("/integration/xero", tags=["integration"], response_model=DataBatch)
 async def get_xero_data(
     workspace_id: str,  # use model_id instead
     from_date: str,
@@ -112,7 +110,7 @@ async def get_xero_data(
 
 # todo test
 @router.get(
-    "/api/integration/providers",
+    "/integration/providers",
     tags=["integration"],
     response_model=list[IntegrationProviderInfo],
 )
@@ -148,7 +146,7 @@ async def providers(
 
 # todo test
 @router.get(
-    "/api/integration/dataEndpoints",
+    "/integration/dataEndpoints",
     tags=["integration"],
     response_model=list[DataPoint],
 )
