@@ -8,12 +8,14 @@ from starlette.responses import RedirectResponse, HTMLResponse
 from api.utils.assertions import (
     assert_workspace_access,
     assert_workspace_has_integration,
+    assert_model_access,
 )
 from api.utils.dependencies import (
     get_current_active_user_url,
     get_current_active_user,
 )
 from core.dao.integrations import get_integrations_for_workspace
+from core.dao.models import get_model_by_id
 from core.schemas.utils import DataPoint, DataBatch
 from core.unification.config import (
     get_supported_providers,
@@ -35,7 +37,6 @@ router = APIRouter()
 @router.get("/integration/xero/login", tags=["integration"])
 async def integration_xero_login(
     workspace_id: str,
-    access_token: str,
     request: Request,
     current_user: User = Depends(get_current_active_user_url),
 ):
@@ -94,16 +95,21 @@ async def integration_xero_done():
 
 @router.get("/integration/xero", tags=["integration"], response_model=DataBatch)
 async def get_xero_data(
-    workspace_id: str,  # use model_id instead
+    workspace_id: str,
     from_date: str,
     current_user: User = Depends(get_current_active_user),
 ):
+    """
+    Retrieve all available data from the XERO API for a workspace that is connected
+    to the Xero integration\n
+        :workspace_id: The id of the workspace whose data to retrieve
+        :from_date: The starting date of the date in format YYYY-MM-DD
+    """
     # user must be in workspace
     await assert_workspace_access(current_user.id, workspace_id)
     await assert_workspace_has_integration(workspace_id, "Xero")
 
     from_date = datetime.date.fromisoformat(from_date)
-    # todo from_date should be retrieved from model
     xfa = XeroFetchAdapter(workspace_id)
     return await xfa.get_data(from_date)
 
@@ -124,6 +130,9 @@ async def providers(
         :param current_user: Currently logged-in user
         :return:List of IntegrationProviderInfo
     """
+
+    await assert_workspace_access(current_user.id, workspace_id)
+
     workspace_integrations = await get_integrations_for_workspace(workspace_id)
     workspace_integrations_map = {x.integration: x for x in workspace_integrations}
 
@@ -151,25 +160,20 @@ async def providers(
     response_model=list[DataPoint],
 )
 async def data_endpoints(
-    workspace_id: str,  # use model_id instead
-    from_date: str,
+    model_id: str,  # use model_id instead
     current_user: User = Depends(get_current_active_user),
 ):
     """
     Return all endpoints for all integrations available to a workspace including.\n
-        :param workspace_id: ID of the workspace
-        :param from_date: Start date of the model
-        :param current_user: Currently logged-in user
-        :return:List of DataPointRegistryEntry
+        model_id: ID of the workspace
+        from_date: Start date of the model
     """
 
-    await assert_workspace_access(current_user.id, workspace_id)
-
-    from_date = datetime.date.fromisoformat(from_date)
+    await assert_model_access(current_user.id, model_id)
+    model = await get_model_by_id(model_id)
 
     # xero
-    # todo from_date should be retrieved from model
-    xfa = XeroFetchAdapter(workspace_id)
-    data_points = await xfa.get_data_endpoints(from_date)
+    xfa = XeroFetchAdapter(str(model.meta.workspace))
+    data_points = await xfa.get_data_endpoints(model.meta.starting_month)
 
     return [DataPoint(id=f"Xero[{d}]", integration="Xero", name=d) for d in data_points]

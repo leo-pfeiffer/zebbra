@@ -44,6 +44,7 @@ from core.schemas.sheets import Sheet
 from core.schemas.users import User
 from core.schemas.utils import Message, PyObjectId
 from api.utils.dependencies import get_current_active_user
+from core.unification.unify import unify_data
 
 router = APIRouter()
 
@@ -264,7 +265,9 @@ async def retrieve_model_sheet_revenues(
     await _assert_model_exists(model_id)
     await _assert_access(current_user.id, model_id)
 
-    return await get_revenues_sheet(model_id)
+    model = await get_model_by_id(model_id)
+    sheet = await get_revenues_sheet(model_id)
+    return await unify_data(sheet, str(model.meta.workspace), model.meta.starting_month)
 
 
 @router.post(
@@ -290,10 +293,13 @@ async def update_model_sheet_revenues(
     # only editor can update sheet
     await _assert_access_can_edit(current_user.id, model_id)
 
-    assert sheet_data.meta.name == "Revenues"  # todo test, refactor
+    assert sheet_data.meta.name == "Revenues"
 
     await update_revenues_sheet(model_id, sheet_data)
-    return await get_revenues_sheet(model_id)
+
+    model = await get_model_by_id(model_id)
+    sheet = await get_revenues_sheet(model_id)
+    return await unify_data(sheet, str(model.meta.workspace), model.meta.starting_month)
 
 
 @router.get(
@@ -314,7 +320,9 @@ async def retrieve_model_sheet_costs(
     await _assert_model_exists(model_id)
     await _assert_access(current_user.id, model_id)
 
-    return await get_costs_sheet(model_id)
+    model = await get_model_by_id(model_id)
+    sheet = await get_costs_sheet(model_id)
+    return await unify_data(sheet, str(model.meta.workspace), model.meta.starting_month)
 
 
 @router.post(
@@ -339,10 +347,13 @@ async def update_model_sheet_costs(
     # only editor can update sheet
     await _assert_access_can_edit(current_user.id, model_id)
 
-    assert sheet_data.meta.name == "Costs"  # todo test, refactor
+    assert sheet_data.meta.name == "Costs"
 
     await update_costs_sheet(model_id, sheet_data)
-    return await get_costs_sheet(model_id)
+
+    model = await get_model_by_id(model_id)
+    sheet = await get_costs_sheet(model_id)
+    return await unify_data(sheet, str(model.meta.workspace), model.meta.starting_month)
 
 
 async def _assert_model_exists(model_id: str):

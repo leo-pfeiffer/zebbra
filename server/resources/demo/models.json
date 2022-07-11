@@ -49,6 +49,18 @@
                 "value": "$-1 * 1.05",
                 "value_1": "100",
                 "integration_values": null
+              },
+              {
+                "name": "row2",
+                "val_type": "number",
+                "editable": true,
+                "var_type": "integration",
+                "time_series": true,
+                "starting_at": 0,
+                "first_value_diff": false,
+                "value": "Xero[Total Income]",
+                "value_1": null,
+                "integration_values": null
               }
             ],
             "end_row": {
@@ -98,6 +110,18 @@
                 "first_value_diff": true,
                 "value": "$-1 * 1.05",
                 "value_1": "100",
+                "integration_values": null
+              },
+              {
+                "name": "row2",
+                "val_type": "number",
+                "editable": true,
+                "var_type": "integration",
+                "time_series": true,
+                "starting_at": 0,
+                "first_value_diff": false,
+                "value": "Xero[Total Cost of Sales]",
+                "value_1": null,
                 "integration_values": null
               }
             ],

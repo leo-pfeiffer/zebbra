@@ -1,3 +1,5 @@
+import time
+
 import pytest
 from dateutil.relativedelta import relativedelta
 
@@ -16,11 +18,9 @@ from tests.utils import count_documents
 
 
 def compare_rounded_created_at(cached1: DataBatchCache, cached2: DataBatchCache):
-    cached1.created_at = cached1.created_at.replace(tzinfo=None)
-    cached2.created_at = cached2.created_at.replace(tzinfo=None)
-    return round(cached1.created_at.timestamp(), 2) == round(
-        cached2.created_at.timestamp(), 2
-    )
+    cached1.created_at = cached1.created_at.replace(tzinfo=timezone.utc)
+    cached2.created_at = cached2.created_at.replace(tzinfo=timezone.utc)
+    return int(cached1.created_at.timestamp()) == int(cached2.created_at.timestamp())
 
 
 @pytest.mark.anyio
@@ -129,6 +129,7 @@ async def test_set_cached_replaces():
     cache_obj2 = DataBatchCache(**cache_obj.dict())
     cache_obj2.created_at += relativedelta(minutes=10)
     await set_integration_cache(cache_obj2)
+    time.sleep(1)  # wait for 1 sec to make sure timestamp changes
 
     db_obj = await get_integration_cache("123", "Xero", 123)
     assert not compare_rounded_created_at(cache_obj, db_obj)

@@ -1,4 +1,4 @@
-from core.schemas.utils import DataBatch, DataBatchCache
+from core.schemas.utils import DataBatch
 from core.unification.fetch import XeroFetchAdapter
 from tests.factory import _read_json
 from datetime import date
