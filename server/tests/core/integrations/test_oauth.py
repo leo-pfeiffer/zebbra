@@ -4,7 +4,7 @@ import pytest
 from fastapi import HTTPException
 
 from core.schemas.integrations import IntegrationAccess, IntegrationAccessToken
-from core.integrations.xero_oauth import (
+from core.integrations.oauth.xero_oauth import (
     process_refresh_response,
 )
 

@@ -4,7 +4,7 @@ from datetime import date, datetime, timezone
 from dateutil.relativedelta import relativedelta
 
 from core.integrations.adapters.adapter import FetchAdapter
-from core.integrations.xero_oauth import (
+from core.integrations.oauth.xero_oauth import (
     get_xero_integration_access,
     xero,
     API_URL_SUFFIX,

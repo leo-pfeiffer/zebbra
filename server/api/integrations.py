@@ -19,7 +19,7 @@ from core.dao.models import get_model_by_id
 from core.schemas.utils import DataPoint, DataBatch
 from core.integrations.config import INTEGRATIONS
 from core.integrations.adapters.xero_adapter import XeroFetchAdapter
-from core.integrations.xero_oauth import (
+from core.integrations.oauth.xero_oauth import (
     xero,
     store_xero_oauth2_token,
 )

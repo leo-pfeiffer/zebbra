@@ -141,7 +141,7 @@ async def get_xero_tenant_id(workspace_id, token: dict | None = None):
     """
     Get the first available tenant ID
     Todo: This is not perfect. If the user has multiple tenants, the first one
-     is always used.
+     is always used
     :param workspace_id: Workspace for which to get the xero data.
     :param token: OAuth token. If not provided, it is retrieved from the DB.
     :return: Tenant ID
