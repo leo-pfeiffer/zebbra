@@ -10,8 +10,7 @@ export const useGetValueFromHumanReadable = (humanReadableInput:string, currentA
     for(let i=0; i < humanReadableInput.length; i++) {
 
         const char = humanReadableInput[i];
-        if(useFormulaParser().charIsNumerical(char) || useFormulaParser().charIsOperator(char)) {
-
+        if(useFormulaParser().charIsNumerical(char) || useFormulaParser().charIsOperator(char) || char === ".") {
             output = output + char;
         } else {
             var counter:number = 0;
