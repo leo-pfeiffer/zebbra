@@ -47,10 +47,41 @@ async def callback_route(request: Request):
 
 > It is recommended to use the code generator script described above to generate this starter file automatically.
 
-3. Adding fetch adapter
-Override `FetchAdapter` from `core/integrations/adapters/adapter.py` and implement abstract methods.
+With this, your clients can now connect to the integration by visiting the `http://<host>/integration/<integration_name>/login` endpoint.
+
+// todo: describe the URL auth for the login endpoint
+
+### 3. Adding fetch adapter
+With the OAuth authorization flow set up, we can implement the fetch adapter, which is responsible for fetching the data from the integrated app. As before, we provide an abstract class `core.integrations.adapters.adapter.FetchAdapter`, which should be inherited from by a class that implements its abstract methods.
+
+Create a new file in `core/integrations/adapters` and add a class that inherits from `FetchAdapter`. You will have to override at least the following methods:
+
+- Add the class variable `_integration` of type `IntegrationProvider` and initialize it with the name of the integration.
+- Override the `__init__` method. Make sure to end the method with a call to the constructor of the superclass (`super().__init__()`). The methods take the string `workspace_id` as arguments, which is the ID of the worksapce for which to fetch the data.
+- Integrate the getter methods for `workspace_id` and `integration`.
+- Implement the `get_data` method, which is the main method called during the merging procedure where the  integration data is added to the models.  The method implement the  process to retrieve the data from the integration API or a cache, and convert it into a DataBatch object.
+- Implement the `get_data_endpoints` method, which returns a list of available data endpoints for the integration. The method usually makes a call to the integration API to retrieve the available endpoints. This data can easily be cached, and given the frequency with which this endpoint is called, implementing caching greatly improves performance.
 
 > It is recommended to use the code generator script described above to generate this starter file automatically.
 
-4. Update config
-Add registration and router callls to `core/integrations/config.py`
+### 4. Update config
+
+At this stage, all core classes have now been implemented. What remains is to let the rest of the application now about the new integrations. This happens via a few additions to the `core/integrations/config.py` file.
+
+Add the following lines to the `setup_integrations` function inside the file.
+```python
+def setup_integrations(app: FastAPI):  
+    # register the FetchAdapter implementation *class* here  
+    _register_adapter(XeroFetchAdapter)
+    _register_adapter(MyNewIntegrationFetchAdapter)  # ADD THIS
+      
+    # register the IntegrationOAuth implementation *instance* here 
+    _register_oauth(xero_integration_oauth)
+    _register_oauth(my_new_integration_oauth_instance)  # ADD THIS
+
+    ...
+```
+
+What happens here, is that the `_register_adapter` function keeps track of the `FetchAdapter` implementation **classes**, while the `_regiter_oauth` function keeps track of the **instances** of the `IntegrationOAuth` implementations.
+
+This `setup_integrations` function is then automatically called during the setup of the app and includes the integration.
