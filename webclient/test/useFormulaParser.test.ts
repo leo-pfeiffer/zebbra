@@ -172,6 +172,42 @@ describe('Tests for getSheetRowValues', () => {
         
     })
 
+    it('should generate correct output if it variable only refs external variable', () => {
+
+        const inputVariable1:Variable = {
+            _id: "1",
+            name: undefined,
+            val_type: undefined,
+            editable: undefined,
+            var_type: undefined,
+            time_series: true,
+            starting_at: 0,
+            first_value_diff: true,
+            value: "$1+1",
+            value_1: "100",
+            integration_values: undefined
+        }
+
+        const inputVariable2:Variable = {
+            _id: "2",
+            name: undefined,
+            val_type: undefined,
+            editable: undefined,
+            var_type: undefined,
+            time_series: false,
+            starting_at: 0,
+            first_value_diff: false,
+            value: "#1",
+            value_1: undefined,
+            integration_values: undefined
+        }
+
+        const input:Variable[] = [ inputVariable1, inputVariable2 ];
+
+        expect(useFormulaParser().getSheetRowValues(input)[0]).toStrictEqual(useFormulaParser().getSheetRowValues(input)[1]);
+
+    });
+
     it('should output #REF! on an incorrect input', () => {
 
         const inputVariable1:Variable = {
