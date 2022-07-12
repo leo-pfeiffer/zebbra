@@ -10,6 +10,11 @@ from core.schemas.utils import DataBatch, DataBatchCache
 
 
 class FetchAdapter(ABC):
+    """
+    Abstract class for fetching data from an integrated app.
+    Override this class to implement the integration specific data transformations and
+    requests.
+    """
 
     _integration: IntegrationProvider
 
@@ -20,27 +25,62 @@ class FetchAdapter(ABC):
     @property
     @abstractmethod
     def workspace_id(self):
+        """
+        ID of the workspace for which to fetch data.
+        """
         raise NotImplementedError("Abstract method must be implemented by child class.")
 
     @classmethod
     @abstractmethod
     def integration(cls):
+        """
+        Name of the integration.
+        """
         return cls._integration
 
     @abstractmethod
     async def get_data(self, from_date: date) -> DataBatch:
+        """
+        This is the main method called during the merging procedure to add the
+        integration data to the models.
+        The method must be overridden by child classes and should implement the
+        process to retrieve the data from the integration API or a cache.
+        The data must be converted into a DataBatch object.
+        Caching should be implemented as far as possible
+        :param from_date: date from which onwards to get the data
+        :return: DataBatch containing the data from the integration
+        """
         raise NotImplementedError("Abstract method must be implemented by child class.")
 
     @abstractmethod
     async def get_data_endpoints(self, from_date: date) -> list[str]:
+        """
+        This method should return a list of available data endpoints for the
+        integration. It must be overridden by the child class and usually
+        makes a call to the integration API to retrieve the available endpoints.
+        Caching should be implemented as far as possible
+        :param from_date: date from which onwards to get the data
+        :return: List of available data endpoints for the integration
+        """
         raise NotImplementedError("Abstract method must be implemented by child class.")
 
     @staticmethod
-    def _date_from_string(date_string):
-        try:
-            return datetime.strptime(date_string, "%d %b %y").date()
-        except ValueError:
-            return datetime.strptime(date_string, "%d %b %Y").date()
+    def _date_from_string(date_string: str, formats: list[str]) -> date:
+        """
+        Helper method to convert a date string to datetime date. The method
+        checks all formats provided and returns the first match. If none matches, a
+        value error is thrown
+        :param date_string: Date string
+        :param formats: List of formats to check, e.g. ["%d %b %y", "%d %b %Y"]
+        :return: datetime.date object
+        """
+        for fmt in formats:
+            try:
+                return datetime.strptime(date_string, fmt).date()
+            except ValueError:
+                continue
+
+        raise ValueError(f"Date {date_string} could not be matched.")
 
     @staticmethod
     def _get_last_month_with_31_days(the_date: date) -> date:
@@ -64,6 +104,11 @@ class FetchAdapter(ABC):
         return date(the_date.year, the_date.month, day)
 
     async def get_cached(self, from_date: int) -> DataBatch | None:
+        """
+        This method retrieves a cached data batch for a provided date
+        :param from_date: Date in unix format, converted to UTC for reproducibility
+        :return: Data batch if cached, else None
+        """
         cached = await get_integration_cache(
             self.workspace_id, self.integration(), from_date
         )
@@ -71,6 +116,11 @@ class FetchAdapter(ABC):
             return cached.to_data_batch()
 
     async def set_cached(self, data_batch: DataBatch, from_date: int):
+        """
+        This method caches a data batch for a provided date
+        :param data_batch: Data batch to cache
+        :param from_date: Date in unix format, converted to UTC for reproducibility
+        """
 
         cache_obj = DataBatchCache(
             data=data_batch.data,

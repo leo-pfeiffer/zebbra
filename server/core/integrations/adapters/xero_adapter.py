@@ -128,7 +128,7 @@ class XeroFetchAdapter(FetchAdapter):
         # get the dates
         assert report["Rows"][0]["RowType"] == "Header"
         dates = [
-            self._date_from_string(cell["Value"])
+            self._date_from_string(cell["Value"], ["%d %b %y", "%d %b %Y"])
             for cell in report["Rows"][0]["Cells"]
             if cell["Value"] != ""
         ]
