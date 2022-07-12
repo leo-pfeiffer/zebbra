@@ -25,6 +25,12 @@ run_server:
 set_secret_env:
 	gh secret set -f .env
 
+.PHONY: generate_from_template
+# Generate integration files from templates. Args: INTEGRATION=<integration_name>
+generate_from_template:
+	chmod +x scripts/generate.sh
+	sh scripts/generate.sh $(INTEGRATION)
+
 .PHONY: help
 # Found here: https://stackoverflow.com/a/35730928/12168211
 # Print available commands
