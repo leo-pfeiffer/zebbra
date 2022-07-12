@@ -4,6 +4,7 @@ from typing import Literal
 from pydantic import BaseModel
 
 
+# must be of format [A-Za-z\\d]+
 IntegrationProvider = Literal["Xero"]
 
 

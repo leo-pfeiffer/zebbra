@@ -1,4 +1,5 @@
 from typing import get_args, Callable
+import re
 
 from fastapi import FastAPI
 from core.integrations.adapters.adapter import FetchAdapter
@@ -12,6 +13,10 @@ from core.schemas.integrations import IntegrationProvider
 
 # dynamically created list of integrations from the type
 INTEGRATIONS: tuple[IntegrationProvider, ...] = get_args(IntegrationProvider)
+
+# this is to validate the correct format of the provided integrations
+for integration in INTEGRATIONS:
+    assert re.fullmatch("[A-Za-z\\d]+", integration)
 
 ADAPTERS: dict[IntegrationProvider, Callable[[str], FetchAdapter]] = {}
 INTEGRATION_OAUTH: dict[IntegrationProvider, IntegrationOAuth] = {}
