@@ -72,4 +72,20 @@ describe('useGetValueFromHumanReadable Tests', () => {
 
     });
 
+    it('should return the correct value from a human readable input without any refs', () => {
+
+        const humanReadableInput1:string = "1+1+1+1";
+        const expectedOutput1:string = "1+1+1+1";
+        expect(useGetValueFromHumanReadable(humanReadableInput1, customers._id, variableSearchMap)).toStrictEqual(expectedOutput1);
+
+        const humanReadableInput2:string = "123456789";
+        const expectedOutput2:string = "123456789";
+        expect(useGetValueFromHumanReadable(humanReadableInput2, customers._id, variableSearchMap)).toStrictEqual(expectedOutput2);
+
+        const humanReadableInput3:string = "1+2*4/5(7*89)";
+        const expectedOutput3:string = "1+2*4/5(7*89)";
+        expect(useGetValueFromHumanReadable(humanReadableInput3, customers._id, variableSearchMap)).toStrictEqual(expectedOutput3);
+
+    });
+
 })
