@@ -31,26 +31,36 @@ export const useGetValueFromHumanReadable = (humanReadableInput:string, currentA
                 }
             }
 
-            var refId:string;
-            var refTimeDiff:string;
+            //handle cases where refNameWithTimeDiff is only spaces
+            if(!(refNameWithTimeDiff.trim().length === 0)) {
 
-            if(refNameWithTimeDiff.includes("[")) {
-                var splitted = refNameWithTimeDiff.split("[");
-                refId = getRefIdByName(splitted[0], variableSearchMap);
-                refTimeDiff = splitted[1].split("]")[0];
-            } else {
-                refId = getRefIdByName(refNameWithTimeDiff, variableSearchMap);
-                refTimeDiff = ""
-            }
-
-            if(refId === currentAssumptionId) {
-                output = output + "$" + refTimeDiff;
-            } else {
-                if(refTimeDiff === "0") {
-                    output = output + "#" + refId;
-                } else {
-                    output = output + "#" + refId + "$" + refTimeDiff;
+                //remove leading SPACE if there
+                if(refNameWithTimeDiff[0] === " ") {
+                    refNameWithTimeDiff = refNameWithTimeDiff.substring(1);
                 }
+
+                var refId:string;
+                var refTimeDiff:string;
+
+                if(refNameWithTimeDiff.includes("[")) {
+                    var splitted = refNameWithTimeDiff.split("[");
+                    refId = getRefIdByName(splitted[0], variableSearchMap);
+                    refTimeDiff = splitted[1].split("]")[0];
+                } else {
+                    refId = getRefIdByName(refNameWithTimeDiff, variableSearchMap);
+                    refTimeDiff = ""
+                }
+
+                if(refId === currentAssumptionId) {
+                    output = output + "$" + refTimeDiff;
+                } else {
+                    if(refTimeDiff === "0") {
+                        output = output + "#" + refId;
+                    } else {
+                        output = output + "#" + refId + "$" + refTimeDiff;
+                    }
+                }
+
             }
             i = i + counter - 1; //reduce by 1 as for loop adds one
         }
