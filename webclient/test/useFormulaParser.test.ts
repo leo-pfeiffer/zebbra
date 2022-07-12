@@ -194,7 +194,7 @@ describe('Tests for getSheetRowValues', () => {
             val_type: undefined,
             editable: undefined,
             var_type: undefined,
-            time_series: false,
+            time_series: true,
             starting_at: 0,
             first_value_diff: false,
             value: "#1",
