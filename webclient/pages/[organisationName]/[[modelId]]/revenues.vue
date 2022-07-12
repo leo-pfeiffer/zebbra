@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Sheet, ModelMeta, Variable } from '~~/types/Model';
+import { Variable } from '~~/types/Model';
 
 definePageMeta({
     middleware: ["auth", "route-check"]
@@ -21,6 +21,9 @@ const dates = useState('dates', () => useDateArray(new Date(+date[0], +date[1]-1
 
 const assumptionValuesToDisplay = useState<string[][]>('assumptionValues');
 
+const assumptionVariableSearchMap = useState<Map<string, string>>('assumptionsVariableSearchMap');
+assumptionVariableSearchMap.value = useVariableSearchMap(revenues.value.assumptions);
+
 </script>
 
 <template>
@@ -39,7 +42,7 @@ const assumptionValuesToDisplay = useState<string[][]>('assumptionValues');
                                 </form>
                             </div>
                         </div>
-                        <AssumptionRowHeader v-for="(assumption, index) in revenues.assumptions" :assumption="assumption" :assumptionIndex="index" :timeSeriesMap="timeSeriesMap"></AssumptionRowHeader>
+                        <AssumptionRowHeader v-for="(assumption, index) in revenues.assumptions" :assumption="assumption" :assumptionIndex="index" :timeSeriesMap="timeSeriesMap" :variableSearchMap="assumptionVariableSearchMap"></AssumptionRowHeader>
                     </div>
                     <div class="overflow-x-auto">
                         <div class="flex mb-4">
@@ -107,6 +110,11 @@ export default {
         //todo not only assumptions but all variables
         var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(revenues.value.assumptions);
         useState('assumptionValues', () => assumptionValuesArray);
+
+        var assumptionVariableSearchMap:Map<string, string> = useVariableSearchMap(revenues.value.assumptions);
+        useState('assumptionsVariableSearchMap', () => assumptionVariableSearchMap);
+        //todo do same for all variables
+
     }, computed: {
         timeSeriesMap() {
             const revenues = useRevenueState();
