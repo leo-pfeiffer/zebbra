@@ -5,7 +5,7 @@ from fastapi import HTTPException
 
 from core.schemas.integrations import IntegrationAccess, IntegrationAccessToken
 from core.integrations.oauth.xero_oauth import (
-    process_refresh_response,
+    xero_integration_oauth,
 )
 
 
@@ -34,7 +34,9 @@ async def test_process_refresh_response_200(expired_xero_token, workspaces):
         ),
     )
 
-    new = await process_refresh_response(mock_response, expired_xero_token)
+    new = await xero_integration_oauth._process_refresh_response(
+        mock_response, expired_xero_token
+    )
 
     # performed update
     assert new.id_token == "new-id-token"
@@ -60,7 +62,9 @@ async def test_process_refresh_response_400(expired_xero_token, workspaces):
     )
 
     with pytest.raises(HTTPException):
-        await process_refresh_response(mock_response, expired_xero_token)
+        await xero_integration_oauth._process_refresh_response(
+            mock_response, expired_xero_token
+        )
 
 
 def test_integration_access_has_expired_true(expired_xero_token):

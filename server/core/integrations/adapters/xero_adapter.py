@@ -5,8 +5,7 @@ from dateutil.relativedelta import relativedelta
 
 from core.integrations.adapters.adapter import FetchAdapter
 from core.integrations.oauth.xero_oauth import (
-    get_xero_integration_access,
-    xero,
+    xero_integration_oauth,
     API_URL_SUFFIX,
 )
 from core.schemas.utils import DataBatch
@@ -194,9 +193,11 @@ class XeroFetchAdapter(FetchAdapter):
         # must be within 365 days of each other
         assert from_date + relativedelta(years=1) > to_date
 
-        integration_access = await get_xero_integration_access(self.workspace_id)
+        integration_access = await xero_integration_oauth.get_integration_access(
+            self.workspace_id
+        )
 
-        resp = await xero.get(
+        resp = await xero_integration_oauth.oauth_app.get(
             f"{API_URL_SUFFIX}Reports/ProfitAndLoss",
             token=integration_access.token.dict(),
             params={
@@ -222,9 +223,11 @@ class XeroFetchAdapter(FetchAdapter):
         :return:
         """
 
-        integration_access = await get_xero_integration_access(self.workspace_id)
+        integration_access = await xero_integration_oauth.get_integration_access(
+            self.workspace_id
+        )
 
-        resp = await xero.get(
+        resp = await xero_integration_oauth.oauth_app.get(
             f"{API_URL_SUFFIX}Reports/BalanceSheet",
             token=integration_access.token.dict(),
             params={

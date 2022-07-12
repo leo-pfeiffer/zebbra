@@ -21,9 +21,6 @@ app.add_middleware(
 
 app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
 
-# register integration adapters etc.
-setup_integrations()
-
 
 @app.get("/", response_model=Message)
 async def root():
@@ -38,3 +35,6 @@ app.include_router(users.router)
 app.include_router(models.router)
 app.include_router(workspaces.router)
 app.include_router(integrations.router)
+
+# register integration adapters etc.
+setup_integrations(app)

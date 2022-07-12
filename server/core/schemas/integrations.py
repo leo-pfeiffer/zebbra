@@ -30,5 +30,8 @@ class IntegrationAccess(BaseModel):
     tenant_id: str
     requires_reconnect: bool = False
 
+    # some integrations might require additional info that can be stored here.
+    additional_info: dict | None = None
+
     def has_expired(self):
         return self.token.expires_at - 60 < int(time.time())

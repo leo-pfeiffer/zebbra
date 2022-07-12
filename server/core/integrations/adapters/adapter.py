@@ -77,7 +77,7 @@ class FetchAdapter(ABC):
             dates=data_batch.dates,
             created_at=datetime.now().astimezone(timezone.utc),
             workspace_id=self.workspace_id,
-            integration=self.integration,
+            integration=self.integration(),
             from_date=from_date,
         )
         return await set_integration_cache(cache_obj)
