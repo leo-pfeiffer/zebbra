@@ -47,7 +47,7 @@ XxXxX_integration_oauth.register_oauth_app(
 
 
 @XxXxX_integration_oauth.router.get(**XxXxX_integration_oauth.login_endpoint())
-async def integration_xero_login(
+async def login_route(
     workspace_id: str,
     request: Request,
     current_user: User = Depends(get_current_active_user_url),
@@ -58,5 +58,5 @@ async def integration_xero_login(
 
 
 @XxXxX_integration_oauth.router.get(**XxXxX_integration_oauth.callback_endpoint())
-async def integration_xero_callback(request: Request):
+async def callback_route(request: Request):
     return await XxXxX_integration_oauth.oauth_callback(request)
