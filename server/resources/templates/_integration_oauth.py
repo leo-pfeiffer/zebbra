@@ -31,7 +31,7 @@ class XxXxXIntegrationOAuth(IntegrationOAuth):
 
     async def _store_oauth_token(self, workspace_id, token: IntegrationAccessToken):
         """
-        Store Xero integration access for a workspace data in the DB
+        Store integration access for a workspace data in the DB
         :param workspace_id: ID of the workspace
         :param token: OAuth token data
         """
