@@ -86,6 +86,10 @@ describe('useGetValueFromHumanReadable Tests', () => {
         const expectedOutput3:string = "1+2*4/5(7*89)";
         expect(useGetValueFromHumanReadable(humanReadableInput3, customers._id, variableSearchMap)).toStrictEqual(expectedOutput3);
 
+        const humanReadableInput4:string = "0.3)";
+        const expectedOutput4:string = "0.3";
+        expect(useGetValueFromHumanReadable(humanReadableInput4, customers._id, variableSearchMap)).toStrictEqual(expectedOutput4);
+
     });
 
 })
