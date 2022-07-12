@@ -14,15 +14,15 @@ from core.schemas.integrations import IntegrationProvider
 INTEGRATIONS: tuple[IntegrationProvider, ...] = get_args(IntegrationProvider)
 
 ADAPTERS: dict[IntegrationProvider, Callable[[str], FetchAdapter]] = {}
-INTEGRATION_OAUTH: dict[IntegrationProvider, Callable[[str], IntegrationOAuth]] = {}
+INTEGRATION_OAUTH: dict[IntegrationProvider, IntegrationOAuth] = {}
 
 
 def _register_integration(adapter: FetchAdapter.__class__):
     ADAPTERS[adapter.integration()] = lambda workspace_id: adapter(workspace_id)
 
 
-def _register_integration_oauth(oauth: IntegrationOAuth.__class__):
-    INTEGRATION_OAUTH[oauth.integration()] = lambda: oauth()
+def _register_integration_oauth(oauth: IntegrationOAuth):
+    INTEGRATION_OAUTH[oauth.integration()] = oauth
 
 
 def setup_integrations(app: FastAPI):
@@ -30,7 +30,6 @@ def setup_integrations(app: FastAPI):
     Run on application start to register applications etc.
     """
     _register_integration(XeroFetchAdapter)
+    _register_integration_oauth(xero_integration_oauth)
 
     app.include_router(xero_integration_oauth.router)
-
-    # todo add register integration oauth
