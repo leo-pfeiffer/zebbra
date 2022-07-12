@@ -1,6 +1,6 @@
 import { expect, it, describe, beforeAll } from 'vitest';
-import { useGetValueFromHumanReadable } from '~~/composables/useGetValueFromHumanReadable';
-import { Variable } from '~~/types/Model';
+import { useGetValueFromHumanReadable } from '../composables/useGetValueFromHumanReadable';
+import { Variable } from '../types/Model';
 
 describe('useGetValueFromHumanReadable Tests', () => {
 
@@ -49,15 +49,24 @@ describe('useGetValueFromHumanReadable Tests', () => {
     const variableSearchMap:Map<string, string> = new Map<string, string>();
 
     beforeAll(() => {
-        variableSearchMap.set(initialCustomers._id, initialCustomers.value);
-        variableSearchMap.set(customerGrowth._id, customerGrowth.value);
-        variableSearchMap.set(customers._id, customers.value);
+        variableSearchMap.set(initialCustomers._id, initialCustomers.name);
+        variableSearchMap.set(customerGrowth._id, customerGrowth.name);
+        variableSearchMap.set(customers._id, customers.name);
     })
 
     it('should return the correct value from a human readable input', () => {
 
         const humanReadableInput:string = "Customers[1]*(1+Customer Growth[0])";
         const expectedOutput:string = "$1*(1+#2)"
+
+        expect(useGetValueFromHumanReadable(humanReadableInput, customers._id, variableSearchMap)).toStrictEqual(expectedOutput);
+
+    });
+
+    it('should return the correct value from a human readable input with previous value on external ref', () => {
+
+        const humanReadableInput:string = "Customers[1]*(1+Customer Growth[1])";
+        const expectedOutput:string = "$1*(1+#2$1)"
 
         expect(useGetValueFromHumanReadable(humanReadableInput, customers._id, variableSearchMap)).toStrictEqual(expectedOutput);
 
