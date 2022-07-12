@@ -2,12 +2,9 @@ import { Variable } from "~~/types/Model";
 
 import { useMathParser } from "./useMathParser";
 
-export const useFormulaParser = () => {
+import { ValueObject } from "~~/types/ValueObject";
 
-    type ValueObject = {
-        indexes: number[];
-        value_array: string[];
-    }
+export const useFormulaParser = () => {
 
     type Reference = {
         id: string;
