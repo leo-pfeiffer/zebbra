@@ -9,6 +9,12 @@ setup_db:
 	chmod +x scripts/setup_db.sh
 	sh scripts/setup_db.sh
 
+.PHONY: setup_db_no_integrations
+# Run the setup db script
+setup_db_no_integrations:
+	chmod +x scripts/setup_db_no_integrations.sh
+	sh scripts/setup_db_no_integrations.sh
+
 .PHONY: setup_db_no_source
 # Run the setup db script without sourcing. Necessary during GitHub action
 setup_db_no_source:
