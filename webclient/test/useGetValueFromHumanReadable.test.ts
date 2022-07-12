@@ -92,4 +92,13 @@ describe('useGetValueFromHumanReadable Tests', () => {
 
     });
 
+    it('should work with leading SPACES before the refs', () => {
+
+        const humanReadableInput:string = "Customers[1] * (1 + Customer Growth[1])";
+        const expectedOutput:string = "$1*(1+#2$1)"
+
+        expect(useGetValueFromHumanReadable(humanReadableInput, customers._id, variableSearchMap)).toStrictEqual(expectedOutput);
+
+    })
+
 })
