@@ -3,27 +3,28 @@ from datetime import date, datetime, timezone
 
 from dateutil.relativedelta import relativedelta
 
-from core.schemas.utils import DataBatch
-from core.unification.fetch import FetchAdapter
-from core.unification.xero_oauth import (
-    get_xero_integration_access,
-    xero,
+from core.integrations.adapters.adapter import FetchAdapter
+from core.integrations.oauth.xero_oauth import (
+    xero_integration_oauth,
     API_URL_SUFFIX,
 )
+from core.schemas.utils import DataBatch
 
 
 class XeroFetchAdapter(FetchAdapter):
+
+    _integration = "Xero"
+
     def __init__(self, workspace_id: str):
         self._workspace_id = workspace_id
-        self._integration = "Xero"
 
     @property
     def workspace_id(self):
         return self._workspace_id
 
-    @property
-    def integration(self):
-        return self._integration
+    @classmethod
+    def integration(cls):
+        return cls._integration
 
     async def get_data(self, from_date: date) -> DataBatch:
         """
@@ -127,7 +128,7 @@ class XeroFetchAdapter(FetchAdapter):
         # get the dates
         assert report["Rows"][0]["RowType"] == "Header"
         dates = [
-            self._date_from_string(cell["Value"])
+            self._date_from_string(cell["Value"], ["%d %b %y", "%d %b %Y"])
             for cell in report["Rows"][0]["Cells"]
             if cell["Value"] != ""
         ]
@@ -192,9 +193,11 @@ class XeroFetchAdapter(FetchAdapter):
         # must be within 365 days of each other
         assert from_date + relativedelta(years=1) > to_date
 
-        integration_access = await get_xero_integration_access(self.workspace_id)
+        integration_access = await xero_integration_oauth.get_integration_access(
+            self.workspace_id
+        )
 
-        resp = await xero.get(
+        resp = await xero_integration_oauth.oauth_app.get(
             f"{API_URL_SUFFIX}Reports/ProfitAndLoss",
             token=integration_access.token.dict(),
             params={
@@ -220,9 +223,11 @@ class XeroFetchAdapter(FetchAdapter):
         :return:
         """
 
-        integration_access = await get_xero_integration_access(self.workspace_id)
+        integration_access = await xero_integration_oauth.get_integration_access(
+            self.workspace_id
+        )
 
-        resp = await xero.get(
+        resp = await xero_integration_oauth.oauth_app.get(
             f"{API_URL_SUFFIX}Reports/BalanceSheet",
             token=integration_access.token.dict(),
             params={

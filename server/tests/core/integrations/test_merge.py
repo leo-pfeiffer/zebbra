@@ -6,7 +6,7 @@ from core.dao.models import get_revenues_sheet
 from core.schemas.integrations import IntegrationProvider
 from core.schemas.rows import Row, IntegrationValue
 from core.schemas.utils import DataBatch
-from core.unification.unify import parse_value, unify_data, process_row
+from core.integrations.merge import parse_value, merge_integration_data, process_row
 
 
 def test_parse_value_parses_single_word():
@@ -37,12 +37,12 @@ def test_parse_value_space_in_integration():
 
 
 @pytest.mark.anyio
-async def test_unify_data():
+async def test_merge_integration_data():
     sheet = await get_revenues_sheet("62b488ba433720870b60ec0a")
     workspace_id = "62bc5706a40e85213c27ce29"
     from_date = date(2020, 1, 1)
 
-    await unify_data(sheet, workspace_id, from_date)
+    await merge_integration_data(sheet, workspace_id, from_date)
 
     assert len(sheet.sections[0].rows[1].integration_values) > 0
 

@@ -1,12 +1,40 @@
 import re
 from datetime import date, datetime
 
+from core.integrations.config import ADAPTERS
 from core.logger import logger
 from core.schemas.integrations import IntegrationProvider
 from core.schemas.rows import Row, IntegrationValue
 from core.schemas.sheets import Sheet
 from core.schemas.utils import DataBatch
-from core.unification.xero_fetch import XeroFetchAdapter
+
+
+async def merge_integration_data(sheet: Sheet, workspace_id: str, from_date: date):
+    """
+    Adds the integration values to a sheet inplace.
+    :param sheet:
+    :param workspace_id:
+    :param from_date:
+    :return:
+    """
+
+    data_batches: dict[IntegrationProvider, DataBatch] = {}
+
+    for integration in ADAPTERS.keys():
+        adapter = ADAPTERS[integration](workspace_id)
+        data_batches[integration] = await adapter.get_data(from_date)
+
+    # assumptions
+    for row in sheet.assumptions:
+        process_row(row, data_batches)
+
+    # sections
+    for section in sheet.sections:
+        for row in section.rows:
+            process_row(row, data_batches=data_batches)
+        process_row(section.end_row, data_batches)
+
+    return sheet
 
 
 def parse_value(value_string: str) -> tuple[IntegrationProvider, str]:
@@ -66,30 +94,3 @@ def process_row(row: Row, data_batches: dict[IntegrationProvider, DataBatch]) ->
     row.integration_values = integration_values
 
     return row
-
-
-async def unify_data(sheet: Sheet, workspace_id: str, from_date: date):
-    """
-    Adds the integration values to a sheet inplace.
-    :param sheet:
-    :param workspace_id:
-    :param from_date:
-    :return:
-    """
-    adapter = XeroFetchAdapter(workspace_id)
-
-    data_batches: dict[IntegrationProvider, DataBatch] = {
-        "Xero": await adapter.get_data(from_date)
-    }
-
-    # assumptions
-    for row in sheet.assumptions:
-        process_row(row, data_batches)
-
-    # sections
-    for section in sheet.sections:
-        for row in section.rows:
-            process_row(row, data_batches=data_batches)
-        process_row(section.end_row, data_batches)
-
-    return sheet
