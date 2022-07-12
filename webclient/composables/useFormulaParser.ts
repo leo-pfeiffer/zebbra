@@ -272,6 +272,16 @@ export const useFormulaParser = () => {
 
     }
 
+    const charIsOperator = (char: string) => {
+
+        if (char === "+" || char === "-" || char === "*" || char === "/" || char === "(" || char === ")") {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
+
     //method that defines the order in which the variables must be calculated based on their hierarchy
     //return an ordered array of ids
     const getCreationOrder = (variables: Variable[]) => {
@@ -436,6 +446,6 @@ export const useFormulaParser = () => {
 
     }
 
-    return { getSheetRowValues, createValueObject, charIsNumerical, charIsRefToken, getCreationOrder, getReferenceArray, kahnTopologicalSort }
+    return { getSheetRowValues, createValueObject, charIsNumerical, charIsRefToken, charIsOperator, getCreationOrder, getReferenceArray, kahnTopologicalSort }
 
 }
