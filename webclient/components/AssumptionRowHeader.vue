@@ -86,7 +86,7 @@ const route = useRoute();
                     </div>
                 </div>
                 <div v-else
-                    class="absolute text-xs border-zinc-300 min-w-[200px] max-w-[200px] h-full w-full text-right">
+                    class="absolute text-xs border-zinc-300 min-w-[500px] max-w-[500px] h-full w-full text-right">
                     <input v-show="valueInputSelected" autofocus @keydown.enter="updateValue" @keydown.esc="toggleInput"
                         v-model="humanReadableInputValue"
                         class="border-t w-full py-2 px-2 font-mono font-sm focus:rounded-none focus:outline-green-600 border-r-2 border-zinc-300"
@@ -166,7 +166,7 @@ export default {
         timeSeriesMap: Map,
         variableSearchMap: Map
     },
-    beforeMount() {
+    mounted() {
         //set correct humanReadableInputValue to be displayed
         if (this.assumption.value === "" || this.assumption.value === undefined) {
             this.humanReadableInputValue = "–"
@@ -224,8 +224,6 @@ export default {
         },
         isTimeSeries(value: string) {
             
-            console.log("isTimeSeries value: " + value);
-
             if (value.includes("$")) {
                 return true;
             } else if (value.includes("#") && !value.includes("$")) {
@@ -268,12 +266,9 @@ export default {
             if (this.humanReadableInputValue.length > 0) {
 
                 //Get humanReadableInputValue and create storage value
-                console.log(this.assumption._id);
 
-                const storageValue:string = useGetValueFromHumanReadable(this.humanReadableInputValue, this.assumption._id, this.searchVariableMap);
-
-                console.log("storageValue: " + storageValue);
-
+                const storageValue:string = useGetValueFromHumanReadable(this.humanReadableInputValue, this.assumption._id, this.variableSearchMap);
+                
                 const sheet = useRevenueState();
                 sheet.value.assumptions[this.assumptionIndex].time_series = this.isTimeSeries(storageValue);
                 sheet.value.assumptions[this.assumptionIndex].value = storageValue.toString();
@@ -290,7 +285,7 @@ export default {
                     const revenues = useRevenueState();
                     const assumptionValuesArrayState = useState<string[][]>('assumptionValues');
                     var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(revenues.value.assumptions);;
-                    assumptionValuesArrayState.value[this.assumptionIndex] = assumptionValuesArray[this.assumptionIndex];
+                    assumptionValuesArrayState.value = assumptionValuesArray;
                     this.toggleInput();
                 } catch (e) {
                     console.log(e);
@@ -324,7 +319,13 @@ export default {
 
             //todo: del next line
             sheet.value.assumptions[this.assumptionIndex].value_1 = this.value1;
-            sheet.value.assumptions[this.assumptionIndex].first_value_diff = (this.value1 != undefined || this.value1 != "");
+
+            if(this.value1 === undefined || this.value1 === "" || this.value1.trim().length === 0) {
+                sheet.value.assumptions[this.assumptionIndex].value_1 = undefined;
+                sheet.value.assumptions[this.assumptionIndex].first_value_diff = false;
+            } else {
+                sheet.value.assumptions[this.assumptionIndex].first_value_diff = true;
+            }
             sheet.value.assumptions[this.assumptionIndex].starting_at = this.startingAt;
 
             try {
@@ -395,12 +396,13 @@ export default {
         addSearchItemToInputValue(key:string) {
 
             var lastIndex = this.humanReadableInputValue.length - 1;
-            //todo: does not work
-            const regex = new RegExp(/[+*/-]+/);
-            while(!regex.test(this.humanReadableInputValue[lastIndex])) {
-                this.humanReadableInputValue.substring(0, this.humanReadableInputValue.length - 1);
+            const regex = new RegExp(/[()+*/-]+/);
+            while(!regex.test(this.humanReadableInputValue[lastIndex]) && lastIndex >= 0) {
+                console.log("here");
+                this.humanReadableInputValue = this.humanReadableInputValue.slice(0, -1);
                 lastIndex--;
             }
+
             this.humanReadableInputValue = this.humanReadableInputValue + this.variableSearchMap.get(key);
 
             if(this.searchTimeDiff === "current") {
@@ -416,7 +418,7 @@ export default {
     },
     computed: {
         variableSearch():Map<string, string> {
-            const splittedInput:string[] = this.humanReadableInputValue.split(/[+*/-]+/);
+            const splittedInput:string[] = this.humanReadableInputValue.split(/[()+*/-]+/);
             var searchTerm:string = splittedInput[splittedInput.length - 1];
             if(searchTerm[0] === " ") {
                 searchTerm = searchTerm.substring(1);

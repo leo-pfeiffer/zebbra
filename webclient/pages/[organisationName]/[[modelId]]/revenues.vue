@@ -21,8 +21,8 @@ const dates = useState('dates', () => useDateArray(new Date(+date[0], +date[1]-1
 
 const assumptionValuesToDisplay = useState<string[][]>('assumptionValues');
 
-const assumptionVariableSearchMap = useState<Map<string, string>>('assumptionsVariableSearchMap');
-assumptionVariableSearchMap.value = useVariableSearchMap(revenues.value.assumptions);
+//const assumptionVariableSearchMap = useState<Map<string, string>>('assumptionsVariableSearchMap');
+//assumptionVariableSearchMap.value = useVariableSearchMap(revenues.value.assumptions);
 
 </script>
 
@@ -42,7 +42,7 @@ assumptionVariableSearchMap.value = useVariableSearchMap(revenues.value.assumpti
                                 </form>
                             </div>
                         </div>
-                        <AssumptionRowHeader v-for="(assumption, index) in revenues.assumptions" :assumption="assumption" :assumptionIndex="index" :timeSeriesMap="timeSeriesMap" :variableSearchMap="assumptionVariableSearchMap"></AssumptionRowHeader>
+                        <AssumptionRowHeader v-for="(assumption, index) in revenues.assumptions" :assumption="assumption" :assumptionIndex="index" :timeSeriesMap="useVariableTimeSeriesMap(revenues.assumptions)" :variableSearchMap="useVariableSearchMap(revenues.assumptions)"></AssumptionRowHeader>
                     </div>
                     <div class="overflow-x-auto">
                         <div class="flex mb-4">
@@ -111,19 +111,10 @@ export default {
         var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(revenues.value.assumptions);
         useState('assumptionValues', () => assumptionValuesArray);
 
-        var assumptionVariableSearchMap:Map<string, string> = useVariableSearchMap(revenues.value.assumptions);
+       /*  var assumptionVariableSearchMap:Map<string, string> = useVariableSearchMap(revenues.value.assumptions);
         useState('assumptionsVariableSearchMap', () => assumptionVariableSearchMap);
-        //todo do same for all variables
+        //todo do same for all variables */
 
-    }, computed: {
-        timeSeriesMap() {
-            const revenues = useRevenueState();
-            var timeSeriesMap:Map<string, boolean> = new Map<string, boolean>();
-            for(let i=0; i > revenues.value.assumptions.length; i++) {
-                timeSeriesMap.set(revenues.value.assumptions[i]._id, revenues.value.assumptions[i].time_series);
-            }
-            return timeSeriesMap;
-        }
     }
 }
 
