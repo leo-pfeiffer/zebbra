@@ -307,6 +307,24 @@ describe('Tests for charIsNumerical method', () => {
     })
 })
 
+describe('Tests for charIsOperator method', () => {
+    it('should return true when operators are entered', () => {
+        expect(useFormulaParser().charIsOperator("+")).toBe(true);
+        expect(useFormulaParser().charIsOperator("-")).toBe(true);
+        expect(useFormulaParser().charIsOperator("*")).toBe(true);
+        expect(useFormulaParser().charIsOperator("/")).toBe(true);
+        expect(useFormulaParser().charIsOperator("(")).toBe(true);
+        expect(useFormulaParser().charIsOperator(")")).toBe(true);
+    })
+
+    it('should return false when non-operators are entered', () => {
+        expect(useFormulaParser().charIsOperator("0")).toBe(false);
+        expect(useFormulaParser().charIsOperator("1")).toBe(false);
+        expect(useFormulaParser().charIsOperator("x")).toBe(false);
+        expect(useFormulaParser().charIsOperator("asöldfkjas")).toBe(false);
+    })
+})
+
 describe('Tests for getCreationOrder method', () => {
 
     it('should return the correct order', () => {
