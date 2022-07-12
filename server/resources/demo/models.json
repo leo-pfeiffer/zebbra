@@ -84,6 +84,7 @@
         },
         "assumptions": [
           {
+            "_id": "83758019375384947449666262145172190889",
             "name": "assumption1",
             "val_type": "number",
             "editable": true,
@@ -101,6 +102,7 @@
             "name": "section1",
             "rows": [
               {
+                "_id": "269378395487633310845072415860332066579",
                 "name": "row1",
                 "val_type": "number",
                 "editable": true,
@@ -113,6 +115,7 @@
                 "integration_values": null
               },
               {
+                "_id": "220899290253998228835136291945093028215",
                 "name": "row2",
                 "val_type": "number",
                 "editable": true,
@@ -126,6 +129,7 @@
               }
             ],
             "end_row": {
+                "_id": "60881972933690918304034110709075139213",
                 "name": "end_row",
                 "val_type": "number",
                 "editable": true,
@@ -165,6 +169,7 @@
         },
         "assumptions": [
           {
+            "_id": "269406866589441778238495038764779349592",
             "name": "assumption1",
             "val_type": "number",
             "editable": true,
@@ -182,6 +187,7 @@
             "name": "section1",
             "rows": [
               {
+                "_id": "141181939880141659151760477717611728249",
                 "name": "row1",
                 "val_type": "number",
                 "editable": true,
@@ -195,6 +201,7 @@
               }
             ],
             "end_row": {
+                "_id": "77281926655274663544154445802308552611",
                 "name": "end_row",
                 "val_type": "number",
                 "editable": true,
@@ -215,6 +222,7 @@
         },
         "assumptions": [
           {
+            "_id": "234817851327304216624111775035640888568",
             "name": "assumption1",
             "val_type": "number",
             "editable": true,
@@ -232,6 +240,7 @@
             "name": "section1",
             "rows": [
               {
+                "_id": "154014396970273800635032943872142491846",
                 "name": "row1",
                 "val_type": "number",
                 "editable": true,
@@ -245,6 +254,7 @@
               }
             ],
             "end_row": {
+                "_id": "119275764367570197178225826115654655639",
                 "name": "end_row",
                 "val_type": "number",
                 "editable": true,
