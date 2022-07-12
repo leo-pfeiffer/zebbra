@@ -88,9 +88,31 @@ const route = useRoute();
                 <div v-else
                     class="absolute text-xs border-zinc-300 min-w-[200px] max-w-[200px] h-full w-full text-right">
                     <input v-show="valueInputSelected" autofocus @keydown.enter="updateValue" @keydown.esc="toggleInput"
-                        v-model="inputValue"
+                        v-model="humanReadableInputValue"
                         class="border-t w-full py-2 px-2 font-mono font-sm focus:rounded-none focus:outline-green-600 border-r-2 border-zinc-300"
                         type=text>
+                    <div v-show="variableSearch.size > 0" class="sticky top-0 rounded-b min-w-fit">
+                        <table class="text-left min-w-fit">
+                            <th class="font-medium border border-zinc-300 bg-zinc-50 px-2 py-0.5 text-[10px] text-zinc-500 ">VARIABLE</th>
+                            <tr class="border bg-white border-zinc-300 shadow-md text-left" v-for="[key, value] in variableSearch" :key="key">
+                            <div class="min-w-fit flex align-middle justify-start py-2 px-2">
+                                <div>
+                                    <button class="text-left mr-1" @click="addSearchItemToInputValue(key)">
+                                        {{ value }}
+                                    </button>
+                                </div>
+                                <div class="flex align-middle py-auto ">
+                                    <select v-model="searchTimeDiff" class="bg-transparent font-medium italic text-zinc-500 rounded text-[10px] bg-zinc-100 mr-1">
+                                        <option selected>current</option>
+                                        <option>previous</option>
+                                        <option>T-2</option>
+                                        <option>T-12</option>
+                                    </select>
+                                </div>
+                            </div>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -126,11 +148,12 @@ import { Variable } from "~~/types/Model"
 export default {
     data() {
         return {
-            inputValue: "",
+            humanReadableInputValue: "",
             newName: "",
             valueInputSelected: false,
             nameChangeSelected: false,
             settingsOpen: false,
+            searchTimeDiff: "current",
             valType: "",
             value1: undefined,
             startingAt: 0,
@@ -140,7 +163,32 @@ export default {
     props: {
         assumption: Object as () => Variable,
         assumptionIndex: Number,
-        timeSeriesMap: Map
+        timeSeriesMap: Map,
+        variableSearchMap: Map
+    },
+    beforeMount() {
+        //set correct humanReadableInputValue to be displayed
+        if (this.assumption.value === "" || this.assumption.value === undefined) {
+            this.humanReadableInputValue = "–"
+        } else {
+            this.humanReadableInputValue = useGetHumanReadableFormula(this.assumption.value, this.assumption._id, this.variableSearchMap);
+        }
+        
+        //set correct value_1 to be displayed
+        if(this.assumption.value_1 != "" || this.assumption.value_1 != undefined) {
+            //todo: this.value1 = useGetReadableFormula(this.assumption.value_1, this.assumption._id, this.variableSearchMap);
+            this.value1 = this.assumption.value_1;
+        } else {
+            this.value1 = this.assumption.value_1;
+        }
+
+        this.valType = this.assumption.val_type;
+        this.startingAt = this.assumption.starting_at;
+
+        // show name input if name is undefined
+        if (this.assumption.name === "" || this.assumption.value === undefined) {
+            this.nameChangeSelected = true;
+        }
     },
     methods: {
         toggleNameChange() {
@@ -167,24 +215,34 @@ export default {
                 this.startingAt = this.assumption.starting_at;
             }
         },
-        isTimeSeries(inputValue: string) {
-            if (inputValue.includes("$")) {
+        toggleDeleteModal() {
+            if (this.deleteModalOpen === false) {
+                this.deleteModalOpen = true;
+            } else {
+                this.deleteModalOpen = false;
+            }
+        },
+        isTimeSeries(value: string) {
+            
+            console.log("isTimeSeries value: " + value);
+
+            if (value.includes("$")) {
                 return true;
-            } else if (inputValue.includes("#") && !inputValue.includes("$")) {
+            } else if (value.includes("#") && !value.includes("$")) {
 
                 //create an array with all the refs in a variable string
                 var refsArray: string[] = [];
 
-                for (let i = 0; i < inputValue.length; i++) {
-                    let char = inputValue[i];
+                for (let i = 0; i < value.length; i++) {
+                    let char = value[i];
                     if (char === "#") {
                         var ref: string = ""; //empty string to store id (ie number after the #)
                         var counter = 1;
                         //only getting the numerical because only the ids are needed not the point in time (e.g. t-1)
-                        while (useFormulaParser().charIsNumerical(inputValue[i + counter]) && (inputValue[i + counter] != undefined)) {
-                            ref = ref + inputValue[i + counter];
+                        while (useFormulaParser().charIsNumerical(value[i + counter]) && (value[i + counter] != undefined)) {
+                            ref = ref + value[i + counter];
                             counter++;
-                            if ((i + counter >= inputValue.length)) {
+                            if ((i + counter >= value.length)) {
                                 break;
                             }
                         }
@@ -207,11 +265,19 @@ export default {
             }
         },
         async updateValue() {
-            if (this.inputValue.length > 0) {
+            if (this.humanReadableInputValue.length > 0) {
+
+                //Get humanReadableInputValue and create storage value
+                console.log(this.assumption._id);
+
+                const storageValue:string = useGetValueFromHumanReadable(this.humanReadableInputValue, this.assumption._id, this.searchVariableMap);
+
+                console.log("storageValue: " + storageValue);
+
                 const sheet = useRevenueState();
-                sheet.value.assumptions[this.assumptionIndex].time_series = this.isTimeSeries(this.inputValue);
-                sheet.value.assumptions[this.assumptionIndex].value = this.inputValue.toString();
-                if (this.inputValue.includes("+") || this.inputValue.includes("-") || this.inputValue.includes("*") || this.inputValue.includes("/") || this.inputValue.includes("–")) {
+                sheet.value.assumptions[this.assumptionIndex].time_series = this.isTimeSeries(storageValue);
+                sheet.value.assumptions[this.assumptionIndex].value = storageValue.toString();
+                if (storageValue.includes("+") || storageValue.includes("-") || storageValue.includes("*") || storageValue.includes("/") || storageValue.includes("-")) {
                     sheet.value.assumptions[this.assumptionIndex].var_type = "formula";
                 } else {
                     sheet.value.assumptions[this.assumptionIndex].var_type = "value";
@@ -245,6 +311,18 @@ export default {
             const sheet = useRevenueState();
 
             sheet.value.assumptions[this.assumptionIndex].val_type = this.valType;
+
+            //todo: get humanReadableInputValue and create storage value
+            /* if(this.value_1.length > 0) {
+
+                const storageValue1 = useGetHumanReadable(this.value_1, this.searchVariableMap);
+                sheet.value.assumptions[this.assumptionIndex].value_1 = this.storageValue1;
+
+            } else {
+                sheet.value.assumptions[this.assumptionIndex].value_1 = this.value1;
+            } */
+
+            //todo: del next line
             sheet.value.assumptions[this.assumptionIndex].value_1 = this.value1;
             sheet.value.assumptions[this.assumptionIndex].first_value_diff = (this.value1 != undefined || this.value1 != "");
             sheet.value.assumptions[this.assumptionIndex].starting_at = this.startingAt;
@@ -314,30 +392,48 @@ export default {
             }
             this.toggleDeleteModal();
         },
-        toggleDeleteModal() {
-            if (this.deleteModalOpen === false) {
-                this.deleteModalOpen = true;
-            } else {
-                this.deleteModalOpen = false;
+        addSearchItemToInputValue(key:string) {
+
+            var lastIndex = this.humanReadableInputValue.length - 1;
+            //todo: does not work
+            const regex = new RegExp(/[+*/-]+/);
+            while(!regex.test(this.humanReadableInputValue[lastIndex])) {
+                this.humanReadableInputValue.substring(0, this.humanReadableInputValue.length - 1);
+                lastIndex--;
+            }
+            this.humanReadableInputValue = this.humanReadableInputValue + this.variableSearchMap.get(key);
+
+            if(this.searchTimeDiff === "current") {
+                this.humanReadableInputValue = this.humanReadableInputValue + "[0]";
+            } else if(this.searchTimeDiff === "previous") {
+                this.humanReadableInputValue = this.humanReadableInputValue + "[1]";
+            } else if(this.searchTimeDiff === "T-2") {
+                this.humanReadableInputValue = this.humanReadableInputValue + "[2]";
+            } else if(this.searchTimeDiff === "T-12") {
+                this.humanReadableInputValue = this.humanReadableInputValue + "[12]";
             }
         }
     },
-    beforeMount() {
-        if (this.assumption.value === "" || this.assumption.value === undefined) {
-            this.inputValue = "–"
-        } else {
-            this.inputValue = this.assumption.value;
-        }
-        this.valType = this.assumption.val_type;
-        this.value1 = this.assumption.value_1;
-        this.startingAt = this.assumption.starting_at;
-
-        if (this.assumption.name === "" || this.assumption.value === undefined) {
-            this.nameChangeSelected = true;
-        }
-    },
     computed: {
+        variableSearch():Map<string, string> {
+            const splittedInput:string[] = this.humanReadableInputValue.split(/[+*/-]+/);
+            var searchTerm:string = splittedInput[splittedInput.length - 1];
+            if(searchTerm[0] === " ") {
+                searchTerm = searchTerm.substring(1);
+            }
+            var searchOutput:Map<string, string> = new Map<string, string>()
+            if(this.humanReadableInputValue === "") {
+                return searchOutput;
+            }
+            for(let [key, value] of this.variableSearchMap.entries()){
+                if(value.toLowerCase() === searchTerm.toLowerCase() || value.toLowerCase().includes(searchTerm.toLowerCase())) {
+                    searchOutput.set(key, value);
+                }
+            }
+            return searchOutput;
+        },
         outputValue() {
+            //todo:update
             try {
                 if(this.valType === "number") {
                     var output: string = useMathParser(this.assumption.value).toFixed(2).toString();
@@ -378,9 +474,6 @@ export default {
                     return "!!";
                 }
             }
-        },
-        outputValueIsError() {
-            return this.outputValue === "!!"
         }
     }
 }
