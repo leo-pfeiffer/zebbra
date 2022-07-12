@@ -9,6 +9,7 @@ from core.dao.integrations import (
     add_integration_for_workspace,
     set_requires_reconnect,
 )
+from core.logger import logger
 from core.schemas.integrations import IntegrationAccessToken, IntegrationAccess
 from core.settings import get_settings
 
@@ -19,7 +20,7 @@ CLIENT_SECRET = settings.XERO_CLIENT_SECRET
 CONF_URL = settings.XERO_CONF_URL
 API_BASE_URL = settings.XERO_API_BASE_URL
 API_URL_SUFFIX = settings.XERO_API_URL_SUFFIX
-REFRESH_URL = settings.XERO_API_URL_SUFFIX
+REFRESH_URL = settings.XERO_REFRESH_URL
 
 oauth = OAuth()
 
@@ -45,6 +46,12 @@ async def perform_token_refresh(integration_access):
     :param integration_access: Current integration access
     :return: Refreshed integration access
     """
+
+    logger.info(
+        f"Refreshing token for "
+        f"{integration_access.workspace_id} : {integration_access.integration}"
+    )
+
     basic_auth = b64encode(str.encode(f"{CLIENT_ID}:{CLIENT_SECRET}")).decode("utf-8")
     response = await xero.post(
         REFRESH_URL,
@@ -83,6 +90,10 @@ async def process_refresh_response(
     #  connection workflow to reconnect the integration. The integration access ID
     #  remains the same.
     await set_requires_reconnect(integration_access.workspace_id, "Xero", True)
+
+    logger.error(
+        f"Token refresh failed. Response: {response.status_code}, {response.text}"
+    )
 
     raise HTTPException(
         status_code=status.HTTP_400_BAD_REQUEST,
@@ -132,7 +143,7 @@ async def get_xero_tenant_id(workspace_id, token: dict | None = None):
     Todo: This is not perfect. If the user has multiple tenants, the first one
      is always used.
     :param workspace_id: Workspace for which to get the xero data.
-    :param token: OAuth token. If not provided, it is retreived from the DB.
+    :param token: OAuth token. If not provided, it is retrieved from the DB.
     :return: Tenant ID
     """
     if token is None:

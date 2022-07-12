@@ -25,6 +25,7 @@ class _DAO:
     invite_codes = _db["invite_codes"]
     models = _db["models"]
     integration_access = _db["integration_access"]
+    integration_cache = _db["integration_cache"]
 
     @staticmethod
     def get_collection(collection):

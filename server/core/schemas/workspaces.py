@@ -3,7 +3,7 @@ from typing import Literal
 from bson import ObjectId
 from pydantic import BaseModel, Field
 
-from core.objects import PyObjectId
+from core.schemas.utils import PyObjectId
 
 
 class Workspace(BaseModel):

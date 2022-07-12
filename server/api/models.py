@@ -1,6 +1,8 @@
+from datetime import date
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.encoders import jsonable_encoder
 from starlette import status
 
 from api.utils.assertions import (
@@ -30,6 +32,7 @@ from core.dao.models import (
     get_costs_sheet,
     update_revenues_sheet,
     update_costs_sheet,
+    set_starting_month,
 )
 from core.dao.workspaces import is_user_in_workspace
 from core.exceptions import (
@@ -38,60 +41,38 @@ from core.exceptions import (
     CardinalityConstraintFailedException,
     BusinessLogicException,
 )
-from core.objects import PyObjectId
-from core.schemas.models import Model, ModelUser
+from core.schemas.models import Model, ModelUser, ModelMeta
 from core.schemas.sheets import Sheet
 from core.schemas.users import User
-from core.schemas.utils import Message
+from core.schemas.utils import Message, PyObjectId
 from api.utils.dependencies import get_current_active_user
+from core.unification.unify import unify_data
 
 router = APIRouter()
 
 
 @router.get(
-    "/model",
-    response_model=list[Model],
+    "/model/meta",
+    response_model=ModelMeta,
     tags=["model"],
     responses={
         403: {"description": "User does not have access to the resource."},
     },
 )
-async def retrieve_list_of_models(
-    model_id: str | None = None,
-    workspace_id: PyObjectId | None = None,
-    user: bool = False,
+async def retrieve_model_meta(
+    model_id: str,
     current_user: User = Depends(get_current_active_user),
 ):
     """
-    Retrieve models. The endpoint takes three **mutually exclusive** parameters:\n
-        model_id: retrieve a list of a single model by its ID
-        user: retrieve a list of all models of the current user
-        workspace: retrieve a list of all models of a workspace
+    Retrieve metadata of a model.\n
+        model_id: Id of the model whose meta data to retrieve
     """
 
-    # assert that only one parameter has been specified
-    if (model_id is not None) + (workspace_id is not None) + user != 1:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Exactly one of the query parameters must be specified.",
-        )
+    await assert_model_exists(model_id)
+    await assert_model_access(current_user.id, model_id)
+    model = await get_model_by_id(model_id)
 
-    if model_id is not None:
-        await assert_model_exists(model_id)
-        await assert_model_access(current_user.id, model_id)
-        models = [await get_model_by_id(model_id)]
-        return models
-
-    if workspace_id is not None:
-        if not await is_user_in_workspace(current_user.id, workspace_id):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="User does not have access to this workspace.",
-            )
-        return await get_models_for_workspace(workspace_id)
-
-    if user:
-        return await get_models_for_user(current_user.id)
+    return model.meta
 
 
 # GET users of workspace
@@ -240,6 +221,31 @@ async def rename_existing_model(
 
 
 @router.post(
+    "/model/startingMonth",
+    response_model=Message,
+    tags=["model"],
+    responses={
+        403: {"description": "User does not have access to the resource."},
+    },
+)
+async def change_starting_month_of_model(
+    model_id: str,
+    starting_month: date,
+    current_user: User = Depends(get_current_active_user),
+):
+    """
+    Set the starting month of a model. The starting month is provided as a date\n
+        model_id: Model whose starting month to change
+        startingMonth: New starting month
+    """
+    await _assert_model_exists(model_id)
+    # only editor can rename
+    await assert_model_access_can_edit(current_user.id, model_id)
+    await set_starting_month(model_id, starting_month)
+    return {"message": f"Starting month set ({starting_month})"}
+
+
+@router.post(
     "/model/add",
     response_model=Model,
     tags=["model"],
@@ -286,7 +292,9 @@ async def retrieve_model_sheet_revenues(
     await _assert_model_exists(model_id)
     await _assert_access(current_user.id, model_id)
 
-    return await get_revenues_sheet(model_id)
+    model = await get_model_by_id(model_id)
+    sheet = await get_revenues_sheet(model_id)
+    return await unify_data(sheet, str(model.meta.workspace), model.meta.starting_month)
 
 
 @router.post(
@@ -312,10 +320,13 @@ async def update_model_sheet_revenues(
     # only editor can update sheet
     await _assert_access_can_edit(current_user.id, model_id)
 
-    assert sheet_data.meta.name == "Revenues"  # todo test, refactor
+    assert sheet_data.meta.name == "Revenues"
 
     await update_revenues_sheet(model_id, sheet_data)
-    return await get_revenues_sheet(model_id)
+
+    model = await get_model_by_id(model_id)
+    sheet = await get_revenues_sheet(model_id)
+    return await unify_data(sheet, str(model.meta.workspace), model.meta.starting_month)
 
 
 @router.get(
@@ -336,7 +347,9 @@ async def retrieve_model_sheet_costs(
     await _assert_model_exists(model_id)
     await _assert_access(current_user.id, model_id)
 
-    return await get_costs_sheet(model_id)
+    model = await get_model_by_id(model_id)
+    sheet = await get_costs_sheet(model_id)
+    return await unify_data(sheet, str(model.meta.workspace), model.meta.starting_month)
 
 
 @router.post(
@@ -361,10 +374,13 @@ async def update_model_sheet_costs(
     # only editor can update sheet
     await _assert_access_can_edit(current_user.id, model_id)
 
-    assert sheet_data.meta.name == "Costs"  # todo test, refactor
+    assert sheet_data.meta.name == "Costs"
 
     await update_costs_sheet(model_id, sheet_data)
-    return await get_costs_sheet(model_id)
+
+    model = await get_model_by_id(model_id)
+    sheet = await get_costs_sheet(model_id)
+    return await unify_data(sheet, str(model.meta.workspace), model.meta.starting_month)
 
 
 async def _assert_model_exists(model_id: str):

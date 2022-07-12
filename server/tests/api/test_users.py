@@ -61,8 +61,8 @@ def test_user_protected():
 def test_delete_user(access_token_zeus):
     client = TestClient(app)
 
-    response = client.post(
-        "/user/delete", headers={"Authorization": f"Bearer {access_token_zeus}"}
+    response = client.delete(
+        "/user", headers={"Authorization": f"Bearer {access_token_zeus}"}
     )
 
     assert response.status_code == status.HTTP_200_OK
@@ -71,8 +71,8 @@ def test_delete_user(access_token_zeus):
 
 def test_cannot_delete_user_who_is_workspace_admin(access_token):
     client = TestClient(app)
-    response = client.post(
-        "/user/delete", headers={"Authorization": f"Bearer {access_token}"}
+    response = client.delete(
+        "/user", headers={"Authorization": f"Bearer {access_token}"}
     )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -87,8 +87,8 @@ async def test_cannot_delete_user_who_is_model_admin(access_token, users, worksp
     await change_workspace_admin(wsp, user_id)
 
     client = TestClient(app)
-    response = client.post(
-        "/user/delete", headers={"Authorization": f"Bearer {access_token}"}
+    response = client.delete(
+        "/user", headers={"Authorization": f"Bearer {access_token}"}
     )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST

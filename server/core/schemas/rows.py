@@ -6,12 +6,12 @@ from pydantic import BaseModel, Field
 
 class IntegrationValue(BaseModel):
     date: date
-    value: str
+    value: str | None
 
 
 class Row(BaseModel):
     id: str = Field(
-        default_factory=lambda: str(uuid.uuid4()), alias="_id"
+        default_factory=lambda: str(int(uuid.uuid4())), alias="_id"
     )  # required to be able to reference between different variables
     name: str  # e.g. "Churn Rate" -> how is it called?
     val_type: Literal["number", "currency", "percentage"]  # how is it displayed?

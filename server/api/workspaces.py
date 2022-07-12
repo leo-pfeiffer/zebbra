@@ -29,9 +29,8 @@ from core.exceptions import (
     UniqueConstraintFailedException,
     BusinessLogicException,
 )
-from core.objects import PyObjectId
 from core.schemas.users import User
-from core.schemas.utils import InviteCode
+from core.schemas.utils import InviteCode, PyObjectId
 from core.schemas.workspaces import Workspace, WorkspaceUser
 from api.utils.dependencies import get_current_active_user, INVITE_CODE_EXPIRES_MINUTES
 
@@ -110,7 +109,7 @@ async def rename_workspace(
         )
 
 
-# POST add user to workspace todo test
+# POST add user to workspace
 @router.post("/workspace/add", response_model=Workspace, tags=["workspace"])
 async def add_to_workspace(
     user_id: PyObjectId,
@@ -125,7 +124,7 @@ async def add_to_workspace(
     return await get_workspace(workspace_id)
 
 
-# POST remove user from workspace todo test
+# POST remove user from workspace
 @router.post("/workspace/remove", response_model=Workspace, tags=["workspace"])
 async def remove_from_workspace(
     user_id: PyObjectId,
@@ -147,7 +146,7 @@ async def remove_from_workspace(
     return await get_workspace(workspace_id)
 
 
-# POST set another user as admin todo test
+# POST set another user as admin
 @router.post("/workspace/changeAdmin", response_model=Workspace, tags=["workspace"])
 async def change_admin(
     user_id: PyObjectId,

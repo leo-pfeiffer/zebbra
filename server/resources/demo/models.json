@@ -13,7 +13,7 @@
         "62bb11835529faba0704639a"
       ],
       "workspace": "62bc5706a40e85213c27ce29",
-      "starting_month": "2022-07-01"
+      "starting_month": "2020-01-01"
     },
     "sheets": [
       {
@@ -49,6 +49,18 @@
                 "value": "$-1 * 1.05",
                 "value_1": "100",
                 "integration_values": null
+              },
+              {
+                "name": "row2",
+                "val_type": "number",
+                "editable": true,
+                "var_type": "integration",
+                "time_series": true,
+                "starting_at": 0,
+                "first_value_diff": false,
+                "value": "Xero[Total Income]",
+                "value_1": null,
+                "integration_values": null
               }
             ],
             "end_row": {
@@ -72,6 +84,7 @@
         },
         "assumptions": [
           {
+            "_id": "83758019375384947449666262145172190889",
             "name": "assumption1",
             "val_type": "number",
             "editable": true,
@@ -89,6 +102,7 @@
             "name": "section1",
             "rows": [
               {
+                "_id": "269378395487633310845072415860332066579",
                 "name": "row1",
                 "val_type": "number",
                 "editable": true,
@@ -99,9 +113,23 @@
                 "value": "$-1 * 1.05",
                 "value_1": "100",
                 "integration_values": null
+              },
+              {
+                "_id": "220899290253998228835136291945093028215",
+                "name": "row2",
+                "val_type": "number",
+                "editable": true,
+                "var_type": "integration",
+                "time_series": true,
+                "starting_at": 0,
+                "first_value_diff": false,
+                "value": "Xero[Total Cost of Sales]",
+                "value_1": null,
+                "integration_values": null
               }
             ],
             "end_row": {
+                "_id": "60881972933690918304034110709075139213",
                 "name": "end_row",
                 "val_type": "number",
                 "editable": true,
@@ -132,7 +160,7 @@
         "62bb11835529faba0704639b"
       ],
       "workspace": "62bc5706a40e85213c27ce28",
-      "starting_month": "2022-07-01"
+      "starting_month": "2020-01-01"
     },
     "sheets": [
       {
@@ -141,6 +169,7 @@
         },
         "assumptions": [
           {
+            "_id": "269406866589441778238495038764779349592",
             "name": "assumption1",
             "val_type": "number",
             "editable": true,
@@ -158,6 +187,7 @@
             "name": "section1",
             "rows": [
               {
+                "_id": "141181939880141659151760477717611728249",
                 "name": "row1",
                 "val_type": "number",
                 "editable": true,
@@ -171,6 +201,7 @@
               }
             ],
             "end_row": {
+                "_id": "77281926655274663544154445802308552611",
                 "name": "end_row",
                 "val_type": "number",
                 "editable": true,
@@ -191,6 +222,7 @@
         },
         "assumptions": [
           {
+            "_id": "234817851327304216624111775035640888568",
             "name": "assumption1",
             "val_type": "number",
             "editable": true,
@@ -208,6 +240,7 @@
             "name": "section1",
             "rows": [
               {
+                "_id": "154014396970273800635032943872142491846",
                 "name": "row1",
                 "val_type": "number",
                 "editable": true,
@@ -221,6 +254,7 @@
               }
             ],
             "end_row": {
+                "_id": "119275764367570197178225826115654655639",
                 "name": "end_row",
                 "val_type": "number",
                 "editable": true,

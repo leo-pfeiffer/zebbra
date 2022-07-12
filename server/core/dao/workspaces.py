@@ -3,7 +3,7 @@ from fastapi.encoders import jsonable_encoder
 from core.exceptions import UniqueConstraintFailedException, DoesNotExistException
 from core.dao.database import db
 from core.dao.users import get_user, user_exists
-from core.objects import PyObjectId
+from core.schemas.utils import PyObjectId
 from core.schemas.workspaces import Workspace, WorkspaceUser
 
 

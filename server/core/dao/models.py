@@ -11,7 +11,7 @@ from core.exceptions import (
     CardinalityConstraintFailedException,
     BusinessLogicException,
 )
-from core.objects import PyObjectId
+from core.schemas.utils import PyObjectId
 from core.schemas.models import ModelMeta, UpdateModel, ModelUser, Model
 from core.schemas.sheets import Sheet, create_default_sheets
 from core.settings import get_settings
@@ -209,6 +209,13 @@ async def remove_editor_from_model(user_id: PyObjectId, model_id: str):
 
 async def set_name(model_id: str, name: str):
     await db.models.update_one({"_id": model_id}, {"$set": {"meta.name": name}})
+
+
+async def set_starting_month(model_id: str, starting_month: date):
+    string_date = starting_month.strftime("%Y-%m-%d")
+    await db.models.update_one(
+        {"_id": model_id}, {"$set": {"meta.starting_month": string_date}}
+    )
 
 
 async def create_model(admin_id: PyObjectId, model_name: str, workspace_id: PyObjectId):

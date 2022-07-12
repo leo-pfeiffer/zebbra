@@ -4,7 +4,7 @@ from datetime import date
 from bson import ObjectId
 from pydantic import BaseModel, Field
 
-from core.objects import PyObjectId
+from core.schemas.utils import PyObjectId
 from core.schemas.sheets import Sheet
 
 
@@ -15,6 +15,11 @@ class ModelMeta(BaseModel):
     viewers: list[PyObjectId]  # list of user_ids
     workspace: PyObjectId  # workspace id
     starting_month: date
+
+    class Config:
+        allow_population_by_field_name = True
+        arbitrary_types_allowed = True
+        json_encoders = {ObjectId: str}
 
 
 class Model(BaseModel):
