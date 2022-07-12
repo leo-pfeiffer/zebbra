@@ -268,7 +268,7 @@ export default {
                 //Get humanReadableInputValue and create storage value
 
                 const storageValue:string = useGetValueFromHumanReadable(this.humanReadableInputValue, this.assumption._id, this.variableSearchMap);
-                
+
                 const sheet = useRevenueState();
                 sheet.value.assumptions[this.assumptionIndex].time_series = this.isTimeSeries(storageValue);
                 sheet.value.assumptions[this.assumptionIndex].value = storageValue.toString();
@@ -284,7 +284,7 @@ export default {
                     //Update sheet values valuesToDisplay
                     const revenues = useRevenueState();
                     const assumptionValuesArrayState = useState<string[][]>('assumptionValues');
-                    var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(revenues.value.assumptions);;
+                    var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(revenues.value.assumptions);
                     assumptionValuesArrayState.value = assumptionValuesArray;
                     this.toggleInput();
                 } catch (e) {
