@@ -128,7 +128,7 @@ export const useFormulaParser = () => {
             }
 
             //run the string through the maths parser
-            const valueToDisplay: string = Math.floor(useMathParser(stringForParser)).toString();
+            const valueToDisplay: string = useMathParser(stringForParser).toString();
 
             //add the solution of maths parser to the valuesToDisplay string
             valuesToDisplay.push(valueToDisplay);

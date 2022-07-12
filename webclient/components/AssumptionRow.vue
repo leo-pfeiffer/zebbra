@@ -1,8 +1,7 @@
 <template>
     <div class="flex">
         <div class="flex">
-            <div class="text-xs py-2 px-2 border-t border-r border-zinc-300 min-w-[75px] max-w-[75px] h-full text-right" v-for="value in values">{{value}}</div>
-            <!-- <div class="text-xs py-2 px-2 border-t border-r border-zinc-300 min-w-[75px] max-w-[75px] h-full text-right">{{assumption.timeSeries}}</div> -->
+            <div class="text-xs py-2 px-2 border-t border-r border-zinc-300 min-w-[75px] max-w-[75px] h-full text-right" v-for="value in computedValues(values)">{{value}}</div>
         </div>
     </div>
 </template>
@@ -16,6 +15,30 @@ export default {
     },
     props: {
         values: Object as () => string[],
+    },
+    methods: {
+        computedValues(input:string[]) {
+            var output:string[] = [];
+
+            for(let i=0; i < input.length; i++) {
+                var value:string = input[i];
+                if(value.includes(".")) {
+                    var splittedValue = value.split(".");
+
+                    var valueWithDecimals;
+                    
+                    if(splittedValue[1].length > 2) {
+                        valueWithDecimals = Math.floor(+value);
+                    } else {
+                        valueWithDecimals = value;
+                    }
+                    output.push(valueWithDecimals);
+                } else {
+                    output.push(value);
+                }
+            }
+            return output;
+        }
     }
 }
 </script>
