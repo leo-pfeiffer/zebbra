@@ -82,7 +82,7 @@ const route = useRoute();
                 <div v-if="!valueInputSelected"
                     class="text-xs border-t border-r border-zinc-300 min-w-[125px] max-w-[125px] h-full w-full text-right">
                     <div @dblclick="toggleInput" class="h-full text-right text-xs py-2 px-2 border-r-2 border-zinc-300">
-                        <span class="bg-white">{{ outputValue }}</span>
+                        <span class="bg-white tabular-nums">{{ outputValue }}</span>
                     </div>
                 </div>
                 <div v-else
@@ -465,13 +465,9 @@ export default {
                 }
             } catch (e) {
                 if (this.assumption.var_type === "formula") {
-
                     return "Formula"
-
                 } else if (this.assumption.var_type === "integration") {
-
                     return "Integration"
-
                 } else {
                     return "!!";
                 }
