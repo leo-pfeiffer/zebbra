@@ -22,11 +22,11 @@ ADAPTERS: dict[IntegrationProvider, Callable[[str], FetchAdapter]] = {}
 INTEGRATION_OAUTH: dict[IntegrationProvider, IntegrationOAuth] = {}
 
 
-def _register_integration(adapter: FetchAdapter.__class__):
+def _register_adapter(adapter: FetchAdapter.__class__):
     ADAPTERS[adapter.integration()] = lambda workspace_id: adapter(workspace_id)
 
 
-def _register_integration_oauth(oauth: IntegrationOAuth):
+def _register_oauth(oauth: IntegrationOAuth):
     INTEGRATION_OAUTH[oauth.integration()] = oauth
 
 
@@ -34,7 +34,13 @@ def setup_integrations(app: FastAPI):
     """
     Run on application start to register applications etc.
     """
-    _register_integration(XeroFetchAdapter)
-    _register_integration_oauth(xero_integration_oauth)
 
-    app.include_router(xero_integration_oauth.router)
+    # register the FetchAdapter implementation *class* here
+    _register_adapter(XeroFetchAdapter)
+
+    # register the IntegrationOAuth implementation *instance* here
+    _register_oauth(xero_integration_oauth)
+
+    for integration_name in INTEGRATIONS:
+        router = INTEGRATION_OAUTH[integration_name].router
+        app.include_router(router)
