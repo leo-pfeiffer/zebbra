@@ -1,4 +1,4 @@
-import { ModelMeta, Model } from "~~/types/Model"
+import { ModelMeta } from "~~/types/Model"
 
 var modelMetaState:ModelMeta;
 
@@ -7,14 +7,14 @@ export const useModelMetaState = () => useState<ModelMeta>('modelMetaState', () 
 export const getModelMeta = async (modelId: string | string[]) => {
 
     const getModel = await useFetchAuth(
-        'http://localhost:8000/model', {
+        'http://localhost:8000/model/meta', {
             method: 'GET',
         params: {
             model_id: modelId
         }
     }
-    ).then((data: Model[]) => {
-        modelMetaState = data[0].meta;
+    ).then((data: ModelMeta) => {
+        modelMetaState = data;
     }).catch((error) => {
         console.log(error);
     });
