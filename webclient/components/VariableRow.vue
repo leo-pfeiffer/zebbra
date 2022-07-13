@@ -33,8 +33,6 @@ export default {
                     } else {
                         valueWithDecimals = value;
                     }
-                    console.log(value + " : " + valueWithDecimals);
-
                     output.push(valueWithDecimals);
                 } else {
                     output.push(value);
