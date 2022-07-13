@@ -74,7 +74,7 @@ const route = useRoute();
                             @click="toggleSettings">Cancel</button>
                         <button class="ml-2 bg-sky-600  drop-shadow-sm
                                 shadow-zinc-50 text-xs px-1.5 py-0.5 font-medium
-                                border border-sky-500 rounded text-neutral-100" @click="updateSettings">Update</button>
+                                border border-sky-500 rounded text-neutral-100" @click="$emit('updateSettings', variableIndex, value1, valType, startingAt); toggleSettings()">Update</button>
                     </div>
                 </div>
             </div>
@@ -201,86 +201,6 @@ export default {
                 this.deleteModalOpen = false;
             }
         },
-        async updateSettings() { //todo: generalise to be used on any sheet with any variables
-
-            const sheet = useRevenueState();
-
-            sheet.value.assumptions[this.variableIndex].val_type = this.valType;
-
-            //todo: get humanReadableInputValue and create storage value
-            /* if(this.value_1.length > 0) {
-
-                const storageValue1 = useGetHumanReadable(this.value_1, this.searchVariableMap);
-                sheet.value.assumptions[this.variableIndex].value_1 = this.storageValue1;
-
-            } else {
-                sheet.value.assumptions[this.variableIndex].value_1 = this.value1;
-            } */
-
-            //todo: del next line
-            sheet.value.assumptions[this.variableIndex].value_1 = this.value1;
-
-            var value1OnlySpaces:boolean;
-
-            try {
-                value1OnlySpaces = this.value1.trim().length === 0;
-            } catch(e) {
-                //if it returns an error it means value_1 is undefined
-                value1OnlySpaces = false;
-            }
-
-            if(this.value1 === undefined || this.value1 === "" || value1OnlySpaces) {
-                sheet.value.assumptions[this.variableIndex].value_1 = undefined;
-                sheet.value.assumptions[this.variableIndex].first_value_diff = false;
-            } else {
-                sheet.value.assumptions[this.variableIndex].first_value_diff = true;
-            }
-            sheet.value.assumptions[this.variableIndex].starting_at = this.startingAt;
-
-            try {
-                //update RevenueState
-                await updateRevenueState(this.route.params.modelId, sheet.value);
-                //Update sheet values valuesToDisplay
-                const revenues = useRevenueState();
-                const assumptionValuesArrayState = useState<string[][]>('assumptionValues');
-                var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(revenues.value.assumptions);;
-                assumptionValuesArrayState.value[this.variableIndex] = assumptionValuesArray[this.variableIndex];
-            } catch (e) {
-                console.log(e);
-                //retrieve actual stored sheet from DB
-                //if actual sheet and state match, if not update state to actual sheet
-                const actualSheet = await getRevenueState(this.route.params.modelId);
-                const sheet = useRevenueState();
-                if (!(actualSheet.assumptions[this.variableIndex].value === sheet.value.assumptions[this.variableIndex].value)) {
-                    sheet.value = actualSheet;
-                }
-            }
-            this.toggleSettings();
-        },
-        /* async deleteVariable() { //todo: generalise to be used on any sheet with any variables
-            //first directly change the state
-            const sheet = useRevenueState();
-            sheet.value.assumptions.splice(this.variableIndex, 1);
-            const assumptionValuesArrayState = useState<string[][]>('assumptionValues');
-            assumptionValuesArrayState.value.splice(this.variableIndex, 1);
-
-            //then update the backend
-            try {
-                await updateRevenueState(this.route.params.modelId, sheet.value);
-            } catch (e) {
-                console.log(e) //todo: throw error message
-                const actualSheet = await getRevenueState(this.route.params.modelId);
-                const sheet = useRevenueState();
-                if (!(actualSheet.assumptions.length === sheet.value.assumptions.length)) {
-                    sheet.value = actualSheet;
-                    const assumptionValuesArrayState = useState<string[][]>('assumptionValues');
-                    var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(actualSheet.assumptions);
-                    let index = assumptionValuesArray.length - 1;
-                    assumptionValuesArrayState.value.push(assumptionValuesArray[index])
-                }
-            }
-            this.toggleDeleteModal();
-        }, */
         addSearchItemToInputValue(key:string, searchTimeDiff:string) {
 
             var lastIndex = this.humanReadableInputValue.length - 1;
