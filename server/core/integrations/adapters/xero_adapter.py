@@ -34,16 +34,8 @@ class XeroFetchAdapter(FetchAdapter):
         """
 
         # check if we can use cache
-        actual_from_date = int(
-            datetime.combine(
-                self._last_of_same_month(self._get_last_month_with_31_days(from_date)),
-                datetime.min.time(),
-            )
-            .replace(tzinfo=timezone.utc)
-            .timestamp()
-        )
-
-        if cached := await self.get_cached(actual_from_date):
+        cache_date = self._cache_date(from_date)
+        if cached := await self.get_cached(cache_date):
             return cached
 
         # if no cache, retrieve from Xero API
@@ -55,7 +47,7 @@ class XeroFetchAdapter(FetchAdapter):
         data_batch = DataBatch(**merged)
 
         # cache result
-        await self.set_cached(data_batch, actual_from_date)
+        await self.set_cached(data_batch, cache_date)
 
         return data_batch
 

@@ -103,6 +103,19 @@ class FetchAdapter(ABC):
         day = monthrange(the_date.year, the_date.month)[1]
         return date(the_date.year, the_date.month, day)
 
+    @staticmethod
+    def _cache_date(from_date: date) -> int:
+        return int(
+            datetime.combine(
+                FetchAdapter._last_of_same_month(
+                    FetchAdapter._get_last_month_with_31_days(from_date)
+                ),
+                datetime.min.time(),
+            )
+            .replace(tzinfo=timezone.utc)
+            .timestamp()
+        )
+
     async def get_cached(self, from_date: int) -> DataBatch | None:
         """
         This method retrieves a cached data batch for a provided date
