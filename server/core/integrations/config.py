@@ -4,6 +4,7 @@ import re
 from fastapi import FastAPI
 from core.integrations.adapters.adapter import FetchAdapter
 from core.integrations.adapters.xero_adapter import XeroFetchAdapter
+from core.integrations.oauth.gusto_integration_oauth import gusto_integration_oauth
 from core.integrations.oauth.integration_oauth import IntegrationOAuth
 from core.integrations.oauth.xero_oauth import (
     xero_integration_oauth,
@@ -40,6 +41,7 @@ def setup_integrations(app: FastAPI):
 
     # register the IntegrationOAuth implementation *instance* here
     _register_oauth(xero_integration_oauth)
+    _register_oauth(gusto_integration_oauth)
 
     for integration_name in INTEGRATIONS:
         router = INTEGRATION_OAUTH[integration_name].router
