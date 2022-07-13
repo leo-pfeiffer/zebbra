@@ -87,7 +87,7 @@ const route = useRoute();
                 </div>
                 <div v-else
                     class="absolute text-xs border-zinc-300 min-w-[500px] max-w-[500px] h-full w-full text-right">
-                    <input v-show="valueInputSelected" autofocus @keydown.enter="updateValue" @keydown.esc="toggleInput"
+                    <input v-show="valueInputSelected" autofocus @keydown.enter="$emit('updateValue', humanReadableInputValue, variable._id, variableSearchMap, variableIndex); toggleInput()" @keydown.esc="toggleInput"
                         v-model="humanReadableInputValue"
                         class="border-t w-full py-2 px-2 font-mono font-sm focus:rounded-none focus:outline-green-600 border-r-2 border-zinc-300"
                         type=text>
@@ -199,85 +199,6 @@ export default {
                 this.deleteModalOpen = true;
             } else {
                 this.deleteModalOpen = false;
-            }
-        },
-        isTimeSeries(value: string) {
-            
-            if (value.includes("$")) {
-                return true;
-            } else if (value.includes("#") && !value.includes("$")) {
-
-                //create an array with all the refs in a variable string
-                var refsArray: string[] = [];
-
-                for (let i = 0; i < value.length; i++) {
-                    let char = value[i];
-                    if (char === "#") {
-                        var ref: string = ""; //empty string to store id (ie number after the #)
-                        var counter = 1;
-                        //only getting the numerical because only the ids are needed not the point in time (e.g. t-1)
-                        while (useFormulaParser().charIsNumerical(value[i + counter]) && (value[i + counter] != undefined)) {
-                            ref = ref + value[i + counter];
-                            counter++;
-                            if ((i + counter >= value.length)) {
-                                break;
-                            }
-                        }
-                        refsArray.push(ref);
-                        i = i + counter - 1;
-                    }
-                }
-
-                //for every ref check timeSeriesMap and return true if one is timeseries
-                for (let i = 0; i < refsArray.length; i++) {
-                    if (this.timeSeriesMap.get(refsArray[i])) {
-                        return true;
-                    }
-                }
-
-                return false;
-
-            } else {
-                return false;
-            }
-        },
-        async updateValue() { //todo: generalise to be used on any sheet with any variables
-            if (this.humanReadableInputValue.length > 0) {
-
-                //Get humanReadableInputValue and create storage value
-
-                const storageValue:string = useGetValueFromHumanReadable(this.humanReadableInputValue, this.variable._id, this.variableSearchMap);
-
-                const sheet = useRevenueState();
-                sheet.value.assumptions[this.variableIndex].time_series = this.isTimeSeries(storageValue);
-                sheet.value.assumptions[this.variableIndex].value = storageValue.toString();
-                if (storageValue.includes("+") || storageValue.includes("-") || storageValue.includes("*") || storageValue.includes("/") || storageValue.includes("-")) {
-                    sheet.value.assumptions[this.variableIndex].var_type = "formula";
-                } else {
-                    sheet.value.assumptions[this.variableIndex].var_type = "value";
-                }
-
-                try {
-                    //update RevenueState
-                    await updateRevenueState(this.route.params.modelId, sheet.value);
-                    //Update sheet values valuesToDisplay
-                    const revenues = useRevenueState();
-                    const assumptionValuesArrayState = useState<string[][]>('assumptionValues');
-                    var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(revenues.value.assumptions);
-                    assumptionValuesArrayState.value = assumptionValuesArray;
-                    this.toggleInput();
-                } catch (e) {
-                    console.log(e);
-                    //retrieve actual stored sheet from DB
-                    //if actual sheet and state match, if not update state to actual sheet
-                    const actualSheet = await getRevenueState(this.route.params.modelId);
-                    const sheet = useRevenueState();
-                    if (!(actualSheet.assumptions[this.variableIndex].value === sheet.value.assumptions[this.variableIndex].value)) {
-                        sheet.value = actualSheet;
-                    }
-                }
-            } else {
-                //todo:throw error
             }
         },
         async updateSettings() { //todo: generalise to be used on any sheet with any variables
