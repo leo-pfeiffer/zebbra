@@ -42,7 +42,7 @@ const assumptionValuesToDisplay = useState<string[][]>('assumptionValues');
                                 </form>
                             </div>
                         </div>
-                        <VariableRowHeader @update-value="updateAssumptionValue" @update-name="updateAssumptionName" @delete-variable="deleteAssumption" v-for="(assumption, index) in revenues.assumptions" :variable="assumption" :variableIndex="index" :timeSeriesMap="useVariableTimeSeriesMap(revenues.assumptions)" :variableSearchMap="useVariableSearchMap(revenues.assumptions)"></VariableRowHeader>
+                        <VariableRowHeader @update-value="updateAssumptionValue" @update-settings="updateAssumptionSettings" @update-name="updateAssumptionName" @delete-variable="deleteAssumption" v-for="(assumption, index) in revenues.assumptions" :variable="assumption" :variableIndex="index" :timeSeriesMap="useVariableTimeSeriesMap(revenues.assumptions)" :variableSearchMap="useVariableSearchMap(revenues.assumptions)"></VariableRowHeader>
                     </div>
                     <div class="overflow-x-auto">
                         <div class="flex mb-4">
@@ -151,9 +151,52 @@ export default {
                     //if actual sheet and state match, if not update state to actual sheet
                     const actualSheet = await getRevenueState(this.route.params.modelId);
                     const sheet = useRevenueState();
-                    if (!(actualSheet.assumptions[variableIndex].name === sheet.value.assumptions[this.variableIndex].name)) {
+                    if (!(actualSheet.assumptions[variableIndex].name === sheet.value.assumptions[variableIndex].name)) {
                         sheet.value = actualSheet;
                     }
+                }
+            }
+        },
+        async updateAssumptionSettings(variableIndex:number, value1Input:string, valTypeInput:string, startingAtInput:number) { //todo: generalise to be used on any sheet with any variables
+
+            const sheet = useRevenueState();
+
+            sheet.value.assumptions[variableIndex].val_type = valTypeInput;
+            sheet.value.assumptions[variableIndex].value_1 = value1Input;
+
+            var value1OnlySpaces:boolean;
+
+            try {
+                value1OnlySpaces = value1Input.trim().length === 0;
+            } catch(e) {
+                //if it returns an error it means value_1 is undefined
+                value1OnlySpaces = false;
+            }
+
+            if(value1Input === undefined || value1Input === "" || value1OnlySpaces) {
+                sheet.value.assumptions[variableIndex].value_1 = undefined;
+                sheet.value.assumptions[variableIndex].first_value_diff = false;
+            } else {
+                sheet.value.assumptions[variableIndex].first_value_diff = true;
+            }
+            sheet.value.assumptions[variableIndex].starting_at = startingAtInput;
+
+            try {
+                //update RevenueState
+                await updateRevenueState(this.route.params.modelId, sheet.value);
+                //Update sheet values valuesToDisplay
+                const revenues = useRevenueState();
+                const assumptionValuesArrayState = useState<string[][]>('assumptionValues');
+                var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(revenues.value.assumptions);;
+                assumptionValuesArrayState.value[variableIndex] = assumptionValuesArray[variableIndex];
+            } catch (e) {
+                console.log(e);
+                //retrieve actual stored sheet from DB
+                //if actual sheet and state match, if not update state to actual sheet
+                const actualSheet = await getRevenueState(this.route.params.modelId);
+                const sheet = useRevenueState();
+                if (!(actualSheet.assumptions[variableIndex].value === sheet.value.assumptions[variableIndex].value)) {
+                    sheet.value = actualSheet;
                 }
             }
         },
@@ -206,6 +249,8 @@ export default {
                         i = i + counter - 1;
                     }
                 }
+                
+                //TODO!!!!!!!!
 
                 //for every ref check timeSeriesMap and return true if one is timeseries
                 for (let i = 0; i < refsArray.length; i++) {
@@ -213,7 +258,6 @@ export default {
                         return true;
                     }
                 }
-
                 return false;
 
             } else {
@@ -223,7 +267,6 @@ export default {
     },
     mounted() {
         //return the display values for all the assumptions
-        //const model = useDummyModelState();
         const revenues = useRevenueState();
 
         //todo not only assumptions but all variables
