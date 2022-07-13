@@ -1,9 +1,11 @@
+import uuid
 from typing import Literal
 
 from datetime import date
 from bson import ObjectId
 from pydantic import BaseModel, Field
 
+from core.schemas.integrations import IntegrationProvider
 from core.schemas.utils import PyObjectId
 from core.schemas.sheets import Sheet
 
@@ -22,10 +24,25 @@ class ModelMeta(BaseModel):
         json_encoders = {ObjectId: str}
 
 
+class Employee(BaseModel):
+    id: str = Field(default_factory=lambda: str(int(uuid.uuid4())), alias="_id")
+    name: str
+    start_date: date
+    end_date: date | None
+    title: str
+    department: str
+    monthly_salary: int
+    from_integration: bool  # has this employee been imported from an integration?
+
+
 class Model(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     meta: ModelMeta
     sheets: list[Sheet]
+    employees: list[Employee] = []  # list of employees
+    hr_integrations: list[
+        IntegrationProvider
+    ] = []  # list of HR integrations whose employees to include
 
     class Config:
         allow_population_by_field_name = True
