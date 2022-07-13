@@ -87,7 +87,7 @@ const route = useRoute();
                 </div>
                 <div v-else
                     class="absolute text-xs border-zinc-300 min-w-[500px] max-w-[500px] h-full w-full text-right">
-                    <input v-show="valueInputSelected" autofocus @keydown.enter="$emit('updateValue', humanReadableInputValue, variable._id, variableSearchMap, variableIndex); toggleInput()" @keydown.esc="toggleInput"
+                    <input v-show="valueInputSelected" autofocus @keydown.enter="$emit('updateValue', humanReadableInputValue, variable._id, variableSearchMap, timeSeriesMap, variableIndex); toggleInput()" @keydown.esc="toggleInput"
                         v-model="humanReadableInputValue"
                         class="border-t w-full py-2 px-2 font-mono font-sm focus:rounded-none focus:outline-green-600 border-r-2 border-zinc-300"
                         type=text>

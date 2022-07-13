@@ -100,7 +100,7 @@ export default {
             }
 
         },
-        async updateAssumptionValue(humanReadableInputValue:string, variableId:string, variableSearchMap:Map<string, string>, variableIndex:number) { //todo: generalise to be used on any sheet with any variables
+        async updateAssumptionValue(humanReadableInputValue:string, variableId:string, variableSearchMap:Map<string, string>, timeSeriesMap:Map<string, boolean>, variableIndex:number) { //todo: generalise to be used on any sheet with any variables
             if (humanReadableInputValue.length > 0) {
 
                 //Get humanReadableInputValue and create storage value
@@ -108,7 +108,7 @@ export default {
                 const storageValue:string = useGetValueFromHumanReadable(humanReadableInputValue, variableId, variableSearchMap);
 
                 const sheet = useRevenueState();
-                sheet.value.assumptions[variableIndex].time_series = this.isTimeSeries(storageValue);
+                sheet.value.assumptions[variableIndex].time_series = this.isTimeSeries(storageValue, timeSeriesMap);
                 sheet.value.assumptions[variableIndex].value = storageValue.toString();
                 if (storageValue.includes("+") || storageValue.includes("-") || storageValue.includes("*") || storageValue.includes("/") || storageValue.includes("-")) {
                     sheet.value.assumptions[variableIndex].var_type = "formula";
@@ -223,7 +223,7 @@ export default {
                 }
             }
         },
-        isTimeSeries(value: string) {
+        isTimeSeries(value: string, timeSeriesMap:Map<string, boolean>) {
         
             if (value.includes("$")) {
                 return true;
@@ -249,12 +249,10 @@ export default {
                         i = i + counter - 1;
                     }
                 }
-                
-                //TODO!!!!!!!!
 
                 //for every ref check timeSeriesMap and return true if one is timeseries
                 for (let i = 0; i < refsArray.length; i++) {
-                    if (this.timeSeriesMap.get(refsArray[i])) {
+                    if (timeSeriesMap.get(refsArray[i])) {
                         return true;
                     }
                 }
