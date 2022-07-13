@@ -32,39 +32,39 @@ const route = useRoute();
                     <div class="text-zinc-900 font-medium mb-2">Variable Type</div>
                     <div class="grid grid-rows-2 grid-flow-col gap-x-1 gap-y-3 mb-3">
                         <div>
-                            <input v-model="valType" :checked="(valType == 'number')" :id="'number' + assumptionIndex"
-                                type="radio" value="number" :name="'variable-type-select' + assumptionIndex"
+                            <input v-model="valType" :checked="(valType == 'number')" :id="'number' + variableIndex"
+                                type="radio" value="number" :name="'variable-type-select' + variableIndex"
                                 class="hidden peer">
-                            <label :for="'number' + assumptionIndex"
+                            <label :for="'number' + variableIndex"
                                 class="px-1.5 py-0.5 bg-zinc-100 border border-zinc-300 text-zinc-700 rounded peer-checked:text-white peer-checked:bg-sky-600 peer-checked:border-sky-500"><i
                                     class="bi bi-hash mr-1"></i>Number</label>
                         </div>
                         <div>
                             <input v-model="valType" :checked="(valType == 'currency')"
-                                :id="'currency' + assumptionIndex" type="radio" value="currency"
-                                :name="'variable-type-select' + assumptionIndex" class="hidden peer">
-                            <label :for="'currency' + assumptionIndex"
+                                :id="'currency' + variableIndex" type="radio" value="currency"
+                                :name="'variable-type-select' + variableIndex" class="hidden peer">
+                            <label :for="'currency' + variableIndex"
                                 class="px-1.5 py-0.5 bg-zinc-100 border border-zinc-300 text-zinc-700 rounded peer-checked:text-white peer-checked:bg-sky-600 peer-checked:border-sky-500"><i
                                     class="bi bi-currency-dollar mr-1"></i>Currency</label>
                         </div>
                         <div>
                             <input v-model="valType" :checked="(valType == 'percentage')"
-                                :id="'percentage' + assumptionIndex" type="radio" value="percentage"
-                                :name="'variable-type-select' + assumptionIndex" class="hidden peer">
-                            <label :for="'percentage' + assumptionIndex"
+                                :id="'percentage' + variableIndex" type="radio" value="percentage"
+                                :name="'variable-type-select' + variableIndex" class="hidden peer">
+                            <label :for="'percentage' + variableIndex"
                                 class="px-1.5 py-0.5 bg-zinc-100 border border-zinc-300 text-zinc-700 rounded peer-checked:text-white peer-checked:bg-sky-600 peer-checked:border-sky-500"><i
                                     class="bi bi-percent mr-1"></i>Percentage</label>
                         </div>
                     </div>
                     <div class="text-zinc-900 font-medium mb-2">Custom starting value</div>
                     <div class="mb-3">
-                        <input v-model="value1" :id="'value1-input-' + assumptionIndex" type="text"
+                        <input v-model="value1" :id="'value1-input-' + variableIndex" type="text"
                             class="border-zinc-300 border rounded w-full font-mono px-2 py-1">
                     </div>
                     <div class="text-zinc-900 font-medium mb-2">Starting at</div>
                     <div class="mb-3 flex justify-start align-middle">
                         <div class="w-3/5">First month plus:</div>
-                        <div class="w-2/5"><input v-model="startingAt" :id="'starting-at-' + assumptionIndex" min="0"
+                        <div class="w-2/5"><input v-model="startingAt" :id="'starting-at-' + variableIndex" min="0"
                                 type="number"
                                 class="border-zinc-300 border rounded font-mono w-16 float-right px-2 py-1"></div>
                     </div>
@@ -140,7 +140,7 @@ export default {
     },
     props: {
         variable: Object as () => Variable,
-        assumptionIndex: Number,
+        variableIndex: Number,
         timeSeriesMap: Map,
         variableSearchMap: Map
     },
@@ -248,12 +248,12 @@ export default {
                 const storageValue:string = useGetValueFromHumanReadable(this.humanReadableInputValue, this.variable._id, this.variableSearchMap);
 
                 const sheet = useRevenueState();
-                sheet.value.assumptions[this.assumptionIndex].time_series = this.isTimeSeries(storageValue);
-                sheet.value.assumptions[this.assumptionIndex].value = storageValue.toString();
+                sheet.value.assumptions[this.variableIndex].time_series = this.isTimeSeries(storageValue);
+                sheet.value.assumptions[this.variableIndex].value = storageValue.toString();
                 if (storageValue.includes("+") || storageValue.includes("-") || storageValue.includes("*") || storageValue.includes("/") || storageValue.includes("-")) {
-                    sheet.value.assumptions[this.assumptionIndex].var_type = "formula";
+                    sheet.value.assumptions[this.variableIndex].var_type = "formula";
                 } else {
-                    sheet.value.assumptions[this.assumptionIndex].var_type = "value";
+                    sheet.value.assumptions[this.variableIndex].var_type = "value";
                 }
 
                 try {
@@ -271,7 +271,7 @@ export default {
                     //if actual sheet and state match, if not update state to actual sheet
                     const actualSheet = await getRevenueState(this.route.params.modelId);
                     const sheet = useRevenueState();
-                    if (!(actualSheet.assumptions[this.assumptionIndex].value === sheet.value.assumptions[this.assumptionIndex].value)) {
+                    if (!(actualSheet.assumptions[this.variableIndex].value === sheet.value.assumptions[this.variableIndex].value)) {
                         sheet.value = actualSheet;
                     }
                 }
@@ -283,20 +283,20 @@ export default {
 
             const sheet = useRevenueState();
 
-            sheet.value.assumptions[this.assumptionIndex].val_type = this.valType;
+            sheet.value.assumptions[this.variableIndex].val_type = this.valType;
 
             //todo: get humanReadableInputValue and create storage value
             /* if(this.value_1.length > 0) {
 
                 const storageValue1 = useGetHumanReadable(this.value_1, this.searchVariableMap);
-                sheet.value.assumptions[this.assumptionIndex].value_1 = this.storageValue1;
+                sheet.value.assumptions[this.variableIndex].value_1 = this.storageValue1;
 
             } else {
-                sheet.value.assumptions[this.assumptionIndex].value_1 = this.value1;
+                sheet.value.assumptions[this.variableIndex].value_1 = this.value1;
             } */
 
             //todo: del next line
-            sheet.value.assumptions[this.assumptionIndex].value_1 = this.value1;
+            sheet.value.assumptions[this.variableIndex].value_1 = this.value1;
 
             var value1OnlySpaces:boolean;
 
@@ -308,12 +308,12 @@ export default {
             }
 
             if(this.value1 === undefined || this.value1 === "" || value1OnlySpaces) {
-                sheet.value.assumptions[this.assumptionIndex].value_1 = undefined;
-                sheet.value.assumptions[this.assumptionIndex].first_value_diff = false;
+                sheet.value.assumptions[this.variableIndex].value_1 = undefined;
+                sheet.value.assumptions[this.variableIndex].first_value_diff = false;
             } else {
-                sheet.value.assumptions[this.assumptionIndex].first_value_diff = true;
+                sheet.value.assumptions[this.variableIndex].first_value_diff = true;
             }
-            sheet.value.assumptions[this.assumptionIndex].starting_at = this.startingAt;
+            sheet.value.assumptions[this.variableIndex].starting_at = this.startingAt;
 
             try {
                 //update RevenueState
@@ -322,14 +322,14 @@ export default {
                 const revenues = useRevenueState();
                 const assumptionValuesArrayState = useState<string[][]>('assumptionValues');
                 var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(revenues.value.assumptions);;
-                assumptionValuesArrayState.value[this.assumptionIndex] = assumptionValuesArray[this.assumptionIndex];
+                assumptionValuesArrayState.value[this.variableIndex] = assumptionValuesArray[this.variableIndex];
             } catch (e) {
                 console.log(e);
                 //retrieve actual stored sheet from DB
                 //if actual sheet and state match, if not update state to actual sheet
                 const actualSheet = await getRevenueState(this.route.params.modelId);
                 const sheet = useRevenueState();
-                if (!(actualSheet.assumptions[this.assumptionIndex].value === sheet.value.assumptions[this.assumptionIndex].value)) {
+                if (!(actualSheet.assumptions[this.variableIndex].value === sheet.value.assumptions[this.variableIndex].value)) {
                     sheet.value = actualSheet;
                 }
             }
@@ -340,7 +340,7 @@ export default {
             //todo: proper error handling
             if (this.newName.length > 0) {
                 const sheet = useRevenueState();
-                sheet.value.assumptions[this.assumptionIndex].name = this.newName;
+                sheet.value.assumptions[this.variableIndex].name = this.newName;
                 try {
                     await updateRevenueState(this.route.params.modelId, sheet.value);
                     this.toggleNameChange();
@@ -350,7 +350,7 @@ export default {
                     //if actual sheet and state match, if not update state to actual sheet
                     const actualSheet = await getRevenueState(this.route.params.modelId);
                     const sheet = useRevenueState();
-                    if (!(actualSheet.assumptions[this.assumptionIndex].name === sheet.value.assumptions[this.assumptionIndex].name)) {
+                    if (!(actualSheet.assumptions[this.variableIndex].name === sheet.value.assumptions[this.variableIndex].name)) {
                         sheet.value = actualSheet;
                     }
                 }
@@ -359,9 +359,9 @@ export default {
         async deleteVariable() {
             //first directly change the state
             const sheet = useRevenueState();
-            sheet.value.assumptions.splice(this.assumptionIndex, 1);
+            sheet.value.assumptions.splice(this.variableIndex, 1);
             const assumptionValuesArrayState = useState<string[][]>('assumptionValues');
-            assumptionValuesArrayState.value.splice(this.assumptionIndex, 1);
+            assumptionValuesArrayState.value.splice(this.variableIndex, 1);
 
             //then update the backend
             try {
