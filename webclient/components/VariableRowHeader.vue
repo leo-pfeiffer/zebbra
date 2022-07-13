@@ -154,7 +154,6 @@ export default {
         
         //set correct value_1 to be displayed
         if(this.variable.value_1 != "" || this.variable.value_1 != undefined) {
-            //todo: this.value1 = useGetReadableFormula(this.variable.value_1, this.variable._id, this.variableSearchMap);
             this.value1 = this.variable.value_1;
         } else {
             this.value1 = this.variable.value_1;

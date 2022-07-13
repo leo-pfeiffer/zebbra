@@ -21,8 +21,6 @@ const dates = useState('dates', () => useDateArray(new Date(+date[0], +date[1]-1
 
 const assumptionValuesToDisplay = useState<string[][]>('assumptionValues');
 
-//const assumptionVariableSearchMap = useState<Map<string, string>>('assumptionsVariableSearchMap');
-//assumptionVariableSearchMap.value = useVariableSearchMap(revenues.value.assumptions);
 
 </script>
 
@@ -85,7 +83,6 @@ export default {
             const revenues = useRevenueState();
             revenues.value.assumptions.push(emptyAssumption);
 
-            //todo not only assumptions but all variables
             const assumptionValuesArrayState = useState<string[][]>('assumptionValues');
             var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(revenues.value.assumptions);
             let index = assumptionValuesArray.length - 1;
@@ -100,7 +97,7 @@ export default {
             }
 
         },
-        async updateAssumptionValue(humanReadableInputValue:string, variableId:string, variableSearchMap:Map<string, string>, timeSeriesMap:Map<string, boolean>, variableIndex:number) { //todo: generalise to be used on any sheet with any variables
+        async updateAssumptionValue(humanReadableInputValue:string, variableId:string, variableSearchMap:Map<string, string>, timeSeriesMap:Map<string, boolean>, variableIndex:number) {
             if (humanReadableInputValue.length > 0) {
 
                 //Get humanReadableInputValue and create storage value
@@ -138,7 +135,7 @@ export default {
                 //todo:throw error
             }
         },
-        async updateAssumptionName(newName:string, variableIndex:number) { //todo: generalise to be used on any sheet with any variables
+        async updateAssumptionName(newName:string, variableIndex:number) {
             //todo: proper error handling
             if (newName.length > 0) {
                 const sheet = useRevenueState();
@@ -157,7 +154,7 @@ export default {
                 }
             }
         },
-        async updateAssumptionSettings(variableIndex:number, value1Input:string, valTypeInput:string, startingAtInput:number) { //todo: generalise to be used on any sheet with any variables
+        async updateAssumptionSettings(variableIndex:number, value1Input:string, valTypeInput:string, startingAtInput:number) {
 
             const sheet = useRevenueState();
 
@@ -200,7 +197,7 @@ export default {
                 }
             }
         },
-        async deleteAssumption(variableIndex:number) { //todo: generalise to be used on any sheet with any variables
+        async deleteAssumption(variableIndex:number) {
             //first directly change the state
             const sheet = useRevenueState();
             sheet.value.assumptions.splice(variableIndex, 1);
@@ -270,10 +267,6 @@ export default {
         //todo not only assumptions but all variables
         var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(revenues.value.assumptions);
         useState('assumptionValues', () => assumptionValuesArray);
-
-       /*  var assumptionVariableSearchMap:Map<string, string> = useVariableSearchMap(revenues.value.assumptions);
-        useState('assumptionsVariableSearchMap', () => assumptionVariableSearchMap);
-        //todo do same for all variables */
 
     }
 }
