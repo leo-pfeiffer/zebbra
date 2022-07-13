@@ -298,7 +298,16 @@ export default {
             //todo: del next line
             sheet.value.assumptions[this.assumptionIndex].value_1 = this.value1;
 
-            if(this.value1 === undefined || this.value1 === "" || this.value1.trim().length === 0) {
+            var value1OnlySpaces:boolean;
+
+            try {
+                value1OnlySpaces = this.value1.trim().length === 0;
+            } catch(e) {
+                //if it returns an error it means value_1 is undefined
+                value1OnlySpaces = false;
+            }
+
+            if(this.value1 === undefined || this.value1 === "" || value1OnlySpaces) {
                 sheet.value.assumptions[this.assumptionIndex].value_1 = undefined;
                 sheet.value.assumptions[this.assumptionIndex].first_value_diff = false;
             } else {
@@ -428,9 +437,9 @@ export default {
                     var calc2:string = useMathParser(calc1 + "*100").toFixed(2).toString();
                     const splitted: string[] = calc2.split(".");
                     if (splitted[1] === "00") {
-                        return splitted[0] + " %";
+                        return splitted[0] + "%";
                     } else {
-                        return calc2  + " %";
+                        return calc2  + "%";
                     }
                 } else if(this.valType === "currency") {
                     var output: string = useMathParser(this.assumption.value).toFixed(2).toString();
