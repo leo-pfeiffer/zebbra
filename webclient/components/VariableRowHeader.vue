@@ -14,7 +14,7 @@ const route = useRoute();
                         class="bi bi-percent"></i></span>
                 <span v-show="(valType === 'number')" class="mr-2 text-zinc-500"><i class="bi bi-hash"></i></span>
                 <span v-if="!nameChangeSelected" @dblclick="toggleNameChange">{{ variable.name }}</span>
-                <span v-else><input ref="name" @keydown.enter="updateName" @keydown.esc="toggleNameChange"
+                <span v-else><input ref="name" @keydown.enter="$emit('updateName', newName, variableIndex); toggleNameChange()" @keydown.esc="toggleNameChange"
                         v-model="newName"
                         class="bg-zinc-100/0 focus:border-b border-sky-600 focus:outline-none placeholder:text-zinc-500"
                         type="text" placeholder="Change variable name"></span>
@@ -170,6 +170,7 @@ export default {
     },
     methods: {
         toggleNameChange() {
+            console.log("togglename")
             if (!this.nameChangeSelected) {
                 this.nameChangeSelected = true;
             } else {
@@ -240,7 +241,7 @@ export default {
                 return false;
             }
         },
-        async updateValue() {
+        async updateValue() { //todo: generalise to be used on any sheet with any variables
             if (this.humanReadableInputValue.length > 0) {
 
                 //Get humanReadableInputValue and create storage value
@@ -279,7 +280,7 @@ export default {
                 //todo:throw error
             }
         },
-        async updateSettings() {
+        async updateSettings() { //todo: generalise to be used on any sheet with any variables
 
             const sheet = useRevenueState();
 
@@ -335,28 +336,7 @@ export default {
             }
             this.toggleSettings();
         },
-        async updateName() {
-
-            //todo: proper error handling
-            if (this.newName.length > 0) {
-                const sheet = useRevenueState();
-                sheet.value.assumptions[this.variableIndex].name = this.newName;
-                try {
-                    await updateRevenueState(this.route.params.modelId, sheet.value);
-                    this.toggleNameChange();
-                } catch (e) {
-                    console.log(e);
-                    //retrieve actual stored sheet from DB
-                    //if actual sheet and state match, if not update state to actual sheet
-                    const actualSheet = await getRevenueState(this.route.params.modelId);
-                    const sheet = useRevenueState();
-                    if (!(actualSheet.assumptions[this.variableIndex].name === sheet.value.assumptions[this.variableIndex].name)) {
-                        sheet.value = actualSheet;
-                    }
-                }
-            }
-        },
-        async deleteVariable() {
+        async deleteVariable() { //todo: generalise to be used on any sheet with any variables
             //first directly change the state
             const sheet = useRevenueState();
             sheet.value.assumptions.splice(this.variableIndex, 1);

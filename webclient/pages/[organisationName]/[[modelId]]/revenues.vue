@@ -42,7 +42,7 @@ const assumptionValuesToDisplay = useState<string[][]>('assumptionValues');
                                 </form>
                             </div>
                         </div>
-                        <VariableRowHeader v-for="(assumption, index) in revenues.assumptions" :variable="assumption" :variableIndex="index" :timeSeriesMap="useVariableTimeSeriesMap(revenues.assumptions)" :variableSearchMap="useVariableSearchMap(revenues.assumptions)"></VariableRowHeader>
+                        <VariableRowHeader @update-name="updateAssumptionName" v-for="(assumption, index) in revenues.assumptions" :variable="assumption" :variableIndex="index" :timeSeriesMap="useVariableTimeSeriesMap(revenues.assumptions)" :variableSearchMap="useVariableSearchMap(revenues.assumptions)"></VariableRowHeader>
                     </div>
                     <div class="overflow-x-auto">
                         <div class="flex mb-4">
@@ -66,7 +66,6 @@ export default {
     },
     methods: {
         async addAssumption(){
-
             const emptyAssumption:Variable = {
 
                 _id: undefined,
@@ -100,7 +99,26 @@ export default {
                 revenues.value = await getRevenueState(this.route.params.modelId)
             }
 
-        }
+        },
+        async updateAssumptionName(newName:string, variableIndex:number) { //todo: generalise to be used on any sheet with any variables
+            //todo: proper error handling
+            if (newName.length > 0) {
+                const sheet = useRevenueState();
+                sheet.value.assumptions[variableIndex].name = newName;
+                try {
+                    await updateRevenueState(this.route.params.modelId, sheet.value);
+                } catch (e) {
+                    console.log(e);
+                    //retrieve actual stored sheet from DB
+                    //if actual sheet and state match, if not update state to actual sheet
+                    const actualSheet = await getRevenueState(this.route.params.modelId);
+                    const sheet = useRevenueState();
+                    if (!(actualSheet.assumptions[variableIndex].name === sheet.value.assumptions[this.variableIndex].name)) {
+                        sheet.value = actualSheet;
+                    }
+                }
+            }
+        },
     },
     mounted() {
         //return the display values for all the assumptions
