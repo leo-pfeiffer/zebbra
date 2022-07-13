@@ -68,6 +68,7 @@ class XeroIntegrationOAuth(IntegrationOAuth):
         )
 
         token = await self._process_refresh_response(response, integration_access)
+
         # update token in DB
         await self._store_oauth_token(integration_access.workspace_id, token)
         return await get_integration_for_workspace(
