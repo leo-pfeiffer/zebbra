@@ -1,5 +1,5 @@
 import { expect, it, describe, beforeAll } from 'vitest';
-import { useGetValueFromHumanReadable } from '../composables/useGetValueFromHumanReadable';
+import { useGetValueFromHumanReadable } from '../methods/useGetValueFromHumanReadable';
 import { Variable } from '../types/Model';
 
 describe('useGetValueFromHumanReadable Tests', () => {

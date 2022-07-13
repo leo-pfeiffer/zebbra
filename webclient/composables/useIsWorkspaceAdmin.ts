@@ -1,16 +1,15 @@
-import { useFetchAuth } from "./useFetchAuth"
-
+import { useFetchAuth } from "~~/methods/useFetchAuth";
 import { GetUserResponse } from "~~/types/GetUserResponse";
 import { GetWorkspaceResponse } from "~~/types/GetWorkspaceResponse";
 
-export const useIsWorkspaceAdmin = async (backendUrlBase:string) => {
+export const useIsWorkspaceAdmin = async () => {
 
     var userId: String;
     var adminId: String;
 
     //get the username and store it
     const getUserUsername = await useFetchAuth(
-        backendUrlBase + '/user',{ method: 'GET'}
+        '/user',{ method: 'GET'}
         ).then((data:GetUserResponse) => {
             userId = data._id;
 
@@ -20,7 +19,7 @@ export const useIsWorkspaceAdmin = async (backendUrlBase:string) => {
     
     //get the admins username and store it
     const getAdminUsername = await useFetchAuth(
-        backendUrlBase + '/workspace',{ method: 'GET'}
+        '/workspace',{ method: 'GET'}
     ).then((data:GetWorkspaceResponse) => {
         //get first workspace in response (user can only have one workspace)
         adminId = data[0].admin;

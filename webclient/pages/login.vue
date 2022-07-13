@@ -47,6 +47,9 @@ const config = useRuntimeConfig();
 
 <script lang="ts">
 
+import { useFetchAuth } from "~~/methods/useFetchAuth";
+import { useToken } from "~~/methods/useToken";
+
 import { PostTokenResponse } from "~~/types/PostTokenResponse";
 import { GetUserResponse} from "~~/types/GetUserResponse";
 
@@ -89,7 +92,7 @@ export default {
       if(token != undefined) {
 
         const getUserWorkspace = await useFetchAuth(
-        `${this.config.public.backendUrlBase}/user`,{ method: 'GET'}
+        '/user',{ method: 'GET'}
         ).then((data:GetUserResponse) => {
           navigateTo({ path: "/"+`${data.workspaces[0].name}` });
         }).catch((error) => {

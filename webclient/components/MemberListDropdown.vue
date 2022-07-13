@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-const config = useRuntimeConfig()
+const user = useUserState();
 
 </script>
 
@@ -68,6 +68,8 @@ const config = useRuntimeConfig()
 
 <script lang="ts">
 
+import { useFetchAuth } from '~~/methods/useFetchAuth';
+
 export default {
 
     data() {
@@ -102,15 +104,13 @@ export default {
             }
         },
         async deleteUser() {
-
-            const user = useUserState();
             
             const removeUser = await useFetchAuth(
-            `${this.config.backendUrlBase}/workspace/remove`, {
+            '/workspace/remove', {
                 method: 'POST',
             params: {
                 user_id: this.userId,
-                workspace_id: user.value.workspaces[0]._id
+                workspace_id: this.user.workspaces[0]._id
             }
             }
             ).then((data) => {
@@ -133,15 +133,13 @@ export default {
             }
         },
         async makeUserAdmin(){
-
-            const user = useUserState();
             
             const makeUserAdmin = await useFetchAuth(
-            `${this.config.public.backendUrlBase}/workspace/changeAdmin`, {
+            '/workspace/changeAdmin', {
                 method: 'POST',
             params: {
                 user_id: this.userId,
-                workspace_id: user.value.workspaces[0]._id
+                workspace_id: this.user.workspaces[0]._id
             }
             }
             ).then((data) => {

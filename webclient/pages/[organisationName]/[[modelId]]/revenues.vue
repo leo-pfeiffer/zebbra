@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import { Variable } from '~~/types/Model';
+import { Sheet, Variable } from '~~/types/Model';
+import { useVariableSearchMap } from '~~/methods/useVariableSearchMap';
+import { useVariableTimeSeriesMap } from '~~/methods/useVariableTimeSeriesMap';
+import { useSheetUpdate } from '~~/methods/useSheetUpdate';
 
 definePageMeta({
     middleware: ["auth", "route-check"]
 })
 
-const config = useRuntimeConfig();
-
 const route = useRoute()
-//const user = useUserState();
 
 const modelMeta = useModelMetaState();
 
-modelMeta.value = await getModelMeta(config.public.backendUrlBase, route.params.modelId);
+modelMeta.value = await getModelMeta(route.params.modelId);
 
-const revenues = useRevenueState();
-revenues.value = await getRevenueState(config.public.backendUrlBase, route.params.modelId);
+const revenueState = useRevenueState();
+revenueState.value = await useSheetUpdate().getRevenueSheet(route.params.modelId);
 
 //todo: find better solution
 const date:string[] = modelMeta.value.starting_month.split("-");
@@ -42,7 +42,7 @@ const assumptionValuesToDisplay = useState<string[][]>('assumptionValues');
                                 </form>
                             </div>
                         </div>
-                        <VariableRowHeader @update-value="updateAssumptionValue" @update-settings="updateAssumptionSettings" @update-name="updateAssumptionName" @delete-variable="deleteAssumption" v-for="(assumption, index) in revenues.assumptions" :variable="assumption" :variableIndex="index" :timeSeriesMap="useVariableTimeSeriesMap(revenues.assumptions)" :variableSearchMap="useVariableSearchMap(revenues.assumptions)"></VariableRowHeader>
+                        <VariableRowHeader @update-value="updateAssumptionValue" @update-settings="updateAssumptionSettings" @update-name="updateAssumptionName" @delete-variable="deleteAssumption" v-for="(assumption, index) in revenueState.assumptions" :variable="assumption" :variableIndex="index" :timeSeriesMap="useVariableTimeSeriesMap(revenueState.assumptions)" :variableSearchMap="useVariableSearchMap(revenueState.assumptions)"></VariableRowHeader>
                     </div>
                     <div class="overflow-x-auto">
                         <div class="flex mb-4">
@@ -59,6 +59,10 @@ const assumptionValuesToDisplay = useState<string[][]>('assumptionValues');
 </template>
 
 <script lang="ts">
+
+import { useFormulaParser } from '~~/methods/useFormulaParser';
+import { useGetValueFromHumanReadable } from '~~/methods/useGetValueFromHumanReadable';
+
 export default {
     data() {
         return {
@@ -82,20 +86,19 @@ export default {
 
             }
 
-            const revenues = useRevenueState();
-            revenues.value.assumptions.push(emptyAssumption);
+            this.revenueState.assumptions.push(emptyAssumption);
 
             const assumptionValuesArrayState = useState<string[][]>('assumptionValues');
-            var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(revenues.value.assumptions);
+            var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(this.revenueState.assumptions);
             let index = assumptionValuesArray.length - 1;
             assumptionValuesArrayState.value.push(assumptionValuesArray[index])
 
             //todo: proper error handling
             try {
-                await updateRevenueState(this.config.public.backendUrlBase, this.route.params.modelId, revenues.value);
+                await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
             } catch(e) {
                 console.log(e)
-                revenues.value = await getRevenueState(this.config.public.backendUrlBase, this.route.params.modelId)
+                this.revenueState = await useSheetUpdate().getRevenueSheet(this.route.params.modelId)
             }
 
         },
@@ -106,31 +109,28 @@ export default {
 
                 const storageValue:string = useGetValueFromHumanReadable(humanReadableInputValue, variableId, variableSearchMap);
 
-                const sheet = useRevenueState();
-                sheet.value.assumptions[variableIndex].time_series = this.isTimeSeries(storageValue, timeSeriesMap);
-                sheet.value.assumptions[variableIndex].value = storageValue.toString();
+                this.revenueState.assumptions[variableIndex].time_series = this.isTimeSeries(storageValue, timeSeriesMap);
+                this.revenueState.assumptions[variableIndex].value = storageValue.toString();
                 if (storageValue.includes("+") || storageValue.includes("-") || storageValue.includes("*") || storageValue.includes("/") || storageValue.includes("-")) {
-                    sheet.value.assumptions[variableIndex].var_type = "formula";
+                    this.revenueState.assumptions[variableIndex].var_type = "formula";
                 } else {
-                    sheet.value.assumptions[variableIndex].var_type = "value";
+                    this.revenueState.assumptions[variableIndex].var_type = "value";
                 }
 
                 try {
                     //update RevenueState
-                    await updateRevenueState(this.config.public.backendUrlBase, this.route.params.modelId, sheet.value);
+                    await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
                     //Update sheet values valuesToDisplay
-                    const revenues = useRevenueState();
                     const assumptionValuesArrayState = useState<string[][]>('assumptionValues');
-                    var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(revenues.value.assumptions);
+                    var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(this.revenueState.assumptions);
                     assumptionValuesArrayState.value = assumptionValuesArray;
                 } catch (e) {
                     console.log(e);
                     //retrieve actual stored sheet from DB
                     //if actual sheet and state match, if not update state to actual sheet
-                    const actualSheet = await getRevenueState(this.config.public.backendUrlBase, this.route.params.modelId);
-                    const sheet = useRevenueState();
-                    if (!(actualSheet.assumptions[variableIndex].value === sheet.value.assumptions[variableIndex].value)) {
-                        sheet.value = actualSheet;
+                    const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
+                    if (!(this.revenue.assumptions[variableIndex].value === this.revenue.assumptions[variableIndex].value)) {
+                        this.revenue.value = actualSheet;
                     }
                 }
             } else {
@@ -143,25 +143,22 @@ export default {
                 const sheet = useRevenueState();
                 sheet.value.assumptions[variableIndex].name = newName;
                 try {
-                    await updateRevenueState(this.config.public.backendUrlBase, this.route.params.modelId, sheet.value);
+                    await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
                 } catch (e) {
                     console.log(e);
                     //retrieve actual stored sheet from DB
                     //if actual sheet and state match, if not update state to actual sheet
-                    const actualSheet = await getRevenueState(this.public.backendUrlBase, this.route.params.modelId);
-                    const sheet = useRevenueState();
-                    if (!(actualSheet.assumptions[variableIndex].name === sheet.value.assumptions[variableIndex].name)) {
-                        sheet.value = actualSheet;
+                    const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
+                    if (!(this.revenue.assumptions[variableIndex].value === this.revenue.assumptions[variableIndex].value)) {
+                        this.revenue.value = actualSheet;
                     }
                 }
             }
         },
         async updateAssumptionSettings(variableIndex:number, value1Input:string, valTypeInput:string, startingAtInput:number) {
 
-            const sheet = useRevenueState();
-
-            sheet.value.assumptions[variableIndex].val_type = valTypeInput;
-            sheet.value.assumptions[variableIndex].value_1 = value1Input;
+            this.revenueState.assumptions[variableIndex].val_type = valTypeInput;
+            this.revenueState.assumptions[variableIndex].value_1 = value1Input;
 
             var value1OnlySpaces:boolean;
 
@@ -173,48 +170,44 @@ export default {
             }
 
             if(value1Input === undefined || value1Input === "" || value1OnlySpaces) {
-                sheet.value.assumptions[variableIndex].value_1 = undefined;
-                sheet.value.assumptions[variableIndex].first_value_diff = false;
+                this.revenueState.assumptions[variableIndex].value_1 = undefined;
+                this.revenueState.assumptions[variableIndex].first_value_diff = false;
             } else {
-                sheet.value.assumptions[variableIndex].first_value_diff = true;
+                this.revenueState.assumptions[variableIndex].first_value_diff = true;
             }
-            sheet.value.assumptions[variableIndex].starting_at = startingAtInput;
+            this.revenueState.assumptions[variableIndex].starting_at = startingAtInput;
 
             try {
                 //update RevenueState
-                await updateRevenueState(this.config.public.backendUrlBase, this.route.params.modelId, sheet.value);
+                await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
                 //Update sheet values valuesToDisplay
-                const revenues = useRevenueState();
                 const assumptionValuesArrayState = useState<string[][]>('assumptionValues');
-                var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(revenues.value.assumptions);;
+                var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(this.revenueState.assumptions);;
                 assumptionValuesArrayState.value[variableIndex] = assumptionValuesArray[variableIndex];
             } catch (e) {
                 console.log(e);
                 //retrieve actual stored sheet from DB
                 //if actual sheet and state match, if not update state to actual sheet
-                const actualSheet = await getRevenueState(this.config.public.backendUrlBase, this.route.params.modelId);
-                const sheet = useRevenueState();
-                if (!(actualSheet.assumptions[variableIndex].value === sheet.value.assumptions[variableIndex].value)) {
-                    sheet.value = actualSheet;
+                const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
+                if (!(this.revenue.assumptions[variableIndex].value === this.revenue.assumptions[variableIndex].value)) {
+                    this.revenue.value = actualSheet;
                 }
             }
         },
         async deleteAssumption(variableIndex:number) {
             //first directly change the state
-            const sheet = useRevenueState();
-            sheet.value.assumptions.splice(variableIndex, 1);
+            this.revenueState.assumptions.splice(variableIndex, 1);
             const assumptionValuesArrayState = useState<string[][]>('assumptionValues');
             assumptionValuesArrayState.value.splice(variableIndex, 1);
 
             //then update the backend
             try {
-                await updateRevenueState(this.config.public.backendUrlBase, this.route.params.modelId, sheet.value);
+                await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
             } catch (e) {
                 console.log(e) //todo: throw error message
-                const actualSheet = await getRevenueState(this.config.public.backendUrlBase, this.route.params.modelId);
-                const sheet = useRevenueState();
-                if (!(actualSheet.assumptions.length === sheet.value.assumptions.length)) {
-                    sheet.value = actualSheet;
+                const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
+                if (!(actualSheet.assumptions.length === this.revenueState.assumptions.length)) {
+                    this.revenueState = actualSheet;
                     const assumptionValuesArrayState = useState<string[][]>('assumptionValues');
                     var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(actualSheet.assumptions);
                     let index = assumptionValuesArray.length - 1;

@@ -1,13 +1,14 @@
-import { GetUserResponse } from "~~/types/GetUserResponse"
+import { useFetchAuth } from "~~/methods/useFetchAuth";
+import { GetUserResponse } from "~~/types/GetUserResponse";
 
 var userInfo:GetUserResponse;
 
 export const useUserState = () => useState<GetUserResponse>('userState', () => userInfo);
 
-export const updateUserState = async (backendUrlBase:string) => {
+export const updateUserState = async () => {
   
     const request = await useFetchAuth(
-      backendUrlBase + '/user',{ method: 'GET'}
+      '/user',{ method: 'GET'}
         ).then((data:GetUserResponse) => {
           userInfo = data;
         }).catch((error) => {

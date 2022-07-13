@@ -1,9 +1,8 @@
 <script setup>
+
 definePageMeta({
   middleware: ["auth", "route-check"]
 })
-
-const config = useRuntimeConfig();
 
 </script>
 
@@ -115,6 +114,10 @@ const config = useRuntimeConfig();
 </template>
 
 <script>
+
+import { useFetchAuth } from '~~/methods/useFetchAuth';
+import { useLogout } from '~~/methods/useLogout';
+
 export default {
   data() {
     return {
@@ -143,7 +146,6 @@ export default {
     this.user.lastName = userState.value.last_name;
     this.user.email = userState.value.username;
 
-
   },
   methods: {
     async updateUserInformation() {
@@ -153,7 +155,7 @@ export default {
       this.showSuccessPersonalInfo = false;
 
       const data = await useFetchAuth(
-        `${this.config.public.backendUrlBase}/user/update`,{ method: 'POST', 
+        '/user/update',{ method: 'POST', 
         params: {
           username: this.user.email,
           first_name: this.user.firstName,
@@ -180,7 +182,7 @@ export default {
       this.showSuccessPassword = false;
 
       const data = await useFetchAuth(
-        `${this.config.public.backendUrlBase}/user/update`,{ method: 'POST', 
+        '/user/update',{ method: 'POST', 
         params: {
           password: this.user.password
           }}
@@ -206,7 +208,7 @@ export default {
     async deleteAccount() {
 
       const data = await useFetchAuth(
-        `${this.config.public.backendUrlBase}/user/delete`,{ method: 'POST', 
+        '/user/delete',{ method: 'POST', 
         }).then((data) => {
           console.log(data)
           useLogout();

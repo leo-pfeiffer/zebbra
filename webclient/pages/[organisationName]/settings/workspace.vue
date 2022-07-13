@@ -44,6 +44,9 @@ const config = useRuntimeConfig();
 </template>
 
 <script>
+
+import { useFetchAuth } from '~~/methods/useFetchAuth';
+
 export default {
   data() {
     return {
@@ -59,7 +62,7 @@ export default {
   }, async beforeMount() {
     //check if user is admin
 
-    this.userIsWorkspaceAdmin = await useIsWorkspaceAdmin(this.config.public.backendUrlBase);
+    this.userIsWorkspaceAdmin = await useIsWorkspaceAdmin();
 
     //get workspace name from userState
     const userState = useUserState();
@@ -75,7 +78,7 @@ export default {
       this.showSuccess = false;
 
       const data = await useFetchAuth(
-        `${this.config.public.backendUrlBase}/workspace/rename`, {
+        '/workspace/rename', {
           method: 'POST',
         params: {
           workspace_id: this.workspace._id,

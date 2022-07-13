@@ -1,13 +1,14 @@
+import { useFetchAuth } from "~~/methods/useFetchAuth";
 import { ModelMeta } from "~~/types/Model"
 
 var modelMetaState:ModelMeta;
 
 export const useModelMetaState = () => useState<ModelMeta>('modelMetaState', () => modelMetaState);
 
-export const getModelMeta = async (backendUrlBase:string, modelId: string | string[]) => {
+export const getModelMeta = async (modelId: string | string[]) => {
 
     const getModel = await useFetchAuth(
-        backendUrlBase + '/model/meta', {
+        '/model/meta', {
             method: 'GET',
         params: {
             model_id: modelId

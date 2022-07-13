@@ -70,6 +70,8 @@ const user = useUserState();
 
 <script lang="ts">
 
+import { useFetchAuth } from "~~/methods/useFetchAuth";
+
 import { WorkspaceUser } from "~~/types/WorkspaceUser";
 import { GetWorkspaceInviteCodeResponse } from "~~/types/GetWorkspaceInviteCodeResponse";
 
@@ -86,11 +88,11 @@ export default {
   async beforeMount() {
 
     //check if user is admin
-    this.userIsWorkspaceAdmin = await useIsWorkspaceAdmin(this.config.public.backendUrlBase);
+    this.userIsWorkspaceAdmin = await useIsWorkspaceAdmin();
     const user = useUserState();
 
     const getWorkspaceMembers = await useFetchAuth(
-      `${this.config.public.backendUrlBase}/workspace/users`, {
+      '/workspace/users', {
       method: 'GET',
       params: {
         workspace_id: user.value.workspaces[0]._id
@@ -105,7 +107,7 @@ export default {
 
     if (this.userIsWorkspaceAdmin) {
       const getInviteCode = await useFetchAuth(
-        `${this.config.public.backendUrlBase}/workspace/inviteCode`, {
+        '/workspace/inviteCode', {
         method: 'POST',
         params: {
           workspace_id: user.value.workspaces[0]._id

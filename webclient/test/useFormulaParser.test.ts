@@ -1,6 +1,6 @@
 import { expect, it, describe } from 'vitest';
 
-import { useFormulaParser } from '../composables/useFormulaParser';
+import { useFormulaParser } from '../methods/useFormulaParser';
 
 import { Variable } from "~~/types/Model";
 

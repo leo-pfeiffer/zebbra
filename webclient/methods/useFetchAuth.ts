@@ -1,9 +1,15 @@
 //adapted from: https://github.com/nuxt/framework/discussions/3801
 
+import { useBackendBaseUrl } from "./useBackendBaseUrl";
+
+import { useToken } from "./useToken";
+
 import { FetchOptions } from "ohmyfetch";
 import { GetTokenExpiredResponse } from "~~/types/GetTokenExpiredResponse";
 
 export const useFetchAuth = async (url: string, opts?: FetchOptions) => {
+
+  const backendBaseUrl = useBackendBaseUrl();
 
   const token = useToken().getToken();
 
@@ -13,7 +19,7 @@ export const useFetchAuth = async (url: string, opts?: FetchOptions) => {
   };
 
   //todo:update
-  const logoutIfTokenIsExpired = await $fetch('http://localhost:8000/token/expired', {
+  const logoutIfTokenIsExpired = await $fetch(`${backendBaseUrl}/token/expired`, {
     method: 'GET', headers
   }).then((data:GetTokenExpiredResponse) => {
     console.log("Checking AuthToken");
@@ -32,5 +38,5 @@ export const useFetchAuth = async (url: string, opts?: FetchOptions) => {
   }
   )
 
-  return $fetch(url, { ...opts, headers });
+  return $fetch(backendBaseUrl + url, { ...opts, headers });
 };

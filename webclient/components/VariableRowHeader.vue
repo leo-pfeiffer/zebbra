@@ -123,6 +123,8 @@ const route = useRoute();
 <script lang="ts">
 
 import { Variable } from "~~/types/Model"
+import { useGetHumanReadableFormula } from "~~/methods/useGetHumanReadableFormula";
+import { useMathParser } from "~~/methods/useMathParser";
 
 export default {
     data() {
