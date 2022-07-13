@@ -1,3 +1,4 @@
+from core.integrations.adapters.gusto_adapter import GustoFetchAdapter
 from core.schemas.utils import DataBatch
 from core.integrations.adapters.xero_adapter import XeroFetchAdapter
 from tests.factory import _read_json
@@ -68,3 +69,10 @@ def test_merge_batches():
         assert True
     except ValueError:
         assert False
+
+
+def test_process_employees():
+    batch = _read_json("resources/gusto_employees.json")
+    processed = GustoFetchAdapter("")._process_employees(batch)
+    assert True
+    # todo add actual test
