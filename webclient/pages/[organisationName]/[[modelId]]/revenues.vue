@@ -21,7 +21,7 @@ revenueState.value = await useSheetUpdate().getRevenueSheet(route.params.modelId
 const date:string[] = modelMeta.value.starting_month.split("-");
 const dates = useState('dates', () => useDateArray(new Date(+date[0], +date[1]-1)));
 
-const assumptionValuesToDisplay = useState<string[][]>('assumptionValues');
+const assumptionValuesToDisplayState = useState<string[][]>('assumptionValues');
 
 
 </script>
@@ -49,7 +49,7 @@ const assumptionValuesToDisplay = useState<string[][]>('assumptionValues');
                             <div class="text-xs py-2 px-2 border-y border-r border-zinc-300 min-w-[75px] max-w-[75px] text-center uppercase bg-zinc-100 text-zinc-700"
                                 v-for="date in dates">{{ date }}</div>
                         </div>
-                        <VariableRow v-for="assumptionValues in assumptionValuesToDisplay" :values="assumptionValues" :round-to="2"></VariableRow>
+                        <VariableRow v-for="assumptionValues in assumptionValuesToDisplayState" :values="assumptionValues" :round-to="2"></VariableRow>
                     </div>
                 </div>
                 <div class="mt-2"><button class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-xs pl-2.5 pr-3 py-1 border border-zinc-300 rounded text-zinc-700" @click="addAssumption">Add Assumption</button></div>
@@ -121,9 +121,7 @@ export default {
                     //update RevenueState
                     await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
                     //Update sheet values valuesToDisplay
-                    const assumptionValuesArrayState = useState<string[][]>('assumptionValues');
-                    var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(this.revenueState.assumptions);
-                    assumptionValuesArrayState.value = assumptionValuesArray;
+                    this.assumptionValuesToDisplayState = useFormulaParser().getSheetRowValues(this.revenueState.assumptions);
                 } catch (e) {
                     console.log(e);
                     //retrieve actual stored sheet from DB
@@ -181,9 +179,7 @@ export default {
                 //update RevenueState
                 await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
                 //Update sheet values valuesToDisplay
-                const assumptionValuesArrayState = useState<string[][]>('assumptionValues');
-                var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(this.revenueState.assumptions);;
-                assumptionValuesArrayState.value[variableIndex] = assumptionValuesArray[variableIndex];
+                this.assumptionValuesToDisplayState = useFormulaParser().getSheetRowValues(this.revenueState.assumptions);
             } catch (e) {
                 console.log(e);
                 //retrieve actual stored sheet from DB
@@ -197,8 +193,7 @@ export default {
         async deleteAssumption(variableIndex:number) {
             //first directly change the state
             this.revenueState.assumptions.splice(variableIndex, 1);
-            const assumptionValuesArrayState = useState<string[][]>('assumptionValues');
-            assumptionValuesArrayState.value.splice(variableIndex, 1);
+            this.assumptionValuesToDisplayState.splice(variableIndex, 1);
 
             //then update the backend
             try {
@@ -208,10 +203,9 @@ export default {
                 const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
                 if (!(actualSheet.assumptions.length === this.revenueState.assumptions.length)) {
                     this.revenueState = actualSheet;
-                    const assumptionValuesArrayState = useState<string[][]>('assumptionValues');
-                    var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(actualSheet.assumptions);
-                    let index = assumptionValuesArray.length - 1;
-                    assumptionValuesArrayState.value.push(assumptionValuesArray[index])
+                    var actualAssumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(actualSheet.assumptions);
+                    let index = actualAssumptionValuesArray.length - 1;
+                    this.assumptionValuesToDisplayState.push(actualAssumptionValuesArray[index])
                 }
             }
         },
