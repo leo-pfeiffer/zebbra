@@ -49,7 +49,7 @@ const assumptionValuesToDisplay = useState<string[][]>('assumptionValues');
                             <div class="text-xs py-2 px-2 border-y border-r border-zinc-300 min-w-[75px] max-w-[75px] text-center uppercase bg-zinc-100 text-zinc-700"
                                 v-for="date in dates">{{ date }}</div>
                         </div>
-                        <VariableRow v-for="assumptionValues in assumptionValuesToDisplay" :values="assumptionValues"></VariableRow>
+                        <VariableRow v-for="assumptionValues in assumptionValuesToDisplay" :values="assumptionValues" :round-to="2"></VariableRow>
                     </div>
                 </div>
                 <div class="mt-2"><button class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-xs pl-2.5 pr-3 py-1 border border-zinc-300 rounded text-zinc-700" @click="addAssumption">Add Assumption</button></div>

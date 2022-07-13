@@ -15,6 +15,7 @@ export default {
     },
     props: {
         values: Object as () => string[],
+        roundTo: Number
     },
     methods: {
         computedValues(input:string[]) {
@@ -27,11 +28,13 @@ export default {
 
                     var valueWithDecimals;
                     
-                    if(splittedValue[1].length > 2) {
-                        valueWithDecimals = Math.floor(+value);
+                    if(splittedValue[1].length > this.roundTo) {
+                        valueWithDecimals = (+value).toFixed(this.roundTo);
                     } else {
                         valueWithDecimals = value;
                     }
+                    console.log(value + " : " + valueWithDecimals);
+
                     output.push(valueWithDecimals);
                 } else {
                     output.push(value);
