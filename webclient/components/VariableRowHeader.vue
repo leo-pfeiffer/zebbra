@@ -13,7 +13,7 @@ const route = useRoute();
                 <span v-show="(valType === 'percentage')" class="mr-2 text-amber-600"><i
                         class="bi bi-percent"></i></span>
                 <span v-show="(valType === 'number')" class="mr-2 text-zinc-500"><i class="bi bi-hash"></i></span>
-                <span v-if="!nameChangeSelected" @dblclick="toggleNameChange">{{ assumption.name }}</span>
+                <span v-if="!nameChangeSelected" @dblclick="toggleNameChange">{{ variable.name }}</span>
                 <span v-else><input ref="name" @keydown.enter="updateName" @keydown.esc="toggleNameChange"
                         v-model="newName"
                         class="bg-zinc-100/0 focus:border-b border-sky-600 focus:outline-none placeholder:text-zinc-500"
@@ -102,7 +102,7 @@ const route = useRoute();
                         <h3 class="text-zinc-900 font-medium text-sm mb-2">Do you really want to delete this variable?
                         </h3>
                     </div>
-                    <p class="text-zinc-500 text-xs mb-3">Deleting <b>{{ assumption.name }}</b> cannot be undone.</p>
+                    <p class="text-zinc-500 text-xs mb-3">Deleting <b>{{ variable.name }}</b> cannot be undone.</p>
                     <div class="float-right">
                         <button
                             class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-xs px-2 py-1 border border-zinc-300 rounded text-zinc-700"
@@ -139,32 +139,32 @@ export default {
         }
     },
     props: {
-        assumption: Object as () => Variable,
+        variable: Object as () => Variable,
         assumptionIndex: Number,
         timeSeriesMap: Map,
         variableSearchMap: Map
     },
     mounted() {
         //set correct humanReadableInputValue to be displayed
-        if (this.assumption.value === "" || this.assumption.value === undefined) {
+        if (this.variable.value === "" || this.variable.value === undefined) {
             this.humanReadableInputValue = "–"
         } else {
-            this.humanReadableInputValue = useGetHumanReadableFormula(this.assumption.value, this.assumption._id, this.variableSearchMap);
+            this.humanReadableInputValue = useGetHumanReadableFormula(this.variable.value, this.variable._id, this.variableSearchMap);
         }
         
         //set correct value_1 to be displayed
-        if(this.assumption.value_1 != "" || this.assumption.value_1 != undefined) {
-            //todo: this.value1 = useGetReadableFormula(this.assumption.value_1, this.assumption._id, this.variableSearchMap);
-            this.value1 = this.assumption.value_1;
+        if(this.variable.value_1 != "" || this.variable.value_1 != undefined) {
+            //todo: this.value1 = useGetReadableFormula(this.variable.value_1, this.variable._id, this.variableSearchMap);
+            this.value1 = this.variable.value_1;
         } else {
-            this.value1 = this.assumption.value_1;
+            this.value1 = this.variable.value_1;
         }
 
-        this.valType = this.assumption.val_type;
-        this.startingAt = this.assumption.starting_at;
+        this.valType = this.variable.val_type;
+        this.startingAt = this.variable.starting_at;
 
         // show name input if name is undefined
-        if (this.assumption.name === "" || this.assumption.value === undefined) {
+        if (this.variable.name === "" || this.variable.value === undefined) {
             this.nameChangeSelected = true;
         }
     },
@@ -188,9 +188,9 @@ export default {
                 this.settingsOpen = true;
             } else {
                 this.settingsOpen = false;
-                this.valType = this.assumption.val_type;
-                this.value1 = this.assumption.value_1;
-                this.startingAt = this.assumption.starting_at;
+                this.valType = this.variable.val_type;
+                this.value1 = this.variable.value_1;
+                this.startingAt = this.variable.starting_at;
             }
         },
         toggleDeleteModal() {
@@ -245,7 +245,7 @@ export default {
 
                 //Get humanReadableInputValue and create storage value
 
-                const storageValue:string = useGetValueFromHumanReadable(this.humanReadableInputValue, this.assumption._id, this.variableSearchMap);
+                const storageValue:string = useGetValueFromHumanReadable(this.humanReadableInputValue, this.variable._id, this.variableSearchMap);
 
                 const sheet = useRevenueState();
                 sheet.value.assumptions[this.assumptionIndex].time_series = this.isTimeSeries(storageValue);
@@ -425,7 +425,7 @@ export default {
             //todo:update
             try {
                 if(this.valType === "number") {
-                    var output: string = useMathParser(this.assumption.value).toFixed(2).toString();
+                    var output: string = useMathParser(this.variable.value).toFixed(2).toString();
                     const splitted: string[] = output.split(".");
                     if (splitted[1] === "00") {
                         return splitted[0];
@@ -433,7 +433,7 @@ export default {
                         return output;
                     }
                 } else if(this.valType === "percentage") {
-                    var calc1: string = useMathParser(this.assumption.value).toString();
+                    var calc1: string = useMathParser(this.variable.value).toString();
                     var calc2:string = useMathParser(calc1 + "*100").toFixed(2).toString();
                     const splitted: string[] = calc2.split(".");
                     if (splitted[1] === "00") {
@@ -442,7 +442,7 @@ export default {
                         return calc2  + "%";
                     }
                 } else if(this.valType === "currency") {
-                    var output: string = useMathParser(this.assumption.value).toFixed(2).toString();
+                    var output: string = useMathParser(this.variable.value).toFixed(2).toString();
                     const splitted: string[] = output.split(".");
                     if (splitted[1] === "00") {
                         return "$ " + splitted[0];
@@ -451,9 +451,9 @@ export default {
                     }
                 }
             } catch (e) {
-                if (this.assumption.var_type === "formula") {
+                if (this.variable.var_type === "formula") {
                     return "Formula"
-                } else if (this.assumption.var_type === "integration") {
+                } else if (this.variable.var_type === "integration") {
                     return "Integration"
                 } else {
                     return "!!";

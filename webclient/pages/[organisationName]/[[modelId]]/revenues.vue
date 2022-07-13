@@ -42,7 +42,7 @@ const assumptionValuesToDisplay = useState<string[][]>('assumptionValues');
                                 </form>
                             </div>
                         </div>
-                        <VariableRowHeader v-for="(assumption, index) in revenues.assumptions" :assumption="assumption" :assumptionIndex="index" :timeSeriesMap="useVariableTimeSeriesMap(revenues.assumptions)" :variableSearchMap="useVariableSearchMap(revenues.assumptions)"></VariableRowHeader>
+                        <VariableRowHeader v-for="(assumption, index) in revenues.assumptions" :variable="assumption" :assumptionIndex="index" :timeSeriesMap="useVariableTimeSeriesMap(revenues.assumptions)" :variableSearchMap="useVariableSearchMap(revenues.assumptions)"></VariableRowHeader>
                     </div>
                     <div class="overflow-x-auto">
                         <div class="flex mb-4">
