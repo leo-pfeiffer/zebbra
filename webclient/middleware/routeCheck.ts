@@ -1,10 +1,12 @@
 //middleware that checks whether the route to be accessed matches the users workspace
 export default defineNuxtRouteMiddleware( async (to, from) => {
 
+    const config = useRuntimeConfig();
+
     console.log("route check middleware");
 
     const user = useUserState();
-    user.value = await updateUserState();
+    user.value = await updateUserState(config.public.backendUrlBase);
 
     //const userWorkspace = user.value.workspaces[0].name;
 

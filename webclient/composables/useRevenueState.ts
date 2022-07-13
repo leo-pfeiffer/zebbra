@@ -4,10 +4,10 @@ var revenueState: Sheet;
 
 export const useRevenueState = () => useState<Sheet>('revenueState', () => revenueState);
 
-export const getRevenueState = async (modelId: string | string[]) => {
+export const getRevenueState = async (backendUrlBase:string, modelId: string | string[]) => {
 
     const getRevenues = await useFetchAuth(
-        'http://localhost:8000/model/revenues', {
+        backendUrlBase + '/model/revenues', {
             method: 'GET',
         params: {
             model_id: modelId
@@ -23,10 +23,10 @@ export const getRevenueState = async (modelId: string | string[]) => {
 
 }
 
-export const updateRevenueState = async (modelId: string | string[], revenueSheet: Sheet) => {
+export const updateRevenueState = async (backendUrlBase:string, modelId: string | string[], revenueSheet: Sheet) => {
 
     const postRevenues = await useFetchAuth(
-        'http://localhost:8000/model/revenues', {
+        backendUrlBase + '/model/revenues', {
             method: 'POST',
         params: {
             model_id: modelId

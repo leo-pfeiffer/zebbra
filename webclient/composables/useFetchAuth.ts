@@ -12,6 +12,7 @@ export const useFetchAuth = async (url: string, opts?: FetchOptions) => {
     ...(token && { Authorization: `Bearer ${token}` }),
   };
 
+  //todo:update
   const logoutIfTokenIsExpired = await $fetch('http://localhost:8000/token/expired', {
     method: 'GET', headers
   }).then((data:GetTokenExpiredResponse) => {

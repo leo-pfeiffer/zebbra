@@ -1,8 +1,8 @@
 import { useToken } from "./useToken";
 
-export const useLogout = () => {
+export const useLogout = (backendUrlBase:string) => {
 
-    useFetchAuth('http://localhost:8000/logout', { method: 'POST'});
+    useFetchAuth(backendUrlBase + '/logout', { method: 'POST'});
 
     useToken().deleteTokenCookie();
 

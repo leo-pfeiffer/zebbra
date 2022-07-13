@@ -2,6 +2,9 @@
 definePageMeta({
   middleware: ["auth", "route-check"]
 })
+
+const config = useRuntimeConfig();
+
 </script>
 
 <template>
@@ -150,7 +153,7 @@ export default {
       this.showSuccessPersonalInfo = false;
 
       const data = await useFetchAuth(
-        'http://localhost:8000/user/update',{ method: 'POST', 
+        `${this.config.public.backendUrlBase}/user/update`,{ method: 'POST', 
         params: {
           username: this.user.email,
           first_name: this.user.firstName,
@@ -177,7 +180,7 @@ export default {
       this.showSuccessPassword = false;
 
       const data = await useFetchAuth(
-        'http://localhost:8000/user/update',{ method: 'POST', 
+        `${this.config.public.backendUrlBase}/user/update`,{ method: 'POST', 
         params: {
           password: this.user.password
           }}
@@ -203,7 +206,7 @@ export default {
     async deleteAccount() {
 
       const data = await useFetchAuth(
-        'http://localhost:8000/user/delete',{ method: 'POST', 
+        `${this.config.public.backendUrlBase}/user/delete`,{ method: 'POST', 
         }).then((data) => {
           console.log(data)
           useLogout();

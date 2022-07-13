@@ -5,15 +5,17 @@ definePageMeta({
     middleware: ["auth", "route-check"]
 })
 
+const config = useRuntimeConfig();
+
 const route = useRoute()
 //const user = useUserState();
 
 const modelMeta = useModelMetaState();
 
-modelMeta.value = await getModelMeta(route.params.modelId);
+modelMeta.value = await getModelMeta(config.public.backendUrlBase, route.params.modelId);
 
 const revenues = useRevenueState();
-revenues.value = await getRevenueState(route.params.modelId);
+revenues.value = await getRevenueState(config.public.backendUrlBase, route.params.modelId);
 
 //todo: find better solution
 const date:string[] = modelMeta.value.starting_month.split("-");
@@ -90,10 +92,10 @@ export default {
 
             //todo: proper error handling
             try {
-                await updateRevenueState(this.route.params.modelId, revenues.value);
+                await updateRevenueState(this.config.public.backendUrlBase, this.route.params.modelId, revenues.value);
             } catch(e) {
                 console.log(e)
-                revenues.value = await getRevenueState(this.route.params.modelId)
+                revenues.value = await getRevenueState(this.config.public.backendUrlBase, this.route.params.modelId)
             }
 
         },
@@ -115,7 +117,7 @@ export default {
 
                 try {
                     //update RevenueState
-                    await updateRevenueState(this.route.params.modelId, sheet.value);
+                    await updateRevenueState(this.config.public.backendUrlBase, this.route.params.modelId, sheet.value);
                     //Update sheet values valuesToDisplay
                     const revenues = useRevenueState();
                     const assumptionValuesArrayState = useState<string[][]>('assumptionValues');
@@ -125,7 +127,7 @@ export default {
                     console.log(e);
                     //retrieve actual stored sheet from DB
                     //if actual sheet and state match, if not update state to actual sheet
-                    const actualSheet = await getRevenueState(this.route.params.modelId);
+                    const actualSheet = await getRevenueState(this.config.public.backendUrlBase, this.route.params.modelId);
                     const sheet = useRevenueState();
                     if (!(actualSheet.assumptions[variableIndex].value === sheet.value.assumptions[variableIndex].value)) {
                         sheet.value = actualSheet;
@@ -141,12 +143,12 @@ export default {
                 const sheet = useRevenueState();
                 sheet.value.assumptions[variableIndex].name = newName;
                 try {
-                    await updateRevenueState(this.route.params.modelId, sheet.value);
+                    await updateRevenueState(this.config.public.backendUrlBase, this.route.params.modelId, sheet.value);
                 } catch (e) {
                     console.log(e);
                     //retrieve actual stored sheet from DB
                     //if actual sheet and state match, if not update state to actual sheet
-                    const actualSheet = await getRevenueState(this.route.params.modelId);
+                    const actualSheet = await getRevenueState(this.public.backendUrlBase, this.route.params.modelId);
                     const sheet = useRevenueState();
                     if (!(actualSheet.assumptions[variableIndex].name === sheet.value.assumptions[variableIndex].name)) {
                         sheet.value = actualSheet;
@@ -180,7 +182,7 @@ export default {
 
             try {
                 //update RevenueState
-                await updateRevenueState(this.route.params.modelId, sheet.value);
+                await updateRevenueState(this.config.public.backendUrlBase, this.route.params.modelId, sheet.value);
                 //Update sheet values valuesToDisplay
                 const revenues = useRevenueState();
                 const assumptionValuesArrayState = useState<string[][]>('assumptionValues');
@@ -190,7 +192,7 @@ export default {
                 console.log(e);
                 //retrieve actual stored sheet from DB
                 //if actual sheet and state match, if not update state to actual sheet
-                const actualSheet = await getRevenueState(this.route.params.modelId);
+                const actualSheet = await getRevenueState(this.config.public.backendUrlBase, this.route.params.modelId);
                 const sheet = useRevenueState();
                 if (!(actualSheet.assumptions[variableIndex].value === sheet.value.assumptions[variableIndex].value)) {
                     sheet.value = actualSheet;
@@ -206,10 +208,10 @@ export default {
 
             //then update the backend
             try {
-                await updateRevenueState(this.route.params.modelId, sheet.value);
+                await updateRevenueState(this.config.public.backendUrlBase, this.route.params.modelId, sheet.value);
             } catch (e) {
                 console.log(e) //todo: throw error message
-                const actualSheet = await getRevenueState(this.route.params.modelId);
+                const actualSheet = await getRevenueState(this.config.public.backendUrlBase, this.route.params.modelId);
                 const sheet = useRevenueState();
                 if (!(actualSheet.assumptions.length === sheet.value.assumptions.length)) {
                     sheet.value = actualSheet;

@@ -1,4 +1,6 @@
-<script setup>
+<script setup lang="ts">
+
+const config = useRuntimeConfig()
 
 </script>
 
@@ -64,7 +66,7 @@
 </div>
 </template>
 
-<script>
+<script lang="ts">
 
 export default {
 
@@ -104,7 +106,7 @@ export default {
             const user = useUserState();
             
             const removeUser = await useFetchAuth(
-            'http://localhost:8000/workspace/remove', {
+            `${this.config.backendUrlBase}/workspace/remove`, {
                 method: 'POST',
             params: {
                 user_id: this.userId,
@@ -135,7 +137,7 @@ export default {
             const user = useUserState();
             
             const makeUserAdmin = await useFetchAuth(
-            'http://localhost:8000/workspace/changeAdmin', {
+            `${this.config.public.backendUrlBase}/workspace/changeAdmin`, {
                 method: 'POST',
             params: {
                 user_id: this.userId,

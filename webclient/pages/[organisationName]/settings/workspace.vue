@@ -2,6 +2,9 @@
 definePageMeta({
   middleware: ["auth", "route-check"]
 })
+
+const config = useRuntimeConfig();
+
 </script>
 
 <template>
@@ -55,7 +58,8 @@ export default {
     };
   }, async beforeMount() {
     //check if user is admin
-    this.userIsWorkspaceAdmin = await useIsWorkspaceAdmin();
+
+    this.userIsWorkspaceAdmin = await useIsWorkspaceAdmin(this.config.public.backendUrlBase);
 
     //get workspace name from userState
     const userState = useUserState();
@@ -71,7 +75,7 @@ export default {
       this.showSuccess = false;
 
       const data = await useFetchAuth(
-        'http://localhost:8000/workspace/rename', {
+        `${this.config.public.backendUrlBase}/workspace/rename`, {
           method: 'POST',
         params: {
           workspace_id: this.workspace._id,

@@ -3,6 +3,8 @@ definePageMeta({
   middleware: ["auth", "route-check"]
 })
 
+const config = useRuntimeConfig();
+
 const user = useUserState();
 
 </script>
@@ -82,12 +84,13 @@ export default {
     }
   },
   async beforeMount() {
+
     //check if user is admin
-    this.userIsWorkspaceAdmin = await useIsWorkspaceAdmin();
+    this.userIsWorkspaceAdmin = await useIsWorkspaceAdmin(this.config.public.backendUrlBase);
     const user = useUserState();
 
     const getWorkspaceMembers = await useFetchAuth(
-      'http://localhost:8000/workspace/users', {
+      `${this.config.public.backendUrlBase}/workspace/users`, {
       method: 'GET',
       params: {
         workspace_id: user.value.workspaces[0]._id
@@ -102,7 +105,7 @@ export default {
 
     if (this.userIsWorkspaceAdmin) {
       const getInviteCode = await useFetchAuth(
-        'http://localhost:8000/workspace/inviteCode', {
+        `${this.config.public.backendUrlBase}/workspace/inviteCode`, {
         method: 'POST',
         params: {
           workspace_id: user.value.workspaces[0]._id

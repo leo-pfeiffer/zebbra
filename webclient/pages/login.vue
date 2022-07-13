@@ -1,3 +1,9 @@
+<script setup lang="ts">
+
+const config = useRuntimeConfig();
+
+</script>
+
 <template>
   <div class="container flex justify-center mx-auto">
     <div class="w-1/2 md:w-1/4">
@@ -65,13 +71,14 @@ export default {
       loginBody.append("password", this.form.password);
 
       const data = await $fetch(
-        'http://localhost:8000/token',{ method: 'POST',
+        `${this.config.public.backendUrlBase}/token`,{ method: 'POST',
         body: loginBody }
         ).then((data:PostTokenResponse) => {
           
           useToken().setTokenCookie(data.access_token);
 
         }).catch((error) => {
+          console.log(error);
           this.errorMessage = error.data.detail;
           this.showError = true;
           });
@@ -82,7 +89,7 @@ export default {
       if(token != undefined) {
 
         const getUserWorkspace = await useFetchAuth(
-        'http://localhost:8000/user',{ method: 'GET'}
+        `${this.config.public.backendUrlBase}/user`,{ method: 'GET'}
         ).then((data:GetUserResponse) => {
           navigateTo({ path: "/"+`${data.workspaces[0].name}` });
         }).catch((error) => {

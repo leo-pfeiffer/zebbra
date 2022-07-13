@@ -4,10 +4,10 @@ var modelMetaState:ModelMeta;
 
 export const useModelMetaState = () => useState<ModelMeta>('modelMetaState', () => modelMetaState);
 
-export const getModelMeta = async (modelId: string | string[]) => {
+export const getModelMeta = async (backendUrlBase:string, modelId: string | string[]) => {
 
     const getModel = await useFetchAuth(
-        'http://localhost:8000/model/meta', {
+        backendUrlBase + '/model/meta', {
             method: 'GET',
         params: {
             model_id: modelId
