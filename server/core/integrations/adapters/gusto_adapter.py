@@ -12,6 +12,7 @@ from core.schemas.utils import DataBatch
 class GustoFetchAdapter(FetchAdapter):
 
     _integration = "Gusto"
+    _api_type = "payroll"
 
     def __init__(self, workspace_id: str):
         self._workspace_id = workspace_id
@@ -24,7 +25,7 @@ class GustoFetchAdapter(FetchAdapter):
     def integration(cls):
         return cls._integration
 
-    async def get_data(self, from_date: date) -> DataBatch | list[Employee]:
+    async def get_data(self, from_date: date) -> list[Employee]:
         """
         This is the main method called during the merging procedure to add the
         integration data to the models.
@@ -35,19 +36,23 @@ class GustoFetchAdapter(FetchAdapter):
         :param from_date: date from which onwards to get the data
         :return: DataBatch containing the data from the integration
         """
-        # check if we can use cache
-        cache_date = self._cache_date(from_date)
-        if cached := await self.get_cached(cache_date):
-            return cached
-
-        # if no cache, retrieve from Xero API
-        employees = await self._get_employees(from_date)
-
-        processed = self._process_employees(employees)
 
         # todo
+        # # check if we can use cache
+        # cache_date = self._cache_date(from_date)
+        # if cached := await self.get_cached(cache_date):
+        #     return cached
 
-    async def _get_employees(self, from_date: date):
+        # if no cache, retrieve from Xero API
+        employees = await self._get_employees()
+
+        processed = self._process_employees(employees, from_date)
+
+        return processed
+
+        # todo set cache
+
+    async def _get_employees(self):
 
         # todo refactor this garbage
 
@@ -67,7 +72,7 @@ class GustoFetchAdapter(FetchAdapter):
         resp.raise_for_status()
         return resp.json()
 
-    def _process_employees(self, employees) -> list[Employee]:
+    def _process_employees(self, employees, from_date: date) -> list[Employee]:
         processed = []
         for raw_employee in employees:
 
@@ -96,6 +101,27 @@ class GustoFetchAdapter(FetchAdapter):
                 ):
                     least_recent_job = job
 
+            # get termination
+            last_termination_date = None
+            if terminated := raw_employee["terminated"]:
+                for termination in raw_employee["terminations"]:
+                    termination["effective_date"] = self._date_from_string(
+                        termination["effective_date"], ["%Y-%m-%d"]
+                    )
+                    if (
+                        last_termination_date is None
+                        or termination["effective_date"] > last_termination_date
+                    ):
+                        last_termination_date = termination["effective_date"]
+
+            if terminated and last_termination_date is None:
+                logger.error("Terminated, but no terminations")
+                continue
+
+            # skip employees who were terminated before start date
+            if last_termination_date is not None and last_termination_date < from_date:
+                continue
+
             # get compensation
             compensation = None
             for comp in most_recent_job["compensations"]:
@@ -117,30 +143,14 @@ class GustoFetchAdapter(FetchAdapter):
             elif payment_unit == "Hour":
                 emp_status = raw_employee["current_employment_status"]
                 if emp_status == "part_time_twenty_plus_hours":
-                    monthly_salary = int(unit_rate * 30)
+                    monthly_salary = int(unit_rate * 30) * 4.33
                 elif emp_status == "part_time_under_twenty_hours":
-                    monthly_salary = int(unit_rate * 20)
+                    monthly_salary = int(unit_rate * 20) * 4.33
                 else:
-                    monthly_salary = int(unit_rate * 40)  # count all else as full time
+                    # count all else as full time
+                    monthly_salary = int(unit_rate * 40) * 4.33
             else:
                 logger.error(f"Cannot process payment unit {payment_unit}")
-                continue
-
-            # get termination
-            last_termination_date = None
-            if terminated := raw_employee["terminated"]:
-                for termination in raw_employee["terminations"]:
-                    termination["effective_date"] = self._date_from_string(
-                        termination["effective_date"], ["%Y-%m-%d"]
-                    )
-                    if (
-                        last_termination_date is None
-                        or termination["effective_date"] > last_termination_date
-                    ):
-                        last_termination_date = termination["effective_date"]
-
-            if terminated and last_termination_date is None:
-                logger.error("Terminated, but no terminations")
                 continue
 
             department = (
@@ -162,13 +172,4 @@ class GustoFetchAdapter(FetchAdapter):
         return processed
 
     async def get_data_endpoints(self, from_date: date) -> list[str]:
-        """
-        This method should return a list of available data endpoints for the
-        integration. It must be overridden by the child class and usually
-        makes a call to the integration API to retrieve the available endpoints.
-        Caching should be implemented as far as possible
-        :param from_date: date from which onwards to get the data
-        :return: List of available data endpoints for the integration
-        """
-        # todo
-        ...
+        raise NotImplementedError("Payroll API type does not support endpoints.")

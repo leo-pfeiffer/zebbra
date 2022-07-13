@@ -14,6 +14,7 @@ from core.schemas.utils import DataBatch
 class XeroFetchAdapter(FetchAdapter):
 
     _integration = "Xero"
+    _api_type = "accounting"
 
     def __init__(self, workspace_id: str):
         self._workspace_id = workspace_id
