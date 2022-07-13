@@ -91,28 +91,7 @@ const route = useRoute();
                         v-model="humanReadableInputValue"
                         class="border-t w-full py-2 px-2 font-mono font-sm focus:rounded-none focus:outline-green-600 border-r-2 border-zinc-300"
                         type=text>
-                    <div v-show="variableSearch.size > 0" class="sticky top-0 rounded-b min-w-fit">
-                        <table class="text-left min-w-fit">
-                            <th class="font-medium border border-zinc-300 bg-zinc-50 px-2 py-0.5 text-[10px] text-zinc-500 ">VARIABLE</th>
-                            <tr class="border bg-white border-zinc-300 shadow-md text-left" v-for="[key, value] in variableSearch" :key="key">
-                            <div class="min-w-fit flex align-middle justify-start py-2 px-2">
-                                <div>
-                                    <button class="text-left mr-1" @click="addSearchItemToInputValue(key)">
-                                        {{ value }}
-                                    </button>
-                                </div>
-                                <div class="flex align-middle py-auto ">
-                                    <select v-model="searchTimeDiff" class="bg-transparent font-medium italic text-zinc-500 rounded text-[10px] bg-zinc-100 mr-1">
-                                        <option selected>current</option>
-                                        <option>previous</option>
-                                        <option>T-2</option>
-                                        <option>T-12</option>
-                                    </select>
-                                </div>
-                            </div>
-                            </tr>
-                        </table>
-                    </div>
+                <SearchDropDown v-show="variableSearch.size > 0" :variableSearch="variableSearch" @search-click="addSearchItemToInputValue"></SearchDropDown>
                 </div>
             </div>
         </div>
@@ -153,7 +132,6 @@ export default {
             valueInputSelected: false,
             nameChangeSelected: false,
             settingsOpen: false,
-            searchTimeDiff: "current",
             valType: "",
             value1: undefined,
             startingAt: 0,
@@ -393,7 +371,7 @@ export default {
             }
             this.toggleDeleteModal();
         },
-        addSearchItemToInputValue(key:string) {
+        addSearchItemToInputValue(key:string, searchTimeDiff:string) {
 
             var lastIndex = this.humanReadableInputValue.length - 1;
             const regex = new RegExp(/[()+*/-]+/);
@@ -405,13 +383,13 @@ export default {
 
             this.humanReadableInputValue = this.humanReadableInputValue + this.variableSearchMap.get(key);
 
-            if(this.searchTimeDiff === "current") {
+            if(searchTimeDiff === "current") {
                 this.humanReadableInputValue = this.humanReadableInputValue + "[0]";
-            } else if(this.searchTimeDiff === "previous") {
+            } else if(searchTimeDiff === "previous") {
                 this.humanReadableInputValue = this.humanReadableInputValue + "[1]";
-            } else if(this.searchTimeDiff === "T-2") {
+            } else if(searchTimeDiff === "T-2") {
                 this.humanReadableInputValue = this.humanReadableInputValue + "[2]";
-            } else if(this.searchTimeDiff === "T-12") {
+            } else if(searchTimeDiff === "T-12") {
                 this.humanReadableInputValue = this.humanReadableInputValue + "[12]";
             }
         }
