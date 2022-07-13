@@ -101,14 +101,43 @@ class GustoIntegrationOAuth(IntegrationOAuth):
         :param token: OAuth token data
         """
 
+        tenant_id = await self.get_company(workspace_id, token.dict())
+
         integration_access = IntegrationAccess(
             integration=self.integration(),
             workspace_id=workspace_id,
             token=token,
+            tenant_id=tenant_id,
             requires_reconnect=False,
         )
 
         return await add_integration_for_workspace(integration_access)
+
+    async def get_company(self, workspace_id, token: dict | None = None):
+        """
+        Get the first available company ID
+        Todo: This is not perfect. If the user has multiple companies, the first one
+         is always used
+        :param workspace_id: Workspace for which to get the xero data.
+        :param token: OAuth token. If not provided, it is retrieved from the DB.
+        :return: Tenant ID
+        """
+        if token is None:
+            integration_access = await self.get_integration_access(workspace_id)
+            token = integration_access.token.dict()
+        if not token:
+            return None
+        resp = await self.oauth_app.get("v1/me", token={**token})
+        resp.raise_for_status()
+
+        data = resp.json()
+        if "payroll_admin" in (roles := data["roles"]):
+            if "companies" in (payroll_admin := roles["payroll_admin"]):
+                if len(payroll_admin["companies"]) != 0:
+                    return payroll_admin["companies"][0]["uuid"]
+
+        logger.error("No company found for user in gusto")
+        return None
 
 
 gusto_integration_oauth = GustoIntegrationOAuth()
@@ -117,7 +146,7 @@ gusto_integration_oauth.register_oauth_app(
     client_id=settings.GUSTO_CLIENT_ID,
     client_secret=settings.GUSTO_CLIENT_SECRET,
     server_metadata_url=settings.GUSTO_CONF_URL,
-    api_base_url=settings.XERO_API_BASE_URL,
+    api_base_url=settings.GUSTO_API_BASE_URL,
     authorize_url=settings.GUSTO_AUTHORIZE_URL,
     access_token_url=settings.GUSTO_REFRESH_URL,
 )

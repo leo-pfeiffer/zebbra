@@ -14,7 +14,7 @@ lower_case_name=$(echo "$integration" | awk '{print tolower($0)}')
 
 # OAuth
 template_integration_oauth="resources/templates/_integration_oauth.py"
-new_file_integration_oauth="core/integrations/oauth/${lower_case_name}_integration_oauth.py"
+new_file_integration_oauth="core/integrations/oauth/${lower_case_name}_oauth.py"
 
 # Adapter
 template_adapter="resources/templates/_adapter.py"
