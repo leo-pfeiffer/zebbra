@@ -109,7 +109,7 @@ const route = useRoute();
                             @click="toggleDeleteModal">Cancel</button>
                         <button class="ml-2 bg-red-600  drop-shadow-sm
                             shadow-zinc-50 text-xs font-medium px-2 py-1 
-                            border border-red-500 rounded text-neutral-100" @click="deleteVariable">Delete</button>
+                            border border-red-500 rounded text-neutral-100" @click="$emit('deleteVariable', variableIndex); toggleDeleteModal()">Delete</button>
                     </div>
                 </div>
                 <div v-show="deleteModalOpen" @click="toggleDeleteModal"
@@ -257,7 +257,7 @@ export default {
             }
             this.toggleSettings();
         },
-        async deleteVariable() { //todo: generalise to be used on any sheet with any variables
+        /* async deleteVariable() { //todo: generalise to be used on any sheet with any variables
             //first directly change the state
             const sheet = useRevenueState();
             sheet.value.assumptions.splice(this.variableIndex, 1);
@@ -280,7 +280,7 @@ export default {
                 }
             }
             this.toggleDeleteModal();
-        },
+        }, */
         addSearchItemToInputValue(key:string, searchTimeDiff:string) {
 
             var lastIndex = this.humanReadableInputValue.length - 1;

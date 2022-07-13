@@ -42,7 +42,7 @@ const assumptionValuesToDisplay = useState<string[][]>('assumptionValues');
                                 </form>
                             </div>
                         </div>
-                        <VariableRowHeader @update-value="updateAssumptionValue" @update-name="updateAssumptionName" v-for="(assumption, index) in revenues.assumptions" :variable="assumption" :variableIndex="index" :timeSeriesMap="useVariableTimeSeriesMap(revenues.assumptions)" :variableSearchMap="useVariableSearchMap(revenues.assumptions)"></VariableRowHeader>
+                        <VariableRowHeader @update-value="updateAssumptionValue" @update-name="updateAssumptionName" @delete-variable="deleteAssumption" v-for="(assumption, index) in revenues.assumptions" :variable="assumption" :variableIndex="index" :timeSeriesMap="useVariableTimeSeriesMap(revenues.assumptions)" :variableSearchMap="useVariableSearchMap(revenues.assumptions)"></VariableRowHeader>
                     </div>
                     <div class="overflow-x-auto">
                         <div class="flex mb-4">
@@ -154,6 +154,29 @@ export default {
                     if (!(actualSheet.assumptions[variableIndex].name === sheet.value.assumptions[this.variableIndex].name)) {
                         sheet.value = actualSheet;
                     }
+                }
+            }
+        },
+        async deleteAssumption(variableIndex:number) { //todo: generalise to be used on any sheet with any variables
+            //first directly change the state
+            const sheet = useRevenueState();
+            sheet.value.assumptions.splice(variableIndex, 1);
+            const assumptionValuesArrayState = useState<string[][]>('assumptionValues');
+            assumptionValuesArrayState.value.splice(variableIndex, 1);
+
+            //then update the backend
+            try {
+                await updateRevenueState(this.route.params.modelId, sheet.value);
+            } catch (e) {
+                console.log(e) //todo: throw error message
+                const actualSheet = await getRevenueState(this.route.params.modelId);
+                const sheet = useRevenueState();
+                if (!(actualSheet.assumptions.length === sheet.value.assumptions.length)) {
+                    sheet.value = actualSheet;
+                    const assumptionValuesArrayState = useState<string[][]>('assumptionValues');
+                    var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(actualSheet.assumptions);
+                    let index = assumptionValuesArray.length - 1;
+                    assumptionValuesArrayState.value.push(assumptionValuesArray[index])
                 }
             }
         },
