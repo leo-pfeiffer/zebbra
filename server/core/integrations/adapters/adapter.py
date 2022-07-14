@@ -5,7 +5,7 @@ from typing import Literal
 
 from dateutil.relativedelta import relativedelta
 
-from core.dao.integrations import get_integration_cache, set_integration_cache
+from core.dao.integrations import get_accounting_cache, set_accounting_cache
 from core.schemas.integrations import IntegrationProvider
 from core.schemas.models import Employee
 from core.schemas.utils import DataBatch, DataBatchCache
@@ -134,7 +134,7 @@ class FetchAdapter(ABC):
             return await self._get_cached_payroll(from_date)
 
     async def _get_cached_accounting(self, from_date: int):
-        cached = await get_integration_cache(
+        cached = await get_accounting_cache(
             self.workspace_id, self.integration(), from_date
         )
         if cached:
@@ -166,7 +166,7 @@ class FetchAdapter(ABC):
             integration=self.integration(),
             from_date=from_date,
         )
-        return await set_integration_cache(cache_obj)
+        return await set_accounting_cache(cache_obj)
 
     async def _set_cached_payroll(self, data_batch: list[Employee], from_date: int):
         # todo IMPLEMENT!!!

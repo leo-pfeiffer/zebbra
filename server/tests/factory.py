@@ -18,14 +18,14 @@ WORKSPACE_PATH = "resources/demo/workspaces.json"
 MODELS_PATH = "resources/demo/models.json"
 INVITE_CODES_PATH = "resources/demo/invite_codes.json"
 INTEGRATION_ACCESS_PATH = "resources/demo/integration_access.json"
-INTEGRATION_CACHE_PATH = "resources/demo/integration_cache.json"
+ACCOUNTING_CACHE_PATH = "resources/demo/accounting_cache.json"
 
 users = _read_json(USERS_PATH)
 workspaces = _read_json(WORKSPACE_PATH)
 models = _read_json(MODELS_PATH)
 invite_codes = _read_json(INVITE_CODES_PATH)
 integration_access = _read_json(INTEGRATION_ACCESS_PATH)
-integration_cache = _read_json(INTEGRATION_CACHE_PATH)
+accounting_cache = _read_json(ACCOUNTING_CACHE_PATH)
 
 
 async def create():
@@ -34,7 +34,7 @@ async def create():
     await create_models()
     await create_invite_codes()
     await create_integration_access()
-    await create_integration_cache()
+    await create_accounting_cache()
 
 
 async def teardown():
@@ -44,7 +44,7 @@ async def teardown():
     await teardown_models()
     await teardown_invite_codes()
     await teardown_integration_access()
-    await teardown_integration_cache()
+    await teardown_accounting_cache()
 
 
 def create_users():
@@ -67,10 +67,10 @@ def create_integration_access():
     return db.integration_access.insert_many(integration_access)
 
 
-def create_integration_cache():
-    for element in integration_cache:
+def create_accounting_cache():
+    for element in accounting_cache:
         element["created_at"] = datetime.now()
-    return db.integration_cache.insert_many(integration_cache)
+    return db.accounting_cache.insert_many(accounting_cache)
 
 
 def teardown_users():
@@ -97,8 +97,8 @@ def teardown_integration_access():
     return db.integration_access.delete_many({})
 
 
-def teardown_integration_cache():
-    return db.integration_cache.delete_many({})
+def teardown_accounting_cache():
+    return db.accounting_cache.delete_many({})
 
 
 async def setup_integration_access(workspace_id, integration="Xero"):

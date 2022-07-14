@@ -3,7 +3,7 @@ import time
 import pytest
 from dateutil.relativedelta import relativedelta
 
-from core.dao.integrations import get_integration_cache, set_integration_cache
+from core.dao.integrations import get_accounting_cache, set_accounting_cache
 from datetime import datetime, timezone
 
 from core.dao.integrations import (
@@ -109,8 +109,8 @@ async def test_set_cached():
         integration="Xero",
         from_date=123,
     )
-    await set_integration_cache(cache_obj)
-    db_obj = await get_integration_cache("123", "Xero", 123)
+    await set_accounting_cache(cache_obj)
+    db_obj = await get_accounting_cache("123", "Xero", 123)
     assert compare_rounded_created_at(cache_obj, db_obj)
 
 
@@ -124,14 +124,14 @@ async def test_set_cached_replaces():
         integration="Xero",
         from_date=123,
     )
-    await set_integration_cache(cache_obj)
+    await set_accounting_cache(cache_obj)
 
     cache_obj2 = DataBatchCache(**cache_obj.dict())
     cache_obj2.created_at += relativedelta(minutes=10)
-    await set_integration_cache(cache_obj2)
+    await set_accounting_cache(cache_obj2)
     time.sleep(1)  # wait for 1 sec to make sure timestamp changes
 
-    db_obj = await get_integration_cache("123", "Xero", 123)
+    db_obj = await get_accounting_cache("123", "Xero", 123)
     assert not compare_rounded_created_at(cache_obj, db_obj)
     assert compare_rounded_created_at(cache_obj2, db_obj)
 
@@ -146,8 +146,8 @@ async def test_get_cached():
         integration="Xero",
         from_date=123,
     )
-    await set_integration_cache(cache_obj)
-    db_obj = await get_integration_cache("123", "Xero", 123)
+    await set_accounting_cache(cache_obj)
+    db_obj = await get_accounting_cache("123", "Xero", 123)
     assert compare_rounded_created_at(cache_obj, db_obj)
 
 
@@ -161,8 +161,8 @@ async def test_get_cached_non_existent_from_date():
         integration="Xero",
         from_date=123,
     )
-    await set_integration_cache(cache_obj)
-    assert await get_integration_cache("123", "Xero", 321) is None
+    await set_accounting_cache(cache_obj)
+    assert await get_accounting_cache("123", "Xero", 321) is None
 
 
 @pytest.mark.anyio
@@ -175,8 +175,8 @@ async def test_get_cached_non_existent_workspace():
         integration="Xero",
         from_date=123,
     )
-    await set_integration_cache(cache_obj)
-    assert await get_integration_cache("false", "Xero", 123) is None
+    await set_accounting_cache(cache_obj)
+    assert await get_accounting_cache("false", "Xero", 123) is None
 
 
 @pytest.mark.anyio
@@ -189,5 +189,5 @@ async def test_get_cached_non_existent_integration():
         integration="Xero",
         from_date=123,
     )
-    await set_integration_cache(cache_obj)
-    assert await get_integration_cache("123", "false", 123) is None  # noqa
+    await set_accounting_cache(cache_obj)
+    assert await get_accounting_cache("123", "false", 123) is None  # noqa
