@@ -92,6 +92,9 @@ class DateString(str):
             return cls(v)
         return v.strftime("%Y-%m-%d")
 
+    def to_date(self):
+        return datetime.strptime(self, "%Y-%m-%d").date()
+
     def __repr__(self):
         return f"{super().__repr__()}"
 

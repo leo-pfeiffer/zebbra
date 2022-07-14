@@ -749,7 +749,7 @@ async def test_post_model_employees(access_token):
     model_afterwards = response.json()
     ct = 0
     ct_after = 0
-    for e in model_afterwards:
+    for e in model_afterwards["employees"]:
         if e["name"] == "Saint West":
             ct += 1
         elif not e["from_integration"]:
@@ -793,7 +793,7 @@ async def test_post_model_employees_ignore_integration(access_token):
     model_afterwards = response.json()
     ct = 0
     ct_after = 0
-    for e in model_afterwards:
+    for e in model_afterwards["employees"]:
         if e["name"] == "Saint West":
             ct += 1
         elif not e["from_integration"]:
@@ -818,7 +818,7 @@ async def test_post_model_employees_contains_integration_values(access_token):  
 
     assert response.status_code == status.HTTP_200_OK
     ct = 0
-    for e in response.json():
+    for e in response.json()["employees"]:
         if e["from_integration"]:
             ct += 1
     assert ct > 0
@@ -874,7 +874,7 @@ async def test_get_model_employees(access_token):
     )
 
     assert response.status_code == status.HTTP_200_OK
-    for e in response.json():
+    for e in response.json()["employees"]:
         assert Employee(**e)
 
 
@@ -890,7 +890,7 @@ async def test_get_model_employees_contains_integration_values(access_token):
 
     assert response.status_code == status.HTTP_200_OK
     ct = 0
-    for e in response.json():
+    for e in response.json()["employees"]:
         if e["from_integration"]:
             ct += 1
     assert ct > 0

@@ -22,7 +22,7 @@ class Employee(BaseModel):
 
 
 class Payroll(BaseModel):
-    payroll_values: list[IntegrationValue]
+    payroll_values: list[IntegrationValue]  # calculated on the fly from employees
     employees: list[Employee]
 
 

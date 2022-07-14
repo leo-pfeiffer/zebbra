@@ -9,6 +9,7 @@ from core.integrations.oauth.xero_oauth import (
     API_URL_SUFFIX,
 )
 from core.schemas.cache import DataBatch
+from core.utils import last_of_same_month
 
 
 class XeroFetchAdapter(FetchAdapter):
@@ -66,7 +67,7 @@ class XeroFetchAdapter(FetchAdapter):
         # check if we can use cache of batch data
         actual_from_date = int(
             datetime.combine(
-                self._last_of_same_month(self._get_last_month_with_31_days(from_date)),
+                last_of_same_month(self._get_last_month_with_31_days(from_date)),
                 datetime.min.time(),
             ).timestamp()
         )
@@ -161,17 +162,15 @@ class XeroFetchAdapter(FetchAdapter):
         period_start = from_date
         while period_start < to_date:
 
-            period_start = self._last_of_same_month(
+            period_start = last_of_same_month(
                 self._get_last_month_with_31_days(period_start)
             )
 
             # covers one year
-            period_end = self._last_of_same_month(
-                period_start + relativedelta(months=11)
-            )
+            period_end = last_of_same_month(period_start + relativedelta(months=11))
 
             if period_end >= to_date:
-                period_end = self._last_of_same_month(to_date)
+                period_end = last_of_same_month(to_date)
 
             periods.append((period_start, period_end))
             period_start = period_end + relativedelta(months=1)

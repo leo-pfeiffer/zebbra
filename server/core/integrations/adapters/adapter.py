@@ -15,6 +15,7 @@ from core.logger import logger
 from core.schemas.integrations import IntegrationProvider
 from core.schemas.models import Employee
 from core.schemas.cache import DataBatch, DataBatchCache, EmployeeListCache
+from core.utils import last_of_same_month
 
 
 class FetchAdapter(ABC):
@@ -112,20 +113,10 @@ class FetchAdapter(ABC):
         return the_date
 
     @staticmethod
-    def _last_of_same_month(the_date: date) -> date:
-        """
-        Return the last date of the month
-        :param the_date: date for whose month to retrieve the last date
-        :return: date
-        """
-        day = monthrange(the_date.year, the_date.month)[1]
-        return date(the_date.year, the_date.month, day)
-
-    @staticmethod
     def _cache_date(from_date: date) -> int:
         return int(
             datetime.combine(
-                FetchAdapter._last_of_same_month(
+                last_of_same_month(
                     FetchAdapter._get_last_month_with_31_days(from_date)
                 ),
                 datetime.min.time(),

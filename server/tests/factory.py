@@ -1,10 +1,13 @@
 # test object factory
+from pydantic import BaseModel
+
 from core.dao.database import db
 import json
 from datetime import datetime
 
 from core.dao.integrations import add_integration_for_workspace
 from core.schemas.integrations import IntegrationAccess, IntegrationAccessToken
+from core.schemas.utils import DateString
 
 
 def _read_json(path):
@@ -132,3 +135,9 @@ async def setup_integration_access(workspace_id, integration="Xero"):
             tenant_id="tenant-id",
         )
     )
+
+
+class FakeEmployee(BaseModel):
+    start_date: DateString
+    end_date: DateString | None
+    monthly_salary: int

@@ -38,7 +38,7 @@ from core.exceptions import (
     CardinalityConstraintFailedException,
     BusinessLogicException,
 )
-from core.schemas.models import Model, ModelUser, ModelMeta, Employee
+from core.schemas.models import Model, ModelUser, ModelMeta, Employee, Payroll
 from core.schemas.sheets import Sheet
 from core.schemas.users import User
 from core.schemas.utils import Message, PyObjectId
@@ -391,10 +391,9 @@ async def update_model_sheet_costs(
     )
 
 
-# todo test
 @router.get(
     "/model/payroll",
-    response_model=list[Employee],
+    response_model=Payroll,
     tags=["model"],
     responses={
         403: {"description": "User does not have access to the resource."},
@@ -411,15 +410,15 @@ async def retrieve_model_payroll(
     await _assert_access(current_user.id, model_id)
 
     model = await get_model_by_id(model_id)
-    return await merge_payroll_integration_data(
+    await merge_payroll_integration_data(
         model.payroll.employees, str(model.meta.workspace), model.meta.starting_month
     )
+    return model.payroll
 
 
-# todo test
 @router.post(
     "/model/payroll",
-    response_model=list[Employee],
+    response_model=Payroll,
     tags=["model"],
     responses={
         403: {"description": "User does not have access to the resource."},
@@ -440,9 +439,10 @@ async def update_model_payroll(
     await update_model_employees(model_id, filtered)
 
     model = await get_model_by_id(model_id)
-    return await merge_payroll_integration_data(
+    await merge_payroll_integration_data(
         model.payroll.employees, str(model.meta.workspace), model.meta.starting_month
     )
+    return model.payroll
 
 
 async def _assert_model_exists(model_id: str):
