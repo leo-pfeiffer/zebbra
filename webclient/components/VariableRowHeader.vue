@@ -80,9 +80,14 @@ const route = useRoute();
             </div>
             <div class="h-full w-full">
                 <div v-if="!valueInputSelected"
-                    class="text-xs border-t border-r border-zinc-300 min-w-[125px] max-w-[125px] h-full w-full text-right">
-                    <div @dblclick="toggleInput" class="h-full text-right text-xs py-2 px-2 border-r-2 border-zinc-300">
-                        <span class="bg-white tabular-nums">{{ outputValue }}</span>
+                    class="text-xs relative group border-t border-r border-zinc-300 min-w-[150px] max-w-[150px] h-full w-full text-right">
+                    <div @dblclick="toggleInput" class="float-right h-full min-w-[130px] max-w-[130px] text-right text-xs py-2 px-2 border-r-2 border-zinc-300 tabular-nums truncate overflow-hidden">
+                        {{ outputValue }}
+                    </div>
+                    <div class="absolute top-2 left-2 flex justify-center">
+                        <i v-if="variable.var_type === 'formula' && variable.time_series === false" title="Formula" class="text-[10px] text-zinc-300 bi-calculator-fill"></i>
+                        <i v-if="variable.var_type === 'formula' && variable.time_series === true" title="Time-Series Formula" class="text-[10px] text-zinc-300 bi-bar-chart-fill"></i>
+                        <i v-else-if="variable.var_type === 'integration'" title="Integration" class="text-[10px] text-zinc-300 bi bi-server"></i>
                     </div>
                 </div>
                 <div v-else
@@ -244,9 +249,15 @@ export default {
             return searchOutput;
         },
         outputValue() {
+
             //todo:update
+            if(this.variable.var_type === "integration") {
+                return "Integration";
+            }
+
             try {
                 if(this.valType === "number") {
+                    //update
                     var output: string = useMathParser(this.variable.value).toFixed(2).toString();
                     const splitted: string[] = output.split(".");
                     if (splitted[1] === "00") {
@@ -273,13 +284,7 @@ export default {
                     }
                 }
             } catch (e) {
-                if (this.variable.var_type === "formula") {
-                    return "Formula"
-                } else if (this.variable.var_type === "integration") {
-                    return "Integration"
-                } else {
-                    return "!!";
-                }
+                return this.humanReadableInputValue;
             }
         }
     }
