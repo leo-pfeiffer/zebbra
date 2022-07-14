@@ -192,18 +192,7 @@ export default {
                 try {
                     //update RevenueState
                     await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
-                    //Update sheet values valuesToDisplay
-                    this.assumptionValuesToDisplayState = useFormulaParser().getSheetRowValues(this.revenueState.assumptions);
-
-                    //Update entire sheet
-                    var variablesValuesStorage: Map<number, string[][]> = new Map<number, string[][]>();
-                    for (let i = 0; i < this.revenueState.sections.length; i++) {
-                        var sectionVariables: Variable[] = [...this.revenueState.sections[i].rows];
-                        var valuesOfAssumptionsAndVariables: string[][] = useFormulaParser().getSheetRowValues(this.revenueState.assumptions.concat(sectionVariables))
-                        valuesOfAssumptionsAndVariables.splice(0, this.revenueState.assumptions.length);
-                        variablesValuesStorage.set(i, valuesOfAssumptionsAndVariables);
-                    };
-                    this.variableValuesToDisplayState = variablesValuesStorage;
+                    this.updateDisplayedValues();
 
                 } catch (e) {
                     console.log(e);
@@ -222,16 +211,8 @@ export default {
             if (humanReadableInputValue.length > 0) {
 
                 //Get humanReadableInputValue and create storage value
-
-                for (let [key, value] of timeSeriesMap) {
-                    console.log(key + " : " + value)
-                }
-                console.log(variableIndex);
-                console.log(sectionIndex)
-
+            
                 const storageValue: string = useGetValueFromHumanReadable(humanReadableInputValue, variableId, variableSearchMap);
-
-                console.log("storage: " + storageValue)
 
                 this.revenueState.sections[sectionIndex].rows[variableIndex].time_series = this.isTimeSeries(storageValue, timeSeriesMap);
                 this.revenueState.sections[sectionIndex].rows[variableIndex].value = storageValue.toString();
@@ -244,15 +225,8 @@ export default {
                 try {
                     //update RevenueState
                     await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
-                    //Update sheet values valuesToDisplay
-                    var variablesValuesStorage: Map<number, string[][]> = new Map<number, string[][]>();
-                    for (let i = 0; i < this.revenueState.sections.length; i++) {
-                        var sectionVariables: Variable[] = [...this.revenueState.sections[i].rows];
-                        var valuesOfAssumptionsAndVariables: string[][] = useFormulaParser().getSheetRowValues(this.revenueState.assumptions.concat(sectionVariables))
-                        valuesOfAssumptionsAndVariables.splice(0, this.revenueState.assumptions.length);
-                        variablesValuesStorage.set(i, valuesOfAssumptionsAndVariables);
-                    };
-                    this.variableValuesToDisplayState = variablesValuesStorage;
+                    this.updateDisplayedValues();
+
                 } catch (e) {
                     console.log(e);
                     //retrieve actual stored sheet from DB
@@ -309,8 +283,7 @@ export default {
             try {
                 //update RevenueState
                 await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
-                //Update sheet values valuesToDisplay
-                this.assumptionValuesToDisplayState = useFormulaParser().getSheetRowValues(this.revenueState.assumptions);
+                this.updateDisplayedValues();
             } catch (e) {
                 console.log(e);
                 //retrieve actual stored sheet from DB
@@ -349,15 +322,7 @@ export default {
                 //update RevenueState
                 await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
                 //Update sheet values valuesToDisplay
-                //Update sheet values valuesToDisplay
-                var variablesValuesStorage: Map<number, string[][]> = new Map<number, string[][]>();
-                for (let i = 0; i < this.revenueState.sections.length; i++) {
-                    var sectionVariables: Variable[] = [...this.revenueState.sections[i].rows];
-                    var valuesOfAssumptionsAndVariables: string[][] = useFormulaParser().getSheetRowValues(this.revenueState.assumptions.concat(sectionVariables))
-                    valuesOfAssumptionsAndVariables.splice(0, this.revenueState.assumptions.length);
-                    variablesValuesStorage.set(i, valuesOfAssumptionsAndVariables);
-                };
-                this.variableValuesToDisplayState = variablesValuesStorage;
+                this.updateDisplayedValues();
 
             } catch (e) {
                 console.log(e);
@@ -426,6 +391,21 @@ export default {
             } else {
                 return false;
             }
+        },
+        updateDisplayedValues() {
+
+            this.assumptionValuesToDisplayState = useFormulaParser().getSheetRowValues(this.revenueState.assumptions);
+
+            //Update entire sheet
+            var variablesValuesStorage: Map<number, string[][]> = new Map<number, string[][]>();
+            for (let i = 0; i < this.revenueState.sections.length; i++) {
+                var sectionVariables: Variable[] = [...this.revenueState.sections[i].rows];
+                var valuesOfAssumptionsAndVariables: string[][] = useFormulaParser().getSheetRowValues(this.revenueState.assumptions.concat(sectionVariables))
+                valuesOfAssumptionsAndVariables.splice(0, this.revenueState.assumptions.length);
+                variablesValuesStorage.set(i, valuesOfAssumptionsAndVariables);
+            };
+            this.variableValuesToDisplayState = variablesValuesStorage;
+
         }
     },
     mounted() {
