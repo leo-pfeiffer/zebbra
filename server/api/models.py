@@ -46,6 +46,7 @@ from api.utils.dependencies import get_current_active_user
 from core.integrations.merge import (
     merge_accounting_integration_data,
     merge_payroll_integration_data,
+    aggregate_payroll_info,
 )
 
 router = APIRouter()
@@ -413,6 +414,9 @@ async def retrieve_model_payroll(
     await merge_payroll_integration_data(
         model.payroll.employees, str(model.meta.workspace), model.meta.starting_month
     )
+    model.payroll.payroll_values = aggregate_payroll_info(
+        model.payroll.employees, model.meta.starting_month
+    )
     return model.payroll
 
 
@@ -441,6 +445,9 @@ async def update_model_payroll(
     model = await get_model_by_id(model_id)
     await merge_payroll_integration_data(
         model.payroll.employees, str(model.meta.workspace), model.meta.starting_month
+    )
+    model.payroll.payroll_values = aggregate_payroll_info(
+        model.payroll.employees, model.meta.starting_month
     )
     return model.payroll
 

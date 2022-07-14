@@ -758,6 +758,8 @@ async def test_post_model_employees(access_token):
     assert ct == 1
     assert ct_after == length_before
 
+    # todo check model_afterwards["payroll_values"]
+
 
 @pytest.mark.anyio
 async def test_post_model_employees_ignore_integration(access_token):
@@ -876,6 +878,8 @@ async def test_get_model_employees(access_token):
     assert response.status_code == status.HTTP_200_OK
     for e in response.json()["employees"]:
         assert Employee(**e)
+
+    # todo check model_afterwards["payroll_values"]
 
 
 @pytest.mark.anyio
