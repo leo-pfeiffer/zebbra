@@ -249,8 +249,6 @@ export default {
             return searchOutput;
         },
         outputValue() {
-
-            //todo:update
             if(this.variable.var_type === "integration") {
                 return "Integration";
             }
