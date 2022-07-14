@@ -412,7 +412,7 @@ async def retrieve_model_payroll(
 
     model = await get_model_by_id(model_id)
     return await merge_payroll_integration_data(
-        model.employees, str(model.meta.workspace), model.meta.starting_month
+        model.payroll.employees, str(model.meta.workspace), model.meta.starting_month
     )
 
 
@@ -441,7 +441,7 @@ async def update_model_payroll(
 
     model = await get_model_by_id(model_id)
     return await merge_payroll_integration_data(
-        model.employees, str(model.meta.workspace), model.meta.starting_month
+        model.payroll.employees, str(model.meta.workspace), model.meta.starting_month
     )
 
 

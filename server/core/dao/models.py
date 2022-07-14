@@ -245,7 +245,8 @@ async def create_model(admin_id: PyObjectId, model_name: str, workspace_id: PyOb
         }
     )
     sheets = create_default_sheets()
-    model = UpdateModel(**{"meta": meta, "sheets": sheets})
+    payroll = {"payroll_values": [], "employees": []}
+    model = UpdateModel(**{"meta": meta, "sheets": sheets, "payroll": payroll})
     return await db.models.insert_one(jsonable_encoder(model))
 
 
@@ -271,7 +272,7 @@ async def update_costs_sheet(model_id: str, sheet_data: Sheet):
 
 async def update_model_employees(model_id: str, employees: list[Employee]):
     return await db.models.update_one(
-        {"_id": model_id}, {"$set": {"employees": jsonable_encoder(employees)}}
+        {"_id": model_id}, {"$set": {"payroll.employees": jsonable_encoder(employees)}}
     )
 
 

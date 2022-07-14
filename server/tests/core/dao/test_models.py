@@ -393,7 +393,7 @@ async def test_update_revenues_sheet_cannot_change_meta():
 async def test_update_model_employees():
     model_id = "62b488ba433720870b60ec0a"
     model = await get_model_by_id(model_id)
-    employees = deepcopy(model.employees)
+    employees = deepcopy(model.payroll.employees)
     length_before = len(employees)
     employees.append(
         Employee(
@@ -411,9 +411,9 @@ async def test_update_model_employees():
     )
     await update_model_employees(model_id, employees)
     model_afterwards = await get_model_by_id(model_id)
-    assert length_before == len(model_afterwards.employees) - 1
+    assert length_before == len(model_afterwards.payroll.employees) - 1
     ct = 0
-    for e in model_afterwards.employees:
+    for e in model_afterwards.payroll.employees:
         if e.name == "Saint West":
             ct += 1
     assert ct == 1
