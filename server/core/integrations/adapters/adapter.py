@@ -47,6 +47,14 @@ class FetchAdapter(ABC):
         """
         return cls._integration
 
+    @classmethod
+    @abstractmethod
+    def api_type(cls):
+        """
+        Name of the integration.
+        """
+        return cls._api_type
+
     @abstractmethod
     async def get_data(self, from_date: date) -> DataBatch | list[Employee]:
         """
