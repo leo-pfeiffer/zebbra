@@ -1,3 +1,9 @@
+<script setup>
+
+const config = useRuntimeConfig();
+
+</script>
+
 <template>
   <div class="container flex justify-center mx-auto">
     <div class="w-1/2 md:w-1/4">
@@ -83,7 +89,7 @@ export default {
     async join() {
       
       const data = await $fetch(
-        'http://localhost:8000/register', {
+        `${this.config.public.backendUrlBase}/register`, {
           method: 'POST',
           body: this.form
         }

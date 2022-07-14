@@ -2,6 +2,9 @@
 definePageMeta({
   middleware: ["auth", "route-check"]
 })
+
+const config = useRuntimeConfig();
+
 </script>
 
 <template>
@@ -41,6 +44,9 @@ definePageMeta({
 </template>
 
 <script>
+
+import { useFetchAuth } from '~~/methods/useFetchAuth';
+
 export default {
   data() {
     return {
@@ -55,6 +61,7 @@ export default {
     };
   }, async beforeMount() {
     //check if user is admin
+
     this.userIsWorkspaceAdmin = await useIsWorkspaceAdmin();
 
     //get workspace name from userState
@@ -71,7 +78,7 @@ export default {
       this.showSuccess = false;
 
       const data = await useFetchAuth(
-        'http://localhost:8000/workspace/rename', {
+        '/workspace/rename', {
           method: 'POST',
         params: {
           workspace_id: this.workspace._id,

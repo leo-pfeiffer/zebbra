@@ -1,5 +1,7 @@
 <script setup lang="ts">
 
+import { useLogout } from '~~/methods/useLogout';
+
 //get the current user state
 const user = useUserState();
 
@@ -59,7 +61,7 @@ export default {
         </div>
         <div class="absolute bottom-0 left-0 bg-zinc-100 border-r border-zinc-300 w-48 flex justify-center px-3">
             <div class="flex justify-center w-full border-t border-zinc-300 py-3">
-                <button @click="useLogout" class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-sm px-2.5 py-1 border border-zinc-300 rounded text-zinc-700">Logout</button>
+                <button @click="useLogout()" class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-sm px-2.5 py-1 border border-zinc-300 rounded text-zinc-700">Logout</button>
             </div>
         </div>
         <div class="flex-grow overflow-y-scroll">
@@ -67,3 +69,13 @@ export default {
         </div>
     </div>
 </template>
+
+<style>
+
+.right-page {
+    width: calc(100% - 12rem);
+}
+
+
+
+</style>

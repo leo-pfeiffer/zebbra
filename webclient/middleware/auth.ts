@@ -1,4 +1,4 @@
-import { useToken } from "~~/composables/useToken"
+import { useToken } from "~~/methods/useToken"
 
 export default defineNuxtRouteMiddleware((to, from) => {
 
