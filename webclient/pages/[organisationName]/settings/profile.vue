@@ -1,7 +1,9 @@
 <script setup>
+
 definePageMeta({
   middleware: ["auth", "route-check"]
 })
+
 </script>
 
 <template>
@@ -87,29 +89,35 @@ definePageMeta({
             <ErrorMessage :error-message="errorMessageDeleteAccount"></ErrorMessage>
           </div>
         </div>
-        <div v-show="deleteModalOpen" class="absolute left-0 top-1/3 w-full flex justify-center align-middle">
-          <div class="p-6 border h-max shadow-lg bg-white border-zinc-300 rounded z-50">
-            <div>
-                <h3 class="text-zinc-900 font-medium text-sm mb-2">Delete your account?</h3>
-            </div>
-            <p class="text-zinc-500 text-xs mb-3">Deleting your account will be permanent and can't be undone.</p>
-            <div class="float-right">
-              <button
-                class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-xs px-2 py-1 border border-zinc-300 rounded text-zinc-700"
-                @click="toggleDeleteModal">Cancel</button>
-              <button class="ml-2 bg-red-600  drop-shadow-sm
-                          shadow-zinc-50 text-xs font-medium px-2 py-1 
-                          border border-red-500 rounded text-neutral-100" @click="deleteAccount">Delete</button>
+        <Teleport to="body">
+          <div v-show="deleteModalOpen" class="absolute left-0 top-1/3 w-full flex justify-center align-middle">
+            <div class="p-6 border h-max shadow-lg bg-white border-zinc-300 rounded z-50">
+              <div>
+                  <h3 class="text-zinc-900 font-medium text-sm mb-2">Delete your account?</h3>
+              </div>
+              <p class="text-zinc-500 text-xs mb-3">Deleting your account will be permanent and can't be undone.</p>
+              <div class="float-right">
+                <button
+                  class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-xs px-2 py-1 border border-zinc-300 rounded text-zinc-700"
+                  @click="toggleDeleteModal">Cancel</button>
+                <button class="ml-2 bg-red-600  drop-shadow-sm
+                            shadow-zinc-50 text-xs font-medium px-2 py-1 
+                            border border-red-500 rounded text-neutral-100" @click="deleteAccount">Delete</button>
+              </div>
             </div>
           </div>
-        </div>
-        <div v-show="deleteModalOpen" @click="toggleDeleteModal" class="fixed top-0 left-0 w-[100vw] h-[100vh] z-0 bg-zinc-100/50"></div>
+          <div v-show="deleteModalOpen" @click="toggleDeleteModal" class="fixed top-0 left-0 w-[100vw] h-[100vh] z-0 bg-zinc-100/50"></div>
+        </Teleport>
       </div>
     </div>
   </NuxtLayout>
 </template>
 
 <script>
+
+import { useFetchAuth } from '~~/methods/useFetchAuth';
+import { useLogout } from '~~/methods/useLogout';
+
 export default {
   data() {
     return {
@@ -138,7 +146,6 @@ export default {
     this.user.lastName = userState.value.last_name;
     this.user.email = userState.value.username;
 
-
   },
   methods: {
     async updateUserInformation() {
@@ -148,7 +155,7 @@ export default {
       this.showSuccessPersonalInfo = false;
 
       const data = await useFetchAuth(
-        'http://localhost:8000/user/update',{ method: 'POST', 
+        '/user/update',{ method: 'POST', 
         params: {
           username: this.user.email,
           first_name: this.user.firstName,
@@ -175,7 +182,7 @@ export default {
       this.showSuccessPassword = false;
 
       const data = await useFetchAuth(
-        'http://localhost:8000/user/update',{ method: 'POST', 
+        '/user/update',{ method: 'POST', 
         params: {
           password: this.user.password
           }}
@@ -201,7 +208,7 @@ export default {
     async deleteAccount() {
 
       const data = await useFetchAuth(
-        'http://localhost:8000/user/delete',{ method: 'POST', 
+        '/user/delete',{ method: 'POST', 
         }).then((data) => {
           console.log(data)
           useLogout();

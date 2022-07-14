@@ -1,5 +1,3 @@
-
-
 //middleware that checks whether the route to be accessed matches the users workspace
 export default defineNuxtRouteMiddleware( async (to, from) => {
 
@@ -8,8 +6,18 @@ export default defineNuxtRouteMiddleware( async (to, from) => {
     const user = useUserState();
     user.value = await updateUserState();
 
-    const userWorkspace = user.value.workspaces[0].name;
-    const path = to.fullPath.split("/");
+    //const userWorkspace = user.value.workspaces[0].name;
+
+    var userWorkspace:string;
+    
+    try {
+        userWorkspace = user.value.workspaces[0].name;
+    } catch(error) {
+        console.log("User state could not be accessed");
+        console.log(error);
+    }
+
+    const path:string[] = to.fullPath.split("/");
 
                             //handle case where name includes a space (%20)
     if(!(userWorkspace === path[1].split("%20").join(" "))) {

@@ -4,10 +4,18 @@
     "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
-    "preview": "nuxt preview"
+    "preview": "nuxt preview",
+    "test": "vitest --run --reporter verbose --globals",
+    "test:watch": "vitest --reporter verbose --globals"
   },
   "devDependencies": {
     "@nuxtjs/tailwindcss": "^5.1.2",
+    "@types/math-expression-evaluator": "^1.2.2",
     "nuxt": "3.0.0-rc.4"
+  },
+  "dependencies": {
+    "@nuxt/test-utils-edge": "^3.0.0-rc.4-27619747.ad8b5f9",
+    "math-expression-evaluator": "^1.4.0",
+    "vitest": "^0.17.1"
   }
 }

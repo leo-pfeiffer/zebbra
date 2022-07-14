@@ -1,4 +1,5 @@
-import { GetUserResponse } from "~~/types/GetUserResponse"
+import { useFetchAuth } from "~~/methods/useFetchAuth";
+import { GetUserResponse } from "~~/types/GetUserResponse";
 
 var userInfo:GetUserResponse;
 
@@ -7,7 +8,7 @@ export const useUserState = () => useState<GetUserResponse>('userState', () => u
 export const updateUserState = async () => {
   
     const request = await useFetchAuth(
-        'http://localhost:8000/user',{ method: 'GET'}
+      '/user',{ method: 'GET'}
         ).then((data:GetUserResponse) => {
           userInfo = data;
         }).catch((error) => {

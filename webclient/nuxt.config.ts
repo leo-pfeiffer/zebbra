@@ -2,6 +2,12 @@ import { defineNuxtConfig } from 'nuxt'
 
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
 export default defineNuxtConfig({
+    runtimeConfig: {
+        public: {
+            frontEndUrlBase: process.env.FRONTEND_URL_BASE,
+            backendUrlBase: process.env.BACKEND_URL_BASE,
+          }
+    },
     modules: ['@nuxtjs/tailwindcss'],
     app: {
         head: {
