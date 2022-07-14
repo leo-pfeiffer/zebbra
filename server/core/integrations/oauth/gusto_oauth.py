@@ -45,6 +45,7 @@ class GustoIntegrationOAuth(IntegrationOAuth):
 
         response = await self.oauth_app.post(
             settings.GUSTO_REFRESH_URL,
+            withhold_token=True,
             data={
                 "client_id": settings.GUSTO_CLIENT_ID,
                 "client_secret": settings.GUSTO_CLIENT_SECRET,

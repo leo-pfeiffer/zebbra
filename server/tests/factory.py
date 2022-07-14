@@ -83,7 +83,7 @@ def create_accounting_cache():
 def create_payroll_cache():
     for element in payroll_cache:
         element["created_at"] = datetime.now()
-    return db.payroll_cache.insert_many(accounting_cache)
+    return db.payroll_cache.insert_many(payroll_cache)
 
 
 def teardown_users():

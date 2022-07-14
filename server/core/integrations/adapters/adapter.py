@@ -133,10 +133,10 @@ class FetchAdapter(ABC):
         :param from_date: Date in unix format, converted to UTC for reproducibility
         :return: Data batch if cached, else None
         """
-        if self._api_type == "accounting":
+        if self.api_type() == "accounting":
             logger.info("getting accounting cache")
             return await self._get_cached_accounting(from_date)
-        elif self._api_type == "payroll":
+        elif self.api_type() == "payroll":
             logger.info("getting payroll cache")
             return await self._get_cached_payroll(from_date)
 
@@ -162,10 +162,10 @@ class FetchAdapter(ABC):
         :param data: Data batch or employee list to cache
         :param from_date: Date in unix format, converted to UTC for reproducibility
         """
-        if self._api_type == "accounting":
+        if self.api_type() == "accounting":
             logger.info("caching accounting")
             return await self._set_cached_accounting(data, from_date)
-        elif self._api_type == "payroll":
+        elif self.api_type() == "payroll":
             logger.info("caching payroll")
             return await self._set_cached_payroll(data, from_date)
 
