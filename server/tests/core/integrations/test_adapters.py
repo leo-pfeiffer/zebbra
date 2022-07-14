@@ -1,5 +1,5 @@
 from core.integrations.adapters.gusto_adapter import GustoFetchAdapter
-from core.schemas.utils import DataBatch
+from core.schemas.cache import DataBatch
 from core.integrations.adapters.xero_adapter import XeroFetchAdapter
 from tests.factory import _read_json
 from datetime import date

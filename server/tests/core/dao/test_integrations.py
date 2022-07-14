@@ -3,7 +3,12 @@ import time
 import pytest
 from dateutil.relativedelta import relativedelta
 
-from core.dao.integrations import get_accounting_cache, set_accounting_cache
+from core.dao.integrations import (
+    get_accounting_cache,
+    set_accounting_cache,
+    set_payroll_cache,
+    get_payroll_cache,
+)
 from datetime import datetime, timezone
 
 from core.dao.integrations import (
@@ -12,12 +17,15 @@ from core.dao.integrations import (
     workspace_has_integration,
     set_requires_reconnect,
 )
-from core.schemas.utils import DataBatchCache
+from core.schemas.cache import DataBatchCache, EmployeeListCache
 from tests.factory import setup_integration_access
 from tests.utils import count_documents
 
 
-def compare_rounded_created_at(cached1: DataBatchCache, cached2: DataBatchCache):
+def compare_rounded_created_at(
+    cached1: DataBatchCache | EmployeeListCache,
+    cached2: DataBatchCache | EmployeeListCache,
+):
     cached1.created_at = cached1.created_at.replace(tzinfo=timezone.utc)
     cached2.created_at = cached2.created_at.replace(tzinfo=timezone.utc)
     return int(cached1.created_at.timestamp()) == int(cached2.created_at.timestamp())
@@ -100,7 +108,7 @@ async def test_set_requires_reconnect_false(workspaces):
 
 
 @pytest.mark.anyio
-async def test_set_cached():
+async def test_set_accounting_cached():
     cache_obj = DataBatchCache(
         data={},
         dates=[],
@@ -115,7 +123,7 @@ async def test_set_cached():
 
 
 @pytest.mark.anyio
-async def test_set_cached_replaces():
+async def test_set_accounting_cached_replaces():
     cache_obj = DataBatchCache(
         data={},
         dates=[],
@@ -137,7 +145,7 @@ async def test_set_cached_replaces():
 
 
 @pytest.mark.anyio
-async def test_get_cached():
+async def test_get_accounting_cached():
     cache_obj = DataBatchCache(
         data={},
         dates=[],
@@ -152,7 +160,7 @@ async def test_get_cached():
 
 
 @pytest.mark.anyio
-async def test_get_cached_non_existent_from_date():
+async def test_get_accounting_cached_non_existent_from_date():
     cache_obj = DataBatchCache(
         data={},
         dates=[],
@@ -166,7 +174,7 @@ async def test_get_cached_non_existent_from_date():
 
 
 @pytest.mark.anyio
-async def test_get_cached_non_existent_workspace():
+async def test_get_accounting_cached_non_existent_workspace():
     cache_obj = DataBatchCache(
         data={},
         dates=[],
@@ -180,7 +188,7 @@ async def test_get_cached_non_existent_workspace():
 
 
 @pytest.mark.anyio
-async def test_get_cached_non_existent_integration():
+async def test_get_accounting_cached_non_existent_integration():
     cache_obj = DataBatchCache(
         data={},
         dates=[],
@@ -191,3 +199,93 @@ async def test_get_cached_non_existent_integration():
     )
     await set_accounting_cache(cache_obj)
     assert await get_accounting_cache("123", "false", 123) is None  # noqa
+
+
+@pytest.mark.anyio
+async def test_set_payroll_cached():
+    cache_obj = EmployeeListCache(
+        employees=[],
+        created_at=datetime.now(tz=timezone.utc),
+        workspace_id="123",
+        integration="Xero",
+        from_date=123,
+    )
+    await set_payroll_cache(cache_obj)
+    db_obj = await get_payroll_cache("123", "Xero", 123)
+    assert compare_rounded_created_at(cache_obj, db_obj)
+
+
+@pytest.mark.anyio
+async def test_set_payroll_cached_replaces():
+    cache_obj = EmployeeListCache(
+        employees=[],
+        created_at=datetime.now(tz=timezone.utc),
+        workspace_id="123",
+        integration="Xero",
+        from_date=123,
+    )
+
+    await set_payroll_cache(cache_obj)
+
+    cache_obj2 = EmployeeListCache(**cache_obj.dict())
+    cache_obj2.created_at += relativedelta(minutes=10)
+    await set_payroll_cache(cache_obj2)
+    time.sleep(1)  # wait for 1 sec to make sure timestamp changes
+
+    db_obj = await get_payroll_cache("123", "Xero", 123)
+    assert not compare_rounded_created_at(cache_obj, db_obj)
+    assert compare_rounded_created_at(cache_obj2, db_obj)
+
+
+@pytest.mark.anyio
+async def test_get_payroll_cached():
+    cache_obj = EmployeeListCache(
+        employees=[],
+        created_at=datetime.now(tz=timezone.utc),
+        workspace_id="123",
+        integration="Xero",
+        from_date=123,
+    )
+    await set_payroll_cache(cache_obj)
+    db_obj = await get_payroll_cache("123", "Xero", 123)
+    assert compare_rounded_created_at(cache_obj, db_obj)
+
+
+@pytest.mark.anyio
+async def test_get_payroll_cached_non_existent_from_date():
+    cache_obj = EmployeeListCache(
+        employees=[],
+        created_at=datetime.now(tz=timezone.utc),
+        workspace_id="123",
+        integration="Xero",
+        from_date=123,
+    )
+
+    await set_payroll_cache(cache_obj)
+    assert await get_payroll_cache("123", "Xero", 321) is None
+
+
+@pytest.mark.anyio
+async def test_get_payroll_cached_non_existent_workspace():
+    cache_obj = EmployeeListCache(
+        employees=[],
+        created_at=datetime.now(tz=timezone.utc),
+        workspace_id="123",
+        integration="Xero",
+        from_date=123,
+    )
+    await set_payroll_cache(cache_obj)
+    assert await get_payroll_cache("false", "Xero", 123) is None
+
+
+@pytest.mark.anyio
+async def test_get_payroll_cached_non_existent_integration():
+    cache_obj = EmployeeListCache(
+        employees=[],
+        created_at=datetime.now(tz=timezone.utc),
+        workspace_id="123",
+        integration="Xero",
+        from_date=123,
+    )
+    await set_payroll_cache(cache_obj)
+    assert await get_payroll_cache("123", "false", 123) is None  # noqa

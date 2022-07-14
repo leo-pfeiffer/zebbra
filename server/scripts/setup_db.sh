@@ -50,7 +50,10 @@ mongosh <<EOF
   };
   db.accounting_cache.createIndex({ "created_at": 1 }, { expireAfterSeconds: $CACHE_TTL });
 
-  db.accounting_cache.getIndexes();
+  if (db.payroll_cache.getIndexes().filter(e => e.name == "created_at_1").length > 0) {
+    db.payroll_cache.dropIndex("created_at_1");
+  };
+  db.payroll_cache.createIndex({ "created_at": 1 }, { expireAfterSeconds: $CACHE_TTL });
 EOF
 
 # todo this should be unnecessary but if I take it out the first auth test in CI fails,

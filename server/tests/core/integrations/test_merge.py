@@ -5,7 +5,7 @@ import pytest
 from core.dao.models import get_revenues_sheet
 from core.schemas.integrations import IntegrationProvider
 from core.schemas.rows import Row, IntegrationValue
-from core.schemas.utils import DataBatch
+from core.schemas.cache import DataBatch
 from core.integrations.merge import parse_value, merge_integration_data, process_row
 
 

@@ -5,10 +5,16 @@ from typing import Literal
 
 from dateutil.relativedelta import relativedelta
 
-from core.dao.integrations import get_accounting_cache, set_accounting_cache
+from core.dao.integrations import (
+    get_accounting_cache,
+    set_accounting_cache,
+    set_payroll_cache,
+    get_payroll_cache,
+)
+from core.logger import logger
 from core.schemas.integrations import IntegrationProvider
 from core.schemas.models import Employee
-from core.schemas.utils import DataBatch, DataBatchCache
+from core.schemas.cache import DataBatch, DataBatchCache, EmployeeListCache
 
 
 class FetchAdapter(ABC):
@@ -129,20 +135,25 @@ class FetchAdapter(ABC):
         :return: Data batch if cached, else None
         """
         if self._api_type == "accounting":
+            logger.info("getting accounting cache")
             return await self._get_cached_accounting(from_date)
         elif self._api_type == "payroll":
+            logger.info("getting payroll cache")
             return await self._get_cached_payroll(from_date)
 
-    async def _get_cached_accounting(self, from_date: int):
+    async def _get_cached_accounting(self, from_date: int) -> DataBatch:
         cached = await get_accounting_cache(
             self.workspace_id, self.integration(), from_date
         )
         if cached:
             return cached.to_data_batch()
 
-    async def _get_cached_payroll(self, from_date: int):
-        # todo IMPLEMENT!!!
-        ...
+    async def _get_cached_payroll(self, from_date: int) -> list[Employee]:
+        cached = await get_payroll_cache(
+            self.workspace_id, self.integration(), from_date
+        )
+        if cached:
+            return cached.employees
 
     async def set_cached(self, data: DataBatch | list[Employee], from_date: int):
         """
@@ -153,8 +164,10 @@ class FetchAdapter(ABC):
         :param from_date: Date in unix format, converted to UTC for reproducibility
         """
         if self._api_type == "accounting":
+            logger.info("caching accounting")
             return await self._set_cached_accounting(data, from_date)
         elif self._api_type == "payroll":
+            logger.info("caching payroll")
             return await self._set_cached_payroll(data, from_date)
 
     async def _set_cached_accounting(self, data_batch: DataBatch, from_date: int):
@@ -169,8 +182,14 @@ class FetchAdapter(ABC):
         return await set_accounting_cache(cache_obj)
 
     async def _set_cached_payroll(self, data_batch: list[Employee], from_date: int):
-        # todo IMPLEMENT!!!
-        ...
+        cache_obj = EmployeeListCache(
+            employees=data_batch,
+            created_at=datetime.now().astimezone(timezone.utc),
+            workspace_id=self.workspace_id,
+            integration=self.integration(),
+            from_date=from_date,
+        )
+        return await set_payroll_cache(cache_obj)
 
     @staticmethod
     def _merge_batches(batches: list):

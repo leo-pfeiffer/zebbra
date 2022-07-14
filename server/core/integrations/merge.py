@@ -6,7 +6,7 @@ from core.logger import logger
 from core.schemas.integrations import IntegrationProvider
 from core.schemas.rows import Row, IntegrationValue
 from core.schemas.sheets import Sheet
-from core.schemas.utils import DataBatch
+from core.schemas.cache import DataBatch
 
 
 async def merge_integration_data(sheet: Sheet, workspace_id: str, from_date: date):

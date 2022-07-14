@@ -8,7 +8,7 @@ from core.integrations.oauth.xero_oauth import (
     xero_integration_oauth,
     API_URL_SUFFIX,
 )
-from core.schemas.utils import DataBatch
+from core.schemas.cache import DataBatch
 
 
 class XeroFetchAdapter(FetchAdapter):

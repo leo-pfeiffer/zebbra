@@ -26,6 +26,7 @@ class _DAO:
     models = _db["models"]
     integration_access = _db["integration_access"]
     accounting_cache = _db["accounting_cache"]
+    payroll_cache = _db["payroll_cache"]
 
     @staticmethod
     def get_collection(collection):

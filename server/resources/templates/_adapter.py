@@ -3,7 +3,7 @@ from typing import Literal
 
 from core.integrations.adapters.adapter import FetchAdapter
 from core.schemas.models import Employee
-from core.schemas.utils import DataBatch
+from core.schemas.cache import DataBatch
 
 
 class XxXxXFetchAdapter(FetchAdapter):
