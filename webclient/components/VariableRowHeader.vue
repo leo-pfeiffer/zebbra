@@ -114,7 +114,7 @@ const route = useRoute();
                             @click="toggleDeleteModal">Cancel</button>
                         <button class="ml-2 bg-red-600  drop-shadow-sm
                             shadow-zinc-50 text-xs font-medium px-2 py-1 
-                            border border-red-500 rounded text-neutral-100" @click="$emit('deleteVariable', variableIndex); toggleDeleteModal()">Delete</button>
+                            border border-red-500 rounded text-neutral-100" @click="$emit('deleteVariable', variableIndex, sectionIndex); toggleDeleteModal()">Delete</button>
                     </div>
                 </div>
                 <div v-show="deleteModalOpen" @click="toggleDeleteModal"
