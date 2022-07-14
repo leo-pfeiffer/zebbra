@@ -12,7 +12,7 @@ from core.exceptions import (
     BusinessLogicException,
 )
 from core.schemas.utils import PyObjectId
-from core.schemas.models import ModelMeta, UpdateModel, ModelUser, Model
+from core.schemas.models import ModelMeta, UpdateModel, ModelUser, Model, Employee
 from core.schemas.sheets import Sheet, create_default_sheets
 from core.settings import get_settings
 
@@ -267,6 +267,13 @@ async def update_revenues_sheet(model_id: str, sheet_data: Sheet):
 
 async def update_costs_sheet(model_id: str, sheet_data: Sheet):
     return await _update_sheet_data(model_id, sheet_data, "Costs")
+
+
+# todo test
+async def update_model_employees(model_id: str, employees: list[Employee]):
+    return await db.models.update_one(
+        {"_id": model_id}, {"$set": {"employees": jsonable_encoder(employees)}}
+    )
 
 
 async def _get_sheet_by_name(model_id: str, sheet_name: str) -> Sheet:

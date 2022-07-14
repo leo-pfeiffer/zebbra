@@ -59,7 +59,8 @@ class GustoFetchAdapter(FetchAdapter):
         )
 
         resp = await gusto_integration_oauth.oauth_app.get(
-            f"v2/companies/{integration_access.tenant_id}/employees",
+            f"v1/companies/{integration_access.tenant_id}/employees",
+            token=integration_access.token.dict(),
             headers={
                 "Accept": "application/json",
                 "Content-Type": "application/json",

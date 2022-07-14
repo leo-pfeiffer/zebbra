@@ -1,6 +1,7 @@
 from core.integrations.adapters.gusto_adapter import GustoFetchAdapter
 from core.schemas.cache import DataBatch
 from core.integrations.adapters.xero_adapter import XeroFetchAdapter
+from core.schemas.utils import DateString
 from tests.factory import _read_json
 from datetime import date
 from copy import deepcopy
@@ -166,7 +167,7 @@ def test_gusto_process_employees_correct_end_date():
     processed = GustoFetchAdapter("")._process_employees([base], date(2020, 3, 1))
 
     assert len(processed) == 1
-    assert processed[0].end_date == date(2020, 3, 1)
+    assert processed[0].end_date == DateString(date(2020, 3, 1))
 
 
 def test_gusto_process_employees_correct_start_date():
@@ -211,7 +212,7 @@ def test_gusto_process_employees_correct_start_date():
     processed = GustoFetchAdapter("")._process_employees([base], date(2020, 3, 1))
 
     assert len(processed) == 1
-    assert processed[0].start_date == date(2020, 1, 1)
+    assert processed[0].start_date == DateString(date(2020, 1, 1))
 
 
 def test_gusto_process_employees_handle_compensation_monthly():
