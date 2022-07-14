@@ -82,6 +82,12 @@ const variableValuesToDisplayState = useState<Map<number, string[][]>>('variable
                                         :variableSearchMap="useVariableSearchMap(revenueState.assumptions.concat(section.rows))"
                                         :sectionIndex="sectionIndex"></VariableRowHeader>
 
+                                    <div
+                                    class="text-xs py-2 px-3 min-w-[400px] max-w-[400px] border-zinc-300 border-y border-l">
+                                        <button @click="addVariable(sectionIndex)" class="text-zinc-500 hover:text-zinc-700 pl-2"><i
+                                            class="bi bi-plus-lg mr-1"></i>Add Variable</button>
+                                    </div>
+
                                     <VariableRowHeader :variable="section.end_row" :variable-index="0"
                                         :timeSeriesMap="useVariableTimeSeriesMap(revenueState.assumptions.concat(section.rows))"
                                         :variableSearchMap="useVariableSearchMap(revenueState.assumptions.concat(section.rows))">
@@ -123,6 +129,11 @@ const variableValuesToDisplayState = useState<Map<number, string[][]>>('variable
                                 <VariableRow v-if="variableValuesToDisplayState"
                                     v-for="variableValues in variableValuesToDisplayState.get(index)"
                                     :values="variableValues" :round-to="2"></VariableRow>
+                                <div class="flex">
+                                <!-- add variable button empty -->
+                                <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-y"
+                                    v-for="date in dates">X</div>
+                            </div>
                             </div>
                         </div>
                     </div>
@@ -173,6 +184,41 @@ export default {
             } catch (e) {
                 console.log(e)
                 this.revenueState = await useSheetUpdate().getRevenueSheet(this.route.params.modelId)
+            }
+
+        },
+        async addVariable(sectionIndex:number) {
+            const emptyVariable: Variable = {
+
+                _id: undefined,
+                name: "",
+                val_type: "number",
+                editable: true,
+                var_type: "value",
+                time_series: false,
+                starting_at: 0,
+                first_value_diff: false,
+                value: "0",
+                value_1: undefined,
+                integration_values: undefined
+
+            }
+
+            this.revenueState.sections[sectionIndex].rows.push(emptyVariable);
+            this.updateDisplayedValues();
+
+/*             const assumptionValuesArrayState = useState<string[][]>('assumptionValues');
+            var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(this.revenueState.assumptions);
+            let index = assumptionValuesArray.length - 1;
+            assumptionValuesArrayState.value.push(assumptionValuesArray[index]) */
+
+            //todo: proper error handling
+            try {
+                await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
+            } catch (e) {
+                console.log(e)
+                this.revenueState = await useSheetUpdate().getRevenueSheet(this.route.params.modelId)
+                this.updateDisplayedValues();
             }
 
         },
