@@ -32,39 +32,39 @@ const route = useRoute();
                     <div class="text-zinc-900 font-medium mb-2">Variable Type</div>
                     <div class="grid grid-rows-2 grid-flow-col gap-x-1 gap-y-3 mb-3">
                         <div>
-                            <input v-model="valType" :checked="(valType == 'number')" :id="'number' + variableIndex"
-                                type="radio" value="number" :name="'variable-type-select' + variableIndex"
+                            <input v-model="valType" :checked="(valType == 'number')" :id="'number' + variable._id"
+                                type="radio" value="number" :name="'variable-type-select' + variable._id"
                                 class="hidden peer">
-                            <label :for="'number' + variableIndex"
+                            <label :for="'number' + variable._id"
                                 class="px-1.5 py-0.5 bg-zinc-100 border border-zinc-300 text-zinc-700 rounded peer-checked:text-white peer-checked:bg-sky-600 peer-checked:border-sky-500"><i
                                     class="bi bi-hash mr-1"></i>Number</label>
                         </div>
                         <div>
                             <input v-model="valType" :checked="(valType == 'currency')"
-                                :id="'currency' + variableIndex" type="radio" value="currency"
-                                :name="'variable-type-select' + variableIndex" class="hidden peer">
-                            <label :for="'currency' + variableIndex"
+                                :id="'currency' + variable._id" type="radio" value="currency"
+                                :name="'variable-type-select' + variable._id" class="hidden peer">
+                            <label :for="'currency' + variable._id"
                                 class="px-1.5 py-0.5 bg-zinc-100 border border-zinc-300 text-zinc-700 rounded peer-checked:text-white peer-checked:bg-sky-600 peer-checked:border-sky-500"><i
                                     class="bi bi-currency-dollar mr-1"></i>Currency</label>
                         </div>
                         <div>
                             <input v-model="valType" :checked="(valType == 'percentage')"
-                                :id="'percentage' + variableIndex" type="radio" value="percentage"
-                                :name="'variable-type-select' + variableIndex" class="hidden peer">
-                            <label :for="'percentage' + variableIndex"
+                                :id="'percentage' + variable._id" type="radio" value="percentage"
+                                :name="'variable-type-select' + variable._id" class="hidden peer">
+                            <label :for="'percentage' + variable._id"
                                 class="px-1.5 py-0.5 bg-zinc-100 border border-zinc-300 text-zinc-700 rounded peer-checked:text-white peer-checked:bg-sky-600 peer-checked:border-sky-500"><i
                                     class="bi bi-percent mr-1"></i>Percentage</label>
                         </div>
                     </div>
                     <div class="text-zinc-900 font-medium mb-2">Custom starting value</div>
                     <div class="mb-3">
-                        <input v-model="value1" :id="'value1-input-' + variableIndex" type="text"
+                        <input v-model="value1" :id="'value1-input-' + variable._id" type="text"
                             class="border-zinc-300 border rounded w-full font-mono px-2 py-1">
                     </div>
                     <div class="text-zinc-900 font-medium mb-2">Starting at</div>
                     <div class="mb-3 flex justify-start align-middle">
                         <div class="w-3/5">First month plus:</div>
-                        <div class="w-2/5"><input v-model="startingAt" :id="'starting-at-' + variableIndex" min="0"
+                        <div class="w-2/5"><input v-model="startingAt" :id="'starting-at-' + variable._id" min="0"
                                 type="number"
                                 class="border-zinc-300 border rounded font-mono w-16 float-right px-2 py-1"></div>
                     </div>
@@ -74,7 +74,7 @@ const route = useRoute();
                             @click="toggleSettings">Cancel</button>
                         <button class="ml-2 bg-sky-600  drop-shadow-sm
                                 shadow-zinc-50 text-xs px-1.5 py-0.5 font-medium
-                                border border-sky-500 rounded text-neutral-100" @click="$emit('updateSettings', variableIndex, value1, valType, startingAt); toggleSettings()">Update</button>
+                                border border-sky-500 rounded text-neutral-100" @click="$emit('updateSettings', variableIndex, value1, valType, startingAt, sectionIndex); toggleSettings()">Update</button>
                     </div>
                 </div>
             </div>

@@ -73,6 +73,7 @@ const variableValuesToDisplayState = useState<Map<number, string[][]>>('variable
                                         class="text-xs text-zinc-700 py-2 px-3 min-w-[400px] max-w-[400px] border-zinc-300 border-l border-t">
                                         {{ section.name }}</div>
                                     <VariableRowHeader @update-value="updateVariableValue"
+                                        @update-settings="updateVariableSettings"
                                         v-for="(variable, index) in section.rows" :variable="variable"
                                         :variable-index="index"
                                         :timeSeriesMap="useVariableTimeSeriesMap(revenueState.assumptions.concat(section.rows))"
@@ -283,7 +284,7 @@ export default {
                 }
             }
         },
-        async updateAssumptionSettings(variableIndex: number, value1Input: string, valTypeInput: string, startingAtInput: number) {
+        async updateAssumptionSettings(variableIndex: number, value1Input: string, valTypeInput: string, startingAtInput: number, sectionIndex:number) {
 
             this.revenueState.assumptions[variableIndex].val_type = valTypeInput;
             this.revenueState.assumptions[variableIndex].value_1 = value1Input;
@@ -316,6 +317,54 @@ export default {
                 //if actual sheet and state match, if not update state to actual sheet
                 const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
                 if (!(this.revenue.assumptions[variableIndex].value === this.revenue.assumptions[variableIndex].value)) {
+                    this.revenue.value = actualSheet;
+                }
+            }
+        },
+        async updateVariableSettings(variableIndex: number, value1Input: string, valTypeInput: string, startingAtInput: number, sectionIndex:number) {
+            
+            console.log(variableIndex);
+            
+            this.revenueState.sections[sectionIndex].rows[variableIndex].val_type = valTypeInput;
+            this.revenueState.sections[sectionIndex].rows[variableIndex].value_1 = value1Input;
+
+            var value1OnlySpaces: boolean;
+
+            try {
+                value1OnlySpaces = value1Input.trim().length === 0;
+            } catch (e) {
+                //if it returns an error it means value_1 is undefined
+                value1OnlySpaces = false;
+            }
+
+            if (value1Input === undefined || value1Input === "" || value1OnlySpaces) {
+                this.revenueState.sections[sectionIndex].rows[variableIndex].value_1 = undefined;
+                this.revenueState.sections[sectionIndex].rows[variableIndex].first_value_diff = false;
+            } else {
+                this.revenueState.sections[sectionIndex].rows[variableIndex].first_value_diff = true;
+            }
+            this.revenueState.sections[sectionIndex].rows[variableIndex].starting_at = startingAtInput;
+
+            try {
+                //update RevenueState
+                await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
+                //Update sheet values valuesToDisplay
+                //Update sheet values valuesToDisplay
+                var variablesValuesStorage: Map<number, string[][]> = new Map<number, string[][]>();
+                for (let i = 0; i < this.revenueState.sections.length; i++) {
+                    var sectionVariables: Variable[] = [...this.revenueState.sections[i].rows];
+                    var valuesOfAssumptionsAndVariables: string[][] = useFormulaParser().getSheetRowValues(this.revenueState.assumptions.concat(sectionVariables))
+                    valuesOfAssumptionsAndVariables.splice(0, this.revenueState.assumptions.length);
+                    variablesValuesStorage.set(i, valuesOfAssumptionsAndVariables);
+                };
+                this.variableValuesToDisplayState = variablesValuesStorage;
+
+            } catch (e) {
+                console.log(e);
+                //retrieve actual stored sheet from DB
+                //if actual sheet and state match, if not update state to actual sheet
+                const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
+                if (!(this.revenue.sections[sectionIndex].rows[variableIndex].value === this.revenue.sections[sectionIndex].rows[variableIndex].value)) {
                     this.revenue.value = actualSheet;
                 }
             }
