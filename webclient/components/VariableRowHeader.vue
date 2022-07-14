@@ -91,10 +91,10 @@ const route = useRoute();
                     </div>
                 </div>
                 <div v-else
-                    class="absolute text-xs border-zinc-300 min-w-[500px] max-w-[500px] h-full w-full text-right">
+                    class="absolute text-xs border-zinc-300 min-w-[500px] max-w-[500px] h-full w-full text-right z-50">
                     <input v-show="valueInputSelected" autofocus @keydown.enter="$emit('updateValue', humanReadableInputValue, variable._id, variableSearchMap, timeSeriesMap, variableIndex); toggleInput()" @keydown.esc="toggleInput"
                         v-model="humanReadableInputValue"
-                        class="border-t w-full py-2 px-2 font-mono font-sm focus:rounded-none focus:outline-green-600 border-r-2 border-zinc-300"
+                        class="border-t bg-white w-full py-2 px-2 font-mono font-sm focus:rounded-none focus:outline-green-600 border-r-2 border-zinc-300"
                         type=text>
                 <SearchDropDown v-show="variableSearch.size > 0" :variableSearch="variableSearch" @search-click="addSearchItemToInputValue"></SearchDropDown>
                 </div>

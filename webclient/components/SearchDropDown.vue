@@ -1,8 +1,8 @@
 <template>
 
-    <div class="sticky top-0 rounded-b min-w-fit">
+    <div class="sticky top-0 rounded-b min-w-fit z-50">
         <table class="text-left min-w-fit">
-            <th class="font-medium border border-zinc-300 bg-zinc-50 px-2 py-0.5 text-[10px] text-zinc-500 ">VARIABLE</th>
+            <th class="font-medium border border-zinc-300 bg-zinc-50 px-2 py-0.5 text-[10px] text-zinc-500">VARIABLE</th>
             <tr class="border bg-white border-zinc-300 shadow-md text-left" v-for="[key, value] in variableSearch" :key="key">
             <div class="min-w-fit flex align-middle justify-start py-2 px-2">
                 <div>
