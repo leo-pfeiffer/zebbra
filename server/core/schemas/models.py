@@ -5,7 +5,6 @@ from datetime import date
 from bson import ObjectId
 from pydantic import BaseModel, Field
 
-from core.schemas.integrations import IntegrationProvider
 from core.schemas.utils import PyObjectId, DateString
 from core.schemas.sheets import Sheet
 
