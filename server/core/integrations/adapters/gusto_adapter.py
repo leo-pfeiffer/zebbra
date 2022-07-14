@@ -6,9 +6,6 @@ from core.logger import logger
 from core.schemas.models import Employee
 
 
-# todo: If we stick with Gusto, this needs to be implemented
-
-
 class GustoFetchAdapter(FetchAdapter):
 
     _integration = "Gusto"
@@ -156,9 +153,8 @@ class GustoFetchAdapter(FetchAdapter):
                     last_termination_date = termination["effective_date"]
         return terminated, last_termination_date
 
-    def _get_monthly_salary(
-        self, raw_employee: dict, most_recent_job: dict
-    ) -> int | None:
+    @staticmethod
+    def _get_monthly_salary(raw_employee: dict, most_recent_job: dict) -> int | None:
         """
         Extract the monthly salary from an employee
         :param raw_employee: Raw employee dict
