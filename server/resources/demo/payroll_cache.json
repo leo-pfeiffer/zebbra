@@ -1,0 +1,143 @@
+[
+  {
+    "_id": "62ca096a30b85adc0b28cd05",
+    "created_at": "2022-07-09T23:04:10.375Z",
+    "from_date": 1580428800,
+    "integration": "Gusto",
+    "workspace_id": "62bc5706a40e85213c27ce29",
+    "employees": [
+      {
+        "_id": "55874131251833984967215178178678374444",
+        "name": "Isaiah Berlin",
+        "start_date": "2021-07-12",
+        "end_date": null,
+        "title": "Client Support Manager",
+        "department": "Sales",
+        "monthly_salary": 3810,
+        "from_integration": true
+      },
+      {
+        "_id": "213294018098475223563870514641503953203",
+        "name": "Patricia Churchland",
+        "start_date": "2021-07-12",
+        "end_date": null,
+        "title": "Account Director",
+        "department": "Sales",
+        "monthly_salary": 6500,
+        "from_integration": true
+      },
+      {
+        "_id": "179934066925175653374667467820393048533",
+        "name": "Soren Kierkegaard",
+        "start_date": "2021-07-12",
+        "end_date": null,
+        "title": "Client Support Director",
+        "department": "Marketing",
+        "monthly_salary": 5833,
+        "from_integration": true
+      },
+      {
+        "_id": "11465575033033392220080945616030126198",
+        "name": "Hannah Arendt",
+        "start_date": "2021-07-12",
+        "end_date": null,
+        "title": "Account Manager",
+        "department": "Marketing",
+        "monthly_salary": 5083,
+        "from_integration": true
+      },
+      {
+        "_id": "156793159703575503439536127726185792439",
+        "name": "Ludwig Wittgenstein",
+        "start_date": "2021-07-12",
+        "end_date": null,
+        "title": "CTO",
+        "department": "Engineering",
+        "monthly_salary": 9166,
+        "from_integration": true
+      },
+      {
+        "_id": "92078832342779946368998525002809964632",
+        "name": "Regina Spektor",
+        "start_date": "2021-07-12",
+        "end_date": null,
+        "title": "CEO",
+        "department": "Engineering",
+        "monthly_salary": 9166,
+        "from_integration": true
+      },
+      {
+        "_id": "120266550780839083161929425361689433293",
+        "name": "Immanuel Kant",
+        "start_date": "2021-07-12",
+        "end_date": null,
+        "title": "Client Support Manager",
+        "department": "Engineering",
+        "monthly_salary": 3810,
+        "from_integration": true
+      },
+      {
+        "_id": "227712856264249325777799665862917007182",
+        "name": "Friedrich Nietzsche",
+        "start_date": "2021-07-12",
+        "end_date": null,
+        "title": "Engineer",
+        "department": "Engineering",
+        "monthly_salary": 6666,
+        "from_integration": true
+      },
+      {
+        "_id": "118439715800086744068364639524758476331",
+        "name": "Arthur Schopenhauer",
+        "start_date": "2021-07-12",
+        "end_date": null,
+        "title": "Engineer",
+        "department": "Engineering",
+        "monthly_salary": 7333,
+        "from_integration": true
+      },
+      {
+        "_id": "301142283946794533251596954917943108892",
+        "name": "Alexander Hamilton",
+        "start_date": "2021-07-12",
+        "end_date": null,
+        "title": "Marketing Director",
+        "department": "Engineering",
+        "monthly_salary": 6500,
+        "from_integration": true
+      },
+      {
+        "_id": "109863928619842323401950429967557384604",
+        "name": "Luetta Bahringer",
+        "start_date": "2021-07-12",
+        "end_date": null,
+        "title": "Office Administrator",
+        "department": "Sales",
+        "monthly_salary": 6408,
+        "from_integration": true
+      },
+      {
+        "_id": "301091226909615321751358035501422968792",
+        "name": "Maya Angelou",
+        "start_date": "2022-07-19",
+        "end_date": null,
+        "title": "Chief Editor",
+        "department": "",
+        "monthly_salary": 7083,
+        "from_integration": true
+      },
+      {
+        "_id": "321348636785825221617425000084454107441",
+        "name": "John Lewis",
+        "start_date": "2022-07-26",
+        "end_date": null,
+        "title": "Advocate",
+        "department": "",
+        "monthly_salary": 7083,
+        "from_integration": true
+      }
+    ]
+  }
+]
+
+

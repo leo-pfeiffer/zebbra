@@ -19,6 +19,7 @@ MODELS_PATH = "resources/demo/models.json"
 INVITE_CODES_PATH = "resources/demo/invite_codes.json"
 INTEGRATION_ACCESS_PATH = "resources/demo/integration_access.json"
 ACCOUNTING_CACHE_PATH = "resources/demo/accounting_cache.json"
+PAYROLL_CACHE_PATH = "resources/demo/payroll_cache.json"
 
 users = _read_json(USERS_PATH)
 workspaces = _read_json(WORKSPACE_PATH)
@@ -26,6 +27,7 @@ models = _read_json(MODELS_PATH)
 invite_codes = _read_json(INVITE_CODES_PATH)
 integration_access = _read_json(INTEGRATION_ACCESS_PATH)
 accounting_cache = _read_json(ACCOUNTING_CACHE_PATH)
+payroll_cache = _read_json(PAYROLL_CACHE_PATH)
 
 
 async def create():
@@ -35,6 +37,7 @@ async def create():
     await create_invite_codes()
     await create_integration_access()
     await create_accounting_cache()
+    await create_payroll_cache()
 
 
 async def teardown():
@@ -45,6 +48,7 @@ async def teardown():
     await teardown_invite_codes()
     await teardown_integration_access()
     await teardown_accounting_cache()
+    await teardown_payroll_cache()
 
 
 def create_users():
@@ -73,6 +77,12 @@ def create_accounting_cache():
     return db.accounting_cache.insert_many(accounting_cache)
 
 
+def create_payroll_cache():
+    for element in payroll_cache:
+        element["created_at"] = datetime.now()
+    return db.payroll_cache.insert_many(accounting_cache)
+
+
 def teardown_users():
     return db.users.delete_many({})
 
@@ -99,6 +109,10 @@ def teardown_integration_access():
 
 def teardown_accounting_cache():
     return db.accounting_cache.delete_many({})
+
+
+def teardown_payroll_cache():
+    return db.payroll_cache.delete_many({})
 
 
 async def setup_integration_access(workspace_id, integration="Xero"):

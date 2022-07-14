@@ -269,7 +269,6 @@ async def update_costs_sheet(model_id: str, sheet_data: Sheet):
     return await _update_sheet_data(model_id, sheet_data, "Costs")
 
 
-# todo test
 async def update_model_employees(model_id: str, employees: list[Employee]):
     return await db.models.update_one(
         {"_id": model_id}, {"$set": {"employees": jsonable_encoder(employees)}}

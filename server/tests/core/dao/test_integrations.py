@@ -35,8 +35,9 @@ def compare_rounded_created_at(
 async def test_get_integrations_for_workspace(workspaces):
     workspace_id = workspaces["ACME Inc."]
     objs = await get_integrations_for_workspace(workspace_id)
-    assert len(objs) == 1
+    assert len(objs) == 2
     assert objs[0].workspace_id == workspace_id
+    assert objs[1].workspace_id == workspace_id
 
 
 @pytest.mark.anyio
