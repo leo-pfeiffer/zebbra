@@ -14,7 +14,7 @@ const route = useRoute();
                         class="bi bi-percent"></i></span>
                 <span v-show="(valType === 'number')" class="mr-2 text-zinc-500"><i class="bi bi-hash"></i></span>
                 <span v-if="!nameChangeSelected" @dblclick="toggleNameChange">{{ variable.name }}</span>
-                <span v-else><input ref="name" @keydown.enter="$emit('updateName', newName, variableIndex); toggleNameChange()" @keydown.esc="toggleNameChange"
+                <span v-else><input ref="name" @keydown.enter="$emit('updateName', newName, variableIndex, sectionIndex); toggleNameChange()" @keydown.esc="toggleNameChange"
                         v-model="newName"
                         class="bg-zinc-100/0 focus:border-b border-sky-600 focus:outline-none placeholder:text-zinc-500"
                         type="text" placeholder="Change variable name"></span>
