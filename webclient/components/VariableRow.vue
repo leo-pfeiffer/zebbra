@@ -1,7 +1,7 @@
 <template>
-    <div class="flex">
+    <div class="flex" :class="{'bg-zinc-50 border-zinc-300 border-b': isEndRow}">
         <div class="flex">
-            <div class="tabular-nums text-xs py-2 px-2 border-t border-r border-zinc-300 min-w-[75px] max-w-[75px] h-full text-right overflow-hidden overflow-x-scroll" v-for="value in computedValues(values)">{{value}}</div>
+            <div :class="{'font-medium': isEndRow}" class="tabular-nums text-xs py-2 px-2 border-t border-r border-zinc-300 min-w-[75px] max-w-[75px] h-full text-right overflow-hidden overflow-x-scroll" v-for="value in computedValues(values)">{{value}}</div>
         </div>
     </div>
 </template>
@@ -15,7 +15,8 @@ export default {
     },
     props: {
         values: Object as () => string[],
-        roundTo: Number
+        roundTo: Number,
+        isEndRow: Boolean
     },
     methods: {
         computedValues(input:string[]) {

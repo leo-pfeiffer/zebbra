@@ -5,29 +5,30 @@ const route = useRoute();
 </script>
 <template>
     <div class="">
-        <div class="flex">
+        <div class="flex" :class="{'bg-zinc-50 border-b border-zinc-300': isEndRow}">
             <div
-                class="relative group text-xs py-2 pl-5 pr-2 border-t border-x border-zinc-300 min-w-[250px] max-w-[250px] hover:bg-zinc-50">
-                <span v-show="(valType === 'currency')" class="mr-2 text-green-600"><i
+                class="relative group text-xs py-2 pl-5 pr-2 border-t border-x border-zinc-300 min-w-[250px] max-w-[250px]" :class="{'hover:bg-zinc-50': !isEndRow, 'bg-zinc-50': isEndRow}">
+                <span v-show="(valType === 'currency') && !isEndRow" class="mr-2 text-green-600"><i
                         class="bi bi-currency-dollar"></i></span>
-                <span v-show="(valType === 'percentage')" class="mr-2 text-amber-600"><i
+                <span v-show="(valType === 'percentage') && !isEndRow" class="mr-2 text-amber-600"><i
                         class="bi bi-percent"></i></span>
-                <span v-show="(valType === 'number')" class="mr-2 text-zinc-500"><i class="bi bi-hash"></i></span>
-                <span v-if="!nameChangeSelected" @dblclick="toggleNameChange">{{ variable.name }}</span>
-                <span v-else><input ref="name" @keydown.enter="$emit('updateName', newName, variableIndex, sectionIndex); toggleNameChange()" @keydown.esc="toggleNameChange"
+                <span v-show="(valType === 'number') && !isEndRow" class="mr-2 text-zinc-500"><i class="bi bi-hash"></i></span>
+                <span v-show="isEndRow" class="uppercase font-medium">{{ variable.name }}</span>
+                <span v-show="!isEndRow" v-if="!nameChangeSelected" @dblclick="toggleNameChange">{{ variable.name }}</span>
+                <span v-show="!isEndRow" v-else><input ref="name" @keydown.enter="$emit('updateName', newName, variableIndex, sectionIndex); toggleNameChange()" @keydown.esc="toggleNameChange"
                         v-model="newName"
                         class="bg-zinc-100/0 focus:border-b border-sky-600 focus:outline-none placeholder:text-zinc-500"
                         type="text" placeholder="Change variable name"></span>
-                <span class="text-[10px] float-right hidden group-hover:block"><button type="button"
+                <span v-show="!isEndRow" class="text-[10px] float-right hidden group-hover:block"><button type="button"
                         @click="toggleDeleteModal" class="mr-1"><i title="Delete variable"
                             class="bi bi-x-lg text-zinc-500 hover:text-zinc-700"></i></button></span>
-                <span class="text-[9px] float-right hidden group-hover:block"><button type="button" @click=""
+                <span v-show="!isEndRow" class="text-[9px] float-right hidden group-hover:block"><button type="button" @click=""
                         class="mr-3"><i title="Take value from integration"
                             class="bi bi-server text-zinc-500 hover:text-zinc-700"></i></button></span>
-                <span class="text-[9px] float-right hidden group-hover:block"><button type="button"
+                <span v-show="!isEndRow" class="text-[9px] float-right hidden group-hover:block"><button type="button"
                         @click="toggleSettings" class="mr-3"><i title="Variable settings"
                             class="bi bi-gear-fill text-zinc-500 hover:text-zinc-700"></i></button></span>
-                <div v-show="settingsOpen"
+                <div v-show="settingsOpen && !isEndRow"
                     class="z-50 absolute p-3 border rounded shadow-md text-xs border-zinc-300 bg-white top-0 right-0 translate-x-36 -translate-y-1.5 text-[11px] w-[200px]">
                     <div class="text-zinc-900 font-medium mb-2">Variable Type</div>
                     <div class="grid grid-rows-2 grid-flow-col gap-x-1 gap-y-3 mb-3">
@@ -78,7 +79,7 @@ const route = useRoute();
                     </div>
                 </div>
             </div>
-            <div class="h-full w-full">
+            <div class="h-full w-full" :class="{'bg-zinc-50': isEndRow}">
                 <div v-if="!valueInputSelected"
                     class="text-xs relative group border-t border-r border-zinc-300 min-w-[150px] max-w-[150px] h-full w-full text-right">
                     <div @dblclick="toggleInput" class="float-right h-full min-w-[130px] max-w-[130px] text-right text-xs py-2 px-2 border-r-2 border-zinc-300 tabular-nums truncate overflow-hidden">
@@ -150,7 +151,8 @@ export default {
         variableIndex: Number,
         timeSeriesMap: Map,
         variableSearchMap: Map,
-        sectionIndex: Number
+        sectionIndex: Number,
+        isEndRow:Boolean
     },
     mounted() {
         //set correct humanReadableInputValue to be displayed
