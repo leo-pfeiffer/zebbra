@@ -25,6 +25,8 @@ const assumptionValuesToDisplayState = useState<string[][]>('assumptionValues');
 
 const variableValuesToDisplayState = useState<Map<number, string[][]>>('variableValues');
 
+const endRowValuesToDisplayState = useState<string[][]>('endRowValues');
+
 </script>
 
 <template>
@@ -50,7 +52,8 @@ const variableValuesToDisplayState = useState<Map<number, string[][]>>('variable
                                 v-for="(assumption, index) in revenueState.assumptions" :variable="assumption"
                                 :variableIndex="index"
                                 :timeSeriesMap="useVariableTimeSeriesMap(revenueState.assumptions)"
-                                :variableSearchMap="useVariableSearchMap(revenueState.assumptions)" :sectionIndex="0">
+                                :variableSearchMap="useVariableSearchMap(revenueState.assumptions)" :sectionIndex="0"
+                                :isEndRow="false">
                             </VariableRowHeader>
                             <div class="">
                                 <!-- add assumption button -->
@@ -73,24 +76,25 @@ const variableValuesToDisplayState = useState<Map<number, string[][]>>('variable
                                         class="text-xs text-zinc-700 py-2 px-3 min-w-[400px] max-w-[400px] border-zinc-300 border-l border-t">
                                         {{ section.name }}</div>
                                     <VariableRowHeader @update-value="updateVariableValue"
-                                        @update-settings="updateVariableSettings"
-                                        @update-name="updateVariableName"
-                                        @delete-variable="deleteVariable"
-                                        v-for="(variable, index) in section.rows" :variable="variable"
-                                        :variable-index="index"
+                                        @update-settings="updateVariableSettings" @update-name="updateVariableName"
+                                        @delete-variable="deleteVariable" v-for="(variable, index) in section.rows"
+                                        :variable="variable" :variable-index="index"
                                         :timeSeriesMap="useVariableTimeSeriesMap(revenueState.assumptions.concat(section.rows))"
                                         :variableSearchMap="useVariableSearchMap(revenueState.assumptions.concat(section.rows))"
-                                        :sectionIndex="sectionIndex"></VariableRowHeader>
+                                        :sectionIndex="sectionIndex" :isEndRow="false"></VariableRowHeader>
 
                                     <div
-                                    class="text-xs py-2 px-3 min-w-[400px] max-w-[400px] border-zinc-300 border-y border-l">
-                                        <button @click="addVariable(sectionIndex)" class="text-zinc-500 hover:text-zinc-700 pl-2"><i
-                                            class="bi bi-plus-lg mr-1"></i>Add Variable</button>
+                                        class="text-xs py-2 px-3 min-w-[400px] max-w-[400px] border-zinc-300 border-t border-l">
+                                        <button @click="addVariable(sectionIndex)"
+                                            class="text-zinc-500 hover:text-zinc-700 pl-2"><i
+                                                class="bi bi-plus-lg mr-1"></i>Add Variable</button>
                                     </div>
 
-                                    <VariableRowHeader :variable="section.end_row" :variable-index="0"
-                                        :timeSeriesMap="useVariableTimeSeriesMap(revenueState.assumptions.concat(section.rows))"
-                                        :variableSearchMap="useVariableSearchMap(revenueState.assumptions.concat(section.rows))">
+                                    <VariableRowHeader @update-value="updateEndRowValue"
+                                        :variable="section.end_row" :variable-index="0"
+                                        :timeSeriesMap="useVariableTimeSeriesMap(section.rows)"
+                                        :variableSearchMap="useVariableSearchMap(section.rows)"
+                                        :sectionIndex="sectionIndex" :isEndRow="true">
                                     </VariableRowHeader>
                                 </div>
                             </div>
@@ -130,10 +134,12 @@ const variableValuesToDisplayState = useState<Map<number, string[][]>>('variable
                                     v-for="variableValues in variableValuesToDisplayState.get(index)"
                                     :values="variableValues" :round-to="2"></VariableRow>
                                 <div class="flex">
-                                <!-- add variable button empty -->
-                                <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-y"
-                                    v-for="date in dates">X</div>
-                            </div>
+                                    <!-- add variable button empty -->
+                                    <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-t"
+                                        v-for="date in dates">X</div>
+                                </div>
+                                <VariableRow v-if="endRowValuesToDisplayState"
+                                        :values="endRowValuesToDisplayState[index]" :round-to="2" :isEndRow="true"></VariableRow>
                             </div>
                         </div>
                     </div>
@@ -187,7 +193,7 @@ export default {
             }
 
         },
-        async addVariable(sectionIndex:number) {
+        async addVariable(sectionIndex: number) {
             const emptyVariable: Variable = {
 
                 _id: undefined,
@@ -207,10 +213,10 @@ export default {
             this.revenueState.sections[sectionIndex].rows.push(emptyVariable);
             this.updateDisplayedValues();
 
-/*             const assumptionValuesArrayState = useState<string[][]>('assumptionValues');
-            var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(this.revenueState.assumptions);
-            let index = assumptionValuesArray.length - 1;
-            assumptionValuesArrayState.value.push(assumptionValuesArray[index]) */
+            /*             const assumptionValuesArrayState = useState<string[][]>('assumptionValues');
+                        var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(this.revenueState.assumptions);
+                        let index = assumptionValuesArray.length - 1;
+                        assumptionValuesArrayState.value.push(assumptionValuesArray[index]) */
 
             //todo: proper error handling
             try {
@@ -259,7 +265,7 @@ export default {
             if (humanReadableInputValue.length > 0) {
 
                 //Get humanReadableInputValue and create storage value
-            
+
                 const storageValue: string = useGetValueFromHumanReadable(humanReadableInputValue, variableId, variableSearchMap);
 
                 this.revenueState.sections[sectionIndex].rows[variableIndex].time_series = this.isTimeSeries(storageValue, timeSeriesMap);
@@ -288,7 +294,40 @@ export default {
                 //todo:throw error
             }
         },
-        async updateAssumptionName(newName: string, variableIndex: number, sectionIndex:number) {
+        async updateEndRowValue(humanReadableInputValue: string, variableId: string, variableSearchMap: Map<string, string>, timeSeriesMap: Map<string, boolean>, variableIndex: number, sectionIndex: number) {
+            if (humanReadableInputValue.length > 0) {
+
+                //Get humanReadableInputValue and create storage value
+
+                const storageValue: string = useGetValueFromHumanReadable(humanReadableInputValue, variableId, variableSearchMap);
+
+                this.revenueState.sections[sectionIndex].end_row.time_series = this.isTimeSeries(storageValue, timeSeriesMap);
+                this.revenueState.sections[sectionIndex].end_row.value = storageValue.toString();
+                if (storageValue.includes("+") || storageValue.includes("-") || storageValue.includes("*") || storageValue.includes("/") || storageValue.includes("-")) {
+                    this.revenueState.sections[sectionIndex].end_row.var_type = "formula";
+                } else {
+                    this.revenueState.sections[sectionIndex].end_row.var_type = "value";
+                }
+
+                try {
+                    //update RevenueState
+                    await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
+                    this.updateDisplayedValues();
+
+                } catch (e) {
+                    console.log(e);
+                    //retrieve actual stored sheet from DB
+                    //if actual sheet and state match, if not update state to actual sheet
+                    const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
+                    if (!(this.revenue.sections[0].rows[variableIndex].value === this.revenue.sections[0].rows[variableIndex].value)) {
+                        this.revenue.value = actualSheet;
+                    }
+                }
+            } else {
+                //todo:throw error
+            }
+        },
+        async updateAssumptionName(newName: string, variableIndex: number, sectionIndex: number) {
             //todo: proper error handling
             //todo: add errormessage if starting char is number
             if (newName.length > 0 && !useFormulaParser().charIsNumerical(newName[0])) {
@@ -306,7 +345,7 @@ export default {
                 }
             }
         },
-        async updateVariableName(newName: string, variableIndex: number, sectionIndex:number) {
+        async updateVariableName(newName: string, variableIndex: number, sectionIndex: number) {
             //todo: proper error handling
             //todo: add errormessage if starting char is number
             if (newName.length > 0 && !useFormulaParser().charIsNumerical(newName[0])) {
@@ -324,7 +363,7 @@ export default {
                 }
             }
         },
-        async updateAssumptionSettings(variableIndex: number, value1Input: string, valTypeInput: string, startingAtInput: number, sectionIndex:number) {
+        async updateAssumptionSettings(variableIndex: number, value1Input: string, valTypeInput: string, startingAtInput: number, sectionIndex: number) {
 
             this.revenueState.assumptions[variableIndex].val_type = valTypeInput;
             this.revenueState.assumptions[variableIndex].value_1 = value1Input;
@@ -360,10 +399,10 @@ export default {
                 }
             }
         },
-        async updateVariableSettings(variableIndex: number, value1Input: string, valTypeInput: string, startingAtInput: number, sectionIndex:number) {
-            
+        async updateVariableSettings(variableIndex: number, value1Input: string, valTypeInput: string, startingAtInput: number, sectionIndex: number) {
+
             console.log(variableIndex);
-            
+
             this.revenueState.sections[sectionIndex].rows[variableIndex].val_type = valTypeInput;
             this.revenueState.sections[sectionIndex].rows[variableIndex].value_1 = value1Input;
 
@@ -400,7 +439,7 @@ export default {
                 }
             }
         },
-        async deleteAssumption(variableIndex: number, sectionIndex:number) {
+        async deleteAssumption(variableIndex: number, sectionIndex: number) {
             //first directly change the state
             this.revenueState.assumptions.splice(variableIndex, 1);
             this.assumptionValuesToDisplayState.splice(variableIndex, 1);
@@ -475,36 +514,53 @@ export default {
         },
         updateDisplayedValues() {
 
+            //assumptions
             this.assumptionValuesToDisplayState = useFormulaParser().getSheetRowValues(this.revenueState.assumptions);
 
             //Update entire sheet
             var variablesValuesStorage: Map<number, string[][]> = new Map<number, string[][]>();
+            var endRowValuesStorage: string[][] = [];
             for (let i = 0; i < this.revenueState.sections.length; i++) {
+                //variables
                 var sectionVariables: Variable[] = [...this.revenueState.sections[i].rows];
                 var valuesOfAssumptionsAndVariables: string[][] = useFormulaParser().getSheetRowValues(this.revenueState.assumptions.concat(sectionVariables))
                 valuesOfAssumptionsAndVariables.splice(0, this.revenueState.assumptions.length);
                 variablesValuesStorage.set(i, valuesOfAssumptionsAndVariables);
+                //endrow
+                var valuesOfVariablesAndEndRow: string[][] = useFormulaParser().getSheetRowValues(this.revenueState.assumptions.concat(sectionVariables.concat(this.revenueState.sections[i].end_row)));
+                valuesOfVariablesAndEndRow.splice(0, sectionVariables.length + this.revenueState.assumptions.length);
+                endRowValuesStorage.push(valuesOfVariablesAndEndRow[0]);
+
             };
             this.variableValuesToDisplayState = variablesValuesStorage;
-
+            console.log(endRowValuesStorage[0]);
+            this.endRowValuesToDisplayState = endRowValuesStorage;
+            console.log(this.endRowValuesToDisplayState[0]);
         }
     },
     mounted() {
         //return the display values for all the assumptions
         const revenues = useRevenueState();
 
-        //todo not only assumptions but all variables
         var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(revenues.value.assumptions);
         useState('assumptionValues', () => assumptionValuesArray);
 
         var variablesValuesStorage: Map<number, string[][]> = new Map<number, string[][]>();
+        var endRowValuesStorage: string[][] = [];
         for (let i = 0; i < revenues.value.sections.length; i++) {
+            //variables
             var sectionVariables: Variable[] = [...revenues.value.sections[i].rows];
             var valuesOfAssumptionsAndVariables: string[][] = useFormulaParser().getSheetRowValues(revenues.value.assumptions.concat(sectionVariables))
             valuesOfAssumptionsAndVariables.splice(0, revenues.value.assumptions.length);
             variablesValuesStorage.set(i, valuesOfAssumptionsAndVariables);
+            //endrow
+            var valuesOfVariablesAndEndRow: string[][] = useFormulaParser().getSheetRowValues(revenues.value.assumptions.concat(sectionVariables.concat(revenues.value.sections[i].end_row)));
+            valuesOfVariablesAndEndRow.splice(0, sectionVariables.length + revenues.value.assumptions.length);
+            endRowValuesStorage.push(valuesOfVariablesAndEndRow[0]);
         };
+        console.log(endRowValuesStorage[0])
         useState<Map<number, string[][]>>('variableValues', () => variablesValuesStorage);
+        useState<string[][]>('endRowValues', () => endRowValuesStorage);
     }
 }
 
