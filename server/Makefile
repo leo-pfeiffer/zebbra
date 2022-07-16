@@ -13,19 +13,19 @@ setup_db:
 # Run the setup db script
 setup_db_no_integrations:
 	chmod +x scripts/setup_db_no_integrations.sh
-	sh scripts/setup_db_no_integrations.sh
+	scripts/setup_db_no_integrations.sh
 
 .PHONY: setup_db_no_source
 # Run the setup db script without sourcing. Necessary during GitHub action
 setup_db_no_source:
 	chmod +x scripts/setup_db.sh
-	sh scripts/setup_db.sh "nosource"
+	scripts/setup_db.sh "nosource"
 
 .PHONY: setup_db_export
 # Run the setup db script with the export command.
 setup_db_export:
 	chmod +x scripts/setup_db.sh
-	sh scripts/setup_db.sh "export"
+	scripts/setup_db.sh "export"
 
 .PHONY: run_server
 # Start the Zebbra API server
