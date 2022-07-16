@@ -21,6 +21,12 @@ setup_db_no_source:
 	chmod +x scripts/setup_db.sh
 	sh scripts/setup_db.sh "nosource"
 
+.PHONY: setup_db_export
+# Run the setup db script with the export command.
+setup_db_no_source:
+	chmod +x scripts/setup_db.sh
+	sh scripts/setup_db.sh "export"
+
 .PHONY: run_server
 # Start the Zebbra API server
 run_server:
