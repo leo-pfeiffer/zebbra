@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 
 # run from "/server" directory
 

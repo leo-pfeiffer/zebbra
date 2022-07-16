@@ -23,7 +23,7 @@ setup_db_no_source:
 
 .PHONY: setup_db_export
 # Run the setup db script with the export command.
-setup_db_no_source:
+setup_db_export:
 	chmod +x scripts/setup_db.sh
 	sh scripts/setup_db.sh "export"
 
