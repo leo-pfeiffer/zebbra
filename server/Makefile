@@ -26,6 +26,11 @@ setup_db_no_source:
 run_server:
 	python -m uvicorn main:app --reload
 
+.PHONY: run_server_prod
+# Start the Zebbra API server in production
+run_server_prod:
+	python -m uvicorn main:app --reload --port 80
+
 .PHONY: set_secret_env
 # Set GitHub secrets from .env file
 set_secret_env:
