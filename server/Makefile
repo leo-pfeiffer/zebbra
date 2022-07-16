@@ -29,7 +29,7 @@ run_server:
 .PHONY: run_server_prod
 # Start the Zebbra API server in production
 run_server_prod:
-	python -m uvicorn main:app --reload --port 80
+	python -m uvicorn main:app --reload --port 80 --host 0.0.0.0
 
 .PHONY: set_secret_env
 # Set GitHub secrets from .env file
