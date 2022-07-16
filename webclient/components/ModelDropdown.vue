@@ -1,0 +1,53 @@
+<script setup>
+    const user = useUserState();
+</script>
+
+<template>
+    <div class="my-2 text-xs text-zinc-700">
+        <div @click="clickDropdown" class="hover:cursor-pointer flex align-middle">
+            <i v-if="!opened" class="bi bi-caret-right-fill mr-2 text-xs text-zinc-400"></i>
+            <i v-else class="bi bi-caret-down-fill mr-2 text-xs text-zinc-400"></i>
+            {{ model.name }}
+        </div>
+        <div v-show="opened" class="text-xs text-zinc-700 pl-10 mt-1">
+            <ul class="list-disc">
+                <!-- todo: update links, add active state and default open for selected model -->
+                <NuxtLink active-class="font-semibold" :to="`/${user.workspaces[0].name}/${model._id}/dashboard`"><li class="my-1.5">Dashboard</li></NuxtLink>
+                <NuxtLink active-class="font-semibold" :to="`/${user.workspaces[0].name}/${model._id}/profit-loss`"><li class="my-1.5">Profit & Loss</li></NuxtLink>
+                <NuxtLink active-class="font-semibold" :to="`/${user.workspaces[0].name}/${model._id}/revenues`"><li class="my-1.5">Revenues</li></NuxtLink>
+                <NuxtLink active-class="font-semibold" :to="`/${user.workspaces[0].name}/${model._id}/costs`"><li class="my-1.5">Costs</li></NuxtLink>
+            </ul>
+        </div>
+    </div>
+</template>
+
+<script>
+export default {
+    data() {
+        return {
+            opened: false
+        }
+    },
+    props: {
+        model: Object
+    },
+    methods: {
+        clickDropdown() {
+            if (this.opened === true) {
+                this.opened = false;
+            } else {
+                this.opened = true;
+            }
+        }
+    },
+    beforeMount() {
+        //open toggle for current model
+        const route = useRoute();
+        const routeModelId = route.fullPath.split("/")[2];
+        if(routeModelId === this.model._id) {
+            this.opened = true;
+        }
+    }
+}
+
+</script>
