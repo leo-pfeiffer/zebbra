@@ -21,10 +21,21 @@ setup_db_no_source:
 	chmod +x scripts/setup_db.sh
 	sh scripts/setup_db.sh "nosource"
 
+.PHONY: setup_db_export
+# Run the setup db script with the export command.
+setup_db_no_source:
+	chmod +x scripts/setup_db.sh
+	sh scripts/setup_db.sh "export"
+
 .PHONY: run_server
 # Start the Zebbra API server
 run_server:
 	python -m uvicorn main:app --reload
+
+.PHONY: run_server_prod
+# Start the Zebbra API server in production
+run_server_prod:
+	python -m uvicorn main:app --reload --port 80 --host 0.0.0.0
 
 .PHONY: set_secret_env
 # Set GitHub secrets from .env file

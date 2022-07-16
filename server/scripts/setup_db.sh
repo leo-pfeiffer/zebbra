@@ -6,9 +6,14 @@
 
 # source env file
 
-if [ "$1" != "nosource" ]
-  then 
+if [[ "$1" != "nosource" && "$1" != "export" ]]
+  then
     source .env
+fi
+
+if [ "$1" == "export" ]
+  then
+    export $(grep -v '^#' .env | xargs)
 fi
 
 mongosh <<EOF
