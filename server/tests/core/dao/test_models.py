@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import pytest
 
 from core.dao.models import (
@@ -22,6 +24,7 @@ from core.dao.models import (
     update_costs_sheet,
     update_revenues_sheet,
     set_starting_month,
+    update_model_employees,
 )
 from core.dao.workspaces import get_workspace
 from core.exceptions import (
@@ -32,6 +35,7 @@ from core.exceptions import (
 )
 from datetime import date
 
+from core.schemas.models import Employee
 from core.schemas.sheets import Sheet
 
 
@@ -383,6 +387,36 @@ async def test_update_revenues_sheet_cannot_change_meta():
     await update_revenues_sheet(model_id, sheet_new)
     sheet2 = await get_revenues_sheet(model_id)
     assert sheet2.meta.name == sheet.meta.name
+
+
+@pytest.mark.anyio
+async def test_update_model_employees():
+    model_id = "62b488ba433720870b60ec0a"
+    model = await get_model_by_id(model_id)
+    employees = deepcopy(model.payroll.employees)
+    length_before = len(employees)
+    employees.append(
+        Employee(
+            **{
+                "_id": "101",
+                "name": "Saint West",
+                "start_date": "2021-07-12",
+                "end_date": None,
+                "title": "COO",
+                "department": "Operations",
+                "monthly_salary": 3810,
+                "from_integration": False,
+            }
+        )
+    )
+    await update_model_employees(model_id, employees)
+    model_afterwards = await get_model_by_id(model_id)
+    assert length_before == len(model_afterwards.payroll.employees) - 1
+    ct = 0
+    for e in model_afterwards.payroll.employees:
+        if e.name == "Saint West":
+            ct += 1
+    assert ct == 1
 
 
 @pytest.mark.anyio

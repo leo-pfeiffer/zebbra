@@ -1,12 +1,15 @@
 from datetime import date
+from typing import Literal
 
 from core.integrations.adapters.adapter import FetchAdapter
-from core.schemas.utils import DataBatch
+from core.schemas.models import Employee
+from core.schemas.cache import DataBatch
 
 
 class XxXxXFetchAdapter(FetchAdapter):
 
     _integration = "XxXxX"
+    _api_type: Literal["accounting", "payroll"] = ""  # todo
 
     def __init__(self, workspace_id: str):
         self._workspace_id = workspace_id
@@ -19,7 +22,7 @@ class XxXxXFetchAdapter(FetchAdapter):
     def integration(cls):
         return cls._integration
 
-    async def get_data(self, from_date: date) -> DataBatch:
+    async def get_data(self, from_date: date) -> DataBatch | list[Employee]:
         """
         This is the main method called during the merging procedure to add the
         integration data to the models.
@@ -42,5 +45,5 @@ class XxXxXFetchAdapter(FetchAdapter):
         :param from_date: date from which onwards to get the data
         :return: List of available data endpoints for the integration
         """
-        # todo
+        # todo if API type == "accounting"
         ...

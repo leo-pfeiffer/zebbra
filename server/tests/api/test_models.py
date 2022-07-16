@@ -1,3 +1,4 @@
+from copy import deepcopy
 from datetime import date
 
 import pytest
@@ -14,7 +15,8 @@ from core.dao.models import (
     get_revenues_sheet,
     get_costs_sheet,
 )
-from core.schemas.models import ModelMeta
+from core.schemas.models import ModelMeta, Employee
+from core.schemas.rows import IntegrationValue
 from core.schemas.sheets import Sheet
 from main import app
 from tests.utils import assert_unauthorized_login_checked
@@ -709,6 +711,223 @@ async def test_get_users_for_model_model_non_existent(access_token):
         f"/model/users?model_id={model_id}",
         headers={"Authorization": f"Bearer {access_token}"},
         json=jsonable_encoder([]),
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.anyio
+async def test_post_model_employees(access_token):
+    client = TestClient(app)
+    model_id = "62b488ba433720870b60ec0a"
+
+    model = await get_model_by_id(model_id)
+    employees = deepcopy(model.payroll.employees)
+    length_before = len(employees)
+    employees.append(
+        Employee(
+            **{
+                "_id": "101",
+                "name": "Saint West",
+                "start_date": "2021-07-12",
+                "end_date": None,
+                "title": "COO",
+                "department": "Operations",
+                "monthly_salary": 3810,
+                "from_integration": False,
+            }
+        )
+    )
+
+    response = client.post(
+        f"/model/payroll?model_id={model_id}",
+        headers={"Authorization": f"Bearer {access_token}"},
+        json=jsonable_encoder(employees),
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+    model_afterwards = response.json()
+    ct = 0
+    ct_after = 0
+    for e in model_afterwards["employees"]:
+        if e["name"] == "Saint West":
+            ct += 1
+        elif not e["from_integration"]:
+            ct_after += 1
+
+    assert ct == 1
+    assert ct_after == length_before
+
+    assert len(model_afterwards["payroll_values"]) > 0
+    for p in model_afterwards["payroll_values"]:
+        IntegrationValue(**p)
+
+
+@pytest.mark.anyio
+async def test_post_model_employees_ignore_integration(access_token):
+    client = TestClient(app)
+    model_id = "62b488ba433720870b60ec0a"
+
+    model = await get_model_by_id(model_id)
+    employees = deepcopy(model.payroll.employees)
+    length_before = len(employees)
+    employees.append(
+        Employee(
+            **{
+                "_id": "101",
+                "name": "Saint West",
+                "start_date": "2021-07-12",
+                "end_date": None,
+                "title": "COO",
+                "department": "Operations",
+                "monthly_salary": 3810,
+                "from_integration": True,
+            }
+        )
+    )
+
+    response = client.post(
+        f"/model/payroll?model_id={model_id}",
+        headers={"Authorization": f"Bearer {access_token}"},
+        json=jsonable_encoder(employees),
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+    model_afterwards = response.json()
+    ct = 0
+    ct_after = 0
+    for e in model_afterwards["employees"]:
+        if e["name"] == "Saint West":
+            ct += 1
+        elif not e["from_integration"]:
+            ct_after += 1
+
+    assert ct == 0
+    assert ct_after == length_before
+
+
+@pytest.mark.anyio
+async def test_post_model_employees_contains_integration_values(access_token):
+    client = TestClient(app)
+    model_id = "62b488ba433720870b60ec0a"
+
+    model = await get_model_by_id(model_id)
+
+    response = client.post(
+        f"/model/payroll?model_id={model_id}",
+        headers={"Authorization": f"Bearer {access_token}"},
+        json=jsonable_encoder(model.payroll.employees),
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    ct = 0
+    for e in response.json()["employees"]:
+        if e["from_integration"]:
+            ct += 1
+    assert ct > 0
+
+
+@pytest.mark.anyio
+async def test_post_model_employees_no_access(access_token_alice):
+    client = TestClient(app)
+    model_id = "62b488ba433720870b60ec0a"
+
+    model = await get_model_by_id(model_id)
+    employees = deepcopy(model.payroll.employees)
+    length_before = len(employees)
+
+    response = client.post(
+        f"/model/payroll?model_id={model_id}",
+        headers={"Authorization": f"Bearer {access_token_alice}"},
+        json=jsonable_encoder(employees),
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    model_after = await get_model_by_id(model_id)
+    employees_after = deepcopy(model_after.payroll.employees)
+    length_after = len(employees_after)
+    assert length_after == length_before
+
+
+@pytest.mark.anyio
+async def test_post_model_employees_non_existent_model(access_token):
+    client = TestClient(app)
+    model_id = "62b488ba433720870b60ec0a"
+
+    model = await get_model_by_id(model_id)
+
+    response = client.post(
+        f"/model/payroll?model_id=NOT-A-MODEL",
+        headers={"Authorization": f"Bearer {access_token}"},
+        json=jsonable_encoder(model.payroll.employees),
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.anyio
+async def test_get_model_employees(access_token):
+    client = TestClient(app)
+    model_id = "62b488ba433720870b60ec0a"
+
+    response = client.get(
+        f"/model/payroll?model_id={model_id}",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+    model_afterwards = response.json()
+
+    for e in model_afterwards["employees"]:
+        assert Employee(**e)
+
+    assert len(model_afterwards["payroll_values"]) > 0
+    for p in model_afterwards["payroll_values"]:
+        IntegrationValue(**p)
+
+
+@pytest.mark.anyio
+async def test_get_model_employees_contains_integration_values(access_token):
+    client = TestClient(app)
+    model_id = "62b488ba433720870b60ec0a"
+
+    response = client.get(
+        f"/model/payroll?model_id={model_id}",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    ct = 0
+    for e in response.json()["employees"]:
+        if e["from_integration"]:
+            ct += 1
+    assert ct > 0
+
+
+@pytest.mark.anyio
+async def test_get_model_employees_no_access(access_token_alice):
+    client = TestClient(app)
+    model_id = "62b488ba433720870b60ec0a"
+
+    response = client.get(
+        f"/model/payroll?model_id={model_id}",
+        headers={"Authorization": f"Bearer {access_token_alice}"},
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.anyio
+async def test_get_model_employees_non_existent_model(access_token):
+    client = TestClient(app)
+
+    response = client.get(
+        f"/model/payroll?model_id=NOT-A-MODEL",
+        headers={"Authorization": f"Bearer {access_token}"},
     )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST

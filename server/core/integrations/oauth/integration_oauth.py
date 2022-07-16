@@ -1,6 +1,7 @@
 import time
 from abc import ABC, abstractmethod
 
+from authlib.integrations.base_client import MismatchingStateError
 from authlib.integrations.starlette_client import OAuth
 from fastapi import APIRouter, Request, Depends, HTTPException
 from starlette import status
@@ -185,7 +186,10 @@ class IntegrationOAuth(ABC):
         :param request: FastAPI request
         :return: Info message
         """
-        token = await self.oauth_app.authorize_access_token(request)
+        try:
+            token = await self.oauth_app.authorize_access_token(request)
+        except MismatchingStateError:
+            raise HTTPException(500, "Mismatching State Error. Please clear cache!")
 
         if token and "workspace_id" in request.session:
 
@@ -203,4 +207,6 @@ class IntegrationOAuth(ABC):
                 detail="Connecting to the integration failed.",
             )
 
-        return {"message": "Xero connected. You can close this window."}
+        return {
+            "message": f"{self.integration()} connected. You can close this window."
+        }

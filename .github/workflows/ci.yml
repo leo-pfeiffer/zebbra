@@ -13,6 +13,8 @@ env:
   MONGODB_URL: ${{ secrets.MONGODB_URL }}
   XERO_CLIENT_ID: ${{ secrets.XERO_CLIENT_ID }}
   XERO_CLIENT_SECRET: ${{ secrets.XERO_CLIENT_SECRET }}
+  GUSTO_CLIENT_ID: ${{ secrets.GUSTO_CLIENT_ID }}
+  GUSTO_CLIENT_SECRET: ${{ secrets.GUSTO_CLIENT_SECRET }}
   CACHE_TTL: ${{ secrets.CACHE_TTL }}
 
 jobs:

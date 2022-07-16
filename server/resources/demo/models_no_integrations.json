@@ -148,7 +148,42 @@
           }
         ]
       }
-    ]
+    ],
+    "payroll": {
+      "payroll_values": [],
+      "employees": [
+        {
+          "_id": "123",
+          "name": "North West",
+          "start_date": "2021-07-12",
+          "end_date": null,
+          "title": "CEO",
+          "department": "Management",
+          "monthly_salary": 3810,
+          "from_integration": false
+        },
+        {
+          "_id": "456",
+          "name": "North West",
+          "start_date": "2021-07-12",
+          "end_date": null,
+          "title": "CTO",
+          "department": "Technology",
+          "monthly_salary": 3810,
+          "from_integration": false
+        },
+        {
+          "_id": "789",
+          "name": "Psalm West",
+          "start_date": "2021-07-12",
+          "end_date": null,
+          "title": "CFO",
+          "department": "Finance",
+          "monthly_salary": 3810,
+          "from_integration": false
+        }
+      ]
+    }
   },
   {
     "_id": "62b488ba433720870b60ec0b",
@@ -273,6 +308,39 @@
           }
         ]
       }
-    ]
+    ],
+    "payroll": {
+      "payroll_values": [],
+      "employees": [      {
+          "_id": "123",
+          "name": "Regniae Carter",
+          "start_date": "2021-07-12",
+          "end_date": null,
+          "title": "CEO",
+          "department": "Management",
+          "monthly_salary": 3810,
+          "from_integration": false
+        },
+        {
+          "_id": "456",
+          "name": "Kameron Carter",
+          "start_date": "2021-07-12",
+          "end_date": null,
+          "title": "CTO",
+          "department": "Technology",
+          "monthly_salary": 3810,
+          "from_integration": false
+        },
+        {
+          "_id": "789",
+          "name": "Dwayne Carter III",
+          "start_date": "2021-07-12",
+          "end_date": null,
+          "title": "CFO",
+          "department": "Finance",
+          "monthly_salary": 3810,
+          "from_integration": false
+        }]
+    }
   }
 ]

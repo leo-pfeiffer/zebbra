@@ -8,12 +8,14 @@ from core.integrations.oauth.xero_oauth import (
     xero_integration_oauth,
     API_URL_SUFFIX,
 )
-from core.schemas.utils import DataBatch
+from core.schemas.cache import DataBatch
+from core.utils import last_of_same_month
 
 
 class XeroFetchAdapter(FetchAdapter):
 
     _integration = "Xero"
+    _api_type = "accounting"
 
     def __init__(self, workspace_id: str):
         self._workspace_id = workspace_id
@@ -26,6 +28,10 @@ class XeroFetchAdapter(FetchAdapter):
     def integration(cls):
         return cls._integration
 
+    @classmethod
+    def api_type(cls):
+        return cls._api_type
+
     async def get_data(self, from_date: date) -> DataBatch:
         """
         Retrieve and process the P&L and balance sheet data from XERO
@@ -34,16 +40,8 @@ class XeroFetchAdapter(FetchAdapter):
         """
 
         # check if we can use cache
-        actual_from_date = int(
-            datetime.combine(
-                self._last_of_same_month(self._get_last_month_with_31_days(from_date)),
-                datetime.min.time(),
-            )
-            .replace(tzinfo=timezone.utc)
-            .timestamp()
-        )
-
-        if cached := await self.get_cached(actual_from_date):
+        cache_date = self._cache_date(from_date)
+        if cached := await self.get_cached(cache_date):
             return cached
 
         # if no cache, retrieve from Xero API
@@ -55,7 +53,7 @@ class XeroFetchAdapter(FetchAdapter):
         data_batch = DataBatch(**merged)
 
         # cache result
-        await self.set_cached(data_batch, actual_from_date)
+        await self.set_cached(data_batch, cache_date)
 
         return data_batch
 
@@ -69,7 +67,7 @@ class XeroFetchAdapter(FetchAdapter):
         # check if we can use cache of batch data
         actual_from_date = int(
             datetime.combine(
-                self._last_of_same_month(self._get_last_month_with_31_days(from_date)),
+                last_of_same_month(self._get_last_month_with_31_days(from_date)),
                 datetime.min.time(),
             ).timestamp()
         )
@@ -164,17 +162,15 @@ class XeroFetchAdapter(FetchAdapter):
         period_start = from_date
         while period_start < to_date:
 
-            period_start = self._last_of_same_month(
+            period_start = last_of_same_month(
                 self._get_last_month_with_31_days(period_start)
             )
 
             # covers one year
-            period_end = self._last_of_same_month(
-                period_start + relativedelta(months=11)
-            )
+            period_end = last_of_same_month(period_start + relativedelta(months=11))
 
             if period_end >= to_date:
-                period_end = self._last_of_same_month(to_date)
+                period_end = last_of_same_month(to_date)
 
             periods.append((period_start, period_end))
             period_start = period_end + relativedelta(months=1)

@@ -2,7 +2,7 @@ from fastapi.encoders import jsonable_encoder
 
 from core.dao.database import db
 from core.schemas.integrations import IntegrationProvider, IntegrationAccess
-from core.schemas.utils import DataBatchCache
+from core.schemas.cache import DataBatchCache, EmployeeListCache
 from core.settings import get_settings
 
 settings = get_settings()
@@ -91,10 +91,10 @@ async def set_requires_reconnect(
     )
 
 
-async def get_integration_cache(
-        workspace_id: str, integration: IntegrationProvider, from_date: int
+async def get_accounting_cache(
+    workspace_id: str, integration: IntegrationProvider, from_date: int
 ) -> DataBatchCache | None:
-    cached = await db.integration_cache.find_one(
+    cached = await db.accounting_cache.find_one(
         {
             "workspace_id": workspace_id,
             "integration": integration,
@@ -105,18 +105,18 @@ async def get_integration_cache(
         return DataBatchCache(**cached)
 
 
-async def set_integration_cache(cache_obj: DataBatchCache):
+async def set_accounting_cache(cache_obj: DataBatchCache):
     if (
-            await db.integration_cache.count_documents(
-                {
-                    "workspace_id": cache_obj.workspace_id,
-                    "integration": cache_obj.integration,
-                    "from_date": cache_obj.from_date,
-                }
-            )
-            > 0
+        await db.accounting_cache.count_documents(
+            {
+                "workspace_id": cache_obj.workspace_id,
+                "integration": cache_obj.integration,
+                "from_date": cache_obj.from_date,
+            }
+        )
+        > 0
     ):
-        return await db.integration_cache.replace_one(
+        return await db.accounting_cache.replace_one(
             {
                 "workspace_id": cache_obj.workspace_id,
                 "integration": cache_obj.integration,
@@ -125,4 +125,41 @@ async def set_integration_cache(cache_obj: DataBatchCache):
             {**cache_obj.dict()},
         )
     else:
-        return await db.integration_cache.insert_one(cache_obj.dict())
+        return await db.accounting_cache.insert_one(cache_obj.dict())
+
+
+async def get_payroll_cache(
+    workspace_id: str, integration: IntegrationProvider, from_date: int
+) -> EmployeeListCache | None:
+    cached = await db.payroll_cache.find_one(
+        {
+            "workspace_id": workspace_id,
+            "integration": integration,
+            "from_date": from_date,
+        }
+    )
+    if cached:
+        return EmployeeListCache(**cached)
+
+
+async def set_payroll_cache(cache_obj: EmployeeListCache):
+    if (
+        await db.payroll_cache.count_documents(
+            {
+                "workspace_id": cache_obj.workspace_id,
+                "integration": cache_obj.integration,
+                "from_date": cache_obj.from_date,
+            }
+        )
+        > 0
+    ):
+        return await db.payroll_cache.replace_one(
+            {
+                "workspace_id": cache_obj.workspace_id,
+                "integration": cache_obj.integration,
+                "from_date": cache_obj.from_date,
+            },
+            {**cache_obj.dict()},
+        )
+    else:
+        return await db.payroll_cache.insert_one(cache_obj.dict())

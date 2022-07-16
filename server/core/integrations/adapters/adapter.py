@@ -1,12 +1,21 @@
 from abc import ABC, abstractmethod
 from calendar import monthrange
 from datetime import date, datetime, timezone
+from typing import Literal
 
 from dateutil.relativedelta import relativedelta
 
-from core.dao.integrations import get_integration_cache, set_integration_cache
+from core.dao.integrations import (
+    get_accounting_cache,
+    set_accounting_cache,
+    set_payroll_cache,
+    get_payroll_cache,
+)
+from core.logger import logger
 from core.schemas.integrations import IntegrationProvider
-from core.schemas.utils import DataBatch, DataBatchCache
+from core.schemas.models import Employee
+from core.schemas.cache import DataBatch, DataBatchCache, EmployeeListCache
+from core.utils import last_of_same_month
 
 
 class FetchAdapter(ABC):
@@ -17,6 +26,7 @@ class FetchAdapter(ABC):
     """
 
     _integration: IntegrationProvider
+    _api_type: Literal["accounting", "payroll"]
 
     @abstractmethod
     def __init__(self, workspace_id: str):
@@ -38,17 +48,26 @@ class FetchAdapter(ABC):
         """
         return cls._integration
 
+    @classmethod
     @abstractmethod
-    async def get_data(self, from_date: date) -> DataBatch:
+    def api_type(cls):
+        """
+        Name of the integration.
+        """
+        return cls._api_type
+
+    @abstractmethod
+    async def get_data(self, from_date: date) -> DataBatch | list[Employee]:
         """
         This is the main method called during the merging procedure to add the
         integration data to the models.
         The method must be overridden by child classes and should implement the
         process to retrieve the data from the integration API or a cache.
-        The data must be converted into a DataBatch object.
+        The data must be converted into a DataBatch object (for accounting APIs)
+        or a list of employees (for payroll APIs)
         Caching should be implemented as far as possible
         :param from_date: date from which onwards to get the data
-        :return: DataBatch containing the data from the integration
+        :return: DataBatch containing the data from the integration or list of employees
         """
         raise NotImplementedError("Abstract method must be implemented by child class.")
 
@@ -94,34 +113,63 @@ class FetchAdapter(ABC):
         return the_date
 
     @staticmethod
-    def _last_of_same_month(the_date: date) -> date:
-        """
-        Return the last date of the month
-        :param the_date: date for whose month to retrieve the last date
-        :return: date
-        """
-        day = monthrange(the_date.year, the_date.month)[1]
-        return date(the_date.year, the_date.month, day)
+    def _cache_date(from_date: date) -> int:
+        return int(
+            datetime.combine(
+                last_of_same_month(
+                    FetchAdapter._get_last_month_with_31_days(from_date)
+                ),
+                datetime.min.time(),
+            )
+            .replace(tzinfo=timezone.utc)
+            .timestamp()
+        )
 
-    async def get_cached(self, from_date: int) -> DataBatch | None:
+    async def get_cached(self, from_date: int) -> DataBatch | list[Employee] | None:
         """
-        This method retrieves a cached data batch for a provided date
+        This method retrieves a cached data batch or employee list for a provided date.
+        The method delegates either to the caching method for data batches or to
+        employee lists based on the API type
         :param from_date: Date in unix format, converted to UTC for reproducibility
         :return: Data batch if cached, else None
         """
-        cached = await get_integration_cache(
+        if self.api_type() == "accounting":
+            logger.info("getting accounting cache")
+            return await self._get_cached_accounting(from_date)
+        elif self.api_type() == "payroll":
+            logger.info("getting payroll cache")
+            return await self._get_cached_payroll(from_date)
+
+    async def _get_cached_accounting(self, from_date: int) -> DataBatch:
+        cached = await get_accounting_cache(
             self.workspace_id, self.integration(), from_date
         )
         if cached:
             return cached.to_data_batch()
 
-    async def set_cached(self, data_batch: DataBatch, from_date: int):
+    async def _get_cached_payroll(self, from_date: int) -> list[Employee]:
+        cached = await get_payroll_cache(
+            self.workspace_id, self.integration(), from_date
+        )
+        if cached:
+            return cached.employees
+
+    async def set_cached(self, data: DataBatch | list[Employee], from_date: int):
         """
-        This method caches a data batch for a provided date
-        :param data_batch: Data batch to cache
+        This method caches a data batch for a provided date.
+        The method delegates either to the caching method for data batches or to
+        employee lists based on the API type
+        :param data: Data batch or employee list to cache
         :param from_date: Date in unix format, converted to UTC for reproducibility
         """
+        if self.api_type() == "accounting":
+            logger.info("caching accounting")
+            return await self._set_cached_accounting(data, from_date)
+        elif self.api_type() == "payroll":
+            logger.info("caching payroll")
+            return await self._set_cached_payroll(data, from_date)
 
+    async def _set_cached_accounting(self, data_batch: DataBatch, from_date: int):
         cache_obj = DataBatchCache(
             data=data_batch.data,
             dates=data_batch.dates,
@@ -130,7 +178,17 @@ class FetchAdapter(ABC):
             integration=self.integration(),
             from_date=from_date,
         )
-        return await set_integration_cache(cache_obj)
+        return await set_accounting_cache(cache_obj)
+
+    async def _set_cached_payroll(self, data_batch: list[Employee], from_date: int):
+        cache_obj = EmployeeListCache(
+            employees=data_batch,
+            created_at=datetime.now().astimezone(timezone.utc),
+            workspace_id=self.workspace_id,
+            integration=self.integration(),
+            from_date=from_date,
+        )
+        return await set_payroll_cache(cache_obj)
 
     @staticmethod
     def _merge_batches(batches: list):

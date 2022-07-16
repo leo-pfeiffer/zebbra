@@ -12,7 +12,7 @@ from core.exceptions import (
     BusinessLogicException,
 )
 from core.schemas.utils import PyObjectId
-from core.schemas.models import ModelMeta, UpdateModel, ModelUser, Model
+from core.schemas.models import ModelMeta, UpdateModel, ModelUser, Model, Employee
 from core.schemas.sheets import Sheet, create_default_sheets
 from core.settings import get_settings
 
@@ -245,7 +245,8 @@ async def create_model(admin_id: PyObjectId, model_name: str, workspace_id: PyOb
         }
     )
     sheets = create_default_sheets()
-    model = UpdateModel(**{"meta": meta, "sheets": sheets})
+    payroll = {"payroll_values": [], "employees": []}
+    model = UpdateModel(**{"meta": meta, "sheets": sheets, "payroll": payroll})
     return await db.models.insert_one(jsonable_encoder(model))
 
 
@@ -267,6 +268,12 @@ async def update_revenues_sheet(model_id: str, sheet_data: Sheet):
 
 async def update_costs_sheet(model_id: str, sheet_data: Sheet):
     return await _update_sheet_data(model_id, sheet_data, "Costs")
+
+
+async def update_model_employees(model_id: str, employees: list[Employee]):
+    return await db.models.update_one(
+        {"_id": model_id}, {"$set": {"payroll.employees": jsonable_encoder(employees)}}
+    )
 
 
 async def _get_sheet_by_name(model_id: str, sheet_name: str) -> Sheet:

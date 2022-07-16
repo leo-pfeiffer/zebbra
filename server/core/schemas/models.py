@@ -1,11 +1,29 @@
+import uuid
 from typing import Literal
 
 from datetime import date
 from bson import ObjectId
 from pydantic import BaseModel, Field
 
-from core.schemas.utils import PyObjectId
+from core.schemas.rows import IntegrationValue
+from core.schemas.utils import PyObjectId, DateString
 from core.schemas.sheets import Sheet
+
+
+class Employee(BaseModel):
+    id: str = Field(default_factory=lambda: str(int(uuid.uuid4())), alias="_id")
+    name: str
+    start_date: DateString
+    end_date: DateString | None
+    title: str
+    department: str
+    monthly_salary: int
+    from_integration: bool  # has this employee been imported from an integration?
+
+
+class Payroll(BaseModel):
+    payroll_values: list[IntegrationValue]  # calculated on the fly from employees
+    employees: list[Employee]
 
 
 class ModelMeta(BaseModel):
@@ -26,6 +44,8 @@ class Model(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     meta: ModelMeta
     sheets: list[Sheet]
+    # employees: list[Employee] = []  # list of employees
+    payroll: Payroll
 
     class Config:
         allow_population_by_field_name = True
@@ -36,6 +56,7 @@ class Model(BaseModel):
 class UpdateModel(BaseModel):
     meta: ModelMeta
     sheets: list[Sheet]
+    payroll: Payroll
 
     class Config:
         allow_population_by_field_name = True

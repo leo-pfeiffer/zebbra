@@ -1,39 +1,29 @@
 import time
-from base64 import b64encode
 
-from fastapi import Depends, Request
-from fastapi import HTTPException
+from fastapi import Request, Depends, HTTPException
 from starlette import status
 
 from api.utils.dependencies import get_current_active_user_url
 from core.dao.integrations import (
+    set_requires_reconnect,
     get_integration_for_workspace,
     add_integration_for_workspace,
-    set_requires_reconnect,
 )
 from core.integrations.oauth.integration_oauth import IntegrationOAuth
 from core.logger import logger
 from core.schemas.integrations import (
-    IntegrationAccessToken,
-    IntegrationAccess,
     IntegrationProvider,
+    IntegrationAccess,
+    IntegrationAccessToken,
 )
 from core.schemas.users import User
 from core.settings import get_settings
 
 settings = get_settings()
 
-CLIENT_ID = settings.XERO_CLIENT_ID
-CLIENT_SECRET = settings.XERO_CLIENT_SECRET
-CONF_URL = settings.XERO_CONF_URL
-API_BASE_URL = settings.XERO_API_BASE_URL
-API_URL_SUFFIX = settings.XERO_API_URL_SUFFIX
-REFRESH_URL = settings.XERO_REFRESH_URL
 
-
-class XeroIntegrationOAuth(IntegrationOAuth):
-
-    _integration: IntegrationProvider = "Xero"
+class GustoIntegrationOAuth(IntegrationOAuth):
+    _integration: IntegrationProvider = "Gusto"
 
     def __init__(self):
         super().__init__()
@@ -48,22 +38,20 @@ class XeroIntegrationOAuth(IntegrationOAuth):
         :param integration_access: Current integration access
         :return: Refreshed integration access
         """
-
         logger.info(
             f"Refreshing token for "
             f"{integration_access.workspace_id} : {integration_access.integration}"
         )
 
-        basic_auth = b64encode(str.encode(f"{CLIENT_ID}:{CLIENT_SECRET}")).decode(
-            "utf-8"
-        )
         response = await self.oauth_app.post(
-            REFRESH_URL,
+            settings.GUSTO_REFRESH_URL,
             withhold_token=True,
-            headers={"Authorization": f"Basic {basic_auth}"},
             data={
-                "grant_type": "refresh_token",
+                "client_id": settings.GUSTO_CLIENT_ID,
+                "client_secret": settings.GUSTO_CLIENT_SECRET,
+                "redirect_uri": "http://localhost:8000/integration/gusto/callback",  # todo try leaving this out
                 "refresh_token": integration_access.token.refresh_token,
+                "grant_type": "refresh_token",
             },
         )
 
@@ -85,7 +73,6 @@ class XeroIntegrationOAuth(IntegrationOAuth):
         :return: Refreshed token
         """
         if response.status_code == 200:
-            # add expiry information
             token_data = response.json()
             if "expires_at" not in token_data:
                 token_data["expires_at"] = token_data["expires_in"] + int(time.time())
@@ -110,11 +97,12 @@ class XeroIntegrationOAuth(IntegrationOAuth):
 
     async def _store_oauth_token(self, workspace_id, token: IntegrationAccessToken):
         """
-        Store Xero integration access for a workspace data in the DB
+        Store integration access for a workspace data in the DB
         :param workspace_id: ID of the workspace
         :param token: OAuth token data
         """
-        tenant_id = await self.get_xero_tenant_id(workspace_id, token.dict())
+
+        tenant_id = await self.get_company(workspace_id, token.dict())
 
         integration_access = IntegrationAccess(
             integration=self.integration(),
@@ -126,10 +114,10 @@ class XeroIntegrationOAuth(IntegrationOAuth):
 
         return await add_integration_for_workspace(integration_access)
 
-    async def get_xero_tenant_id(self, workspace_id, token: dict | None = None):
+    async def get_company(self, workspace_id, token: dict | None = None):
         """
-        Get the first available tenant ID
-        Todo: This is not perfect. If the user has multiple tenants, the first one
+        Get the first available company ID
+        Todo: This is not perfect. If the user has multiple companies, the first one
          is always used
         :param workspace_id: Workspace for which to get the xero data.
         :param token: OAuth token. If not provided, it is retrieved from the DB.
@@ -140,39 +128,42 @@ class XeroIntegrationOAuth(IntegrationOAuth):
             token = integration_access.token.dict()
         if not token:
             return None
-        resp = await self.oauth_app.get("connections", token={**token})
+        resp = await self.oauth_app.get("v1/me", token={**token})
         resp.raise_for_status()
-        for connection in resp.json():
-            if connection["tenantType"] == "ORGANISATION":
-                return connection["tenantId"]
+
+        data = resp.json()
+        if "payroll_admin" in (roles := data["roles"]):
+            if "companies" in (payroll_admin := roles["payroll_admin"]):
+                if len(payroll_admin["companies"]) != 0:
+                    return payroll_admin["companies"][0]["uuid"]
+
+        logger.error("No company found for user in gusto")
+        return None
 
 
-xero_integration_oauth = XeroIntegrationOAuth()
-xero_integration_oauth.register_oauth_app(
-    name="xero",
-    client_id=CLIENT_ID,
-    client_secret=CLIENT_SECRET,
-    server_metadata_url=CONF_URL,
-    api_base_url=API_BASE_URL,
-    client_kwargs={
-        "scope": "offline_access openid profile email "
-        "accounting.transactions accounting.reports.read "
-        "accounting.journals.read accounting.settings "
-        "accounting.contacts accounting.attachments "
-        "assets projects"
-    },
+gusto_integration_oauth = GustoIntegrationOAuth()
+gusto_integration_oauth.register_oauth_app(
+    name="Gusto",
+    client_id=settings.GUSTO_CLIENT_ID,
+    client_secret=settings.GUSTO_CLIENT_SECRET,
+    server_metadata_url=settings.GUSTO_CONF_URL,
+    api_base_url=settings.GUSTO_API_BASE_URL,
+    authorize_url=settings.GUSTO_AUTHORIZE_URL,
+    access_token_url=settings.GUSTO_REFRESH_URL,
 )
 
 
-@xero_integration_oauth.router.get(**xero_integration_oauth.login_endpoint())
-async def integration_xero_login(
+@gusto_integration_oauth.router.get(**gusto_integration_oauth.login_endpoint())
+async def login_route(
     workspace_id: str,
     request: Request,
     current_user: User = Depends(get_current_active_user_url),
 ):
-    return await xero_integration_oauth.oauth_login(workspace_id, request, current_user)
+    return await gusto_integration_oauth.oauth_login(
+        workspace_id, request, current_user
+    )
 
 
-@xero_integration_oauth.router.get(**xero_integration_oauth.callback_endpoint())
-async def integration_xero_callback(request: Request):
-    return await xero_integration_oauth.oauth_callback(request)
+@gusto_integration_oauth.router.get(**gusto_integration_oauth.callback_endpoint())
+async def callback_route(request: Request):
+    return await gusto_integration_oauth.oauth_callback(request)

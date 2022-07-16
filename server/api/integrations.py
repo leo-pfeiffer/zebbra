@@ -18,7 +18,8 @@ from core.schemas.integrations import (
     IntegrationProviderInfo,
 )
 from core.schemas.users import User
-from core.schemas.utils import DataPoint, DataBatch
+from core.schemas.utils import DataPoint
+from core.schemas.cache import DataBatch
 
 router = APIRouter()
 

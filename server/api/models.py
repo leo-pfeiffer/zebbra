@@ -30,6 +30,7 @@ from core.dao.models import (
     update_revenues_sheet,
     update_costs_sheet,
     set_starting_month,
+    update_model_employees,
 )
 from core.exceptions import (
     DoesNotExistException,
@@ -37,12 +38,16 @@ from core.exceptions import (
     CardinalityConstraintFailedException,
     BusinessLogicException,
 )
-from core.schemas.models import Model, ModelUser, ModelMeta
+from core.schemas.models import Model, ModelUser, ModelMeta, Employee, Payroll
 from core.schemas.sheets import Sheet
 from core.schemas.users import User
 from core.schemas.utils import Message, PyObjectId
 from api.utils.dependencies import get_current_active_user
-from core.integrations.merge import merge_integration_data
+from core.integrations.merge import (
+    merge_accounting_integration_data,
+    merge_payroll_integration_data,
+    aggregate_payroll_info,
+)
 
 router = APIRouter()
 
@@ -290,7 +295,7 @@ async def retrieve_model_sheet_revenues(
 
     model = await get_model_by_id(model_id)
     sheet = await get_revenues_sheet(model_id)
-    return await merge_integration_data(
+    return await merge_accounting_integration_data(
         sheet, str(model.meta.workspace), model.meta.starting_month
     )
 
@@ -324,7 +329,7 @@ async def update_model_sheet_revenues(
 
     model = await get_model_by_id(model_id)
     sheet = await get_revenues_sheet(model_id)
-    return await merge_integration_data(
+    return await merge_accounting_integration_data(
         sheet, str(model.meta.workspace), model.meta.starting_month
     )
 
@@ -349,7 +354,7 @@ async def retrieve_model_sheet_costs(
 
     model = await get_model_by_id(model_id)
     sheet = await get_costs_sheet(model_id)
-    return await merge_integration_data(
+    return await merge_accounting_integration_data(
         sheet, str(model.meta.workspace), model.meta.starting_month
     )
 
@@ -382,9 +387,69 @@ async def update_model_sheet_costs(
 
     model = await get_model_by_id(model_id)
     sheet = await get_costs_sheet(model_id)
-    return await merge_integration_data(
+    return await merge_accounting_integration_data(
         sheet, str(model.meta.workspace), model.meta.starting_month
     )
+
+
+@router.get(
+    "/model/payroll",
+    response_model=Payroll,
+    tags=["model"],
+    responses={
+        403: {"description": "User does not have access to the resource."},
+    },
+)
+async def retrieve_model_payroll(
+    model_id: str, current_user: User = Depends(get_current_active_user)
+):
+    """
+    Retrieve the payroll information of a model.\n
+        model_id: Model for which to retrieve the data
+    """
+    await _assert_model_exists(model_id)
+    await _assert_access(current_user.id, model_id)
+
+    model = await get_model_by_id(model_id)
+    await merge_payroll_integration_data(
+        model.payroll.employees, str(model.meta.workspace), model.meta.starting_month
+    )
+    model.payroll.payroll_values = aggregate_payroll_info(
+        model.payroll.employees, model.meta.starting_month
+    )
+    return model.payroll
+
+
+@router.post(
+    "/model/payroll",
+    response_model=Payroll,
+    tags=["model"],
+    responses={
+        403: {"description": "User does not have access to the resource."},
+    },
+)
+async def update_model_payroll(
+    model_id: str,
+    employee_data: list[Employee],
+    current_user: User = Depends(get_current_active_user),
+):
+    await _assert_model_exists(model_id)
+    # only editor can update sheet
+    await _assert_access_can_edit(current_user.id, model_id)
+
+    # filter out integration data
+    filtered = [employee for employee in employee_data if not employee.from_integration]
+
+    await update_model_employees(model_id, filtered)
+
+    model = await get_model_by_id(model_id)
+    await merge_payroll_integration_data(
+        model.payroll.employees, str(model.meta.workspace), model.meta.starting_month
+    )
+    model.payroll.payroll_values = aggregate_payroll_info(
+        model.payroll.employees, model.meta.starting_month
+    )
+    return model.payroll
 
 
 async def _assert_model_exists(model_id: str):
