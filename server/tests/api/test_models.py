@@ -16,6 +16,7 @@ from core.dao.models import (
     get_costs_sheet,
 )
 from core.schemas.models import ModelMeta, Employee
+from core.schemas.rows import IntegrationValue
 from core.schemas.sheets import Sheet
 from main import app
 from tests.utils import assert_unauthorized_login_checked
@@ -758,7 +759,9 @@ async def test_post_model_employees(access_token):
     assert ct == 1
     assert ct_after == length_before
 
-    # todo check model_afterwards["payroll_values"]
+    assert len(model_afterwards["payroll_values"]) > 0
+    for p in model_afterwards["payroll_values"]:
+        IntegrationValue(**p)
 
 
 @pytest.mark.anyio
@@ -806,7 +809,7 @@ async def test_post_model_employees_ignore_integration(access_token):
 
 
 @pytest.mark.anyio
-async def test_post_model_employees_contains_integration_values(access_token):  # todo
+async def test_post_model_employees_contains_integration_values(access_token):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
 
@@ -876,10 +879,15 @@ async def test_get_model_employees(access_token):
     )
 
     assert response.status_code == status.HTTP_200_OK
-    for e in response.json()["employees"]:
+
+    model_afterwards = response.json()
+
+    for e in model_afterwards["employees"]:
         assert Employee(**e)
 
-    # todo check model_afterwards["payroll_values"]
+    assert len(model_afterwards["payroll_values"]) > 0
+    for p in model_afterwards["payroll_values"]:
+        IntegrationValue(**p)
 
 
 @pytest.mark.anyio

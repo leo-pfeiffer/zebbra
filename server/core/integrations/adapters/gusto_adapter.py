@@ -66,7 +66,6 @@ class GustoFetchAdapter(FetchAdapter):
                 "Content-Type": "application/json",
             },
         )
-        # todo try "include" param
 
         resp.raise_for_status()
         return resp.json()
