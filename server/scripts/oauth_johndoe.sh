@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 
 # Usage:
 # sh oauth_johndoe.sh <INTEGRATION_NAME>

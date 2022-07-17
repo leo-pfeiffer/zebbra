@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 
 # run from "/server" directory
 
@@ -6,14 +6,35 @@
 
 # source env file
 
-if [ "$1" != "nosource" ]
-  then 
+if [[ "$1" != "nosource" && "$1" != "export" ]]
+  then
     source .env
 fi
 
+if [ "$1" == "export" ]
+  then
+    export $(grep -v '^#' .env | xargs)
+fi
+
+# Zebbra user set up
 mongosh <<EOF
-  show dbs;
   use zebbra;
+
+  if (db.getUsers({filter: {'user': "$MONGODB_USER"}}).users.length != 0) {
+    db.dropUser("$MONGODB_USER")
+  };
+
+  db.createUser(
+    {
+      user: "$MONGODB_USER",
+      pwd: "$MONGODB_PW",
+      roles: [ { role: "readWrite", db: "zebbra" } ]
+    }
+  );
+EOF
+
+# Zebbra test user set up
+mongosh <<EOF
   use zebbra_test;
 
   if (db.getUsers({filter: {'user': "$MONGODB_USER"}}).users.length != 0) {
@@ -24,7 +45,7 @@ mongosh <<EOF
     {
       user: "$MONGODB_USER",
       pwd: "$MONGODB_PW",
-      roles: [ { role: "readWrite", db: "zebbra" }, { role: "readWrite", db: "zebbra_test" } ]
+      roles: [ { role: "readWrite", db: "zebbra_test" } ]
     }
   );
 EOF
@@ -50,7 +71,10 @@ mongosh <<EOF
   };
   db.accounting_cache.createIndex({ "created_at": 1 }, { expireAfterSeconds: $CACHE_TTL });
 
-  db.accounting_cache.getIndexes();
+  if (db.payroll_cache.getIndexes().filter(e => e.name == "created_at_1").length > 0) {
+    db.payroll_cache.dropIndex("created_at_1");
+  };
+  db.payroll_cache.createIndex({ "created_at": 1 }, { expireAfterSeconds: $CACHE_TTL });
 EOF
 
 # todo this should be unnecessary but if I take it out the first auth test in CI fails,
