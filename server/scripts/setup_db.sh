@@ -16,9 +16,25 @@ if [ "$1" == "export" ]
     export $(grep -v '^#' .env | xargs)
 fi
 
+# Zebbra user set up
 mongosh <<EOF
-  show dbs;
   use zebbra;
+
+  if (db.getUsers({filter: {'user': "$MONGODB_USER"}}).users.length != 0) {
+    db.dropUser("$MONGODB_USER")
+  };
+
+  db.createUser(
+    {
+      user: "$MONGODB_USER",
+      pwd: "$MONGODB_PW",
+      roles: [ { role: "readWrite", db: "zebbra" } ]
+    }
+  );
+EOF
+
+# Zebbra test user set up
+mongosh <<EOF
   use zebbra_test;
 
   if (db.getUsers({filter: {'user': "$MONGODB_USER"}}).users.length != 0) {
@@ -29,7 +45,7 @@ mongosh <<EOF
     {
       user: "$MONGODB_USER",
       pwd: "$MONGODB_PW",
-      roles: [ { role: "readWrite", db: "zebbra" }, { role: "readWrite", db: "zebbra_test" } ]
+      roles: [ { role: "readWrite", db: "zebbra_test" } ]
     }
   );
 EOF

@@ -1,3 +1,5 @@
+#!/bin/bash
+
 integration=$1
 
 # check if provided name matches format

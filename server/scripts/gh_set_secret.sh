@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 . .env
 
 openssl base64 -A -in .env -out enc.env
