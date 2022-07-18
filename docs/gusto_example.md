@@ -1,23 +1,38 @@
 # Gusto Integration Example
+
+This example demonstrates the process of integrating a new payroll API using [Gusto](https://docs.gusto.com/). Gusto is integrated into Zebbra by default - so this guide is simply a walkthrough and may server as reference for integrating other payroll APIs.
+
 ## Setup
-Create gusto account
-Add Client ID, Client Secret to .env
-Add client id, secrets etc. to settings.py (optional, but recommended)
+
+We assume that you've already created a Gusto developer account and have registered your application. 
+
+Start by adding the client ID and client secret issued during the registration to the `.env` file.
+
+```
+# .env
+
+GUSTO_CLIENT_ID: mySecretClientId
+GUSTO_CLIENT_SECRET: mySecretClientSecret
+```
+
+Secondly, we add the Gusto specific URLs to our settings module. The client ID and secret will be retrieved from the `.env` file.
+
 ```python
 # core/settings.py >
 
 class Settings(BaseSettings):
     ...
-    GUSTO_CLIENT_ID: str  
-    GUSTO_CLIENT_SECRET: str  
-    GUSTO_CONF_URL: str = "https://api.gusto-demo.com/.well-known/openid-configuration"  
-    GUSTO_API_BASE_URL: str = "https://api.gusto-demo.com/"  
-    GUSTO_REFRESH_URL: str = "https://api.gusto-demo.com/oauth/token"  
+    GUSTO_CLIENT_ID: str
+    GUSTO_CLIENT_SECRET: str
+    GUSTO_CONF_URL: str = "https://api.gusto-demo.com/.well-known/openid-configuration"
+    GUSTO_API_BASE_URL: str = "https://api.gusto-demo.com/"
+    GUSTO_REFRESH_URL: str = "https://api.gusto-demo.com/oauth/token"
     GUSTO_AUTHORIZE_URL: str = "https://api.gusto-demo.com/oauth/authorize"
     ...
 ```
 
-Add integration provider in `core/schemas/integrations.py`
+Next, we can add Gusto to the list of integration providers, in `core/schemas/integrations.py`.
+
 ```python
 IntegrationProvider = Literal["Xero", "Gusto"]
 ```
