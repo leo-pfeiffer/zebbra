@@ -1,3 +1,7 @@
 site_name: Zebbra Docs
 theme:
   name: material
+nav:
+    - Home: index.md
+    - Integration Guide: add_integration.md
+    - Gusto Integration Example: gusto_example.md
