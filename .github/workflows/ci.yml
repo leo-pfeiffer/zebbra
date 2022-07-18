@@ -3,6 +3,7 @@ name: Run tests
 on: [push]
 
 env:
+  ENV_SET: ${{ secrets.ENV_SET }}
   ENV_ENCRYPT_PASS: ${{ secrets.ENV_ENCRYPT_PASS }}
   AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
   AUTH_ALGO: ${{ secrets.AUTH_ALGO }}
@@ -43,7 +44,7 @@ jobs:
     - name: Set up db
       run: |
         cd server
-        make setup_db_no_source
+        make setup_db
 
     - name: Run tests
       run: |
