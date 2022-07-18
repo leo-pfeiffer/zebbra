@@ -7,25 +7,13 @@ test:
 # Run the setup db script
 setup_db:
 	chmod +x scripts/setup_db.sh
-	sh scripts/setup_db.sh
+	scripts/setup_db.sh
 
 .PHONY: setup_db_no_integrations
 # Run the setup db script
 setup_db_no_integrations:
 	chmod +x scripts/setup_db_no_integrations.sh
 	scripts/setup_db_no_integrations.sh
-
-.PHONY: setup_db_no_source
-# Run the setup db script without sourcing. Necessary during GitHub action
-setup_db_no_source:
-	chmod +x scripts/setup_db.sh
-	scripts/setup_db.sh "nosource"
-
-.PHONY: setup_db_export
-# Run the setup db script with the export command.
-setup_db_export:
-	chmod +x scripts/setup_db.sh
-	scripts/setup_db.sh "export"
 
 .PHONY: run_server
 # Start the Zebbra API server
@@ -46,7 +34,7 @@ set_secret_env:
 # Generate integration files from templates. Args: INTEGRATION=<integration_name>
 generate_from_template:
 	chmod +x scripts/generate.sh
-	sh scripts/generate.sh $(INTEGRATION)
+	scripts/generate.sh $(INTEGRATION)
 
 .PHONY: help
 # Found here: https://stackoverflow.com/a/35730928/12168211
