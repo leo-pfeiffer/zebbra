@@ -58,7 +58,7 @@ As visible in the output, the script creates two files, one for the oauth integr
 
 In the auto-generated file `core/integrations/oauth/gusto_oauth.py` file we can now implement the Gusto specific  methods in the `GustoIntegrationOAuth` class
 
-### Implementing the `_perform_token_refresh` method
+#### Implementing the `_perform_token_refresh` method
 
 The `_perform_token_refresh` method is responsible for performing the OAuth refresh workflow in case
 the current access token has expired. The method uses the Authlib oauth_app instance of the class to send a post request to the Gusto refresh URL. The specifics of this can usually be found in the API documentation of the API you'd like to integrate.
@@ -124,7 +124,7 @@ async def _process_refresh_response(self, response, integration_access: Integrat
   
 ```
 
-### Implementing the `_store_oauth_token` method
+#### Implementing the `_store_oauth_token` method
 
 Next, we also need to implement the `_store_oauth_token` method, which stores the new access token in the database. This works almost the same for every API, however, Gusto differentiates between different company's (or tenants). Zebbra currently only allows a single company, the ID of which must be retrieved from the Gusto API first.
 
@@ -170,7 +170,7 @@ async def get_company(self, workspace_id, token: dict | None = None):
 
 This concludes the implementation of the OAuth integration.
 
-## Creating an instance of the OAuth integration
+### Creating an instance of the OAuth integration
 
 Having implemented the OAuth integration, we can now create an instance of it in the same file (`zebbra/server/core/integrations/oauth/gusto_oauth.py`). The stubs for this are already generated automatically, you simply have to fill in the Gusto specific details.
 
@@ -190,11 +190,11 @@ gusto_integration_oauth.register_oauth_app(
 )
 ```
 
-## Setting up the endpoints (auto-generated)
+### Setting up the endpoints (auto-generated)
 
 You will notice that the endpoints are automatically generated at the bottom of the file.
 
-## Registering the integration
+### Registering the integration
 
 We need to let the Zebbra API know about the integration we just implemented. This can be done in the `zebbra/server/core/integrations/config.py` file by adding the `GustoIntegrationOAuth` instance we created in the previous steps.
 
@@ -215,5 +215,20 @@ def setup_integrations(app: FastAPI):
     ...
 ```
 
-## 🥳 Checkpoint: Hooray, we can now authenticate ourselves to the Gusto API.
+### 🥳 Checkpoint: OAuth integration done
 
+Hooray, we can now authenticate ourselves to the Gusto API!
+
+Let's fire up the Fast API server and head to the login endpoint for a workspace and an access token (you will have to fill in actual values).
+
+```
+URL: http://localhost:8000/integration/gusto/login?workspace_id=123&access_token=a1b2c3
+```
+
+![Gusto OAuth Login Page](https://user-images.githubusercontent.com/50983452/179629006-13c5e978-0403-426d-9e36-768ae8656159.png)
+
+![Gusto OAuth Authorize Page](https://user-images.githubusercontent.com/50983452/179629056-418763d1-dbdb-43d4-9ab7-0e662583d193.png)
+
+![Gusto Confirmation Message](https://user-images.githubusercontent.com/50983452/179629084-b31c73c5-5b4a-4cba-b42b-9ee6c491333b.png)
+
+## Implementing the Fetch Adapter
