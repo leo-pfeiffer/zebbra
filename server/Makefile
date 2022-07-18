@@ -31,10 +31,10 @@ set_secret_env:
 	gh secret set -f .env
 
 .PHONY: generate_from_template
-# Generate integration files from templates. Args: INTEGRATION=<integration_name>
+# Generate integration files from templates. Args: INTEGRATION=<integration_name> API_TYPE=<payroll | accounting>
 generate_from_template:
 	chmod +x scripts/generate.sh
-	scripts/generate.sh $(INTEGRATION)
+	scripts/generate.sh $(INTEGRATION) $(API_TYPE)
 
 .PHONY: help
 # Found here: https://stackoverflow.com/a/35730928/12168211
