@@ -22,6 +22,10 @@ class XxXxXFetchAdapter(FetchAdapter):
     def integration(cls):
         return cls._integration
 
+    @classmethod
+    def api_type(cls):
+        return cls._api_type
+
     async def get_data(self, from_date: date) -> DataBatch | list[Employee]:
         """
         This is the main method called during the merging procedure to add the
