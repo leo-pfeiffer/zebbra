@@ -94,7 +94,9 @@ const endRowValuesToDisplayState = useState<string[][]>('endRowValues');
                                         :variable="section.end_row" :variable-index="0"
                                         :timeSeriesMap="useVariableTimeSeriesMap(section.rows)"
                                         :variableSearchMap="useVariableSearchMap(section.rows)"
-                                        :sectionIndex="sectionIndex" :isEndRow="true">
+                                        :sectionIndex="sectionIndex"
+                                        :sectionName="section.name"
+                                        :isEndRow="true">
                                     </VariableRowHeader>
                                 </div>
                             </div>
@@ -145,6 +147,7 @@ const endRowValuesToDisplayState = useState<string[][]>('endRowValues');
                     </div>
                 </div>
             </div>
+            <SheetErrorMessages v-if="(errorMessages.length > 0)" :errorMessages="errorMessages" @close="closeErrorMessage"></SheetErrorMessages>
         </div>
     </NuxtLayout>
 </template>
@@ -153,13 +156,16 @@ const endRowValuesToDisplayState = useState<string[][]>('endRowValues');
 
 import { useFormulaParser } from '~~/methods/useFormulaParser';
 import { useGetValueFromHumanReadable } from '~~/methods/useGetValueFromHumanReadable';
-
 export default {
     data() {
         return {
+            errorMessages: []
         }
     },
     methods: {
+        closeErrorMessage(index:number){
+            this.errorMessages.splice(index, 1)
+        },
         async addAssumption() {
             const emptyAssumption: Variable = {
 
@@ -180,15 +186,23 @@ export default {
             this.revenueState.assumptions.push(emptyAssumption);
 
             const assumptionValuesArrayState = useState<string[][]>('assumptionValues');
-            var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(this.revenueState.assumptions);
-            let index = assumptionValuesArray.length - 1;
-            assumptionValuesArrayState.value.push(assumptionValuesArray[index])
+            var assumptionValuesArray: string[][];
 
-            //todo: proper error handling
+            try {
+                assumptionValuesArray = useFormulaParser().getSheetRowValues(this.revenueState.assumptions);
+                let index = assumptionValuesArray.length - 1;
+                assumptionValuesArrayState.value.push(assumptionValuesArray[index])
+            } catch(e){
+                console.log(e);
+                this.errorMessages.push("Something went wrong! Please try adding the variable again.");
+                this.revenueState = await useSheetUpdate().getRevenueSheet(this.route.params.modelId)
+            } 
+
             try {
                 await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
             } catch (e) {
                 console.log(e)
+                this.errorMessages.push("Something went wrong! Please try adding the variable again.");
                 this.revenueState = await useSheetUpdate().getRevenueSheet(this.route.params.modelId)
             }
 
@@ -213,16 +227,11 @@ export default {
             this.revenueState.sections[sectionIndex].rows.push(emptyVariable);
             this.updateDisplayedValues();
 
-            /*             const assumptionValuesArrayState = useState<string[][]>('assumptionValues');
-                        var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(this.revenueState.assumptions);
-                        let index = assumptionValuesArray.length - 1;
-                        assumptionValuesArrayState.value.push(assumptionValuesArray[index]) */
-
-            //todo: proper error handling
             try {
                 await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
             } catch (e) {
                 console.log(e)
+                this.errorMessages.push("Something went wrong! Please try adding the variable again.");
                 this.revenueState = await useSheetUpdate().getRevenueSheet(this.route.params.modelId)
                 this.updateDisplayedValues();
             }
@@ -258,7 +267,7 @@ export default {
                     }
                 }
             } else {
-                //todo:throw error
+                this.errorMessages.push("You can't enter an empty value. Please try again.");
             }
         },
         async updateVariableValue(humanReadableInputValue: string, variableId: string, variableSearchMap: Map<string, string>, timeSeriesMap: Map<string, boolean>, variableIndex: number, sectionIndex: number) {
@@ -291,7 +300,7 @@ export default {
                     }
                 }
             } else {
-                //todo:throw error
+                this.errorMessages.push("You can't enter an empty value. Please try again.");
             }
         },
         async updateEndRowValue(humanReadableInputValue: string, variableId: string, variableSearchMap: Map<string, string>, timeSeriesMap: Map<string, boolean>, variableIndex: number, sectionIndex: number) {
@@ -324,18 +333,17 @@ export default {
                     }
                 }
             } else {
-                //todo:throw error
+                this.errorMessages.push("You can't enter an empty value. Please try again.");
             }
         },
         async updateAssumptionName(newName: string, variableIndex: number, sectionIndex: number) {
-            //todo: proper error handling
-            //todo: add errormessage if starting char is number
             if (newName.length > 0 && !useFormulaParser().charIsNumerical(newName[0])) {
                 this.revenueState.assumptions[variableIndex].name = newName;
                 try {
                     await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
                 } catch (e) {
                     console.log(e);
+                    this.errorMessages.push(e);
                     //retrieve actual stored sheet from DB
                     //if actual sheet and state match, if not update state to actual sheet
                     const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
@@ -343,17 +351,18 @@ export default {
                         this.revenueState = actualSheet;
                     }
                 }
+            } else {
+                this.errorMessages.push("A variable name must be longer than 0 and can't start with a number.");
             }
         },
         async updateVariableName(newName: string, variableIndex: number, sectionIndex: number) {
-            //todo: proper error handling
-            //todo: add errormessage if starting char is number
             if (newName.length > 0 && !useFormulaParser().charIsNumerical(newName[0])) {
                 this.revenueState.sections[sectionIndex].rows[variableIndex].name = newName;
                 try {
                     await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
                 } catch (e) {
                     console.log(e);
+                    this.errorMessages.push(e);
                     //retrieve actual stored sheet from DB
                     //if actual sheet and state match, if not update state to actual sheet
                     const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
@@ -361,6 +370,8 @@ export default {
                         this.revenueState = actualSheet;
                     }
                 }
+            } else {
+                this.errorMessages.push("A variable name must be longer than 0 and can't start with a number.");
             }
         },
         async updateAssumptionSettings(variableIndex: number, value1Input: string, valTypeInput: string, startingAtInput: number, sectionIndex: number) {
@@ -391,6 +402,7 @@ export default {
                 this.updateDisplayedValues();
             } catch (e) {
                 console.log(e);
+                this.errorMessages.push(e);
                 //retrieve actual stored sheet from DB
                 //if actual sheet and state match, if not update state to actual sheet
                 const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
@@ -431,6 +443,7 @@ export default {
 
             } catch (e) {
                 console.log(e);
+                this.errorMessages.push(e);
                 //retrieve actual stored sheet from DB
                 //if actual sheet and state match, if not update state to actual sheet
                 const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
@@ -449,6 +462,7 @@ export default {
                 await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
             } catch (e) {
                 console.log(e) //todo: throw error message
+                this.errorMessages.push(e);
                 const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
                 if (!(actualSheet.assumptions.length === this.revenueState.assumptions.length)) {
                     this.revenueState = actualSheet;
@@ -466,6 +480,7 @@ export default {
                 await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
             } catch (e) {
                 console.log(e) //todo: throw error message
+                this.errorMessages.push(e);
                 const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
                 if (!(actualSheet.sections[sectionIndex].rows.length === this.revenueState.sections[sectionIndex].rows.length)) {
                     this.revenueState = actualSheet;
@@ -513,54 +528,64 @@ export default {
             }
         },
         updateDisplayedValues() {
-
+            
             //assumptions
-            this.assumptionValuesToDisplayState = useFormulaParser().getSheetRowValues(this.revenueState.assumptions);
+            try {
+                this.assumptionValuesToDisplayState = useFormulaParser().getSheetRowValues(this.revenueState.assumptions);
 
-            //Update entire sheet
-            var variablesValuesStorage: Map<number, string[][]> = new Map<number, string[][]>();
-            var endRowValuesStorage: string[][] = [];
-            for (let i = 0; i < this.revenueState.sections.length; i++) {
-                //variables
-                var sectionVariables: Variable[] = [...this.revenueState.sections[i].rows];
-                var valuesOfAssumptionsAndVariables: string[][] = useFormulaParser().getSheetRowValues(this.revenueState.assumptions.concat(sectionVariables))
-                valuesOfAssumptionsAndVariables.splice(0, this.revenueState.assumptions.length);
-                variablesValuesStorage.set(i, valuesOfAssumptionsAndVariables);
-                //endrow
-                var valuesOfVariablesAndEndRow: string[][] = useFormulaParser().getSheetRowValues(this.revenueState.assumptions.concat(sectionVariables.concat(this.revenueState.sections[i].end_row)));
-                valuesOfVariablesAndEndRow.splice(0, sectionVariables.length + this.revenueState.assumptions.length);
-                endRowValuesStorage.push(valuesOfVariablesAndEndRow[0]);
+                //Update entire sheet
+                var variablesValuesStorage: Map<number, string[][]> = new Map<number, string[][]>();
+                var endRowValuesStorage: string[][] = [];
+                for (let i = 0; i < this.revenueState.sections.length; i++) {
+                    //variables
+                    var sectionVariables: Variable[] = [...this.revenueState.sections[i].rows];
+                    var valuesOfAssumptionsAndVariables: string[][] = useFormulaParser().getSheetRowValues(this.revenueState.assumptions.concat(sectionVariables))
+                    valuesOfAssumptionsAndVariables.splice(0, this.revenueState.assumptions.length);
+                    variablesValuesStorage.set(i, valuesOfAssumptionsAndVariables);
+                    //endrow
+                    var valuesOfVariablesAndEndRow: string[][] = useFormulaParser().getSheetRowValues(this.revenueState.assumptions.concat(sectionVariables.concat(this.revenueState.sections[i].end_row)));
+                    valuesOfVariablesAndEndRow.splice(0, sectionVariables.length + this.revenueState.assumptions.length);
+                    endRowValuesStorage.push(valuesOfVariablesAndEndRow[0]);
 
-            };
-            this.variableValuesToDisplayState = variablesValuesStorage;
-            console.log(endRowValuesStorage[0]);
-            this.endRowValuesToDisplayState = endRowValuesStorage;
-            console.log(this.endRowValuesToDisplayState[0]);
+                };
+                this.variableValuesToDisplayState = variablesValuesStorage;
+                this.endRowValuesToDisplayState = endRowValuesStorage;
+
+            } catch(e) {
+                console.log(e);
+                this.errorMessages.push(e)
+            }
         }
     },
     mounted() {
-        //return the display values for all the assumptions
-        const revenues = useRevenueState();
+        try {
+            //return the display values for all the assumptions
+            const revenues = useRevenueState();
+            
+            var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(revenues.value.assumptions);
+            useState('assumptionValues', () => assumptionValuesArray);
+            
+            var variablesValuesStorage: Map<number, string[][]> = new Map<number, string[][]>();
+            var endRowValuesStorage: string[][] = [];
+            for (let i = 0; i < revenues.value.sections.length; i++) {
+                //variables
+                var sectionVariables: Variable[] = [...revenues.value.sections[i].rows];
+                var valuesOfAssumptionsAndVariables: string[][] = useFormulaParser().getSheetRowValues(revenues.value.assumptions.concat(sectionVariables))
+                valuesOfAssumptionsAndVariables.splice(0, revenues.value.assumptions.length);
+                variablesValuesStorage.set(i, valuesOfAssumptionsAndVariables);
+                //endrow
+                var valuesOfVariablesAndEndRow: string[][] = useFormulaParser().getSheetRowValues(revenues.value.assumptions.concat(sectionVariables.concat(revenues.value.sections[i].end_row)));
+                valuesOfVariablesAndEndRow.splice(0, sectionVariables.length + revenues.value.assumptions.length);
+                endRowValuesStorage.push(valuesOfVariablesAndEndRow[0]);
+            };
+            console.log(endRowValuesStorage[0])
+            useState<Map<number, string[][]>>('variableValues', () => variablesValuesStorage);
+            useState<string[][]>('endRowValues', () => endRowValuesStorage);
 
-        var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(revenues.value.assumptions);
-        useState('assumptionValues', () => assumptionValuesArray);
-
-        var variablesValuesStorage: Map<number, string[][]> = new Map<number, string[][]>();
-        var endRowValuesStorage: string[][] = [];
-        for (let i = 0; i < revenues.value.sections.length; i++) {
-            //variables
-            var sectionVariables: Variable[] = [...revenues.value.sections[i].rows];
-            var valuesOfAssumptionsAndVariables: string[][] = useFormulaParser().getSheetRowValues(revenues.value.assumptions.concat(sectionVariables))
-            valuesOfAssumptionsAndVariables.splice(0, revenues.value.assumptions.length);
-            variablesValuesStorage.set(i, valuesOfAssumptionsAndVariables);
-            //endrow
-            var valuesOfVariablesAndEndRow: string[][] = useFormulaParser().getSheetRowValues(revenues.value.assumptions.concat(sectionVariables.concat(revenues.value.sections[i].end_row)));
-            valuesOfVariablesAndEndRow.splice(0, sectionVariables.length + revenues.value.assumptions.length);
-            endRowValuesStorage.push(valuesOfVariablesAndEndRow[0]);
-        };
-        console.log(endRowValuesStorage[0])
-        useState<Map<number, string[][]>>('variableValues', () => variablesValuesStorage);
-        useState<string[][]>('endRowValues', () => endRowValuesStorage);
+        } catch(e) {
+            console.log(e);
+            this.errorMessages.push(e)
+        }
     }
 }
 
