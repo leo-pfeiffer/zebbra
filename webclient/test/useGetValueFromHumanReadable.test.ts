@@ -155,7 +155,8 @@ describe('useGetValueFromHumanReadable Tests', () => {
 
     })
 
-    it('should work when the variable starts with a number', () => {
+    //should fail as variables that start with a number are not accepted (is handled in frontend)
+    it.fails('should fail when the variable starts with a number', () => {
 
         const humanReadableInput:string = "2022 Customers[1] * (1 + Customer Growth[1])";
         const expectedOutput:string = "$1*(1+#2$1)"
@@ -164,7 +165,7 @@ describe('useGetValueFromHumanReadable Tests', () => {
 
     })
 
-    it('should work when the variable starts with a number', () => {
+    it.fails('should fail when the variable starts with a number', () => {
 
         const humanReadableInput2:string = "2022 Customers[1] * (1 + 2022 Customer Growth[1])";
         const expectedOutput2:string = "$1*(1+#6$1)"
