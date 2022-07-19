@@ -25,9 +25,9 @@ run_server:
 run_server_prod:
 	python -m uvicorn main:app --reload --port 80 --host 0.0.0.0
 
-.PHONY: set_secret_env
+.PHONY: gh_set_secret
 # Set GitHub secrets from .env file
-set_secret_env:
+gh_set_secret:
 	gh secret set -f .env
 
 .PHONY: generate_from_template
