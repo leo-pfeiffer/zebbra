@@ -32,7 +32,8 @@
             "first_value_diff": false,
             "value": "100",
             "value_1": null,
-            "integration_values": null
+            "integration_values": null,
+            "decimal_places": 0
           }
         ],
         "sections": [
@@ -50,7 +51,8 @@
                 "first_value_diff": true,
                 "value": "$-1 * 1.05",
                 "value_1": "100",
-                "integration_values": null
+                "integration_values": null,
+                "decimal_places": 0
               },
               {
                 "_id": "109209513362019443602508755211948987835",
@@ -63,7 +65,8 @@
                 "first_value_diff": false,
                 "value": "Xero[Total Income]",
                 "value_1": null,
-                "integration_values": null
+                "integration_values": null,
+                "decimal_places": 0
               }
             ],
             "end_row": {
@@ -77,7 +80,8 @@
                 "first_value_diff": false,
                 "value": "#1 + #2",
                 "value_1": null,
-                "integration_values": null
+                "integration_values": null,
+                "decimal_places": 0
             }
           }
         ]
@@ -98,7 +102,8 @@
             "first_value_diff": false,
             "value": "100",
             "value_1": null,
-            "integration_values": null
+            "integration_values": null,
+            "decimal_places": 0
           }
         ],
         "sections": [
@@ -116,7 +121,8 @@
                 "first_value_diff": true,
                 "value": "$-1 * 1.05",
                 "value_1": "100",
-                "integration_values": null
+                "integration_values": null,
+                "decimal_places": 0
               },
               {
                 "_id": "220899290253998228835136291945093028215",
@@ -129,7 +135,8 @@
                 "first_value_diff": false,
                 "value": "Xero[Total Cost of Sales]",
                 "value_1": null,
-                "integration_values": null
+                "integration_values": null,
+                "decimal_places": 0
               }
             ],
             "end_row": {
@@ -143,7 +150,8 @@
                 "first_value_diff": false,
                 "value": "#1 + #2",
                 "value_1": null,
-                "integration_values": null
+                "integration_values": null,
+                "decimal_places": 0
             }
           }
         ]
@@ -218,7 +226,8 @@
             "first_value_diff": false,
             "value": "100",
             "value_1": null,
-            "integration_values": null
+            "integration_values": null,
+            "decimal_places": 0
           }
         ],
         "sections": [
@@ -236,7 +245,8 @@
                 "first_value_diff": true,
                 "value": "$-1 * 1.05",
                 "value_1": "100",
-                "integration_values": null
+                "integration_values": null,
+                "decimal_places": 0
               }
             ],
             "end_row": {
@@ -250,7 +260,8 @@
                 "first_value_diff": false,
                 "value": "#1 + #2",
                 "value_1": null,
-                "integration_values": null
+                "integration_values": null,
+                "decimal_places": 0
             }
           }
         ]
@@ -271,7 +282,8 @@
             "first_value_diff": false,
             "value": "100",
             "value_1": null,
-            "integration_values": null
+            "integration_values": null,
+            "decimal_places": 0
           }
         ],
         "sections": [
@@ -289,7 +301,8 @@
                 "first_value_diff": true,
                 "value": "$-1 * 1.05",
                 "value_1": "100",
-                "integration_values": null
+                "integration_values": null,
+                "decimal_places": 0
               }
             ],
             "end_row": {
@@ -303,7 +316,8 @@
                 "first_value_diff": false,
                 "value": "#1 + #2",
                 "value_1": null,
-                "integration_values": null
+                "integration_values": null,
+                "decimal_places": 0
             }
           }
         ]
