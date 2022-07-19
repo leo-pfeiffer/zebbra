@@ -77,10 +77,9 @@ const endRowValuesToDisplayState = useState<string[][]>('endRowValues');
                                     </span>
                                 </div>
                                 <div v-for="(section, sectionIndex) in revenueState.sections" :key="sectionIndex">
-                                    <div class="group flex text-xs text-zinc-700 py-2 px-3 min-w-[400px] max-w-[400px] border-zinc-300 border-l border-t">
-                                        <span>{{ section.name }}</span>
-                                        <span class="ml-2 hidden group-hover:block text-[10px]"><button @click="toggleSectionDeleteModal"><i title="Delete section" class="bi bi-x-lg text-zinc-500 hover:text-zinc-700"></i></button></span>
-                                    </div>
+                                    <SectionHeader :sectionName="section.name" :sectionIndex="sectionIndex"
+                                    @change-section-name="updateSectionName"
+                                    @delete-section="deleteSection"></SectionHeader>
                                     <VariableRowHeader @update-value="updateVariableValue"
                                         @update-settings="updateVariableSettings" @update-name="updateVariableName"
                                         @delete-variable="deleteVariable" v-for="(variable, index) in section.rows"
@@ -104,28 +103,6 @@ const endRowValuesToDisplayState = useState<string[][]>('endRowValues');
                                         :sectionName="section.name"
                                         :isEndRow="true">
                                     </VariableRowHeader>
-                                    <Teleport to="body">
-                                        <div v-show="deleteSectionModalOpen" class="absolute left-0 top-1/3 w-full flex justify-center align-middle">
-                                            <div class="p-6 border h-max shadow-lg bg-white border-zinc-300 rounded z-50">
-                                                <div>
-                                                    <h3 class="text-zinc-900 font-medium text-sm mb-2">Do you really want to delete this section?
-                                                    </h3>
-                                                </div>
-                                                <p class="text-zinc-500 text-xs mb-3">Deleting <b>{{ section.name }}</b> cannot be undone.</p>
-                                                <div class="float-right">
-                                                    <button
-                                                        class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-xs px-2 py-1 border border-zinc-300 rounded text-zinc-700"
-                                                        @click="toggleSectionDeleteModal">Cancel</button>
-                                                    <button class="ml-2 bg-red-600  drop-shadow-sm
-                                                        shadow-zinc-50 text-xs font-medium px-2 py-1 
-                                                        border border-red-500 rounded text-neutral-100" @click="deleteSection(sectionIndex), toggleSectionDeleteModal()">Delete</button>
-                                                </div>
-                                            </div>
-                                            <div v-show="deleteSectionModalOpen" @click="toggleSectionDeleteModal"
-                                                class="fixed top-0 left-0 w-[100vw] h-[100vh] z-40 bg-zinc-100/50">
-                                            </div>
-                                        </div>
-                                    </Teleport>
                                 </div>
                             </div>
                         </div>
@@ -187,20 +164,12 @@ import { useGetValueFromHumanReadable } from '~~/methods/useGetValueFromHumanRea
 export default {
     data() {
         return {
-            errorMessages: [],
-            deleteSectionModalOpen: false
+            errorMessages: []
         }
     },
     methods: {
         closeErrorMessage(index:number){
             this.errorMessages.splice(index, 1)
-        },
-        toggleSectionDeleteModal() {
-            if (!this.deleteSectionModalOpen) {
-                this.deleteSectionModalOpen = true;
-            } else {
-                this.deleteSectionModalOpen = false;
-            }
         },
         async addSection() {
 
@@ -445,6 +414,25 @@ export default {
                 this.errorMessages.push("A variable name must be longer than 0 and can't start with a number.");
             }
         },
+        async updateSectionName(sectionIndex: number, newName: string) {
+            if (newName.length > 0) {
+                this.revenueState.sections[sectionIndex].name = newName;
+                try {
+                    await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
+                } catch (e) {
+                    console.log(e);
+                    this.errorMessages.push(e);
+                    //retrieve actual stored sheet from DB
+                    //if actual sheet and state match, if not update state to actual sheet
+                    const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
+                    if (!(this.revenueState.sections[sectionIndex].name === actualSheet.sections[sectionIndex].name)) {
+                        this.revenueState = actualSheet;
+                    }
+                }
+            } else {
+                this.errorMessages.push("The section name must be at least one character.");
+            }
+        },
         async updateVariableName(newName: string, variableIndex: number, sectionIndex: number) {
             if (newName.length > 0 && !useFormulaParser().charIsNumerical(newName[0])) {
                 this.revenueState.sections[sectionIndex].rows[variableIndex].name = newName;
@@ -542,23 +530,6 @@ export default {
                 }
             }
         },
-        async deleteSection(sectionIndex: number) {
-            //first directly change the state
-            this.revenueState.sections.splice(sectionIndex, 1)
-            //then update the backend
-            try {
-                await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
-                this.updateDisplayedValues();
-            } catch (e) {
-                console.log(e) //todo: throw error message
-                this.errorMessages.push(e);
-                const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
-                if (!(actualSheet.sections[sectionIndex].rows.length === this.revenueState.sections[sectionIndex].rows.length)) {
-                    this.revenueState = actualSheet;
-                    this.updateDisplayedValues();
-                }
-            }
-        },
         async deleteAssumption(variableIndex: number, sectionIndex: number) {
             //first directly change the state
             this.revenueState.assumptions.splice(variableIndex, 1);
@@ -572,6 +543,23 @@ export default {
                 this.errorMessages.push(e);
                 const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
                 if (!(actualSheet.assumptions.length === this.revenueState.assumptions.length)) {
+                    this.revenueState = actualSheet;
+                    this.updateDisplayedValues();
+                }
+            }
+        },
+        async deleteSection(sectionIndex: number) {
+            //first directly change the state
+            this.revenueState.sections.splice(sectionIndex, 1)
+            //then update the backend
+            try {
+                await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
+                this.updateDisplayedValues();
+            } catch (e) {
+                console.log(e) //todo: throw error message
+                this.errorMessages.push(e);
+                const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
+                if (!(actualSheet.sections[sectionIndex].rows.length === this.revenueState.sections[sectionIndex].rows.length)) {
                     this.revenueState = actualSheet;
                     this.updateDisplayedValues();
                 }
