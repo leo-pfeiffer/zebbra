@@ -52,10 +52,12 @@ jobs:
         cd server
         make test
 
-    - name: Install client dependencies
+    - name: Set up node-16
       uses: actions/setup-node@v3
       with:
         node-version: '16.x'
+
+    - name: Run webclient tests
       run: |
         cd webclient
         npm install
