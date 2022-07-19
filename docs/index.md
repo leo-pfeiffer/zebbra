@@ -1,17 +1,13 @@
-# Welcome to MkDocs
+# Zebbra API
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+![zebbra_logo](https://user-images.githubusercontent.com/50983452/179749244-b8be4e13-1cb8-4ad5-934d-40d6633a1764.png)
 
-## Commands
+Zebbra API is the REST API powering the Zebbra FP&A tool.
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
+## Links
 
-## Project layout
+[Zebbra](https://zebbra.app)
 
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+[Zebbra API](https://zebbra.xyz)
+
+[Zebbra API Swagger Docs](https://zebbra.xyz/docs)

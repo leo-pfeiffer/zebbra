@@ -4,6 +4,7 @@ on: [push]
 
 env:
   ENV_SET: ${{ secrets.ENV_SET }}
+  ZEBBRA_BASE_URL: ${{ secrets.ZEBBRA_BASE_URL }}
   ENV_ENCRYPT_PASS: ${{ secrets.ENV_ENCRYPT_PASS }}
   AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
   AUTH_ALGO: ${{ secrets.AUTH_ALGO }}

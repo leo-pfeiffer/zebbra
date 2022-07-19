@@ -25,16 +25,16 @@ run_server:
 run_server_prod:
 	python -m uvicorn main:app --reload --port 80 --host 0.0.0.0
 
-.PHONY: set_secret_env
+.PHONY: gh_set_secret
 # Set GitHub secrets from .env file
-set_secret_env:
+gh_set_secret:
 	gh secret set -f .env
 
 .PHONY: generate_from_template
-# Generate integration files from templates. Args: INTEGRATION=<integration_name>
+# Generate integration files from templates. Args: INTEGRATION=<integration_name> API_TYPE=<payroll | accounting>
 generate_from_template:
 	chmod +x scripts/generate.sh
-	scripts/generate.sh $(INTEGRATION)
+	scripts/generate.sh $(INTEGRATION) $(API_TYPE)
 
 .PHONY: help
 # Found here: https://stackoverflow.com/a/35730928/12168211
