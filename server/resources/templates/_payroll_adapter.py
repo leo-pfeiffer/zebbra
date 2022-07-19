@@ -1,15 +1,13 @@
 from datetime import date
 from typing import Literal
 
-from core.dao.integrations import workspace_has_integration
 from core.integrations.adapters.adapter import FetchAdapter
-from core.schemas.integrations import IntegrationProvider
 from core.schemas.models import Employee
 
 
 class XxXxXFetchAdapter(FetchAdapter):
 
-    _integration: IntegrationProvider = "XxXxX"
+    _integration = "XxXxX"
     _api_type: Literal["accounting", "payroll"] = "payroll"  # todo
 
     def __init__(self, workspace_id: str):
@@ -38,9 +36,6 @@ class XxXxXFetchAdapter(FetchAdapter):
         :param from_date: date from which onwards to get the data
         :return: DataBatch containing the data from the integration
         """
-        # return empty list if API is not configured for the workspace
-        if not await workspace_has_integration(self.workspace_id, self.integration()):
-            return []
         # todo
         ...
 

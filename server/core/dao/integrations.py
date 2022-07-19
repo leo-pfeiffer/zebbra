@@ -38,19 +38,6 @@ async def get_integration_for_workspace(
         return IntegrationAccess(**res)
 
 
-async def remove_integration_for_workspace(
-    workspace_id: str, integration: IntegrationProvider
-):
-    """
-    Removes an integration from a workspace
-    :param workspace_id: the id of the workspace
-    :param integration: the name of the integration
-    """
-    return await db.integration_access.delete_one(
-        {"workspace_id": workspace_id, "integration": integration}
-    )
-
-
 async def workspace_has_integration(
     workspace_id: str, integration: IntegrationProvider
 ) -> bool:
@@ -138,7 +125,7 @@ async def set_accounting_cache(cache_obj: DataBatchCache):
             {**cache_obj.dict()},
         )
     else:
-        return await db.accounting_cache.insert_one(jsonable_encoder(cache_obj))
+        return await db.accounting_cache.insert_one(cache_obj.dict())
 
 
 async def get_payroll_cache(
@@ -175,4 +162,4 @@ async def set_payroll_cache(cache_obj: EmployeeListCache):
             {**cache_obj.dict()},
         )
     else:
-        return await db.payroll_cache.insert_one(jsonable_encoder(cache_obj))
+        return await db.payroll_cache.insert_one(cache_obj.dict())

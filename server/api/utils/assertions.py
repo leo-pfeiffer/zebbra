@@ -21,9 +21,7 @@ async def assert_workspace_access(user_id: PyObjectId, workspace_id: PyObjectId 
         )
 
 
-async def assert_workspace_access_admin(
-    user_id: PyObjectId, workspace_id: PyObjectId | str
-):
+async def assert_workspace_access_admin(user_id: PyObjectId, workspace_id: PyObjectId):
     if not await is_user_admin_of_workspace(user_id, workspace_id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
