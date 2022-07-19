@@ -1,6 +1,7 @@
 from core.integrations.adapters.gusto_adapter import GustoFetchAdapter
 from core.schemas.cache import DataBatch
 from core.integrations.adapters.xero_adapter import XeroFetchAdapter
+from core.schemas.models import Employee
 from core.schemas.utils import DateString
 from tests.factory import _read_json
 from datetime import date
@@ -76,8 +77,8 @@ def test_merge_batches():
 def test_gusto_process_employees():
     batch = _read_json("resources/gusto_employees.json")
     processed = GustoFetchAdapter("")._process_employees(batch, date(2020, 1, 1))
-    assert True
-    # todo add actual test
+    for employee in processed:
+        assert isinstance(employee, Employee)
 
 
 def test_gusto_process_employees_handle_termination():
