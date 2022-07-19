@@ -3,18 +3,20 @@ from datetime import date, datetime, timezone
 
 from dateutil.relativedelta import relativedelta
 
+from core.dao.integrations import workspace_has_integration
 from core.integrations.adapters.adapter import FetchAdapter
 from core.integrations.oauth.xero_oauth import (
     xero_integration_oauth,
     API_URL_SUFFIX,
 )
 from core.schemas.cache import DataBatch
+from core.schemas.integrations import IntegrationProvider
 from core.utils import last_of_same_month
 
 
 class XeroFetchAdapter(FetchAdapter):
 
-    _integration = "Xero"
+    _integration: IntegrationProvider = "Xero"
     _api_type = "accounting"
 
     def __init__(self, workspace_id: str):
@@ -38,6 +40,10 @@ class XeroFetchAdapter(FetchAdapter):
         :param from_date: date from which onwards to get the data
         :return: P&L and balance sheet data
         """
+
+        # return empty batch if Xero not configured for workspace
+        if not await workspace_has_integration(self.workspace_id, self.integration()):
+            return DataBatch(dates=[], data={})
 
         # check if we can use cache
         cache_date = self._cache_date(from_date)
@@ -63,6 +69,10 @@ class XeroFetchAdapter(FetchAdapter):
         :param from_date: date from which onwards to find the endpoints
         :return: list of endpoints
         """
+
+        # return empty list if Xero not configured for workspace
+        if not await workspace_has_integration(self.workspace_id, self.integration()):
+            return []
 
         # check if we can use cache of batch data
         actual_from_date = int(
