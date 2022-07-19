@@ -255,7 +255,7 @@ Employee:
 
 Ignoring the helper methods for now, the `get_data` method looks like this.
 
-```
+```python
 async def get_data(self, from_date: date) -> list[Employee]:
     # check if we can use cache
     cache_date = self._cache_date(from_date)
