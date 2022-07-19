@@ -44,7 +44,6 @@ async def disconnect_integration(
         return {"message": f"Integration {integration} has been disconnected"}
 
 
-# todo test
 @router.get(
     "/integration/providers",
     tags=["integration"],
