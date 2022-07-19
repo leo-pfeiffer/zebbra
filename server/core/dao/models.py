@@ -12,7 +12,7 @@ from core.exceptions import (
     BusinessLogicException,
 )
 from core.schemas.utils import PyObjectId
-from core.schemas.models import ModelMeta, ModelUser, Model, Employee
+from core.schemas.models import ModelMeta, UpdateModel, ModelUser, Model, Employee
 from core.schemas.sheets import Sheet, create_default_sheets
 from core.settings import get_settings
 
@@ -246,7 +246,7 @@ async def create_model(admin_id: PyObjectId, model_name: str, workspace_id: PyOb
     )
     sheets = create_default_sheets()
     payroll = {"payroll_values": [], "employees": []}
-    model = Model(**{"meta": meta, "sheets": sheets, "payroll": payroll})
+    model = UpdateModel(**{"meta": meta, "sheets": sheets, "payroll": payroll})
     return await db.models.insert_one(jsonable_encoder(model))
 
 
