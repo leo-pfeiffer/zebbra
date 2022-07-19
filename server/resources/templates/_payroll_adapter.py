@@ -40,13 +40,4 @@ class XxXxXFetchAdapter(FetchAdapter):
         ...
 
     async def get_data_endpoints(self, from_date: date) -> list[str]:
-        """
-        This method should return a list of available data endpoints for the
-        integration. It must be overridden by the child class and usually
-        makes a call to the integration API to retrieve the available endpoints.
-        Caching should be implemented as far as possible
-        :param from_date: date from which onwards to get the data
-        :return: List of available data endpoints for the integration
-        """
-        # todo if API type == "accounting"
-        ...
+        raise NotImplementedError("Payroll API type does not support endpoints.")
