@@ -42,6 +42,22 @@ def test_create_batch_periods_end_in_short_month():
     assert periods[0] == (date(2022, 3, 31), date(2022, 6, 30))
 
 
+def test_create_batch_periods_end_in_same_month():
+    periods = XeroFetchAdapter("")._create_batch_periods(
+        date(2022, 3, 5), date(2022, 3, 10)
+    )
+    assert len(periods) == 1
+    assert periods[0] == (date(2022, 3, 31), date(2022, 3, 31))
+
+
+def test_create_batch_periods_same_date():
+    periods = XeroFetchAdapter("")._create_batch_periods(
+        date(2022, 3, 5), date(2022, 3, 5)
+    )
+    assert len(periods) == 1
+    assert periods[0] == (date(2022, 3, 31), date(2022, 3, 31))
+
+
 def test_process_batch():
     batch = _read_json("resources/xero_profitloss.json")
     processed = XeroFetchAdapter("")._process_batch(batch)
