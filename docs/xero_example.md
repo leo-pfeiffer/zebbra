@@ -1,3 +1,0 @@
-# Gusto Integration Example
-
-// todo
