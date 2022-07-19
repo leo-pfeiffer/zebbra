@@ -62,8 +62,13 @@ jobs:
         cd webclient
         npm install
 
+    - name: Build webclient
+      run: |
+        cd webclient
+        npm run build
+
     - name: Run webclient tests
       run: |
         cd webclient
         ls -al
-        npm test
+        npm run test
