@@ -31,7 +31,7 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Install dependencies
+    - name: Install server dependencies
       run: |
         cd server
         python -m pip install --upgrade pip
@@ -47,7 +47,28 @@ jobs:
         cd server
         make setup_db
 
-    - name: Run tests
+    - name: Run server tests
       run: |
         cd server
         make test
+
+    - name: Set up node-18
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x'
+
+    - name: Install webclient dependencies
+      run: |
+        cd webclient
+        npm install
+
+    - name: Build webclient
+      run: |
+        cd webclient
+        npm run build
+
+    - name: Run webclient tests
+      run: |
+        cd webclient
+        ls -al
+        npm run test
