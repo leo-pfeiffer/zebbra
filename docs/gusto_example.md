@@ -325,3 +325,146 @@ def setup_integrations(app: FastAPI):
     ...
     # register the GustoFetchAdapter implementation class here  
     _register_adapter(GustoFetchAdapter)  # add this
+```
+
+### 🥳 Checkpoint: Fetch adapter done
+
+With this the fetch adapter is fully implemented and registered. The payroll integration is now automatically used by the model endpoint.
+
+## Conclusion
+
+Now, when the user accesses the `GET /model/payroll` endpoint (after authorizing Zebbra with Gusto), payroll will be returned:
+
+```JSON
+{
+  "payroll_values": [
+    {
+      "date": "2021-06-30",
+      "value": "0"
+    },
+    {
+      "date": "2021-07-31",
+      "value": "52712.903225806454"
+    },
+    {
+      "date": "2021-08-31",
+      "value": "81705.0"
+    },
+    {
+      "date": "2021-09-30",
+      "value": "81705.0"
+    },
+    {
+      "date": "2021-10-31",
+      "value": "81705.0"
+    },
+    {
+      "date": "2021-11-30",
+      "value": "81705.0"
+    },
+    {
+      "date": "2021-12-31",
+      "value": "81705.0"
+    },
+    {
+      "date": "2022-01-31",
+      "value": "81705.0"
+    },
+    {
+      "date": "2022-02-28",
+      "value": "81705.0"
+    },
+    {
+      "date": "2022-03-31",
+      "value": "81705.0"
+    },
+    {
+      "date": "2022-04-30",
+      "value": "81705.0"
+    },
+    {
+      "date": "2022-05-31",
+      "value": "81705.0"
+    },
+    {
+      "date": "2022-06-30",
+      "value": "81705.0"
+    },
+    {
+      "date": "2022-07-31",
+      "value": "86046.1935483871"
+    }
+  ],
+  "employees": [
+    {
+      "_id": "123",
+      "name": "North West",
+      "start_date": "2021-07-12",
+      "end_date": null,
+      "title": "CEO",
+      "department": "Management",
+      "monthly_salary": 3810,
+      "from_integration": false
+    },
+    {
+      "_id": "456",
+      "name": "North West",
+      "start_date": "2021-07-12",
+      "end_date": null,
+      "title": "CTO",
+      "department": "Technology",
+      "monthly_salary": 3810,
+      "from_integration": false
+    },
+    {
+      "_id": "789",
+      "name": "Psalm West",
+      "start_date": "2021-07-12",
+      "end_date": null,
+      "title": "CFO",
+      "department": "Finance",
+      "monthly_salary": 3810,
+      "from_integration": false
+    },
+    {
+      "_id": "41226058700031650054844085539491510251",
+      "name": "Isaiah Berlin",
+      "start_date": "2021-07-12",
+      "end_date": null,
+      "title": "Client Support Manager",
+      "department": "Sales",
+      "monthly_salary": 3810,
+      "from_integration": true
+    },
+    {
+      "_id": "109171277485994239594311564213702217202",
+      "name": "Patricia Churchland",
+      "start_date": "2021-07-12",
+      "end_date": null,
+      "title": "Account Director",
+      "department": "Sales",
+      "monthly_salary": 6500,
+      "from_integration": true
+    },
+    {
+      "_id": "329683582745307538665093187497664260298",
+      "name": "Soren Kierkegaard",
+      "start_date": "2021-07-12",
+      "end_date": null,
+      "title": "Client Support Director",
+      "department": "Marketing",
+      "monthly_salary": 5833,
+      "from_integration": true
+    },
+    {
+      "_id": "140447957202207332458650830288626240162",
+      "name": "Hannah Arendt",
+      "start_date": "2021-07-12",
+      "end_date": null,
+      "title": "Account Manager",
+      "department": "Marketing",
+      "monthly_salary": 5083,
+      "from_integration": true
+    }
+  ]
+```
