@@ -4,6 +4,7 @@ from core.integrations.adapters.adapter import FetchAdapter
 from core.integrations.oauth.gusto_oauth import gusto_integration_oauth
 from core.logger import logger
 from core.schemas.models import Employee
+from core.schemas.utils import DateString
 
 
 class GustoFetchAdapter(FetchAdapter):
@@ -110,10 +111,13 @@ class GustoFetchAdapter(FetchAdapter):
                 "" if raw_employee["department"] is None else raw_employee["department"]
             )
 
+            if last_termination_date is not None:
+                last_termination_date = DateString(last_termination_date)
+
             # Create the `Employee` instance
             employee = Employee(
                 name=raw_employee["first_name"] + " " + raw_employee["last_name"],
-                start_date=least_recent_job["hire_date"],
+                start_date=DateString(least_recent_job["hire_date"]),
                 end_date=last_termination_date,
                 title=most_recent_job["title"],
                 department=department,
