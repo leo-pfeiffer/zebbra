@@ -5,5 +5,5 @@ nav:
     - Home: index.md
     - OAuth 2.0 Authentication: oauth_authentication.md
     - Integration Guide: add_integration.md
-    - Xero Integration Example: xero_example.md
     - Gusto Integration Example: gusto_example.md
+    - Deployment: deployment.md
