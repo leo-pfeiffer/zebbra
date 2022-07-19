@@ -65,4 +65,5 @@ jobs:
     - name: Run webclient tests
       run: |
         cd webclient
+        ls -al
         npm test
