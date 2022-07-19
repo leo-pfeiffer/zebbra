@@ -181,10 +181,10 @@ export default {
     methods: {
         toggleNameChange() {
             console.log("togglename")
-            if (!this.nameChangeSelected) {
-                this.nameChangeSelected = true;
-            } else {
+            if (this.nameChangeSelected && this.newName.length >0) {
                 this.nameChangeSelected = false;
+            } else {
+                this.nameChangeSelected = true;
             }
         },
         toggleInput() {
