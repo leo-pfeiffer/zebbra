@@ -1,3 +1,4 @@
+import uuid
 from typing import Literal
 
 from bson import ObjectId
@@ -27,7 +28,107 @@ class Sheet(BaseModel):
 
 
 def create_default_sheets():
+
+    ref1 = str(int(uuid.uuid4()))
+    ref2 = str(int(uuid.uuid4()))
+
     return [
-        Sheet(meta=SheetMeta(name="Revenues"), assumptions=[], sections=[]),
-        Sheet(meta=SheetMeta(name="Costs"), assumptions=[], sections=[]),
+        Sheet(
+            meta=SheetMeta(name="Revenues"),
+            assumptions=[
+                Row(
+                    name="",
+                    val_type="number",
+                    editable=True,
+                    var_type="value",
+                    time_series=False,
+                    starting_at=0,
+                    first_value_diff=False,
+                    value="0",
+                    value_1=None,
+                    integration_values=None,
+                )
+            ],
+            sections=[
+                Section(
+                    name="Product Section 1",
+                    rows=[
+                        Row(
+                            id=ref1,
+                            name="",
+                            val_type="number",
+                            editable=True,
+                            var_type="value",
+                            time_series=False,
+                            starting_at=0,
+                            first_value_diff=False,
+                            value="0",
+                            value_1=None,
+                            integration_values=None,
+                        )
+                    ],
+                    end_row=Row(
+                        name="",
+                        val_type="number",
+                        editable=True,
+                        var_type="formula",
+                        time_series=False,
+                        starting_at=0,
+                        first_value_diff=False,
+                        value=f"#{ref1}",
+                        value_1=None,
+                        integration_values=None,
+                    ),
+                )
+            ],
+        ),
+        Sheet(
+            meta=SheetMeta(name="Costs"),
+            assumptions=[
+                Row(
+                    name="",
+                    val_type="number",
+                    editable=True,
+                    var_type="value",
+                    time_series=False,
+                    starting_at=0,
+                    first_value_diff=False,
+                    value="0",
+                    value_1=None,
+                    integration_values=None,
+                )
+            ],
+            sections=[
+                Section(
+                    name="Product Section 1",
+                    rows=[
+                        Row(
+                            id=ref2,
+                            name="",
+                            val_type="number",
+                            editable=True,
+                            var_type="value",
+                            time_series=False,
+                            starting_at=0,
+                            first_value_diff=False,
+                            value="0",
+                            value_1=None,
+                            integration_values=None,
+                        )
+                    ],
+                    end_row=Row(
+                        name="",
+                        val_type="number",
+                        editable=True,
+                        var_type="formula",
+                        time_series=False,
+                        starting_at=0,
+                        first_value_diff=False,
+                        value=f"#{ref2}",
+                        value_1=None,
+                        integration_values=None,
+                    ),
+                )
+            ],
+        ),
     ]
