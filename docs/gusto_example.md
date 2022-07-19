@@ -75,7 +75,7 @@ async def _perform_token_refresh(self, integration_access: IntegrationAccess):
         data={  
             "client_id": settings.GUSTO_CLIENT_ID,  
             "client_secret": settings.GUSTO_CLIENT_SECRET,  
-            "redirect_uri": "http://localhost:8000/integration/gusto/callback",
+            "redirect_uri": f"{settings.ZEBBRA_BASE_URL}/integration/gusto/callback",
             "refresh_token": integration_access.token.refresh_token,  
             "grant_type": "refresh_token",  
         },  
