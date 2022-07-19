@@ -215,7 +215,7 @@ def setup_integrations(app: FastAPI):
     ...
 ```
 
-### 🥳 Checkpoint: OAuth integration done
+### 🚩 Checkpoint: OAuth integration done
 
 Hooray, we can now authenticate ourselves to the Gusto API!
 
@@ -327,11 +327,11 @@ def setup_integrations(app: FastAPI):
     _register_adapter(GustoFetchAdapter)  # add this
 ```
 
-### 🥳 Checkpoint: Fetch adapter done
+### 🚩 Checkpoint: Fetch adapter done
 
 With this the fetch adapter is fully implemented and registered. The payroll integration is now automatically used by the model endpoint.
 
-## Conclusion
+## 🏁 Conclusion
 
 Now, when the user accesses the `GET /model/payroll` endpoint (after authorizing Zebbra with Gusto), payroll will be returned:
 
