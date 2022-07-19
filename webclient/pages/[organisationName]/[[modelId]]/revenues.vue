@@ -104,6 +104,23 @@ const endRowValuesToDisplayState = useState<string[][]>('endRowValues');
                                         :isEndRow="true">
                                     </VariableRowHeader>
                                 </div>
+                                <div class="">
+                                    <!-- add section button -->
+                                    <div
+                                        class="text-xs rounded-bl py-2 px-3 min-w-[400px] max-w-[400px] border-zinc-300 border-y border-l">
+                                        <button @click="addSection" class="text-zinc-500 hover:text-zinc-700"><i
+                                                class="bi bi-plus-lg mr-1"></i>Add Section</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div>
+                                <div class="group flex mt-6 text-xs text-zinc-700 rounded-l py-2 px-3 min-w-[400px] max-w-[400px] bg-zinc-100 border-zinc-300 border-2">
+                                    <span class="font-semibold uppercase">
+                                        Total Revenues
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -148,6 +165,14 @@ const endRowValuesToDisplayState = useState<string[][]>('endRowValues');
                                 <VariableRow v-if="endRowValuesToDisplayState"
                                         :values="endRowValuesToDisplayState[index]" :round-to="2" :isEndRow="true"></VariableRow>
                             </div>
+                            <div class="flex">
+                                    <!-- add section button empty -->
+                                    <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-y"
+                                        v-for="date in dates">X</div>
+                                </div>
+                        </div>
+                        <div id="total-revenue-values" class="mt-6 border-y border-zinc-300">
+                            <VariableRow v-if="endRowValuesToDisplayState" :values="totalRevenuesToDisplay" :round-to="2" :isEndRow="true"></VariableRow>
                         </div>
                     </div>
                 </div>
@@ -161,11 +186,56 @@ const endRowValuesToDisplayState = useState<string[][]>('endRowValues');
 
 import { useFormulaParser } from '~~/methods/useFormulaParser';
 import { useGetValueFromHumanReadable } from '~~/methods/useGetValueFromHumanReadable';
+import { useMathParser } from '~~/methods/useMathParser';
 export default {
     data() {
         return {
             errorMessages: []
         }
+    },
+    computed: {
+        totalRevenuesToDisplay() {
+            var returnArray:string[] = [];
+
+            if(this.endRowValuesToDisplayState.length > 0) {
+
+                //populate array with all calculation to perform
+                var calcArray:string[] = [];
+                
+                for(let i=0; i < 24; i++) {
+                    calcArray.push("");
+                }
+
+                for(let i=0; i < this.endRowValuesToDisplayState.length; i++) {
+                    for(let j=0; j < this.endRowValuesToDisplayState[i].length; j++) {
+                        if(this.endRowValuesToDisplayState[i][j] != "–") {
+                            calcArray[j] = calcArray[j] + "+" + this.endRowValuesToDisplayState[i][j];
+                        }
+                    }
+                }
+
+                for(let i=0; i < calcArray.length; i++) {
+                    try {
+                        returnArray.push(useMathParser(calcArray[i]).toString());
+                    } catch(e) {
+                        if(this.endRowValuesToDisplayState.length === 1) {
+                            returnArray.push(this.endRowValuesToDisplayState[0][i]);
+                        } else {
+                            returnArray.push("#REF!");
+                        }
+                    }
+                }
+
+                return returnArray;
+
+            } else {
+                for(let i=0; i < 24; i++) {
+                    returnArray.push("–")
+                }
+                return returnArray;
+            }
+        }
+
     },
     methods: {
         closeErrorMessage(index:number){
@@ -673,7 +743,7 @@ export default {
                 valuesOfVariablesAndEndRow.splice(0, sectionVariables.length + revenues.value.assumptions.length);
                 endRowValuesStorage.push(valuesOfVariablesAndEndRow[0]);
             };
-            console.log(endRowValuesStorage[0])
+
             useState<Map<number, string[][]>>('variableValues', () => variablesValuesStorage);
             useState<string[][]>('endRowValues', () => endRowValuesStorage);
 
