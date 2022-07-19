@@ -84,10 +84,15 @@ print(r.json())
 
 # {
 #     '_id': '62d6c3de8688a74266d6c464', 
-#     'username': 'charlie_brown@example.com', 
+#     'username': 'charlie_brown@example.com',
 #     'first_name': 'Charlie', 
 #     'last_name': 'Brown', 
-#     'workspaces': [], 
+#     'workspaces': [
+#         {
+#             '_id': '62d6c3de8688a74266d6c465', 
+#             'name': 'My Workspace'
+#         }
+#     ], 
 #     'models': []
 # }
 ```
