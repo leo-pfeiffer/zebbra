@@ -7,3 +7,5 @@ nav:
     - Integration Guide: add_integration.md
     - Gusto Integration Example: gusto_example.md
     - Deployment: deployment.md
+theme:
+  logo: assets/zebbra_icon.png
