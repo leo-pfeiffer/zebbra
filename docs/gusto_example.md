@@ -306,3 +306,22 @@ async def _get_employees(self):
 ```
 
 The `_process_employees` method now takes this dictionary and converts it into the required format of `list[Employee]`. This is quite the laborious process and putting it into this documentation would be more harmful than helpful. However, feel free to inspect the relevant method in the `zebbra/server/core/integrations/adapters/gusto_adapter.py` in more detail, which is extensively commented.
+
+### Registering the adapter
+
+As with the OAuth integration class, we need to let the Zebbra API know about the adapter we just implemented. This can be done in the `zebbra/server/core/integrations/config.py` file by adding the `GustoFetchAdapter` class we created in the previous steps.
+
+Change the file to include the following:
+
+```python
+# core/integrations/config.py
+
+# import the adapter class
+from core.integrations.adapters.gusto_adapter import GustoFetchAdapter  # add this
+
+...
+
+def setup_integrations(app: FastAPI):
+    ...
+    # register the GustoFetchAdapter implementation class here  
+    _register_adapter(GustoFetchAdapter)  # add this
