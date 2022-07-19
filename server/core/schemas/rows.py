@@ -23,3 +23,4 @@ class Row(BaseModel):
     value: str  # parsed in the frontend -> var_type is relevant for this
     value_1: str | None  # only relevant if firstValueDiff == true
     integration_values: list[IntegrationValue] | None
+    decimal_places: int = 2

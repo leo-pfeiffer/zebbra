@@ -47,6 +47,7 @@ def create_default_sheets():
                     value="0",
                     value_1=None,
                     integration_values=None,
+                    decimal_places=0,
                 )
             ],
             sections=[
@@ -65,6 +66,7 @@ def create_default_sheets():
                             value="0",
                             value_1=None,
                             integration_values=None,
+                            decimal_places=0,
                         )
                     ],
                     end_row=Row(
@@ -78,6 +80,7 @@ def create_default_sheets():
                         value=f"#{ref1}",
                         value_1=None,
                         integration_values=None,
+                        decimal_places=0,
                     ),
                 )
             ],
@@ -96,6 +99,7 @@ def create_default_sheets():
                     value="0",
                     value_1=None,
                     integration_values=None,
+                    decimal_places=0,
                 )
             ],
             sections=[
@@ -114,6 +118,7 @@ def create_default_sheets():
                             value="0",
                             value_1=None,
                             integration_values=None,
+                            decimal_places=0,
                         )
                     ],
                     end_row=Row(
@@ -127,6 +132,7 @@ def create_default_sheets():
                         value=f"#{ref2}",
                         value_1=None,
                         integration_values=None,
+                        decimal_places=0,
                     ),
                 )
             ],
