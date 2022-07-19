@@ -1,11 +1,16 @@
 site_name: Zebbra Docs
 theme:
   name: material
+  logo: assets/zebbra_icon.png
 nav:
     - Home: index.md
     - OAuth 2.0 Authentication: oauth_authentication.md
     - Integration Guide: add_integration.md
     - Gusto Integration Example: gusto_example.md
     - Deployment: deployment.md
-theme:
-  logo: assets/zebbra_icon.png
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
