@@ -84,7 +84,7 @@ sudo nano /etc/systemd/system/zebbra.service
 # Group=www-data
 # WorkingDirectory=/home/zebbra/zebbra/server
 # Environment="PATH=/home/zebbra/zebbra/server/venv/bin"
-# ExecStart=/home/zebbra/zebbra/server/venv/bin/gunicorn --workers 3 --bind unix:zebbra.sock -m 007 main:app -k uvicorn.workers.UvicornWorker
+# ExecStart=/home/zebbra/zebbra/server/venv/bin/gunicorn --workers 3 --bind unix:zebbra.sock -m 007 main:app -k uvicorn.workers.UvicornWorker --forwarded-allow-ips="*"
 
 # [Install]
 # WantedBy=multi-user.target
