@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Sheet, Variable } from '~~/types/Model';
+import { Section, Variable } from '~~/types/Model';
 import { useVariableSearchMap } from '~~/methods/useVariableSearchMap';
 import { useVariableTimeSeriesMap } from '~~/methods/useVariableTimeSeriesMap';
 import { useSheetUpdate } from '~~/methods/useSheetUpdate';
@@ -67,14 +67,20 @@ const endRowValuesToDisplayState = useState<string[][]>('endRowValues');
                         <div id="model-headers">
                             <div>
 
-                                <div
-                                    class="mt-6 text-xs text-zinc-500 font-medium uppercase rounded-tl py-2 px-3 min-w-[400px] max-w-[400px] bg-zinc-100 border-zinc-300 border-l border-t">
-                                    Model
+                                <div class="group flex mt-6 text-xs text-zinc-500 rounded-tl py-2 px-3 min-w-[400px] max-w-[400px] bg-zinc-100 border-zinc-300 border-l border-t">
+                                    <span class="font-medium uppercase">
+                                        Model
+                                    </span>
+                                    <span class="hidden group-hover:block float-right ml-3">
+                                        <button class="font-regular text-zinc-400" @click="addSection"><i
+                                            class="bi bi-plus-lg mr-1"></i>Add section</button>
+                                    </span>
                                 </div>
                                 <div v-for="(section, sectionIndex) in revenueState.sections" :key="sectionIndex">
-                                    <div
-                                        class="text-xs text-zinc-700 py-2 px-3 min-w-[400px] max-w-[400px] border-zinc-300 border-l border-t">
-                                        {{ section.name }}</div>
+                                    <div class="group flex text-xs text-zinc-700 py-2 px-3 min-w-[400px] max-w-[400px] border-zinc-300 border-l border-t">
+                                        <span>{{ section.name }}</span>
+                                        <span class="ml-2 hidden group-hover:block text-[10px]"><button @click="toggleSectionDeleteModal"><i title="Delete section" class="bi bi-x-lg text-zinc-500 hover:text-zinc-700"></i></button></span>
+                                    </div>
                                     <VariableRowHeader @update-value="updateVariableValue"
                                         @update-settings="updateVariableSettings" @update-name="updateVariableName"
                                         @delete-variable="deleteVariable" v-for="(variable, index) in section.rows"
@@ -98,6 +104,28 @@ const endRowValuesToDisplayState = useState<string[][]>('endRowValues');
                                         :sectionName="section.name"
                                         :isEndRow="true">
                                     </VariableRowHeader>
+                                    <Teleport to="body">
+                                        <div v-show="deleteSectionModalOpen" class="absolute left-0 top-1/3 w-full flex justify-center align-middle">
+                                            <div class="p-6 border h-max shadow-lg bg-white border-zinc-300 rounded z-50">
+                                                <div>
+                                                    <h3 class="text-zinc-900 font-medium text-sm mb-2">Do you really want to delete this section?
+                                                    </h3>
+                                                </div>
+                                                <p class="text-zinc-500 text-xs mb-3">Deleting <b>{{ section.name }}</b> cannot be undone.</p>
+                                                <div class="float-right">
+                                                    <button
+                                                        class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-xs px-2 py-1 border border-zinc-300 rounded text-zinc-700"
+                                                        @click="toggleSectionDeleteModal">Cancel</button>
+                                                    <button class="ml-2 bg-red-600  drop-shadow-sm
+                                                        shadow-zinc-50 text-xs font-medium px-2 py-1 
+                                                        border border-red-500 rounded text-neutral-100" @click="deleteSection(sectionIndex), toggleSectionDeleteModal()">Delete</button>
+                                                </div>
+                                            </div>
+                                            <div v-show="deleteSectionModalOpen" @click="toggleSectionDeleteModal"
+                                                class="fixed top-0 left-0 w-[100vw] h-[100vh] z-40 bg-zinc-100/50">
+                                            </div>
+                                        </div>
+                                    </Teleport>
                                 </div>
                             </div>
                         </div>
@@ -159,12 +187,74 @@ import { useGetValueFromHumanReadable } from '~~/methods/useGetValueFromHumanRea
 export default {
     data() {
         return {
-            errorMessages: []
+            errorMessages: [],
+            deleteSectionModalOpen: false
         }
     },
     methods: {
         closeErrorMessage(index:number){
             this.errorMessages.splice(index, 1)
+        },
+        toggleSectionDeleteModal() {
+            if (!this.deleteSectionModalOpen) {
+                this.deleteSectionModalOpen = true;
+            } else {
+                this.deleteSectionModalOpen = false;
+            }
+        },
+        async addSection() {
+
+            const emptyVariable: Variable = {
+
+                _id: undefined,
+                name: "",
+                val_type: "number",
+                editable: true,
+                var_type: "value",
+                time_series: false,
+                starting_at: 0,
+                first_value_diff: false,
+                value: "0",
+                value_1: undefined,
+                integration_values: undefined
+
+            }
+
+            const emptyEndRow: Variable = {
+
+                _id: undefined,
+                name: "",
+                val_type: "number",
+                editable: true,
+                var_type: "value",
+                time_series: true,
+                starting_at: 0,
+                first_value_diff: false,
+                value: "0",
+                value_1: undefined,
+                integration_values: undefined
+
+            }
+
+            const emptySection: Section = {
+                name: "New Section",
+                rows: [emptyVariable],
+                end_row: emptyEndRow
+            }
+
+            this.revenueState.sections.push(emptySection);
+
+            this.updateDisplayedValues();
+
+            try {
+                await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
+            } catch (e) {
+                console.log(e)
+                this.errorMessages.push("Something went wrong! Please try adding the section again.");
+                this.revenueState = await useSheetUpdate().getRevenueSheet(this.route.params.modelId)
+                this.updateDisplayedValues();
+            }
+
         },
         async addAssumption() {
             const emptyAssumption: Variable = {
@@ -449,6 +539,23 @@ export default {
                 const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
                 if (!(this.revenue.sections[sectionIndex].rows[variableIndex].value === this.revenue.sections[sectionIndex].rows[variableIndex].value)) {
                     this.revenue.value = actualSheet;
+                }
+            }
+        },
+        async deleteSection(sectionIndex: number) {
+            //first directly change the state
+            this.revenueState.sections.splice(sectionIndex, 1)
+            //then update the backend
+            try {
+                await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
+                this.updateDisplayedValues();
+            } catch (e) {
+                console.log(e) //todo: throw error message
+                this.errorMessages.push(e);
+                const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
+                if (!(actualSheet.sections[sectionIndex].rows.length === this.revenueState.sections[sectionIndex].rows.length)) {
+                    this.revenueState = actualSheet;
+                    this.updateDisplayedValues();
                 }
             }
         },

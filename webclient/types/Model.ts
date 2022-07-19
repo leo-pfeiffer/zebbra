@@ -35,11 +35,13 @@ export interface Sheet {
         name: string
     },
     assumptions: Variable[],
-    sections: {
-        name: string,
-        rows: Variable[],
-        end_row: Variable
-    }[]
+    sections: Section[]
+}
+
+export interface Section {
+    name: string,
+    rows: Variable[],
+    end_row: Variable
 }
 
 export interface Variable {
