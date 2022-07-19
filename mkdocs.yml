@@ -1,3 +1,29 @@
 site_name: Zebbra Docs
 theme:
   name: material
+  logo: assets/zebbra_icon.png
+  palette: 
+
+    # Palette toggle for light mode
+    - scheme: default
+      toggle:
+        icon: material/brightness-7 
+        name: Switch to dark mode
+        
+    # Palette toggle for dark mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+nav:
+    - Home: index.md
+    - OAuth 2.0 Authentication: oauth_authentication.md
+    - Integration Guide: add_integration.md
+    - Gusto Integration Example: gusto_example.md
+    - Deployment: deployment.md
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences

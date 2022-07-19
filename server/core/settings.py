@@ -4,6 +4,7 @@ from pydantic import BaseSettings
 
 class Settings(BaseSettings):
     ENV: str = "prod"
+    ZEBBRA_BASE_URL: str
 
     MAX_MODELS: int = 10000
     INVITE_CODE_EXPIRE: int = 10080

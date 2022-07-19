@@ -4,18 +4,20 @@
 
 # run this when you first set up the database
 
-# source env file
+# export env variables
 
-if [[ "$1" != "nosource" && "$1" != "export" ]]
-  then
-    source .env
-fi
-
-if [ "$1" == "export" ]
+# check if we can import env from files
+if [[ -f ".env" ]]
   then
     export $(grep -v '^#' .env | xargs)
 fi
 
+# if env not set at this point, exit
+if [[ "$ENV_SET" == "" ]]
+  then
+    echo "ENV variables not set. Exiting."
+    exit 1
+fi
 # Zebbra user set up
 mongosh <<EOF
   use zebbra;

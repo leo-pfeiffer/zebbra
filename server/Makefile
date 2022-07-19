@@ -7,25 +7,13 @@ test:
 # Run the setup db script
 setup_db:
 	chmod +x scripts/setup_db.sh
-	sh scripts/setup_db.sh
+	scripts/setup_db.sh
 
 .PHONY: setup_db_no_integrations
 # Run the setup db script
 setup_db_no_integrations:
 	chmod +x scripts/setup_db_no_integrations.sh
 	scripts/setup_db_no_integrations.sh
-
-.PHONY: setup_db_no_source
-# Run the setup db script without sourcing. Necessary during GitHub action
-setup_db_no_source:
-	chmod +x scripts/setup_db.sh
-	scripts/setup_db.sh "nosource"
-
-.PHONY: setup_db_export
-# Run the setup db script with the export command.
-setup_db_export:
-	chmod +x scripts/setup_db.sh
-	scripts/setup_db.sh "export"
 
 .PHONY: run_server
 # Start the Zebbra API server
@@ -37,16 +25,16 @@ run_server:
 run_server_prod:
 	python -m uvicorn main:app --reload --port 80 --host 0.0.0.0
 
-.PHONY: set_secret_env
+.PHONY: gh_set_secret
 # Set GitHub secrets from .env file
-set_secret_env:
+gh_set_secret:
 	gh secret set -f .env
 
 .PHONY: generate_from_template
-# Generate integration files from templates. Args: INTEGRATION=<integration_name>
+# Generate integration files from templates. Args: INTEGRATION=<integration_name> API_TYPE=<payroll | accounting>
 generate_from_template:
 	chmod +x scripts/generate.sh
-	sh scripts/generate.sh $(INTEGRATION)
+	scripts/generate.sh $(INTEGRATION) $(API_TYPE)
 
 .PHONY: help
 # Found here: https://stackoverflow.com/a/35730928/12168211

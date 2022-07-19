@@ -4,6 +4,7 @@ from core.integrations.adapters.adapter import FetchAdapter
 from core.integrations.oauth.gusto_oauth import gusto_integration_oauth
 from core.logger import logger
 from core.schemas.models import Employee
+from core.schemas.utils import DateString
 
 
 class GustoFetchAdapter(FetchAdapter):
@@ -72,38 +73,51 @@ class GustoFetchAdapter(FetchAdapter):
 
     def _process_employees(self, employees, from_date: date) -> list[Employee]:
         processed = []
+
+        # Convert each raw employee object into an `Employee` object
         for raw_employee in employees:
 
-            # find current job
+            # if employee has no jobs, skip it
             if len(raw_employee["jobs"]) == 0:
                 logger.error("No current job found")
                 continue
 
+            # get the job objects from the raw employee that the raw employee
+            #  held least and most recently
             least_recent_job, most_recent_job = self._get_relevant_jobs(raw_employee)
 
-            # get termination
+            # terminated: has the employee been terminated
+            # last_termination_date: last date the employee has been terminated
             terminated, last_termination_date = self._get_termination_info(raw_employee)
 
+            # skip terminated employees without termination date
             if terminated and last_termination_date is None:
                 logger.error("Terminated, but no terminations")
                 continue
 
-            # skip employees who were terminated before start date
+            # do not consider employees who were terminated before the start date
             if last_termination_date is not None and last_termination_date < from_date:
                 continue
 
+            # calculate the monthly salary of the employee based on the most recent job
             monthly_salary = self._get_monthly_salary(raw_employee, most_recent_job)
 
+            # skip if no salary found
             if monthly_salary is None:
                 continue
 
+            # get the department, if available
             department = (
                 "" if raw_employee["department"] is None else raw_employee["department"]
             )
 
+            if last_termination_date is not None:
+                last_termination_date = DateString(last_termination_date)
+
+            # Create the `Employee` instance
             employee = Employee(
                 name=raw_employee["first_name"] + " " + raw_employee["last_name"],
-                start_date=least_recent_job["hire_date"],
+                start_date=DateString(least_recent_job["hire_date"]),
                 end_date=last_termination_date,
                 title=most_recent_job["title"],
                 department=department,
@@ -117,44 +131,59 @@ class GustoFetchAdapter(FetchAdapter):
 
     def _get_relevant_jobs(self, raw_employee: dict) -> tuple[dict, dict]:
         """
-        Extract the most recent and least recent jobs from an employee.
-        :return (least recent job, most recent job)
+        Extract the most recent and least recent jobs from an employee
+        :return: (least recent job, most recent job)
         """
         least_recent_job = None
         most_recent_job = None
+
+        # iterate over all jobs the employee has had
         for job in raw_employee["jobs"]:
 
+            # convert hire date string to date
             job["hire_date"] = self._date_from_string(job["hire_date"], ["%Y-%m-%d"])
 
+            # check if the current job is more recent than current most recent job
             if (
                 most_recent_job is None
                 or job["hire_date"] > most_recent_job["hire_date"]
             ):
                 most_recent_job = job
 
+            # check if the current job is less recent than current least recent job
             if (
                 least_recent_job is None
                 or job["hire_date"] < most_recent_job["hire_date"]
             ):
                 least_recent_job = job
+
         return least_recent_job, most_recent_job
 
     def _get_termination_info(self, raw_employee: dict) -> tuple[bool, date | None]:
         """
-        Extract the termination info from an employee.
+        Extract the termination info from an employee
         :return: (terminated true/false, termination date)
         """
         last_termination_date = None
+
+        # check if employee has been terminated
         if terminated := raw_employee["terminated"]:
+
+            # iterate over all terminations that have been noted for the employee
             for termination in raw_employee["terminations"]:
+
+                # convert the effective date string to a date
                 termination["effective_date"] = self._date_from_string(
                     termination["effective_date"], ["%Y-%m-%d"]
                 )
+
+                # check if the current termination is more recent
                 if (
                     last_termination_date is None
                     or termination["effective_date"] > last_termination_date
                 ):
                     last_termination_date = termination["effective_date"]
+
         return terminated, last_termination_date
 
     @staticmethod
@@ -167,10 +196,15 @@ class GustoFetchAdapter(FetchAdapter):
         """
         # get compensation
         compensation = None
+
+        # get the compensation that corresponds to the compensation ID of the most
+        #  recent job
         for comp in most_recent_job["compensations"]:
             if comp["id"] == most_recent_job["current_compensation_id"]:
                 compensation = comp
                 break
+
+        # stop if no compensation has been found
         if compensation is None:
             logger.error("Compensation for most recent job not found")
             return None
@@ -178,17 +212,29 @@ class GustoFetchAdapter(FetchAdapter):
         # calculate monthly compensation
         unit_rate = float(compensation["rate"])
         payment_unit = compensation["payment_unit"]
+
         if payment_unit == "Year":
+            # convert yearly to monthly salary
             monthly_salary = int(unit_rate / 12)
+
         elif payment_unit == "Month":
+            # monthly salary
             monthly_salary = int(unit_rate)
+
         elif payment_unit == "Week":
+            # convert weekly to monthly salary (approximate)
             monthly_salary = int(unit_rate * 4.33)
+
         elif payment_unit == "Hour":
+            # convert hourly to monthly salary taking into account employment status
             emp_status = raw_employee["current_employment_status"]
+
             if emp_status == "part_time_twenty_plus_hours":
+                # assume 30 hours per week for Part Time 20+ hrs employees
                 monthly_salary = int(unit_rate * 30) * 4.33
+
             elif emp_status == "part_time_under_twenty_hours":
+                # assume 20 hours per week for Part Time <20 hrs employees
                 monthly_salary = int(unit_rate * 20) * 4.33
             else:
                 # count all else as full time

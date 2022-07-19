@@ -24,28 +24,6 @@ from core.schemas.cache import DataBatch
 router = APIRouter()
 
 
-# todo this is just for testing and should be removed in production
-@router.get("/integration/xero", tags=["integration"], response_model=DataBatch)
-async def get_xero_data(
-    workspace_id: str,
-    from_date: str,
-    current_user: User = Depends(get_current_active_user),
-):
-    """
-    Retrieve all available data from the XERO API for a workspace that is connected
-    to the Xero integration\n
-        :workspace_id: The id of the workspace whose data to retrieve
-        :from_date: The starting date of the date in format YYYY-MM-DD
-    """
-    # user must be in workspace
-    await assert_workspace_access(current_user.id, workspace_id)
-    await assert_workspace_has_integration(workspace_id, "Xero")
-
-    from_date = datetime.date.fromisoformat(from_date)
-    xfa = XeroFetchAdapter(workspace_id)
-    return await xfa.get_data(from_date)
-
-
 # todo test
 @router.get(
     "/integration/providers",
