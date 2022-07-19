@@ -48,5 +48,4 @@ class XxXxXFetchAdapter(FetchAdapter):
         :param from_date: date from which onwards to get the data
         :return: List of available data endpoints for the integration
         """
-        # todo if API type == "accounting"
         ...
