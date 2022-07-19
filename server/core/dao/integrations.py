@@ -138,7 +138,7 @@ async def set_accounting_cache(cache_obj: DataBatchCache):
             {**cache_obj.dict()},
         )
     else:
-        return await db.accounting_cache.insert_one(cache_obj.dict())
+        return await db.accounting_cache.insert_one(jsonable_encoder(cache_obj))
 
 
 async def get_payroll_cache(
@@ -175,4 +175,4 @@ async def set_payroll_cache(cache_obj: EmployeeListCache):
             {**cache_obj.dict()},
         )
     else:
-        return await db.payroll_cache.insert_one(cache_obj.dict())
+        return await db.payroll_cache.insert_one(jsonable_encoder(cache_obj))

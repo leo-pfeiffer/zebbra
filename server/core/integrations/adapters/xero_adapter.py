@@ -53,6 +53,10 @@ class XeroFetchAdapter(FetchAdapter):
         # if no cache, retrieve from Xero API
         batches = await self._get_batches(from_date)
 
+        # in case no data was available for the timeframe
+        if len(batches) == 0:
+            return DataBatch(dates=[], data={})
+
         processed = [self._process_batch(batch) for batch in batches]
         merged = self._merge_batches(processed)
 
@@ -170,7 +174,7 @@ class XeroFetchAdapter(FetchAdapter):
         """
         periods: list[tuple[date, date]] = []
         period_start = from_date
-        while period_start < to_date:
+        while period_start <= to_date:
 
             period_start = last_of_same_month(
                 self._get_last_month_with_31_days(period_start)
