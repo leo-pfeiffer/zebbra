@@ -251,6 +251,7 @@ async def change_starting_month_of_model(
     response_model=Model,
     tags=["model"],
     responses={
+        400: {"description": "Workspace does not exist."},
         403: {"description": "User does not have access to the resource."},
     },
 )
@@ -267,6 +268,12 @@ async def create_new_model(
     try:
         r = await create_model(current_user.id, name, workspace_id)
         return await get_model_by_id(r.inserted_id)
+    except DoesNotExistException:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Workspace does not exist.",
+        )
+
     except NoAccessException:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
