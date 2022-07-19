@@ -232,3 +232,77 @@ URL: http://localhost:8000/integration/gusto/login?workspace_id=123&access_token
 ![Gusto Confirmation Message](https://user-images.githubusercontent.com/50983452/179629084-b31c73c5-5b4a-4cba-b42b-9ee6c491333b.png)
 
 ## Implementing the Fetch Adapter
+
+In the second part, we set up the fetch adapter responsible for retrieving the payroll data from the Gusto API.
+
+We start by implementing the stubbed methods of the auto-generated `zebbra/server/core/integrations/adapters/gusto_adapter.py` file.
+
+### Implementing `get_data`
+
+Most crucially, the `get_data` method retrieves the data from the API and converts it into the required format of a list of Employees. Recall that an `Employee` object has the following format:
+
+```
+Employee:
+    id: str
+    name: str
+    start_date: DateString
+    end_date: DateString | None
+    title: str
+    department: str
+    monthly_salary: int
+    from_integration: bool
+```
+
+Ignoring the helper methods for now, the `get_data` method looks like this.
+
+```
+async def get_data(self, from_date: date) -> list[Employee]:
+    # check if we can use cache
+    cache_date = self._cache_date(from_date)
+    if cached := await self.get_cached(cache_date):
+        return cached
+
+    # if no cache, retrieve from Xero API
+    employees = await self._get_employees()
+
+    # convert into the required format
+    processed = self._process_employees(employees, from_date)
+
+    # cache for next time
+    await self.set_cached(processed, cache_date)
+
+    return processed
+```
+
+Firstly, note that the methods `_cache_date`, `get_cached` and `set_cached` are implemented in the abstract parent class. Thus, the cacheing part of the method should be fairly similar accross integrated APIs.
+
+Hence, what remains to be implemented is the `_get_employees` and `_process_employees` methods.
+
+The `_get_employees` method uses the `IntegrationAccess` object for Gusto and fires another `get` request to the Gusto API, using the `oauth_app` attached to the adapter class. The response is then converted from JSON and returned.
+
+```python
+async def _get_employees(self):
+
+    # get the integration access object containing the Gusto credentials
+    integration_access = await gusto_integration_oauth.get_integration_access(
+        self.workspace_id
+    )
+
+    # get the employees data from the Gusto API
+    resp = await gusto_integration_oauth.oauth_app.get(
+        f"v1/companies/{integration_access.tenant_id}/employees",
+        token=integration_access.token.dict(),
+        headers={
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        },
+    )
+
+    # Raise error if status is not 200
+    resp.raise_for_status()
+    
+    # convert to dict and return
+    return resp.json()
+```
+
+The `_process_employees` method now takes this dictionary and converts it into the required format of `list[Employee]`. This is quite the laborious process and putting it into this documentation would be more harmful than helpful. However, feel free to inspect the relevant method in the `zebbra/server/core/integrations/adapters/gusto_adapter.py` in more detail, which is extensively commented.
