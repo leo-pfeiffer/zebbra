@@ -4,7 +4,8 @@ import { defineNuxtConfig } from 'nuxt'
 export default defineNuxtConfig({
     runtimeConfig: {
         public: {
-            backendUrlBase: 'https://zebbra.xyz',
+            frontEndUrlBase: process.env.FRONTEND_URL_BASE,
+            backendUrlBase: process.env.BACKEND_URL_BASE,
           }
     },
     modules: ['@nuxtjs/tailwindcss'],
