@@ -34,6 +34,8 @@ source venv/bin/activate
 Next, use the `make` command to install all package requirements via pip.
 
 ```shell
+# zebbra/server
+
 # install dependencies
 make requirements
 ```
@@ -99,6 +101,8 @@ This creates the required users, sets up the indexes for caching, and loads some
 At this point you should be able to run the app with the provided `run_server` command on port 8000.
 
 ```shell
+# zebbra/server
+
 make run_server
 ```
 
