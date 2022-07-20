@@ -74,7 +74,7 @@ async def data_endpoints(
     current_user: User = Depends(get_current_active_user),
 ):
     """
-    Return all endpoints for all integrations available to a workspace including.\n
+    Return all endpoints for all integrations available to a workspace.\n
         model_id: ID of the workspace
         from_date: Start date of the model
     """
@@ -85,12 +85,13 @@ async def data_endpoints(
     data_points = []
     for integration in INTEGRATIONS:
         adapter = ADAPTERS[integration](str(model.meta.workspace))
-        points = await adapter.get_data_endpoints(model.meta.starting_month)
-        data_points.extend(
-            [
-                DataPoint(id=f"{integration}[{d}]", integration=integration, name=d)
-                for d in points
-            ]
-        )
+        if adapter.api_type() == "accounting":
+            points = await adapter.get_data_endpoints(model.meta.starting_month)
+            data_points.extend(
+                [
+                    DataPoint(id=f"{integration}[{d}]", integration=integration, name=d)
+                    for d in points
+                ]
+            )
 
     return data_points
