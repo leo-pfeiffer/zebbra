@@ -1,5 +1,3 @@
-import datetime
-
 from fastapi import APIRouter, Depends
 
 from api.utils.assertions import (
@@ -42,7 +40,6 @@ async def disconnect_integration(
         return {"message": f"Integration {integration} has been disconnected"}
 
 
-# todo test
 @router.get(
     "/integration/providers",
     tags=["integration"],
