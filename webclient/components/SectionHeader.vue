@@ -7,8 +7,8 @@ const revenueState = useRevenueState();
 <template>
 
     <div
-        class="group flex text-xs text-zinc-700 py-2 px-3 min-w-[400px] max-w-[400px] border-zinc-300 border-l border-t">
-        <span class="font-medium italic" v-if="!sectionNameChangeSelected" @dblclick="toggleSectionNameChange">{{ sectionName }}</span>
+        class="group flex text-xs text-zinc-900 py-2 px-3 min-w-[470px] max-w-[470px] border-zinc-300 border-l border-t">
+        <span class="font-medium" v-if="!sectionNameChangeSelected" @dblclick="toggleSectionNameChange"><li class="marker:text-zinc-500">{{ sectionName }}</li></span>
         <span v-else>
             <input @keydown.enter="$emit('changeSectionName', sectionIndex, sectionNameInput); toggleSectionNameChange()"
                 @keydown.esc="toggleSectionNameChange()" v-model="sectionNameInput"

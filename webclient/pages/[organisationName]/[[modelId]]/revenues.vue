@@ -42,7 +42,7 @@ const endRowValuesToDisplayState = useState<string[][]>('endRowValues');
                             <div>
                                 <!-- assumption header -->
                                 <div
-                                    class="mt-12 text-xs text-zinc-500 font-medium uppercase rounded-tl py-2 px-3 min-w-[400px] max-w-[400px] bg-zinc-100 border-zinc-300 border-l border-t">
+                                    class="mt-12 text-xs text-zinc-500 font-medium uppercase rounded-tl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-100 border-zinc-300 border-l border-t">
                                     Assumptions
                                 </div>
                             </div>
@@ -58,22 +58,18 @@ const endRowValuesToDisplayState = useState<string[][]>('endRowValues');
                             <div class="">
                                 <!-- add assumption button -->
                                 <div
-                                    class="text-xs rounded-bl py-2 px-3 min-w-[400px] max-w-[400px] border-zinc-300 border-y border-l">
-                                    <button @click="addAssumption" class="text-zinc-500 hover:text-zinc-700 pl-2"><i
-                                            class="bi bi-plus-lg mr-1"></i>Add Assumption</button>
+                                    class="text-xs rounded-bl py-2 pl-10 min-w-[470px] max-w-[470px] border-zinc-300 border-y border-l">
+                                    <button @click="addAssumption" class="text-zinc-400 italic hover:text-zinc-500"><i
+                                            class="bi bi-plus-lg mr-3"></i>Add Assumption</button>
                                 </div>
                             </div>
                         </div>
                         <div id="model-headers">
                             <div>
 
-                                <div class="group flex mt-6 text-xs text-zinc-500 rounded-tl py-2 px-3 min-w-[400px] max-w-[400px] bg-zinc-100 border-zinc-300 border-l border-t">
+                                <div class="group flex mt-6 text-xs text-zinc-500 rounded-tl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-100 border-zinc-300 border-l border-t">
                                     <span class="font-medium uppercase">
                                         Model
-                                    </span>
-                                    <span class="hidden group-hover:block float-right ml-3">
-                                        <button class="font-regular text-zinc-400" @click="addSection"><i
-                                            class="bi bi-plus-lg mr-1"></i>Add section</button>
                                     </span>
                                 </div>
                                 <div v-for="(section, sectionIndex) in revenueState.sections" :key="sectionIndex">
@@ -89,10 +85,10 @@ const endRowValuesToDisplayState = useState<string[][]>('endRowValues');
                                         :sectionIndex="sectionIndex" :isEndRow="false"></VariableRowHeader>
 
                                     <div
-                                        class="text-xs py-2 px-3 min-w-[400px] max-w-[400px] border-zinc-300 border-t border-l">
+                                        class="text-xs py-2 pl-10 min-w-[470px] max-w-[470px] border-zinc-300 border-t border-l">
                                         <button @click="addVariable(sectionIndex)"
-                                            class="text-zinc-500 hover:text-zinc-700 pl-2"><i
-                                                class="bi bi-plus-lg mr-1"></i>Add Variable</button>
+                                            class="text-zinc-400 italic hover:text-zinc-500"><i
+                                                class="bi bi-plus-lg mr-3"></i>Add Variable</button>
                                     </div>
 
                                     <VariableRowHeader @update-value="updateEndRowValue"
@@ -107,17 +103,17 @@ const endRowValuesToDisplayState = useState<string[][]>('endRowValues');
                                 <div class="">
                                     <!-- add section button -->
                                     <div
-                                        class="text-xs rounded-bl py-2 px-3 min-w-[400px] max-w-[400px] border-zinc-300 border-y border-l">
-                                        <button @click="addSection" class="text-zinc-500 hover:text-zinc-700"><i
-                                                class="bi bi-plus-lg mr-1"></i>Add Section</button>
+                                        class="text-xs py-2 px-3 min-w-[470px] max-w-[470px] border-zinc-300 border-y border-l">
+                                        <button @click="addSection" class="text-zinc-400 italic hover:text-zinc-500"><i
+                                                class="bi bi-plus-lg mr-2"></i>Add Section</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div>
                             <div>
-                                <div class="group flex mt-6 text-xs text-zinc-700 rounded-l py-2 px-3 min-w-[400px] max-w-[400px] bg-zinc-100 border-zinc-300 border-2">
-                                    <span class="font-semibold uppercase">
+                                <div class="group flex text-xs text-zinc-900 rounded-bl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-50 border-zinc-300 border">
+                                    <span class="font-medium uppercase">
                                         Total Revenues
                                     </span>
                                 </div>
@@ -163,7 +159,7 @@ const endRowValuesToDisplayState = useState<string[][]>('endRowValues');
                                         v-for="date in dates">X</div>
                                 </div>
                                 <VariableRow v-if="endRowValuesToDisplayState"
-                                        :values="endRowValuesToDisplayState[index]" :round-to="2" :isEndRow="true"></VariableRow>
+                                        :values="endRowValuesToDisplayState[index]" :round-to="2"></VariableRow>
                             </div>
                             <div class="flex">
                                     <!-- add section button empty -->
@@ -171,8 +167,8 @@ const endRowValuesToDisplayState = useState<string[][]>('endRowValues');
                                         v-for="date in dates">X</div>
                                 </div>
                         </div>
-                        <div id="total-revenue-values" class="mt-6 border-y border-zinc-300">
-                            <VariableRow v-if="endRowValuesToDisplayState" :values="totalRevenuesToDisplay" :round-to="2" :isEndRow="true"></VariableRow>
+                        <div id="total-revenue-values" class="border-zinc-300">
+                            <VariableRow v-if="endRowValuesToDisplayState" :values="totalRevenuesToDisplay" :round-to="2" :isFinalRow="true"></VariableRow>
                         </div>
                     </div>
                 </div>

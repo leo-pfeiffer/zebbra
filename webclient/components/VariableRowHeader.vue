@@ -5,15 +5,15 @@ const route = useRoute();
 </script>
 <template>
     <div class="">
-        <div class="flex" :class="{'bg-zinc-50 border-b border-zinc-300': isEndRow}">
+        <div class="flex text-zinc-900">
             <div
-                class="relative group text-xs py-2 pl-5 pr-2 border-t border-x border-zinc-300 min-w-[250px] max-w-[250px]" :class="{'hover:bg-zinc-50': !isEndRow, 'bg-zinc-50': isEndRow}">
-                <span v-show="(valType === 'currency') && !isEndRow" class="mr-2 text-green-600"><i
+                class="relative group text-xs py-2 border-t border-x border-zinc-300 min-w-[320px] max-w-[320px]" :class="{'hover:bg-zinc-50 pl-10 pr-2': !isEndRow, 'px-3': isEndRow}">
+                <span v-show="(valType === 'currency') && !isEndRow" class="mr-3 text-green-600"><i
                         class="bi bi-currency-dollar"></i></span>
-                <span v-show="(valType === 'percentage') && !isEndRow" class="mr-2 text-amber-600"><i
+                <span v-show="(valType === 'percentage') && !isEndRow" class="mr-3 text-amber-600"><i
                         class="bi bi-percent"></i></span>
-                <span v-show="(valType === 'number') && !isEndRow" class="mr-2 text-zinc-500"><i class="bi bi-hash"></i></span>
-                <span v-show="isEndRow" class="font-medium text-zinc-700">Total {{sectionName}}</span>
+                <span v-show="(valType === 'number') && !isEndRow" class="mr-3 text-zinc-500"><i class="bi bi-hash"></i></span>
+                <span v-show="isEndRow" class="font-medium"><li class="marker:text-white/0">Revenues {{sectionName}}</li></span>
                 <span v-show="!isEndRow" v-if="!nameChangeSelected" @dblclick="toggleNameChange">{{ variable.name }}</span>
                 <span v-show="!isEndRow" v-else><input ref="name" @keydown.enter="$emit('updateName', newName, variableIndex, sectionIndex); toggleNameChange()" @keydown.esc="toggleNameChange"
                         v-model="newName"
@@ -79,7 +79,7 @@ const route = useRoute();
                     </div>
                 </div>
             </div>
-            <div class="h-full w-full" :class="{'bg-zinc-50': isEndRow}">
+            <div class="h-full w-full">
                 <div v-if="!valueInputSelected"
                     class="text-xs relative group border-t border-r border-zinc-300 min-w-[150px] max-w-[150px] h-full w-full text-right">
                     <div @dblclick="toggleInput" class="float-right h-full min-w-[130px] max-w-[130px] text-right text-xs py-2 px-2 border-r-2 border-zinc-300 tabular-nums truncate overflow-hidden">
