@@ -68,7 +68,8 @@ def test_process_row_integration():
         time_series=True,
         starting_at=0,
         first_value_diff=False,
-        value="Xero[Total Income]",
+        value="100",
+        integration_name="Xero[Total Income]",
         value_1=None,
         integration_values=None,
     )

@@ -21,6 +21,7 @@ class Row(BaseModel):
     starting_at: int  # t + startingAt; default = 0
     first_value_diff: bool  # is the first value different?
     value: str  # parsed in the frontend -> var_type is relevant for this
+    integration_name: str | None  # contains the name of the integration data point
     value_1: str | None  # only relevant if firstValueDiff == true
     integration_values: list[IntegrationValue] | None
     decimal_places: int = 2

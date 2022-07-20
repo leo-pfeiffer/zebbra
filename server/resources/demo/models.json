@@ -63,7 +63,8 @@
                 "time_series": true,
                 "starting_at": 0,
                 "first_value_diff": false,
-                "value": "Xero[Total Income]",
+                "value": "100",
+                "integration_name": "Xero[Total Income]",
                 "value_1": null,
                 "integration_values": null,
                 "decimal_places": 0
@@ -133,7 +134,8 @@
                 "time_series": true,
                 "starting_at": 0,
                 "first_value_diff": false,
-                "value": "Xero[Total Cost of Sales]",
+                "value": "100",
+                "integration_name": "Xero[Total Cost of Sales]",
                 "value_1": null,
                 "integration_values": null,
                 "decimal_places": 0
