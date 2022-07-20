@@ -22,6 +22,8 @@ We further assume that you start out in the user's home directory `/home/zebbra`
 
 ## Project set up
 
+> The project setup is similar to the setup for local development, so if you've set up the project locally before, feel free to step this step. 
+
 ### Repository and virtual environment
 
 Start by cloning the repository, setting up a virtual environment and installing the required dependencies.
@@ -38,8 +40,7 @@ python -m venv venv
 source venv/bin/activate
 
 # install dependencies
-pip install --upgrade pip
-pip install -r requirements.txt
+make requirements
 ```
 
 ### `.env` file
