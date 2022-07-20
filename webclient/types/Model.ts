@@ -2,6 +2,23 @@ export interface Model {
     _id: string;
     meta: ModelMeta;
     sheets: Sheet[];
+    payroll: Payroll;
+}
+
+export interface Payroll {
+    payroll_values:IntegrationValue[],
+    employees:Employee[]
+}
+
+export interface Employee {
+    _id:string,
+    name:string,
+    start_date:string,
+    end_date:string,
+    title:string,
+    department:string,
+    monthly_salary:number,
+    from_integration:boolean,
 }
 
 export interface ModelMeta {
@@ -18,11 +35,13 @@ export interface Sheet {
         name: string
     },
     assumptions: Variable[],
-    sections: {
-        name: string,
-        rows: Variable[],
-        endrow: Variable
-    }[]
+    sections: Section[]
+}
+
+export interface Section {
+    name: string,
+    rows: Variable[],
+    end_row: Variable
 }
 
 export interface Variable {

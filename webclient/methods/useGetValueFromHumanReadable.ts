@@ -16,7 +16,7 @@ export const useGetValueFromHumanReadable = (humanReadableInput:string, currentA
             var counter:number = 0;
             var refNameWithTimeDiff:string = "";
             //get the name of the ref[timeDiff]
-            while(!useFormulaParser().charIsNumerical(humanReadableInput[i + counter]) && !useFormulaParser().charIsOperator(humanReadableInput[i + counter]) && humanReadableInput[i + counter] != undefined) {
+            while(!useFormulaParser().charIsOperator(humanReadableInput[i + counter]) && humanReadableInput[i + counter] != undefined) {
 
                 if(humanReadableInput[i + counter] === "[") {
                     var counter2 = 0;

@@ -208,7 +208,7 @@ export default {
     async deleteAccount() {
 
       const data = await useFetchAuth(
-        '/user/delete',{ method: 'POST', 
+        '/user',{ method: 'DELETE', 
         }).then((data) => {
           console.log(data)
           useLogout();

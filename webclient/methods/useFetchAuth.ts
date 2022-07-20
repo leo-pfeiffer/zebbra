@@ -22,14 +22,12 @@ export const useFetchAuth = async (url: string, opts?: FetchOptions) => {
   const logoutIfTokenIsExpired = await $fetch(`${backendBaseUrl}/token/expired`, {
     method: 'GET', headers
   }).then((data:GetTokenExpiredResponse) => {
-    console.log("Checking AuthToken");
     if (data.expired) {
       useToken().deleteTokenCookie();
       navigateTo('/login');
       console.log("Logged out because AuthToken was expired. Please login again.");
       return false;
     }
-    console.log("AuthToken up to date.");
   }).catch((error) => {
     console.log(error);
     useToken().deleteTokenCookie();

@@ -21,8 +21,13 @@ export const useFormulaParser = () => {
     //method that takes an array of variables and returns the values to be displayed for every variable
     const getSheetRowValues = (variables: Variable[]) => {
 
+        var order:string[];
         //get the order in which the variables get created
-        var order: string[] = getCreationOrder(variables);
+        try {
+            order = getCreationOrder(variables);
+        } catch(e) {
+            throw(e);
+        }
 
         var variablesMap = new Map<string, VariableInfo>();
         //var rowTimeSeriesMap = new Map<string, boolean>();
@@ -37,7 +42,7 @@ export const useFormulaParser = () => {
             }
             var variable: Variable = variables[index];
 
-            if (!variable.time_series || typeof variable.value != "string") {
+            if (!variable.time_series) {
                 for (let i = 0; i < 24; i++) {
                     rowValuesToDisplay.push("–");
                 }
@@ -98,7 +103,11 @@ export const useFormulaParser = () => {
             if(variableInput.value_1.includes("#")) {
                 firstValue = getExternalRefValue(variableInput.value_1, variableInput.starting_at, variablesAlreadyCovered);
             } else {
-                firstValue = useMathParser(variableInput.value_1).toString();
+                try {
+                    firstValue = useMathParser(variableInput.value_1).toString();
+                } catch(e) {
+                    throw(e);
+                }
             }
             valuesToDisplay.push(firstValue);
         }
@@ -128,7 +137,13 @@ export const useFormulaParser = () => {
             }
 
             //run the string through the maths parser
-            const valueToDisplay: string = useMathParser(stringForParser).toString();
+            var valueToDisplay: string;
+            
+            try{
+                valueToDisplay = useMathParser(stringForParser).toString();
+            } catch(e) {
+                throw(e);
+            }
 
             //add the solution of maths parser to the valuesToDisplay string
             valuesToDisplay.push(valueToDisplay);
@@ -211,8 +226,10 @@ export const useFormulaParser = () => {
         let returnValue: string;
 
         if (ref[0] == "$") {
+            //todo: err
             returnValue = getInternalRefValue(ref, index, valuesToDisplay);
         } else if (ref[0] == "#") {
+            //todo: err
             returnValue = getExternalRefValue(ref, index, variablesAlreadyCovered);
         }
         return returnValue;
@@ -225,6 +242,8 @@ export const useFormulaParser = () => {
         const indexDiff: number = +internalRef.substring(1);
 
         return valuesToDisplay[index - indexDiff];
+
+        //todo: err throw
 
     }
 
@@ -243,8 +262,10 @@ export const useFormulaParser = () => {
         }
 
         if(variablesAlreadyCovered.get(ref).time_series) {
+            //todo throw err
             outputValue = variablesAlreadyCovered.get(ref).row_values[index - indexDiff];
         } else {
+            //todo: err
             outputValue = useMathParser(variablesAlreadyCovered.get(ref).value).toString();
         }
 
@@ -289,7 +310,14 @@ export const useFormulaParser = () => {
         var referenceArray: Reference[] = getReferenceArray(variables);
 
         //use Kahns algo to get the order in which the variables need to be handled based on references
-        var order: string[] = kahnTopologicalSort(referenceArray);
+        var order: string[];
+
+        try {
+            order = kahnTopologicalSort(referenceArray);
+        } catch(e) {
+            throw(e);
+        }
+        
         return order;
     }
 
@@ -437,9 +465,9 @@ export const useFormulaParser = () => {
             }
         }
 
+        //todo: update to handle recursive 
         if (finalOrder.length != numRows) {
-            console.log("error");
-            return []
+            throw("Error: There is a recursive relationship between the variables.");
         } else {
             return finalOrder;
         }
