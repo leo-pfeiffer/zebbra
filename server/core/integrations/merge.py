@@ -144,7 +144,7 @@ def process_row(row: Row, data_batches: dict[IntegrationProvider, DataBatch]) ->
         return row
 
     # catch error here?
-    integration, endpoint = parse_value(row.value)
+    integration, endpoint = parse_value(row.integration_name)
 
     # integration must be supported
     if (
