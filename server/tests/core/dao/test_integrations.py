@@ -8,7 +8,6 @@ from core.dao.integrations import (
     set_accounting_cache,
     set_payroll_cache,
     get_payroll_cache,
-    remove_integration_for_workspace,
 )
 from datetime import datetime, timezone
 
@@ -90,24 +89,6 @@ async def test_add_integration_for_workspace_override(workspaces):
     await setup_integration_access(workspace_id1)
     count_after = await count_documents("integration_access")
     assert count_after - count_before == 0
-
-
-@pytest.mark.anyio
-async def test_remove_integration_for_workspace(workspaces):
-    workspace_id = workspaces["ACME Inc."]
-    count_before = await count_documents("integration_access")
-    await remove_integration_for_workspace(workspace_id, "Xero")
-    count_after = await count_documents("integration_access")
-    assert count_before - count_after == 1
-
-
-@pytest.mark.anyio
-async def test_remove_integration_for_workspace_not_connected(workspaces):
-    workspace_id = workspaces["Boring Co."]
-    count_before = await count_documents("integration_access")
-    await remove_integration_for_workspace(workspace_id, "Xero")
-    count_after = await count_documents("integration_access")
-    assert count_before == count_after
 
 
 @pytest.mark.anyio

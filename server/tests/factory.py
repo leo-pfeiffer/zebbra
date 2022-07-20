@@ -1,5 +1,4 @@
 # test object factory
-from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 
 from core.dao.database import db
@@ -7,12 +6,8 @@ import json
 from datetime import datetime
 
 from core.dao.integrations import add_integration_for_workspace
-from core.schemas.cache import DataBatchCache, EmployeeListCache
 from core.schemas.integrations import IntegrationAccess, IntegrationAccessToken
-from core.schemas.models import Model
-from core.schemas.users import UserInDB
-from core.schemas.utils import DateString, InviteCode
-from core.schemas.workspaces import Workspace
+from core.schemas.utils import DateString
 
 
 def _read_json(path):
@@ -60,45 +55,35 @@ async def teardown():
 
 
 def create_users():
-    return db.users.insert_many([jsonable_encoder(UserInDB(**e)) for e in users])
+    return db.users.insert_many(users)
 
 
 def create_invite_codes():
-    return db.invite_codes.insert_many(
-        [jsonable_encoder(InviteCode(**e)) for e in invite_codes]
-    )
+    return db.invite_codes.insert_many(invite_codes)
 
 
 def create_workspaces():
-    return db.workspaces.insert_many(
-        [jsonable_encoder(Workspace(**e)) for e in workspaces]
-    )
+    return db.workspaces.insert_many(workspaces)
 
 
 def create_models():
-    return db.models.insert_many([jsonable_encoder(Model(**e)) for e in models])
+    return db.models.insert_many(models)
 
 
 def create_integration_access():
-    return db.integration_access.insert_many(
-        [jsonable_encoder(IntegrationAccess(**e)) for e in integration_access]
-    )
+    return db.integration_access.insert_many(integration_access)
 
 
 def create_accounting_cache():
     for element in accounting_cache:
         element["created_at"] = datetime.now()
-    return db.accounting_cache.insert_many(
-        [jsonable_encoder(DataBatchCache(**e)) for e in accounting_cache]
-    )
+    return db.accounting_cache.insert_many(accounting_cache)
 
 
 def create_payroll_cache():
     for element in payroll_cache:
         element["created_at"] = datetime.now()
-    return db.payroll_cache.insert_many(
-        [jsonable_encoder(EmployeeListCache(**e)) for e in payroll_cache]
-    )
+    return db.payroll_cache.insert_many(payroll_cache)
 
 
 def teardown_users():

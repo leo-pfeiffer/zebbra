@@ -6,44 +6,25 @@ from api.utils.assertions import (
     assert_workspace_access,
     assert_workspace_has_integration,
     assert_model_access,
-    assert_workspace_access_admin,
 )
 from api.utils.dependencies import (
     get_current_active_user,
 )
-from core.dao.integrations import (
-    get_integrations_for_workspace,
-    workspace_has_integration,
-    remove_integration_for_workspace,
-)
+from core.dao.integrations import get_integrations_for_workspace
 from core.dao.models import get_model_by_id
 from core.integrations.adapters.xero_adapter import XeroFetchAdapter
 from core.integrations.config import INTEGRATIONS, ADAPTERS
 from core.schemas.integrations import (
     IntegrationProviderInfo,
-    IntegrationProvider,
 )
 from core.schemas.users import User
-from core.schemas.utils import DataPoint, Message
+from core.schemas.utils import DataPoint
+from core.schemas.cache import DataBatch
 
 router = APIRouter()
 
 
-@router.post("/integration/disconnect", tags=["integration"], response_model=Message)
-async def disconnect_integration(
-    workspace_id: str,
-    integration: IntegrationProvider,
-    current_user: User = Depends(get_current_active_user),
-):
-    await assert_workspace_access_admin(current_user.id, workspace_id)
-
-    if not await workspace_has_integration(workspace_id, integration):
-        return {"message": f"Integration {integration} is not connected"}
-    else:
-        await remove_integration_for_workspace(workspace_id, integration)
-        return {"message": f"Integration {integration} has been disconnected"}
-
-
+# todo test
 @router.get(
     "/integration/providers",
     tags=["integration"],
@@ -104,11 +85,6 @@ async def data_endpoints(
     data_points = []
     for integration in INTEGRATIONS:
         adapter = ADAPTERS[integration](str(model.meta.workspace))
-
-        # payroll adapters have no endpoints
-        if adapter.api_type() == "payroll":
-            continue
-
         points = await adapter.get_data_endpoints(model.meta.starting_month)
         data_points.extend(
             [

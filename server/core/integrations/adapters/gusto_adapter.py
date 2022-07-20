@@ -1,17 +1,15 @@
 from datetime import date
 
-from core.dao.integrations import workspace_has_integration
 from core.integrations.adapters.adapter import FetchAdapter
 from core.integrations.oauth.gusto_oauth import gusto_integration_oauth
 from core.logger import logger
-from core.schemas.integrations import IntegrationProvider
 from core.schemas.models import Employee
 from core.schemas.utils import DateString
 
 
 class GustoFetchAdapter(FetchAdapter):
 
-    _integration: IntegrationProvider = "Gusto"
+    _integration = "Gusto"
     _api_type = "payroll"
 
     def __init__(self, workspace_id: str):
@@ -40,10 +38,6 @@ class GustoFetchAdapter(FetchAdapter):
         :param from_date: date from which onwards to get the data
         :return: DataBatch containing the data from the integration
         """
-
-        # return empty list if gusto is not configured for the workspace
-        if not await workspace_has_integration(self.workspace_id, self.integration()):
-            return []
 
         # check if we can use cache
         cache_date = self._cache_date(from_date)

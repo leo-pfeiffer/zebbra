@@ -1,4 +1,3 @@
-import uuid
 from typing import Literal
 
 from bson import ObjectId
@@ -28,10 +27,6 @@ class Sheet(BaseModel):
 
 
 def create_default_sheets():
-
-    ref1 = str(int(uuid.uuid4()))
-    ref2 = str(int(uuid.uuid4()))
-
     return [
         Sheet(
             meta=SheetMeta(name="Revenues"),
