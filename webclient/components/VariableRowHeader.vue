@@ -216,7 +216,6 @@ export default {
             var lastIndex = this.humanReadableInputValue.length - 1;
             const regex = new RegExp(/[()+*/-]+/);
             while(!regex.test(this.humanReadableInputValue[lastIndex]) && lastIndex >= 0) {
-                console.log("here");
                 this.humanReadableInputValue = this.humanReadableInputValue.slice(0, -1);
                 lastIndex--;
             }

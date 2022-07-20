@@ -556,9 +556,7 @@ export default {
             }
         },
         async updateVariableSettings(variableIndex: number, value1Input: string, valTypeInput: string, startingAtInput: number, sectionIndex: number) {
-
-            console.log(variableIndex);
-
+            
             this.revenueState.sections[sectionIndex].rows[variableIndex].val_type = valTypeInput;
             this.revenueState.sections[sectionIndex].rows[variableIndex].value_1 = value1Input;
 
