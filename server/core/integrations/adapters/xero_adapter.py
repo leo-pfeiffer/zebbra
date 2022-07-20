@@ -3,20 +3,18 @@ from datetime import date, datetime, timezone
 
 from dateutil.relativedelta import relativedelta
 
-from core.dao.integrations import workspace_has_integration
 from core.integrations.adapters.adapter import FetchAdapter
 from core.integrations.oauth.xero_oauth import (
     xero_integration_oauth,
     API_URL_SUFFIX,
 )
 from core.schemas.cache import DataBatch
-from core.schemas.integrations import IntegrationProvider
 from core.utils import last_of_same_month
 
 
 class XeroFetchAdapter(FetchAdapter):
 
-    _integration: IntegrationProvider = "Xero"
+    _integration = "Xero"
     _api_type = "accounting"
 
     def __init__(self, workspace_id: str):
@@ -41,10 +39,6 @@ class XeroFetchAdapter(FetchAdapter):
         :return: P&L and balance sheet data
         """
 
-        # return empty batch if Xero not configured for workspace
-        if not await workspace_has_integration(self.workspace_id, self.integration()):
-            return DataBatch(dates=[], data={})
-
         # check if we can use cache
         cache_date = self._cache_date(from_date)
         if cached := await self.get_cached(cache_date):
@@ -52,10 +46,6 @@ class XeroFetchAdapter(FetchAdapter):
 
         # if no cache, retrieve from Xero API
         batches = await self._get_batches(from_date)
-
-        # in case no data was available for the timeframe
-        if len(batches) == 0:
-            return DataBatch(dates=[], data={})
 
         processed = [self._process_batch(batch) for batch in batches]
         merged = self._merge_batches(processed)
@@ -73,10 +63,6 @@ class XeroFetchAdapter(FetchAdapter):
         :param from_date: date from which onwards to find the endpoints
         :return: list of endpoints
         """
-
-        # return empty list if Xero not configured for workspace
-        if not await workspace_has_integration(self.workspace_id, self.integration()):
-            return []
 
         # check if we can use cache of batch data
         actual_from_date = int(
@@ -174,7 +160,7 @@ class XeroFetchAdapter(FetchAdapter):
         """
         periods: list[tuple[date, date]] = []
         period_start = from_date
-        while period_start <= to_date:
+        while period_start < to_date:
 
             period_start = last_of_same_month(
                 self._get_last_month_with_31_days(period_start)
