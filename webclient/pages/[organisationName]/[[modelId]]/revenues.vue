@@ -27,6 +27,21 @@ const variableValuesToDisplayState = useState<Map<number, string[][]>>('variable
 
 const endRowValuesToDisplayState = useState<string[][]>('endRowValues');
 
+console.log(route.params.modelId);
+
+const getIntegrations = await useFetchAuth(
+    '/integration/dataEndpoints', {
+        method: 'GET',
+        params: {
+            model_id: route.params.modelId
+        }
+    }
+).then((data) => {
+    console.log(data)
+}).catch((e) => {
+    console.log(e)
+})
+
 </script>
 
 <template>
@@ -183,6 +198,7 @@ const endRowValuesToDisplayState = useState<string[][]>('endRowValues');
 import { useFormulaParser } from '~~/methods/useFormulaParser';
 import { useGetValueFromHumanReadable } from '~~/methods/useGetValueFromHumanReadable';
 import { useMathParser } from '~~/methods/useMathParser';
+import { useFetchAuth } from '~~/methods/useFetchAuth';
 export default {
     data() {
         return {
