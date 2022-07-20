@@ -3,6 +3,12 @@
 test:
 	python -m pytest tests
 
+.PHONY: requirements
+# Install requirements with pip
+requirements:
+	pip install --upgrade pip
+	pip install -r requirements.txt
+
 .PHONY: setup_db
 # Run the setup db script
 setup_db:
