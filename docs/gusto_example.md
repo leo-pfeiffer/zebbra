@@ -257,6 +257,11 @@ Ignoring the helper methods for now, the `get_data` method looks like this.
 
 ```python
 async def get_data(self, from_date: date) -> list[Employee]:
+    
+    # return empty list if gusto is not configured for the workspace
+    if not await workspace_has_integration(self.workspace_id, self.integration()):
+        return []
+    
     # check if we can use cache
     cache_date = self._cache_date(from_date)
     if cached := await self.get_cached(cache_date):
