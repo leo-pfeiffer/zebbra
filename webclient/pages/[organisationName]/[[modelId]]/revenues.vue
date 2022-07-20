@@ -3,6 +3,7 @@ import { Section, Variable } from '~~/types/Model';
 import { useVariableSearchMap } from '~~/methods/useVariableSearchMap';
 import { useVariableTimeSeriesMap } from '~~/methods/useVariableTimeSeriesMap';
 import { useSheetUpdate } from '~~/methods/useSheetUpdate';
+import { useGetPossibleIntegrationValues } from '~~/methods/useGetPossibleIntegrationValues';
 
 definePageMeta({
     middleware: ["auth", "route-check"]
@@ -27,20 +28,8 @@ const variableValuesToDisplayState = useState<Map<number, string[][]>>('variable
 
 const endRowValuesToDisplayState = useState<string[][]>('endRowValues');
 
-console.log(route.params.modelId);
-
-const getIntegrations = await useFetchAuth(
-    '/integration/dataEndpoints', {
-        method: 'GET',
-        params: {
-            model_id: route.params.modelId
-        }
-    }
-).then((data) => {
-    console.log(data)
-}).catch((e) => {
-    console.log(e)
-})
+const possibleIntegrationValuesState = usePossibleIntegrationValuesState();
+possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(route.params.modelId);
 
 </script>
 
