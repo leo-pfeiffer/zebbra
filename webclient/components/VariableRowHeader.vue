@@ -183,8 +183,6 @@ export default {
     },
     mounted() {
 
-        console.log(this.possibleIntegrationValues)
-
         //set correct humanReadableInputValue to be displayed
         if (this.variable.value === "" || this.variable.value === undefined) {
             this.humanReadableInputValue = "–"
@@ -206,6 +204,14 @@ export default {
         if (this.variable.name === "" || this.variable.value === undefined) {
             this.nameChangeSelected = true;
         }
+
+        //set correct integration value if applicable
+        if (this.variable.integration_name === null || this.variable.integration_name === undefined || this.variable.integration_name === "" || this.variable.integration_name === "None") {
+            this.integrationSelected = "None";
+        } else {
+            this.integrationSelected = this.variable.integration_name;
+        }
+
     },
     methods: {
         toggleNameChange() {
