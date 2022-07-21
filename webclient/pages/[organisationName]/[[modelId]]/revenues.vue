@@ -3,6 +3,7 @@ import { Section, Variable } from '~~/types/Model';
 import { useVariableSearchMap } from '~~/methods/useVariableSearchMap';
 import { useVariableTimeSeriesMap } from '~~/methods/useVariableTimeSeriesMap';
 import { useSheetUpdate } from '~~/methods/useSheetUpdate';
+import { useGetPossibleIntegrationValues } from '~~/methods/useGetPossibleIntegrationValues';
 
 definePageMeta({
     middleware: ["auth", "route-check"]
@@ -22,10 +23,11 @@ const date: string[] = modelMeta.value.starting_month.split("-");
 const dates = useState('dates', () => useDateArray(new Date(+date[0], +date[1] - 1)));
 
 const assumptionValuesToDisplayState = useState<string[][]>('assumptionValues');
-
 const variableValuesToDisplayState = useState<Map<number, string[][]>>('variableValues');
-
 const endRowValuesToDisplayState = useState<string[][]>('endRowValues');
+
+const possibleIntegrationValuesState = usePossibleIntegrationValuesState();
+possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(route.params.modelId);
 
 </script>
 
@@ -53,7 +55,8 @@ const endRowValuesToDisplayState = useState<string[][]>('endRowValues');
                                 :variableIndex="index"
                                 :timeSeriesMap="useVariableTimeSeriesMap(revenueState.assumptions)"
                                 :variableSearchMap="useVariableSearchMap(revenueState.assumptions)" :sectionIndex="0"
-                                :isEndRow="false">
+                                :isEndRow="false"
+                                :showIntegration="false">
                             </VariableRowHeader>
                             <div class="">
                                 <!-- add assumption button -->
@@ -78,12 +81,15 @@ const endRowValuesToDisplayState = useState<string[][]>('endRowValues');
                                     @delete-section="deleteSection"></SectionHeader>
                                     <VariableRowHeader @update-value="updateVariableValue"
                                         @update-settings="updateVariableSettings" @update-name="updateVariableName"
-                                        @delete-variable="deleteVariable" v-for="(variable, index) in section.rows"
+                                        @delete-variable="deleteVariable"
+                                        @update-integration="updateIntegrationValue"
+                                        v-for="(variable, index) in section.rows"
                                         :variable="variable" :variable-index="index"
                                         :timeSeriesMap="useVariableTimeSeriesMap(revenueState.assumptions.concat(section.rows))"
                                         :variableSearchMap="useVariableSearchMap(revenueState.assumptions.concat(section.rows))"
-                                        :sectionIndex="sectionIndex" :isEndRow="false"></VariableRowHeader>
-
+                                        :sectionIndex="sectionIndex" :isEndRow="false"
+                                        :showIntegration="true"
+                                        :possible-integration-values="possibleIntegrationValuesState"></VariableRowHeader>
                                     <div
                                         class="text-xs py-2 pl-10 min-w-[470px] max-w-[470px] border-zinc-300 border-t border-l">
                                         <button @click="addVariable(sectionIndex)"
@@ -183,6 +189,7 @@ const endRowValuesToDisplayState = useState<string[][]>('endRowValues');
 import { useFormulaParser } from '~~/methods/useFormulaParser';
 import { useGetValueFromHumanReadable } from '~~/methods/useGetValueFromHumanReadable';
 import { useMathParser } from '~~/methods/useMathParser';
+import { useFetchAuth } from '~~/methods/useFetchAuth';
 export default {
     data() {
         return {
@@ -245,12 +252,14 @@ export default {
                 name: "",
                 val_type: "number",
                 editable: true,
+                decimal_places: 0,
                 var_type: "value",
                 time_series: false,
                 starting_at: 0,
                 first_value_diff: false,
                 value: "0",
                 value_1: undefined,
+                integration_name: undefined,
                 integration_values: undefined
 
             }
@@ -261,12 +270,14 @@ export default {
                 name: "",
                 val_type: "number",
                 editable: true,
+                decimal_places: 0,
                 var_type: "value",
                 time_series: true,
                 starting_at: 0,
                 first_value_diff: false,
                 value: "0",
                 value_1: undefined,
+                integration_name: undefined,
                 integration_values: undefined
 
             }
@@ -298,12 +309,14 @@ export default {
                 name: "",
                 val_type: "number",
                 editable: true,
+                decimal_places: 0,
                 var_type: "value",
                 time_series: false,
                 starting_at: 0,
                 first_value_diff: false,
                 value: "0",
                 value_1: undefined,
+                integration_name: undefined,
                 integration_values: undefined
 
             }
@@ -339,12 +352,14 @@ export default {
                 name: "",
                 val_type: "number",
                 editable: true,
+                decimal_places: 0,
                 var_type: "value",
                 time_series: false,
                 starting_at: 0,
                 first_value_diff: false,
                 value: "0",
                 value_1: undefined,
+                integration_name: undefined,
                 integration_values: undefined
 
             }
@@ -387,8 +402,8 @@ export default {
                     //retrieve actual stored sheet from DB
                     //if actual sheet and state match, if not update state to actual sheet
                     const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
-                    if (!(this.revenue.assumptions[variableIndex].value === this.revenue.assumptions[variableIndex].value)) {
-                        this.revenue.value = actualSheet;
+                    if (!(actualSheet.assumptions[variableIndex].value === this.revenue.assumptions[variableIndex].value)) {
+                        this.revenueState = actualSheet;
                     }
                 }
             } else {
@@ -401,13 +416,17 @@ export default {
                 //Get humanReadableInputValue and create storage value
 
                 const storageValue: string = useGetValueFromHumanReadable(humanReadableInputValue, variableId, variableSearchMap);
-
-                this.revenueState.sections[sectionIndex].rows[variableIndex].time_series = this.isTimeSeries(storageValue, timeSeriesMap);
                 this.revenueState.sections[sectionIndex].rows[variableIndex].value = storageValue.toString();
-                if (storageValue.includes("+") || storageValue.includes("-") || storageValue.includes("*") || storageValue.includes("/") || storageValue.includes("-")) {
+
+                if(this.revenueState.sections[sectionIndex].rows[variableIndex].integration_name != null) {
+                    this.revenueState.sections[sectionIndex].rows[variableIndex].var_type = "integration";
+                    this.revenueState.sections[sectionIndex].rows[variableIndex].time_series = true;
+                } else if (storageValue.includes("+") || storageValue.includes("-") || storageValue.includes("*") || storageValue.includes("/") || storageValue.includes("-")) {
                     this.revenueState.sections[sectionIndex].rows[variableIndex].var_type = "formula";
+                    this.revenueState.sections[sectionIndex].rows[variableIndex].time_series = this.isTimeSeries(storageValue, timeSeriesMap);
                 } else {
                     this.revenueState.sections[sectionIndex].rows[variableIndex].var_type = "value";
+                    this.revenueState.sections[sectionIndex].rows[variableIndex].time_series = this.isTimeSeries(storageValue, timeSeriesMap);
                 }
 
                 try {
@@ -420,12 +439,45 @@ export default {
                     //retrieve actual stored sheet from DB
                     //if actual sheet and state match, if not update state to actual sheet
                     const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
-                    if (!(this.revenue.sections[0].rows[variableIndex].value === this.revenue.sections[0].rows[variableIndex].value)) {
-                        this.revenue.value = actualSheet;
+                    if (!(actualSheet.sections[0].rows[variableIndex].value === this.revenueState.sections[0].rows[variableIndex].value)) {
+                        this.revenueState = actualSheet;
                     }
                 }
             } else {
                 this.errorMessages.push("You can't enter an empty value. Please try again.");
+            }
+        },
+        async updateIntegrationValue(integrationSelected: string, timeSeriesMap: Map<string, boolean>, variableIndex: number, sectionIndex: number) {
+            if(integrationSelected != "None") {
+                this.revenueState.sections[sectionIndex].rows[variableIndex].var_type = "integration";
+                this.revenueState.sections[sectionIndex].rows[variableIndex].integration_name = integrationSelected;
+                this.revenueState.sections[sectionIndex].rows[variableIndex].time_series = true;
+            } else {
+                var checkValue = this.revenueState.sections[sectionIndex].rows[variableIndex].value;
+                if (checkValue.includes("+") || checkValue.includes("-") || checkValue.includes("*") || checkValue.includes("/") || checkValue.includes("-")) {
+                    this.revenueState.sections[sectionIndex].rows[variableIndex].var_type = "formula";
+                } else {
+                    this.revenueState.sections[sectionIndex].rows[variableIndex].var_type = "value";
+                }
+                this.revenueState.sections[sectionIndex].rows[variableIndex].time_series = this.isTimeSeries(checkValue, timeSeriesMap);
+                this.revenueState.sections[sectionIndex].rows[variableIndex].integration_name = null;
+                this.revenueState.sections[sectionIndex].rows[variableIndex].integration_values = null;
+            }
+
+            try {
+                //update RevenueState
+                this.revenueState = await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
+                this.updateDisplayedValues();
+
+            } catch (e) {
+                console.log(e);
+                //retrieve actual stored sheet from DB
+                //if actual sheet and state match, if not update state to actual sheet
+                const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
+                if (!(actualSheet.sections[0].rows[variableIndex].integration_name === this.revenueState.sections[0].rows[variableIndex].integration_name) ||
+                    !(actualSheet.sections[0].rows[variableIndex].var_type === this.revenueState.sections[0].rows[variableIndex].var_type)) {
+                    this.revenueState = actualSheet;
+                }
             }
         },
         async updateEndRowValue(humanReadableInputValue: string, variableId: string, variableSearchMap: Map<string, string>, timeSeriesMap: Map<string, boolean>, variableIndex: number, sectionIndex: number) {
@@ -437,6 +489,8 @@ export default {
 
                 this.revenueState.sections[sectionIndex].end_row.time_series = this.isTimeSeries(storageValue, timeSeriesMap);
                 this.revenueState.sections[sectionIndex].end_row.value = storageValue.toString();
+
+                //todo: handle integration
                 if (storageValue.includes("+") || storageValue.includes("-") || storageValue.includes("*") || storageValue.includes("/") || storageValue.includes("-")) {
                     this.revenueState.sections[sectionIndex].end_row.var_type = "formula";
                 } else {
@@ -453,8 +507,8 @@ export default {
                     //retrieve actual stored sheet from DB
                     //if actual sheet and state match, if not update state to actual sheet
                     const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
-                    if (!(this.revenue.sections[0].rows[variableIndex].value === this.revenue.sections[0].rows[variableIndex].value)) {
-                        this.revenue.value = actualSheet;
+                    if (!(actualSheet.sections[0].rows[variableIndex].value === this.revenueState.sections[0].rows[variableIndex].value)) {
+                        this.revenueState = actualSheet;
                     }
                 }
             } else {
@@ -550,8 +604,8 @@ export default {
                 //retrieve actual stored sheet from DB
                 //if actual sheet and state match, if not update state to actual sheet
                 const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
-                if (!(this.revenue.assumptions[variableIndex].value === this.revenue.assumptions[variableIndex].value)) {
-                    this.revenue.value = actualSheet;
+                if (!(this.actualSheet.assumptions[variableIndex].value === this.revenueState.assumptions[variableIndex].value)) {
+                    this.revenueState = actualSheet;
                 }
             }
         },
@@ -589,8 +643,8 @@ export default {
                 //retrieve actual stored sheet from DB
                 //if actual sheet and state match, if not update state to actual sheet
                 const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
-                if (!(this.revenue.sections[sectionIndex].rows[variableIndex].value === this.revenue.sections[sectionIndex].rows[variableIndex].value)) {
-                    this.revenue.value = actualSheet;
+                if (!(actualSheet.sections[sectionIndex].rows[variableIndex].value === this.revenueState.sections[sectionIndex].rows[variableIndex].value)) {
+                    this.revenueState = actualSheet;
                 }
             }
         },

@@ -17,7 +17,6 @@ export const useFormulaParser = () => {
         value:string;
     }
 
-    //todo: add model context??
     //method that takes an array of variables and returns the values to be displayed for every variable
     const getSheetRowValues = (variables: Variable[]) => {
 
@@ -100,7 +99,9 @@ export const useFormulaParser = () => {
 
         if (variableInput.first_value_diff) {
             var firstValue:string;
-            if(variableInput.value_1.includes("#")) {
+            if(variableInput.var_type === "integration" && variableInput.integration_values[0].value != null){
+                firstValue = variableInput.integration_values[0].value;
+            } else if(variableInput.value_1.includes("#")) {
                 firstValue = getExternalRefValue(variableInput.value_1, variableInput.starting_at, variablesAlreadyCovered);
             } else {
                 try {
@@ -118,31 +119,35 @@ export const useFormulaParser = () => {
             startingPointForI++;
         }
 
+        //todo: months
         for (let i = startingPointForI; i < 24; i++) {
 
-            //store valueArray with refs in new array so refs can be overwritten
-            var valueArrayToBeOverwritten: string[] = [...valueObject.value_array];
-
-            //get the refs in the valueArray and replace them with the actual value
-            for (let j = 0; j < valueObject.indexes.length; j++) {
-                var ref: string = valueArrayToBeOverwritten[valueObject.indexes[j]];
-                var refValue = getRefValue(ref, i, valuesToDisplay, variablesAlreadyCovered);
-                valueArrayToBeOverwritten[valueObject.indexes[j]] = refValue;
-            }
-
-            //concatinate the updated valueArray to single string
-            var stringForParser: string = "";
-            for (let x = 0; x < valueArrayToBeOverwritten.length; x++) {
-                stringForParser = stringForParser + valueArrayToBeOverwritten[x];
-            }
-
-            //run the string through the maths parser
             var valueToDisplay: string;
-            
-            try{
-                valueToDisplay = useMathParser(stringForParser).toString();
-            } catch(e) {
-                throw(e);
+
+            if(variableInput.var_type === "integration" && variableInput.integration_values && variableInput.integration_values[i].value != null) {
+                valueToDisplay = variableInput.integration_values[i].value;
+            } else {
+                //store valueArray with refs in new array so refs can be overwritten
+                var valueArrayToBeOverwritten: string[] = [...valueObject.value_array];
+
+                //get the refs in the valueArray and replace them with the actual value
+                for (let j = 0; j < valueObject.indexes.length; j++) {
+                    var ref: string = valueArrayToBeOverwritten[valueObject.indexes[j]];
+                    var refValue = getRefValue(ref, i, valuesToDisplay, variablesAlreadyCovered);
+                    valueArrayToBeOverwritten[valueObject.indexes[j]] = refValue;
+                }
+
+                //concatinate the updated valueArray to single string
+                var stringForParser: string = "";
+                for (let x = 0; x < valueArrayToBeOverwritten.length; x++) {
+                    stringForParser = stringForParser + valueArrayToBeOverwritten[x];
+                }
+                
+                try{
+                    valueToDisplay = useMathParser(stringForParser).toString();
+                } catch(e) {
+                    throw(e);
+                }
             }
 
             //add the solution of maths parser to the valuesToDisplay string
