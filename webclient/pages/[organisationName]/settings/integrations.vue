@@ -56,8 +56,7 @@ const gustoState = useState<GetIntegrationProvidersResponse>('gustoState', () =>
                         </div>
                         <div class="flex text-xs text-left">
                             <div class="text-zinc-500 mr-3">
-                                Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum
-                                has been the industry's standard dummy text
+                                Once you connected Xero, you will be able to add your actual accounting data such as revenues, profits or cost centers to both the revenues as well as cost models.
                             </div>
                             <div class="min-w-fit">
                                 <a v-if="!xeroState.connected"
@@ -108,8 +107,7 @@ const gustoState = useState<GetIntegrationProvidersResponse>('gustoState', () =>
                         </div>
                         <div class="flex text-xs text-left">
                             <div class="text-zinc-500 mr-3">
-                                Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum
-                                has been the industry's standard dummy text
+                                Once you connected Gusto, Zebbra will automatically add all your existing employees to the cost model. You will still be able to add new employees to take future hires into account.
                             </div>
                             <div class="min-w-fit">
                                 <a v-if="!gustoState.connected"
@@ -156,13 +154,12 @@ const gustoState = useState<GetIntegrationProvidersResponse>('gustoState', () =>
                         </div>
                         <div class="flex text-xs text-left">
                             <div class="text-zinc-500 mr-3">
-                                Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum
-                                has been the industry's standard dummy text
+                                Due to its open API Zebbra allows you to build custom integrations to any other accounting or payroll software very easily.
                             </div>
                             <div class="min-w-fit">
                                 <a
                                     class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-xs px-2 py-1 border border-zinc-300 rounded text-zinc-700">Learn
-                                    more <i class="bi bi-arrow-up-right"></i></a>
+                                    more <i class="bi bi-arrow-up-right"></i></a> <!-- todo: link -->
                             </div>
                         </div>
                     </div>

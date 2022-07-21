@@ -32,7 +32,7 @@ export default {
                             class="pl-2">Settings</span>
                 </div></NuxtLink>
                 <NuxtLink :to="`/${user.workspaces[0].name}/settings/integrations`"><div class="px-2 hover:bg-zinc-200 py-1.5 rounded text-zinc-500">
-                    <i class="bi bi-cloud-fill text-zinc-400"></i><span
+                    <i class="bi bi-server text-[11px] text-zinc-400"></i><span
                             class="pl-2">Integrations</span>
                 </div></NuxtLink>
                 <NuxtLink to="#"><div class="px-2 hover:bg-zinc-200 py-1.5 rounded text-zinc-500">
