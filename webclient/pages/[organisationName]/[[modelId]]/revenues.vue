@@ -137,8 +137,8 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                                 <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 bg-zinc-100 border-zinc-300 border-t"
                                     v-for="date in dates">X</div>
                             </div>
-                            <VariableRow v-for="assumptionValues in assumptionValuesToDisplayState"
-                                :values="assumptionValues" :round-to="2"></VariableRow>
+                            <VariableRow v-for="(assumptionValues, index) in assumptionValuesToDisplayState"
+                                :values="assumptionValues" :round-to="revenueState.assumptions[index].decimal_places"></VariableRow>
                             <div class="flex">
                                 <!-- add assumption button empty -->
                                 <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-y"
@@ -157,8 +157,8 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                                         v-for="date in dates">X</div>
                                 </div>
                                 <VariableRow v-if="variableValuesToDisplayState"
-                                    v-for="variableValues in variableValuesToDisplayState.get(index)"
-                                    :values="variableValues" :round-to="2"></VariableRow>
+                                    v-for="(variableValues, variableIndex) in variableValuesToDisplayState.get(index)"
+                                    :values="variableValues" :round-to="revenueState.sections[index].rows[variableIndex].decimal_places"></VariableRow>
                                 <div class="flex">
                                     <!-- add variable button empty -->
                                     <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-t"
@@ -572,7 +572,7 @@ export default {
                 this.errorMessages.push("A variable name must be longer than 0 and can't start with a number.");
             }
         },
-        async updateAssumptionSettings(variableIndex: number, value1Input: string, valTypeInput: string, startingAtInput: number, sectionIndex: number) {
+        async updateAssumptionSettings(variableIndex: number, value1Input: string, valTypeInput: string, decimalPlaces:number, startingAtInput: number, sectionIndex: number) {
 
             this.revenueState.assumptions[variableIndex].val_type = valTypeInput;
             this.revenueState.assumptions[variableIndex].value_1 = value1Input;
@@ -592,6 +592,8 @@ export default {
             } else {
                 this.revenueState.assumptions[variableIndex].first_value_diff = true;
             }
+
+            this.revenueState.assumptions[variableIndex].decimal_places = decimalPlaces;
             this.revenueState.assumptions[variableIndex].starting_at = startingAtInput;
 
             try {
@@ -609,7 +611,7 @@ export default {
                 }
             }
         },
-        async updateVariableSettings(variableIndex: number, value1Input: string, valTypeInput: string, startingAtInput: number, sectionIndex: number) {
+        async updateVariableSettings(variableIndex: number, value1Input: string, valTypeInput: string, decimalPlaces: number, startingAtInput: number, sectionIndex: number) {
             
             this.revenueState.sections[sectionIndex].rows[variableIndex].val_type = valTypeInput;
             this.revenueState.sections[sectionIndex].rows[variableIndex].value_1 = value1Input;
@@ -629,6 +631,8 @@ export default {
             } else {
                 this.revenueState.sections[sectionIndex].rows[variableIndex].first_value_diff = true;
             }
+
+            this.revenueState.sections[sectionIndex].rows[variableIndex].decimal_places = decimalPlaces;
             this.revenueState.sections[sectionIndex].rows[variableIndex].starting_at = startingAtInput;
 
             try {
