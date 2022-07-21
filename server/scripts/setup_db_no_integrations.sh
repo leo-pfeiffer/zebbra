@@ -78,13 +78,3 @@ mongosh <<EOF
   };
   db.payroll_cache.createIndex({ "created_at": 1 }, { expireAfterSeconds: $CACHE_TTL });
 EOF
-
-# todo this should be unnecessary but if I take it out the first auth test in CI fails,
-#  likely because the users aren't properly loaded
-## test db
-mongoimport --db zebbra_test --collection users --drop --file $DEMO_DIR/users.json --jsonArray
-mongoimport --db zebbra_test --collection workspaces --drop --file $DEMO_DIR/workspaces.json --jsonArray
-mongoimport --db zebbra_test --collection models --drop --file $DEMO_DIR/models_no_integrations.json --jsonArray
-mongoimport --db zebbra_test --collection invite_codes --drop --file $DEMO_DIR/invite_codes.json --jsonArray
-mongoimport --db zebbra_test --collection integration_access --drop --file $DEMO_DIR/integration_access.json --jsonArray
-mongoimport --db zebbra_test --collection accounting_cache --drop --file $DEMO_DIR/accounting_cache.json --jsonArray

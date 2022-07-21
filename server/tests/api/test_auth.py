@@ -15,7 +15,9 @@ from main import app
 from tests.utils import count_documents
 
 
-def test_oauth_with_valid_user():
+@pytest.mark.anyio
+async def test_oauth_with_valid_user():
+
     user_form = {
         "grant_type": "password",
         "username": "johndoe@example.com",
