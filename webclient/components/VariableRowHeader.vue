@@ -109,7 +109,7 @@ const route = useRoute();
                     <div class="absolute top-2 left-2 flex justify-center">
                         <i v-if="variable.var_type === 'formula' && variable.time_series === false" title="Formula" class="text-[10px] text-zinc-300 bi-calculator-fill"></i>
                         <i v-if="variable.var_type === 'formula' && variable.time_series === true" title="Time-Series Formula" class="text-[10px] text-zinc-300 bi-bar-chart-fill"></i>
-                        <i v-else-if="variable.var_type === 'integration'" title="Integration" class="text-[10px] text-zinc-300 bi bi-server"></i>
+                        <i v-else-if="variable.var_type === 'integration'" title="Integration" class="text-[8px] text-zinc-300 bi bi-server"></i>
                     </div>
                 </div>
                 <div v-else
