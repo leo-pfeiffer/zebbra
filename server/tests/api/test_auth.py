@@ -18,8 +18,6 @@ from tests.utils import count_documents
 @pytest.mark.anyio
 async def test_oauth_with_valid_user():
 
-    print(f"Documents in user collection: {await count_documents('users')}")
-
     user_form = {
         "grant_type": "password",
         "username": "johndoe@example.com",
