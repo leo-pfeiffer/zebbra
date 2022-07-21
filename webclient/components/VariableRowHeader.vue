@@ -57,12 +57,19 @@ const route = useRoute();
                                     class="bi bi-percent mr-1"></i>Percentage</label>
                         </div>
                     </div>
-                    <div class="text-zinc-900 font-medium mb-2">Custom starting value</div>
+                    <div class="text-zinc-900 font-medium mb-2">Rounding Values</div>
+                    <div class="mb-3 flex justify-start align-middle">
+                        <div class="w-3/5">Decimal places:</div>
+                        <div class="w-2/5"><input v-model="decimalPlaces" :id="'decimal-places' + variable._id" min="0"
+                                type="number"
+                                class="border-zinc-300 border rounded font-mono w-16 float-right px-2 py-1"></div>
+                    </div>
+                    <div class="text-zinc-900 font-medium mb-2">Custom Starting Value</div>
                     <div class="mb-3">
                         <input v-model="value1" :id="'value1-input-' + variable._id" type="text"
                             class="border-zinc-300 border rounded w-full font-mono px-2 py-1">
                     </div>
-                    <div class="text-zinc-900 font-medium mb-2">Starting at</div>
+                    <div class="text-zinc-900 font-medium mb-2">Starting At</div>
                     <div class="mb-3 flex justify-start align-middle">
                         <div class="w-3/5">First month plus:</div>
                         <div class="w-2/5"><input v-model="startingAt" :id="'starting-at-' + variable._id" min="0"
@@ -75,7 +82,7 @@ const route = useRoute();
                             @click="toggleSettings">Cancel</button>
                         <button class="ml-2 bg-sky-600  drop-shadow-sm
                                 shadow-zinc-50 text-xs px-1.5 py-0.5 font-medium
-                                border border-sky-500 rounded text-neutral-100" @click="$emit('updateSettings', variableIndex, value1, valType, startingAt, sectionIndex); toggleSettings()">Update</button>
+                                border border-sky-500 rounded text-neutral-100" @click="$emit('updateSettings', variableIndex, value1, valType, decimalPlaces, startingAt, sectionIndex); toggleSettings()">Update</button>
                     </div>
                 </div>
                 <div v-if="showIntegration  && !isEndRow" v-show="integrationMenuOpen"
@@ -165,6 +172,7 @@ export default {
             integrationMenuOpen: false,
             valType: "",
             value1: undefined,
+            decimalPlaces: 0,
             startingAt: 0,
             integrationSelected: "None",
             deleteModalOpen: false
@@ -198,6 +206,7 @@ export default {
         }
 
         this.valType = this.variable.val_type;
+        this.decimalPlaces = this.variable.decimal_places;
         this.startingAt = this.variable.starting_at;
 
         // show name input if name is undefined
