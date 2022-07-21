@@ -186,7 +186,7 @@ async def user_otp_validate(username: str):
     if user is None:
         return {"message": "OTP not required"}
 
-    if user.otp_secret is None:
+    if user.otp_secret is None or not user.otp_validated:
         return {"message": "OTP not required"}
     else:
         return {"message": "OTP required"}

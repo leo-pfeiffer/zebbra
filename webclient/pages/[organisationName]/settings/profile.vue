@@ -1,4 +1,6 @@
-<script setup>
+<script setup lang="ts">
+
+const config = useRuntimeConfig();
 
 definePageMeta({
   middleware: ["auth", "route-check"]
@@ -52,6 +54,7 @@ definePageMeta({
             <SuccessMessage success-message="Personal Information successfully updated!"></SuccessMessage>
           </div>
         </div>
+
         <div class="py-6">
           <h2 class="text-xl text-zinc-900 mb-3">Change Password</h2>
           <form @submit.prevent="updatePassword">
@@ -76,6 +79,60 @@ definePageMeta({
             <SuccessMessage success-message="Password successfully updated!"></SuccessMessage>
           </div>
         </div>
+
+        <div class="py-6">
+          <h2 class="text-xl text-zinc-900 mb-3">2-Factor Authentication</h2>
+
+          <div v-if="otpSetUp">
+            <p class="text-sm text-zinc-500 my-3">You've already set up 2FA. You can reset it here.</p>
+            <button
+                v-show="!showOtpUrl"
+                class="bg-sky-600  drop-shadow-sm
+                      shadow-zinc-50 text-sm font-medium px-2.5 py-1
+                      border border-sky-500 rounded text-neutral-100"
+                @click="setup2FA">Reset 2FA</button>
+          </div>
+
+          <div v-if="!otpSetUp">
+            <p class="text-sm text-zinc-500 my-3">Set up 2FA with a compatible App like Google Authenticator now.</p>
+            <button
+                v-show="!showOtpUrl"
+                class="bg-sky-600  drop-shadow-sm
+                      shadow-zinc-50 text-sm font-medium px-2.5 py-1
+                      border border-sky-500 rounded text-neutral-100"
+                @click="setup2FA">Set up 2FA</button>
+          </div>
+
+          <div v-if="showOtpUrl">
+            <img :src="`https://api.qrserver.com/v1/create-qr-code/?data=${this.otpUrl}&amp;size=100x100`"
+                 alt=""
+                 title="" />
+
+            <form @submit.prevent="validate2FA">
+              <div class="mb-4"><div class="mt-1">
+                  <input required
+                         class="w-64 border-zinc-300 border rounded text-sm focus:ring-sky-500 focus:border-sky-500 px-2.5 py-1 placeholder:text-zinc-400"
+                         id="otp" type="text" placeholder="OTP" v-model="otpToValidate">
+                </div>
+              </div>
+              <button type="submit" class="bg-sky-600  drop-shadow-sm
+                        shadow-zinc-50 text-sm font-medium px-2.5 py-1
+                        border border-sky-500 rounded text-neutral-100">
+                Validate
+              </button>
+            </form>
+
+          </div>
+
+          <div v-show="showErrorOtp" class="w-full flex justify-center">
+            <ErrorMessage :error-message="errorMessageOtp"></ErrorMessage>
+          </div>
+          <div v-show="showSuccessOtp" class="w-full flex justify-center">
+            <SuccessMessage success-message="2FA successfully set up!"></SuccessMessage>
+          </div>
+
+        </div>
+
         <div class="py-6">
           <h2 class="text-xl text-zinc-900 mb-3">Delete Your Account</h2>
           <p class="text-sm text-zinc-500 my-3">With this action you permenantly delete your account. You will not be
@@ -113,10 +170,13 @@ definePageMeta({
   </NuxtLayout>
 </template>
 
-<script>
+<script lang="ts">
 
 import { useFetchAuth } from '~~/methods/useFetchAuth';
 import { useLogout } from '~~/methods/useLogout';
+import {OtpRequiredResponse} from "~/types/OtpRequiredResponse";
+import {OtpCreateResponse} from "~/types/OtpCreateResponse";
+import {OtpValidateResponse} from "~/types/OtpValidateResponse";
 
 export default {
   data() {
@@ -125,13 +185,20 @@ export default {
         firstName: "",
         lastName: "",
         email: "",
-        password: ""
+        password: "",
       },
+      otpToValidate: "",
+      otpSetUp: false,
+      otpUrl: "",
+      showOtpUrl: false,
+      showErrorOtp: false,
+      showSuccessOtp: false,
       showErrorPersonalInfo: false,
       showSuccessPersonalInfo: false,
       errorMessagePersonalInfo: "Somthing went wrong. Try again!",
       showErrorPassword: false,
       showSuccessPassword: false,
+      errorMessageOtp: "Somthing went wrong. Try again!",
       errorMessagePassword: "Somthing went wrong. Try again!",
       showErrorDeleteAccount: false,
       errorMessageDeleteAccount: "Somthing went wrong. Try again!",
@@ -145,6 +212,18 @@ export default {
     this.user.firstName = userState.value.first_name;
     this.user.lastName = userState.value.last_name;
     this.user.email = userState.value.username;
+
+    await $fetch(
+        `${this.config.public.backendUrlBase}/user/requiresOtp`,{ method: 'GET',
+          params: {username: this.user.email}
+        }
+    ).then((data: OtpRequiredResponse) => {
+      if (data.message == "OTP required") {
+        this.otpSetUp = true;
+      }
+    }).catch((error) => {
+      console.log(error);
+    });
 
   },
   methods: {
@@ -195,7 +274,7 @@ export default {
           this.errorMessagePassword = error.data.detail;
           this.showErrorPassword = true;
           });
-      
+
     },
     toggleDeleteModal() {
       if (this.deleteModalOpen === false) {
@@ -205,6 +284,47 @@ export default {
       }
 
     },
+
+    async setup2FA() {
+      console.log("Set up 2FA")
+
+      await useFetchAuth(
+          '/user/otp/create',{ method: 'POST'}
+      ).then((data:OtpCreateResponse) => {
+        console.log(data.url)
+        this.otpUrl = data.url;
+        this.showOtpUrl = true;
+      }).catch((error) => {
+        console.log(error);
+        this.errorMessagePassword = error.data.detail;
+        this.showErrorPassword = true;
+      });
+    },
+
+    async validate2FA() {
+      console.log("validate")
+
+      await useFetchAuth(
+            '/user/otp/validate',{ method: 'POST', params: {otp: this.otpToValidate}}
+        ).then((data:OtpValidateResponse) => {
+          console.log(data)
+          if (data.valid) {
+            this.showOtpUrl = false;
+            this.otpSetUp = true;
+            this.showSuccessOtp = true;
+          }
+          else {
+            this.errorMessageOtp = "Incorrect OTP.";
+            this.showErrorOtp = true;
+          }
+        }).catch((error) => {
+          console.log(error);
+          this.errorMessageOtp = error.data.detail;
+          this.showErrorOtp = true;
+        });
+      },
+    },
+
     async deleteAccount() {
 
       const data = await useFetchAuth(
@@ -219,6 +339,5 @@ export default {
           this.showErrorDeleteAccount = true;
           });
     }
-  }
 }
 </script>
