@@ -79,13 +79,8 @@ class XeroFetchAdapter(FetchAdapter):
             return []
 
         # check if we can use cache of batch data
-        actual_from_date = int(
-            datetime.combine(
-                last_of_same_month(self._get_last_month_with_31_days(from_date)),
-                datetime.min.time(),
-            ).timestamp()
-        )
-        if cached := await self.get_cached(actual_from_date):
+        cache_date = self._cache_date(from_date)
+        if cached := await self.get_cached(cache_date):
             return sorted(list(cached.data.keys()))
 
         # no cache available -> retrieve from Xero API and process

@@ -4,6 +4,7 @@ from api.utils.assertions import (
     assert_workspace_access,
     assert_model_access,
     assert_workspace_access_admin,
+    assert_model_exists,
 )
 from api.utils.dependencies import (
     get_current_active_user,
@@ -78,7 +79,6 @@ async def providers(
     return all_providers
 
 
-# todo test
 @router.get(
     "/integration/dataEndpoints",
     tags=["integration"],
@@ -94,6 +94,7 @@ async def data_endpoints(
         from_date: Start date of the model
     """
 
+    await assert_model_exists(model_id)
     await assert_model_access(current_user.id, model_id)
     model = await get_model_by_id(model_id)
 

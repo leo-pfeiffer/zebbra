@@ -59,3 +59,36 @@ async def test_integration_providers_none(access_token_alice, workspaces):
 
     for x in response.json():
         assert not x["connected"]
+
+
+@pytest.mark.anyio
+async def test_data_endpoints(access_token):
+    model_id = "62b488ba433720870b60ec0a"
+    response = client.get(
+        f"/integration/dataEndpoints?model_id={model_id}",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+    assert response.status_code == 200
+    assert len(response.json()) > 0
+    for e in response.json():
+        assert e["integration"] == "Xero"
+
+
+@pytest.mark.anyio
+async def test_data_endpoints_no_access(access_token_alice):
+    model_id = "62b488ba433720870b60ec0a"
+    response = client.get(
+        f"/integration/dataEndpoints?model_id={model_id}",
+        headers={"Authorization": f"Bearer {access_token_alice}"},
+    )
+    assert response.status_code == 403
+
+
+@pytest.mark.anyio
+async def test_data_endpoints_non_existent_mode(access_token):
+    model_id = "not_a_model"
+    response = client.get(
+        f"/integration/dataEndpoints?model_id={model_id}",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+    assert response.status_code == 400
