@@ -291,7 +291,6 @@ export default {
       await useFetchAuth(
           '/user/otp/create',{ method: 'POST'}
       ).then((data:OtpCreateResponse) => {
-        console.log(data.url)
         this.otpUrl = data.url;
         this.showOtpUrl = true;
       }).catch((error) => {
@@ -307,7 +306,6 @@ export default {
       await useFetchAuth(
             '/user/otp/validate',{ method: 'POST', params: {otp: this.otpToValidate}}
         ).then((data:OtpValidateResponse) => {
-          console.log(data)
           if (data.valid) {
             this.showOtpUrl = false;
             this.otpSetUp = true;
