@@ -22,7 +22,7 @@ const route = useRoute();
                 <span v-show="!isEndRow" class="text-[10px] float-right hidden group-hover:block"><button type="button"
                         @click="toggleDeleteModal" class="mr-1"><i title="Delete variable"
                             class="bi bi-x-lg text-zinc-500 hover:text-zinc-700"></i></button></span>
-                <span v-show="!isEndRow" class="text-[9px] float-right hidden group-hover:block"><button type="button" @click=""
+                <span v-show="!isEndRow && showIntegration" class="text-[9px] float-right hidden group-hover:block"><button type="button" @click="toggleIntegrationMenu()"
                         class="mr-3"><i title="Take value from integration"
                             class="bi bi-server text-zinc-500 hover:text-zinc-700"></i></button></span>
                 <span v-show="!isEndRow" class="text-[9px] float-right hidden group-hover:block"><button type="button"
@@ -78,6 +78,27 @@ const route = useRoute();
                                 border border-sky-500 rounded text-neutral-100" @click="$emit('updateSettings', variableIndex, value1, valType, startingAt, sectionIndex); toggleSettings()">Update</button>
                     </div>
                 </div>
+                <div v-if="showIntegration  && !isEndRow" v-show="integrationMenuOpen"
+                class="z-50 absolute p-3 border rounded shadow-md text-xs border-zinc-300 bg-white top-0 right-0 translate-x-36 -translate-y-1.5 text-[11px] w-[200px]">
+                    <div class="text-zinc-900 font-medium mb-2">Choose Integration Value</div>
+                    <div class="w-full mb-3">
+                        <select v-model="integrationSelected" class="w-full border border-zinc-300 rounded bg-white py-2 px-1 text-xs">
+                            <option>None</option>
+                            <option v-for="integrationValueInfo in possibleIntegrationValues" >{{ integrationValueInfo.id }}</option>
+                        </select>
+                    </div>
+                    <div class="text-[11px] p-2 mb-3 border rounded border-sky-300 bg-sky-100 text-sky-700">
+                        If available, the integration value overrides the manually defined value. Values which lay in the future will still be covered by the manually entered value.
+                    </div>
+                    <div class="flex justify-end w-full">
+                        <button
+                            class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-[12px] px-1.5 py-0.5 border border-zinc-300 rounded text-zinc-700"
+                            @click="toggleIntegrationMenu">Cancel</button>
+                        <button class="ml-2 bg-sky-600  drop-shadow-sm
+                                shadow-zinc-50 text-xs px-1.5 py-0.5 font-medium
+                                border border-sky-500 rounded text-neutral-100" @click="$emit('updateIntegration', integrationSelected, variableIndex, sectionIndex); toggleIntegrationMenu()">Set Integration</button>
+                    </div>
+                </div>
             </div>
             <div class="h-full w-full">
                 <div v-if="!valueInputSelected"
@@ -129,6 +150,7 @@ const route = useRoute();
 <script lang="ts">
 
 import { Variable } from "~~/types/Model"
+import { IntegrationValueInfo } from "~~/types/IntegrationValueInfo"
 import { useGetHumanReadableFormula } from "~~/methods/useGetHumanReadableFormula";
 import { useMathParser } from "~~/methods/useMathParser";
 
@@ -140,9 +162,11 @@ export default {
             valueInputSelected: false,
             nameChangeSelected: false,
             settingsOpen: false,
+            integrationMenuOpen: false,
             valType: "",
             value1: undefined,
             startingAt: 0,
+            integrationSelected: "None",
             deleteModalOpen: false
         }
     },
@@ -153,9 +177,14 @@ export default {
         variableSearchMap: Map,
         sectionIndex: Number,
         sectionName: String,
-        isEndRow:Boolean
+        isEndRow: Boolean,
+        showIntegration: Boolean,
+        possibleIntegrationValues: Object as () => IntegrationValueInfo[],
     },
     mounted() {
+
+        console.log(this.possibleIntegrationValues)
+
         //set correct humanReadableInputValue to be displayed
         if (this.variable.value === "" || this.variable.value === undefined) {
             this.humanReadableInputValue = "–"
@@ -180,7 +209,9 @@ export default {
     },
     methods: {
         toggleNameChange() {
-            console.log("togglename")
+
+            console.log(this.variable)
+
             if (this.nameChangeSelected && this.newName.length >0) {
                 this.nameChangeSelected = false;
             } else {
@@ -202,6 +233,13 @@ export default {
                 this.valType = this.variable.val_type;
                 this.value1 = this.variable.value_1;
                 this.startingAt = this.variable.starting_at;
+            }
+        },
+        toggleIntegrationMenu() {
+            if (!this.integrationMenuOpen) {
+                this.integrationMenuOpen = true;
+            } else {
+                this.integrationMenuOpen = false;
             }
         },
         toggleDeleteModal() {

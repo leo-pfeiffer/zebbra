@@ -23,9 +23,7 @@ const date: string[] = modelMeta.value.starting_month.split("-");
 const dates = useState('dates', () => useDateArray(new Date(+date[0], +date[1] - 1)));
 
 const assumptionValuesToDisplayState = useState<string[][]>('assumptionValues');
-
 const variableValuesToDisplayState = useState<Map<number, string[][]>>('variableValues');
-
 const endRowValuesToDisplayState = useState<string[][]>('endRowValues');
 
 const possibleIntegrationValuesState = usePossibleIntegrationValuesState();
@@ -57,7 +55,8 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                                 :variableIndex="index"
                                 :timeSeriesMap="useVariableTimeSeriesMap(revenueState.assumptions)"
                                 :variableSearchMap="useVariableSearchMap(revenueState.assumptions)" :sectionIndex="0"
-                                :isEndRow="false">
+                                :isEndRow="false"
+                                :showIntegration="false">
                             </VariableRowHeader>
                             <div class="">
                                 <!-- add assumption button -->
@@ -86,8 +85,9 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                                         :variable="variable" :variable-index="index"
                                         :timeSeriesMap="useVariableTimeSeriesMap(revenueState.assumptions.concat(section.rows))"
                                         :variableSearchMap="useVariableSearchMap(revenueState.assumptions.concat(section.rows))"
-                                        :sectionIndex="sectionIndex" :isEndRow="false"></VariableRowHeader>
-
+                                        :sectionIndex="sectionIndex" :isEndRow="false"
+                                        :showIntegration="true"
+                                        :possible-integration-values="possibleIntegrationValuesState"></VariableRowHeader>
                                     <div
                                         class="text-xs py-2 pl-10 min-w-[470px] max-w-[470px] border-zinc-300 border-t border-l">
                                         <button @click="addVariable(sectionIndex)"
