@@ -1,13 +1,15 @@
 from datetime import date
 from typing import Literal
 
+from core.dao.integrations import workspace_has_integration
 from core.integrations.adapters.adapter import FetchAdapter
 from core.schemas.cache import DataBatch
+from core.schemas.integrations import IntegrationProvider
 
 
 class XxXxXFetchAdapter(FetchAdapter):
 
-    _integration = "XxXxX"
+    _integration: IntegrationProvider = "XxXxX"
     _api_type: Literal["accounting", "payroll"] = "accounting"
 
     def __init__(self, workspace_id: str):
@@ -36,6 +38,9 @@ class XxXxXFetchAdapter(FetchAdapter):
         :param from_date: date from which onwards to get the data
         :return: DataBatch containing the data from the integration
         """
+        # return empty list if Xero not configured for workspace
+        if not await workspace_has_integration(self.workspace_id, self.integration()):
+            return DataBatch(dates=[], data={})
         # todo
         ...
 
@@ -48,4 +53,8 @@ class XxXxXFetchAdapter(FetchAdapter):
         :param from_date: date from which onwards to get the data
         :return: List of available data endpoints for the integration
         """
+        # return empty list if API not configured for workspace
+        if not await workspace_has_integration(self.workspace_id, self.integration()):
+            return []
+        # todo
         ...

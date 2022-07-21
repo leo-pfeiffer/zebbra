@@ -1,6 +1,7 @@
 from core.integrations.adapters.gusto_adapter import GustoFetchAdapter
 from core.schemas.cache import DataBatch
 from core.integrations.adapters.xero_adapter import XeroFetchAdapter
+from core.schemas.models import Employee
 from core.schemas.utils import DateString
 from tests.factory import _read_json
 from datetime import date
@@ -41,6 +42,22 @@ def test_create_batch_periods_end_in_short_month():
     assert periods[0] == (date(2022, 3, 31), date(2022, 6, 30))
 
 
+def test_create_batch_periods_end_in_same_month():
+    periods = XeroFetchAdapter("")._create_batch_periods(
+        date(2022, 3, 5), date(2022, 3, 10)
+    )
+    assert len(periods) == 1
+    assert periods[0] == (date(2022, 3, 31), date(2022, 3, 31))
+
+
+def test_create_batch_periods_same_date():
+    periods = XeroFetchAdapter("")._create_batch_periods(
+        date(2022, 3, 5), date(2022, 3, 5)
+    )
+    assert len(periods) == 1
+    assert periods[0] == (date(2022, 3, 31), date(2022, 3, 31))
+
+
 def test_process_batch():
     batch = _read_json("resources/xero_profitloss.json")
     processed = XeroFetchAdapter("")._process_batch(batch)
@@ -76,8 +93,8 @@ def test_merge_batches():
 def test_gusto_process_employees():
     batch = _read_json("resources/gusto_employees.json")
     processed = GustoFetchAdapter("")._process_employees(batch, date(2020, 1, 1))
-    assert True
-    # todo add actual test
+    for employee in processed:
+        assert isinstance(employee, Employee)
 
 
 def test_gusto_process_employees_handle_termination():

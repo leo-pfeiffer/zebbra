@@ -49,12 +49,14 @@ export interface Variable {
     name: string, //e.g. "Churn Rate" -> how is it called?
     val_type: string, // "number", "percentage", "currency" -> how is it displayed?
     editable: boolean, // true, false -> can the user change anything?
+    decimal_places: number,
     var_type: string, // value, formula, integration
     time_series: boolean, //true or false -> is the value changing over time or not?
     starting_at: number // -> t+startingAt; default = 0
     first_value_diff: boolean //is the first value different?
     value: string, //parsed in the frontend -> varType is relevant for this
     value_1: string, //only relevant if firstValueDiff == true
+    integration_name: string,
     integration_values:IntegrationValue[]
 }
 

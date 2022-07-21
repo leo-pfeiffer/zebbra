@@ -116,11 +116,10 @@ class GustoIntegrationOAuth(IntegrationOAuth):
 
     async def get_company(self, workspace_id, token: dict | None = None):
         """
-        Get the first available company ID
-        Todo: This is not perfect. If the user has multiple companies, the first one
-         is always used
-        :param workspace_id: Workspace for which to get the xero data.
-        :param token: OAuth token. If not provided, it is retrieved from the DB.
+        Get the first available company ID.
+        Note that if the user has multiple companies, the first one is always used
+        :param workspace_id: Workspace for which to get the xero data
+        :param token: OAuth token. If not provided, it is retrieved from the DB
         :return: Tenant ID
         """
         if token is None:
