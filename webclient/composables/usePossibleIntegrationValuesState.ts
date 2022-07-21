@@ -1,5 +1,5 @@
-import { IntegrationValue } from "~~/types/IntegrationValue";
+import { IntegrationValueInfo } from "~~/types/IntegrationValueInfo";
 
-var possibleIntegrationValuesState: IntegrationValue[];
+var possibleIntegrationValuesState: IntegrationValueInfo[];
 
-export const usePossibleIntegrationValuesState = () => useState<IntegrationValue[]>('possibleIntegrationValuesState', () => possibleIntegrationValuesState);
+export const usePossibleIntegrationValuesState = () => useState<IntegrationValueInfo[]>('possibleIntegrationValuesState', () => possibleIntegrationValuesState);
