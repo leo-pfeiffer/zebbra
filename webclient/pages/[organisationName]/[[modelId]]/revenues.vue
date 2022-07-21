@@ -81,7 +81,9 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                                     @delete-section="deleteSection"></SectionHeader>
                                     <VariableRowHeader @update-value="updateVariableValue"
                                         @update-settings="updateVariableSettings" @update-name="updateVariableName"
-                                        @delete-variable="deleteVariable" v-for="(variable, index) in section.rows"
+                                        @delete-variable="deleteVariable"
+                                        @update-integration="updateIntegrationValue"
+                                        v-for="(variable, index) in section.rows"
                                         :variable="variable" :variable-index="index"
                                         :timeSeriesMap="useVariableTimeSeriesMap(revenueState.assumptions.concat(section.rows))"
                                         :variableSearchMap="useVariableSearchMap(revenueState.assumptions.concat(section.rows))"
@@ -250,12 +252,14 @@ export default {
                 name: "",
                 val_type: "number",
                 editable: true,
+                decimal_places: 0,
                 var_type: "value",
                 time_series: false,
                 starting_at: 0,
                 first_value_diff: false,
                 value: "0",
                 value_1: undefined,
+                integration_name: undefined,
                 integration_values: undefined
 
             }
@@ -266,12 +270,14 @@ export default {
                 name: "",
                 val_type: "number",
                 editable: true,
+                decimal_places: 0,
                 var_type: "value",
                 time_series: true,
                 starting_at: 0,
                 first_value_diff: false,
                 value: "0",
                 value_1: undefined,
+                integration_name: undefined,
                 integration_values: undefined
 
             }
@@ -303,12 +309,14 @@ export default {
                 name: "",
                 val_type: "number",
                 editable: true,
+                decimal_places: 0,
                 var_type: "value",
                 time_series: false,
                 starting_at: 0,
                 first_value_diff: false,
                 value: "0",
                 value_1: undefined,
+                integration_name: undefined,
                 integration_values: undefined
 
             }
@@ -344,12 +352,14 @@ export default {
                 name: "",
                 val_type: "number",
                 editable: true,
+                decimal_places: 0,
                 var_type: "value",
                 time_series: false,
                 starting_at: 0,
                 first_value_diff: false,
                 value: "0",
                 value_1: undefined,
+                integration_name: undefined,
                 integration_values: undefined
 
             }
@@ -392,8 +402,8 @@ export default {
                     //retrieve actual stored sheet from DB
                     //if actual sheet and state match, if not update state to actual sheet
                     const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
-                    if (!(this.revenue.assumptions[variableIndex].value === this.revenue.assumptions[variableIndex].value)) {
-                        this.revenue.value = actualSheet;
+                    if (!(actualSheet.assumptions[variableIndex].value === this.revenue.assumptions[variableIndex].value)) {
+                        this.revenueState = actualSheet;
                     }
                 }
             } else {
@@ -425,12 +435,39 @@ export default {
                     //retrieve actual stored sheet from DB
                     //if actual sheet and state match, if not update state to actual sheet
                     const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
-                    if (!(this.revenue.sections[0].rows[variableIndex].value === this.revenue.sections[0].rows[variableIndex].value)) {
-                        this.revenue.value = actualSheet;
+                    if (!(actualSheet.sections[0].rows[variableIndex].value === this.revenueState.sections[0].rows[variableIndex].value)) {
+                        this.revenueState = actualSheet;
                     }
                 }
             } else {
                 this.errorMessages.push("You can't enter an empty value. Please try again.");
+            }
+        },
+        async updateIntegrationValue(integrationSelected: string, variableIndex: number, sectionIndex: number) {
+            if(integrationSelected != "None") {
+                this.revenueState.sections[sectionIndex].rows[variableIndex].var_type = "integration";
+                this.revenueState.sections[sectionIndex].rows[variableIndex].integration_name = integrationSelected;
+            } else {
+                //todo: check if formula or value
+                this.revenueState.sections[sectionIndex].rows[variableIndex].var_type = "value";
+                this.revenueState.sections[sectionIndex].rows[variableIndex].integration_name = undefined;
+                this.revenueState.sections[sectionIndex].rows[variableIndex].integration_values = undefined;
+            }
+
+            try {
+                //update RevenueState
+                this.revenueState = await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
+                this.updateDisplayedValues();
+
+            } catch (e) {
+                console.log(e);
+                //retrieve actual stored sheet from DB
+                //if actual sheet and state match, if not update state to actual sheet
+                const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
+                if (!(actualSheet.sections[0].rows[variableIndex].integration_name === this.revenueState.sections[0].rows[variableIndex].integration_name) ||
+                    !(actualSheet.sections[0].rows[variableIndex].var_type === this.revenueState.sections[0].rows[variableIndex].var_type)) {
+                    this.revenueState = actualSheet;
+                }
             }
         },
         async updateEndRowValue(humanReadableInputValue: string, variableId: string, variableSearchMap: Map<string, string>, timeSeriesMap: Map<string, boolean>, variableIndex: number, sectionIndex: number) {
@@ -458,8 +495,8 @@ export default {
                     //retrieve actual stored sheet from DB
                     //if actual sheet and state match, if not update state to actual sheet
                     const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
-                    if (!(this.revenue.sections[0].rows[variableIndex].value === this.revenue.sections[0].rows[variableIndex].value)) {
-                        this.revenue.value = actualSheet;
+                    if (!(actualSheet.sections[0].rows[variableIndex].value === this.revenueState.sections[0].rows[variableIndex].value)) {
+                        this.revenueState = actualSheet;
                     }
                 }
             } else {
@@ -555,8 +592,8 @@ export default {
                 //retrieve actual stored sheet from DB
                 //if actual sheet and state match, if not update state to actual sheet
                 const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
-                if (!(this.revenue.assumptions[variableIndex].value === this.revenue.assumptions[variableIndex].value)) {
-                    this.revenue.value = actualSheet;
+                if (!(this.actualSheet.assumptions[variableIndex].value === this.revenueState.assumptions[variableIndex].value)) {
+                    this.revenueState = actualSheet;
                 }
             }
         },
@@ -594,8 +631,8 @@ export default {
                 //retrieve actual stored sheet from DB
                 //if actual sheet and state match, if not update state to actual sheet
                 const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
-                if (!(this.revenue.sections[sectionIndex].rows[variableIndex].value === this.revenue.sections[sectionIndex].rows[variableIndex].value)) {
-                    this.revenue.value = actualSheet;
+                if (!(actualSheet.sections[sectionIndex].rows[variableIndex].value === this.revenueState.sections[sectionIndex].rows[variableIndex].value)) {
+                    this.revenueState = actualSheet;
                 }
             }
         },
