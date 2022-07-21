@@ -1,10 +1,10 @@
 import { useFetchAuth } from "./useFetchAuth";
-import { IntegrationValue } from "~~/types/IntegrationValue";
+import { IntegrationValueInfo } from "~~/types/IntegrationValueInfo";
 
 
 export const useGetPossibleIntegrationValues = async (modelId: string | string[]) => {
 
-    var integrationValuesArray: IntegrationValue[] = undefined;
+    var integrationValuesArray: IntegrationValueInfo[] = undefined;
 
     await useFetchAuth(
         '/integration/dataEndpoints', {
@@ -13,7 +13,7 @@ export const useGetPossibleIntegrationValues = async (modelId: string | string[]
             model_id: modelId
         }
     }
-    ).then((data: IntegrationValue[]) => {
+    ).then((data: IntegrationValueInfo[]) => {
         integrationValuesArray = data;
     }).catch((error) => {
         throw error;
