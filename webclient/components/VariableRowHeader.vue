@@ -96,7 +96,7 @@ const route = useRoute();
                             @click="toggleIntegrationMenu">Cancel</button>
                         <button class="ml-2 bg-sky-600  drop-shadow-sm
                                 shadow-zinc-50 text-xs px-1.5 py-0.5 font-medium
-                                border border-sky-500 rounded text-neutral-100" @click="$emit('updateIntegration', integrationSelected, variableIndex, sectionIndex); toggleIntegrationMenu()">Set Integration</button>
+                                border border-sky-500 rounded text-neutral-100" @click="$emit('updateIntegration', integrationSelected, timeSeriesMap, variableIndex, sectionIndex); toggleIntegrationMenu()">Set Integration</button>
                     </div>
                 </div>
             </div>
@@ -215,9 +215,6 @@ export default {
     },
     methods: {
         toggleNameChange() {
-
-            console.log(this.variable)
-
             if (this.nameChangeSelected && this.newName.length >0) {
                 this.nameChangeSelected = false;
             } else {
@@ -296,10 +293,6 @@ export default {
             return searchOutput;
         },
         outputValue() {
-            if(this.variable.var_type === "integration") {
-                return "Integration";
-            }
-
             try {
                 if(this.valType === "number") {
                     //update

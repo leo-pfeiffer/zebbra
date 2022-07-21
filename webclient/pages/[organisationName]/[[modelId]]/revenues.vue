@@ -416,13 +416,17 @@ export default {
                 //Get humanReadableInputValue and create storage value
 
                 const storageValue: string = useGetValueFromHumanReadable(humanReadableInputValue, variableId, variableSearchMap);
-
-                this.revenueState.sections[sectionIndex].rows[variableIndex].time_series = this.isTimeSeries(storageValue, timeSeriesMap);
                 this.revenueState.sections[sectionIndex].rows[variableIndex].value = storageValue.toString();
-                if (storageValue.includes("+") || storageValue.includes("-") || storageValue.includes("*") || storageValue.includes("/") || storageValue.includes("-")) {
+
+                if(this.revenueState.sections[sectionIndex].rows[variableIndex].integration_name != null) {
+                    this.revenueState.sections[sectionIndex].rows[variableIndex].var_type = "integration";
+                    this.revenueState.sections[sectionIndex].rows[variableIndex].time_series = true;
+                } else if (storageValue.includes("+") || storageValue.includes("-") || storageValue.includes("*") || storageValue.includes("/") || storageValue.includes("-")) {
                     this.revenueState.sections[sectionIndex].rows[variableIndex].var_type = "formula";
+                    this.revenueState.sections[sectionIndex].rows[variableIndex].time_series = this.isTimeSeries(storageValue, timeSeriesMap);
                 } else {
                     this.revenueState.sections[sectionIndex].rows[variableIndex].var_type = "value";
+                    this.revenueState.sections[sectionIndex].rows[variableIndex].time_series = this.isTimeSeries(storageValue, timeSeriesMap);
                 }
 
                 try {
@@ -443,15 +447,21 @@ export default {
                 this.errorMessages.push("You can't enter an empty value. Please try again.");
             }
         },
-        async updateIntegrationValue(integrationSelected: string, variableIndex: number, sectionIndex: number) {
+        async updateIntegrationValue(integrationSelected: string, timeSeriesMap: Map<string, boolean>, variableIndex: number, sectionIndex: number) {
             if(integrationSelected != "None") {
                 this.revenueState.sections[sectionIndex].rows[variableIndex].var_type = "integration";
                 this.revenueState.sections[sectionIndex].rows[variableIndex].integration_name = integrationSelected;
+                this.revenueState.sections[sectionIndex].rows[variableIndex].time_series = true;
             } else {
-                //todo: check if formula or value
-                this.revenueState.sections[sectionIndex].rows[variableIndex].var_type = "value";
-                this.revenueState.sections[sectionIndex].rows[variableIndex].integration_name = undefined;
-                this.revenueState.sections[sectionIndex].rows[variableIndex].integration_values = undefined;
+                var checkValue = this.revenueState.sections[sectionIndex].rows[variableIndex].value;
+                if (checkValue.includes("+") || checkValue.includes("-") || checkValue.includes("*") || checkValue.includes("/") || checkValue.includes("-")) {
+                    this.revenueState.sections[sectionIndex].rows[variableIndex].var_type = "formula";
+                } else {
+                    this.revenueState.sections[sectionIndex].rows[variableIndex].var_type = "value";
+                }
+                this.revenueState.sections[sectionIndex].rows[variableIndex].time_series = this.isTimeSeries(checkValue, timeSeriesMap);
+                this.revenueState.sections[sectionIndex].rows[variableIndex].integration_name = null;
+                this.revenueState.sections[sectionIndex].rows[variableIndex].integration_values = null;
             }
 
             try {
@@ -479,6 +489,8 @@ export default {
 
                 this.revenueState.sections[sectionIndex].end_row.time_series = this.isTimeSeries(storageValue, timeSeriesMap);
                 this.revenueState.sections[sectionIndex].end_row.value = storageValue.toString();
+
+                //todo: handle integration
                 if (storageValue.includes("+") || storageValue.includes("-") || storageValue.includes("*") || storageValue.includes("/") || storageValue.includes("-")) {
                     this.revenueState.sections[sectionIndex].end_row.var_type = "formula";
                 } else {
