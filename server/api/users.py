@@ -13,6 +13,7 @@ from core.dao.users import (
     update_user_field,
     update_username,
     username_exists,
+    get_user_by_username,
 )
 from core.dao.workspaces import get_admin_workspaces_of_user, get_workspaces_of_user
 from core.schemas.users import User, UserInfo
@@ -168,3 +169,24 @@ async def user_otp_validate(
         await set_user_otp_secret_validated(current_user.id)
 
     return OtpValidation(otp=otp, valid=valid)
+
+
+@router.get(
+    "/user/requiresOtp",
+    response_model=Message,
+    tags=["user"],
+)
+async def user_otp_validate(username: str):
+    """
+    Validate an OTP.
+    """
+
+    user = await get_user_by_username(username)
+
+    if user is None:
+        return {"message": "OTP not required"}
+
+    if user.otp_secret is None:
+        return {"message": "OTP not required"}
+    else:
+        return {"message": "OTP required"}

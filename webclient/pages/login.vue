@@ -28,6 +28,16 @@ const config = useRuntimeConfig();
                 id="login-password" type="password" placeholder="Password" v-model="form.password">
             </div>
           </div>
+          <div v-show="promptForOtp" class="mt-2">
+
+            <label class="block text-xs font-medium text-zinc-500" for="login-otp">OTP for 2-Factor Authentication</label>
+            <div class="mt-1">
+              <input
+                     class="w-full border-zinc-300 border rounded text-sm focus:ring-sky-500 focus:border-sky-500 px-2.5 py-1 placeholder:text-zinc-400"
+                     id="login-otp" type="text" placeholder="OTP" v-model="form.otp">
+            </div>
+
+          </div>
           <div class="mt-3">
             <button type="submit"
               class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-sm px-2.5 py-1 border border-zinc-300 rounded text-zinc-700">Login</button>
@@ -52,26 +62,62 @@ import { useToken } from "~~/methods/useToken";
 
 import { PostTokenResponse } from "~~/types/PostTokenResponse";
 import { GetUserResponse} from "~~/types/GetUserResponse";
+import {OtpRequiredResponse} from "~/types/OtpRequiredResponse";
 
 export default {
   data() {
     return {
       form: {
         username: "",
-        password: ""
+        password: "",
+        otp: ""
       },
       showError: false, 
-      errorMessage: "Login failed. Try again!"
+      errorMessage: "Login failed. Try again!",
+      promptForOtp: false,
     };
   },
   methods: {
+    async checkOtp () {
+      const data = await $fetch(
+          `${this.config.public.backendUrlBase}/user/requiresOtp`,{ method: 'GET',
+            params: {username: this.form.username}
+          }
+      ).then((data:OtpRequiredResponse) => {
+
+        if (data.message == "OTP required") {
+          console.log("OTP required")
+          this.promptForOtp = true;
+        } else {
+          console.log("OTP not required")
+          this.performLogin();
+        }
+      }).catch((error) => {
+        console.log(error);
+        this.errorMessage = error.data.detail;
+        this.showError = true;
+      });
+    },
+
     async login() {
+      if (!this.promptForOtp) {
+        await this.checkOtp();
+      } else {
+        await this.performLogin();
+      }
+    },
+
+    async performLogin() {
 
       useToken().deleteTokenCookie();
 
       const loginBody = new FormData();
       loginBody.append("username", this.form.username);
       loginBody.append("password", this.form.password);
+
+      if (this.promptForOtp) {
+        loginBody.append("otp", this.form.otp);
+      }
 
       const data = await $fetch(
         `${this.config.public.backendUrlBase}/token`,{ method: 'POST',
