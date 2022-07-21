@@ -586,7 +586,7 @@ export default {
                 value1OnlySpaces = false;
             }
 
-            if (value1Input === undefined || value1Input === "" || value1OnlySpaces) {
+            if (value1Input === null ||value1Input === undefined || value1Input === "" || value1OnlySpaces) {
                 this.revenueState.assumptions[variableIndex].value_1 = undefined;
                 this.revenueState.assumptions[variableIndex].first_value_diff = false;
             } else {
@@ -625,7 +625,7 @@ export default {
                 value1OnlySpaces = false;
             }
 
-            if (value1Input === undefined || value1Input === "" || value1OnlySpaces) {
+            if (value1Input === null || value1Input === undefined || value1Input === "" || value1OnlySpaces) {
                 this.revenueState.sections[sectionIndex].rows[variableIndex].value_1 = undefined;
                 this.revenueState.sections[sectionIndex].rows[variableIndex].first_value_diff = false;
             } else {
