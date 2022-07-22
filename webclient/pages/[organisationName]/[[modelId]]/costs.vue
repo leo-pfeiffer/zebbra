@@ -15,16 +15,16 @@ const modelMeta = useModelMetaState();
 
 modelMeta.value = await getModelMeta(route.params.modelId);
 
-const revenueState = useRevenueState();
-revenueState.value = await useSheetUpdate().getRevenueSheet(route.params.modelId);
+const costState = useCostState();
+costState.value = await useSheetUpdate().getCostSheet(route.params.modelId);
 
 //todo: find better solution
 const date: string[] = modelMeta.value.starting_month.split("-");
 const dates = useState('dates', () => useDateArray(new Date(+date[0], +date[1] - 1)));
 
-const assumptionValuesToDisplayState = useState<string[][]>('assumptionValues');
-const variableValuesToDisplayState = useState<Map<number, string[][]>>('variableValues');
-const endRowValuesToDisplayState = useState<string[][]>('endRowValues');
+const assumptionValuesToDisplayState = useState<string[][]>('costAssumptionValues');
+const variableValuesToDisplayState = useState<Map<number, string[][]>>('costVariableValues');
+const endRowValuesToDisplayState = useState<string[][]>('costEndRowValues');
 
 const possibleIntegrationValuesState = usePossibleIntegrationValuesState();
 possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(route.params.modelId);
@@ -35,7 +35,7 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
     <NuxtLayout name="navbar">
         <div class="h-full">
             <div class="p-3 border-b border-zinc-300 top-0 min-h-[60px] max-h-[60px]">
-                <h1 class="font-semibold text-xl inline-block align-middle">Revenues</h1>
+                <h1 class="font-semibold text-xl inline-block align-middle">Costs</h1>
             </div>
             <div class="ml-1 py-3 pl-2 mr-0 overflow-x-hidden min-h-[calc(100%-60px)] max-h-[calc(100%-60px)]">
                 <div class="flex">
@@ -51,10 +51,10 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                             <VariableRowHeader @update-value="updateAssumptionValue"
                                 @update-settings="updateAssumptionSettings" @update-name="updateAssumptionName"
                                 @delete-variable="deleteAssumption"
-                                v-for="(assumption, index) in revenueState.assumptions" :variable="assumption"
+                                v-for="(assumption, index) in costState.assumptions" :variable="assumption"
                                 :variableIndex="index"
-                                :timeSeriesMap="useVariableTimeSeriesMap(revenueState.assumptions)"
-                                :variableSearchMap="useVariableSearchMap(revenueState.assumptions)" :sectionIndex="0"
+                                :timeSeriesMap="useVariableTimeSeriesMap(costState.assumptions)"
+                                :variableSearchMap="useVariableSearchMap(costState.assumptions)" :sectionIndex="0"
                                 :isEndRow="false"
                                 :showIntegration="false">
                             </VariableRowHeader>
@@ -75,7 +75,7 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                                         Model
                                     </span>
                                 </div>
-                                <div v-for="(section, sectionIndex) in revenueState.sections" :key="sectionIndex">
+                                <div v-for="(section, sectionIndex) in costState.sections" :key="sectionIndex">
                                     <SectionHeader :sectionName="section.name" :sectionIndex="sectionIndex"
                                     @change-section-name="updateSectionName"
                                     @delete-section="deleteSection"></SectionHeader>
@@ -85,8 +85,8 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                                         @update-integration="updateIntegrationValue"
                                         v-for="(variable, index) in section.rows"
                                         :variable="variable" :variable-index="index"
-                                        :timeSeriesMap="useVariableTimeSeriesMap(revenueState.assumptions.concat(section.rows))"
-                                        :variableSearchMap="useVariableSearchMap(revenueState.assumptions.concat(section.rows))"
+                                        :timeSeriesMap="useVariableTimeSeriesMap(costState.assumptions.concat(section.rows))"
+                                        :variableSearchMap="useVariableSearchMap(costState.assumptions.concat(section.rows))"
                                         :sectionIndex="sectionIndex" :isEndRow="false"
                                         :showIntegration="true"
                                         :possible-integration-values="possibleIntegrationValuesState"></VariableRowHeader>
@@ -120,7 +120,7 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                             <div>
                                 <div class="group flex text-xs text-zinc-900 rounded-bl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-50 border-zinc-300 border">
                                     <span class="font-medium uppercase">
-                                        Total Revenues
+                                        Total Costs
                                     </span>
                                 </div>
                             </div>
@@ -138,7 +138,7 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                                     v-for="date in dates">X</div>
                             </div>
                             <VariableRow v-for="(assumptionValues, index) in assumptionValuesToDisplayState"
-                                :values="assumptionValues" :round-to="revenueState.assumptions[index].decimal_places"></VariableRow>
+                                :values="assumptionValues" :round-to="costState.assumptions[index].decimal_places"></VariableRow>
                             <div class="flex">
                                 <!-- add assumption button empty -->
                                 <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-y"
@@ -151,14 +151,14 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                                 <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 bg-zinc-100 border-zinc-300 border-t"
                                     v-for="date in dates">X</div>
                             </div>
-                            <div v-for="(section, index) in revenueState.sections" :key="index">
+                            <div v-for="(section, index) in costState.sections" :key="index">
                                 <div class="flex">
                                     <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-t"
                                         v-for="date in dates">X</div>
                                 </div>
                                 <VariableRow v-if="variableValuesToDisplayState"
                                     v-for="(variableValues, variableIndex) in variableValuesToDisplayState.get(index)"
-                                    :values="variableValues" :round-to="revenueState.sections[index].rows[variableIndex].decimal_places"></VariableRow>
+                                    :values="variableValues" :round-to="costState.sections[index].rows[variableIndex].decimal_places"></VariableRow>
                                 <div class="flex">
                                     <!-- add variable button empty -->
                                     <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-t"
@@ -173,8 +173,8 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                                         v-for="date in dates">X</div>
                                 </div>
                         </div>
-                        <div id="total-revenue-values" class="border-zinc-300">
-                            <VariableRow v-if="endRowValuesToDisplayState" :values="totalRevenuesToDisplay" :round-to="2" :isFinalRow="true"></VariableRow>
+                        <div id="total-cost-values" class="border-zinc-300">
+                            <VariableRow v-if="endRowValuesToDisplayState" :values="totalCostsToDisplay" :round-to="2" :isFinalRow="true"></VariableRow>
                         </div>
                     </div>
                 </div>
@@ -197,7 +197,7 @@ export default {
         }
     },
     computed: {
-        totalRevenuesToDisplay() {
+        totalCostsToDisplay() {
             var returnArray:string[] = [];
 
             if(this.endRowValuesToDisplayState.length > 0) {
@@ -288,16 +288,16 @@ export default {
                 end_row: emptyEndRow
             }
 
-            this.revenueState.sections.push(emptySection);
+            this.costState.sections.push(emptySection);
 
             this.updateDisplayedValues();
 
             try {
-                await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
+                await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
             } catch (e) {
                 console.log(e)
                 this.errorMessages.push("Something went wrong! Please try adding the section again.");
-                this.revenueState = await useSheetUpdate().getRevenueSheet(this.route.params.modelId)
+                this.costState = await useSheetUpdate().getCostSheet(this.route.params.modelId)
                 this.updateDisplayedValues();
             }
 
@@ -321,27 +321,27 @@ export default {
 
             }
 
-            this.revenueState.assumptions.push(emptyAssumption);
+            this.costState.assumptions.push(emptyAssumption);
 
-            const assumptionValuesArrayState = useState<string[][]>('assumptionValues');
+            const assumptionValuesArrayState = useState<string[][]>('costAssumptionValues');
             var assumptionValuesArray: string[][];
 
             try {
-                assumptionValuesArray = useFormulaParser().getSheetRowValues(this.revenueState.assumptions);
+                assumptionValuesArray = useFormulaParser().getSheetRowValues(this.costState.assumptions);
                 let index = assumptionValuesArray.length - 1;
                 assumptionValuesArrayState.value.push(assumptionValuesArray[index])
             } catch(e){
                 console.log(e);
                 this.errorMessages.push("Something went wrong! Please try adding the variable again.");
-                this.revenueState = await useSheetUpdate().getRevenueSheet(this.route.params.modelId)
+                this.costState = await useSheetUpdate().getCostSheet(this.route.params.modelId)
             } 
 
             try {
-                await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
+                await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
             } catch (e) {
                 console.log(e)
                 this.errorMessages.push("Something went wrong! Please try adding the variable again.");
-                this.revenueState = await useSheetUpdate().getRevenueSheet(this.route.params.modelId)
+                this.costState = await useSheetUpdate().getCostSheet(this.route.params.modelId)
             }
 
         },
@@ -364,15 +364,15 @@ export default {
 
             }
 
-            this.revenueState.sections[sectionIndex].rows.push(emptyVariable);
+            this.costState.sections[sectionIndex].rows.push(emptyVariable);
             this.updateDisplayedValues();
 
             try {
-                await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
+                await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
             } catch (e) {
                 console.log(e)
                 this.errorMessages.push("Something went wrong! Please try adding the variable again.");
-                this.revenueState = await useSheetUpdate().getRevenueSheet(this.route.params.modelId)
+                this.costState = await useSheetUpdate().getCostSheet(this.route.params.modelId)
                 this.updateDisplayedValues();
             }
 
@@ -384,26 +384,26 @@ export default {
 
                 const storageValue: string = useGetValueFromHumanReadable(humanReadableInputValue, variableId, variableSearchMap);
 
-                this.revenueState.assumptions[variableIndex].time_series = this.isTimeSeries(storageValue, timeSeriesMap);
-                this.revenueState.assumptions[variableIndex].value = storageValue.toString();
+                this.costState.assumptions[variableIndex].time_series = this.isTimeSeries(storageValue, timeSeriesMap);
+                this.costState.assumptions[variableIndex].value = storageValue.toString();
                 if (storageValue.includes("+") || storageValue.includes("-") || storageValue.includes("*") || storageValue.includes("/") || storageValue.includes("-")) {
-                    this.revenueState.assumptions[variableIndex].var_type = "formula";
+                    this.costState.assumptions[variableIndex].var_type = "formula";
                 } else {
-                    this.revenueState.assumptions[variableIndex].var_type = "value";
+                    this.costState.assumptions[variableIndex].var_type = "value";
                 }
 
                 try {
-                    //update RevenueState
-                    await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
+                    //update CostState
+                    await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
                     this.updateDisplayedValues();
 
                 } catch (e) {
                     console.log(e);
                     //retrieve actual stored sheet from DB
                     //if actual sheet and state match, if not update state to actual sheet
-                    const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
-                    if (!(actualSheet.assumptions[variableIndex].value === this.revenueState.assumptions[variableIndex].value)) {
-                        this.revenueState = actualSheet;
+                    const actualSheet = await useSheetUpdate().getCostSheet(this.route.params.modelId);
+                    if (!(actualSheet.assumptions[variableIndex].value === this.costState.assumptions[variableIndex].value)) {
+                        this.costState = actualSheet;
                     }
                 }
             } else {
@@ -416,31 +416,31 @@ export default {
                 //Get humanReadableInputValue and create storage value
 
                 const storageValue: string = useGetValueFromHumanReadable(humanReadableInputValue, variableId, variableSearchMap);
-                this.revenueState.sections[sectionIndex].rows[variableIndex].value = storageValue.toString();
+                this.costState.sections[sectionIndex].rows[variableIndex].value = storageValue.toString();
 
-                if(this.revenueState.sections[sectionIndex].rows[variableIndex].integration_name != null) {
-                    this.revenueState.sections[sectionIndex].rows[variableIndex].var_type = "integration";
-                    this.revenueState.sections[sectionIndex].rows[variableIndex].time_series = true;
+                if(this.costState.sections[sectionIndex].rows[variableIndex].integration_name != null) {
+                    this.costState.sections[sectionIndex].rows[variableIndex].var_type = "integration";
+                    this.costState.sections[sectionIndex].rows[variableIndex].time_series = true;
                 } else if (storageValue.includes("+") || storageValue.includes("-") || storageValue.includes("*") || storageValue.includes("/") || storageValue.includes("-")) {
-                    this.revenueState.sections[sectionIndex].rows[variableIndex].var_type = "formula";
-                    this.revenueState.sections[sectionIndex].rows[variableIndex].time_series = this.isTimeSeries(storageValue, timeSeriesMap);
+                    this.costState.sections[sectionIndex].rows[variableIndex].var_type = "formula";
+                    this.costState.sections[sectionIndex].rows[variableIndex].time_series = this.isTimeSeries(storageValue, timeSeriesMap);
                 } else {
-                    this.revenueState.sections[sectionIndex].rows[variableIndex].var_type = "value";
-                    this.revenueState.sections[sectionIndex].rows[variableIndex].time_series = this.isTimeSeries(storageValue, timeSeriesMap);
+                    this.costState.sections[sectionIndex].rows[variableIndex].var_type = "value";
+                    this.costState.sections[sectionIndex].rows[variableIndex].time_series = this.isTimeSeries(storageValue, timeSeriesMap);
                 }
 
                 try {
-                    //update RevenueState
-                    await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
+                    //update CostState
+                    await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
                     this.updateDisplayedValues();
 
                 } catch (e) {
                     console.log(e);
                     //retrieve actual stored sheet from DB
                     //if actual sheet and state match, if not update state to actual sheet
-                    const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
-                    if (!(actualSheet.sections[0].rows[variableIndex].value === this.revenueState.sections[0].rows[variableIndex].value)) {
-                        this.revenueState = actualSheet;
+                    const actualSheet = await useSheetUpdate().getCostSheet(this.route.params.modelId);
+                    if (!(actualSheet.sections[0].rows[variableIndex].value === this.costState.sections[0].rows[variableIndex].value)) {
+                        this.costState = actualSheet;
                     }
                 }
             } else {
@@ -449,34 +449,34 @@ export default {
         },
         async updateIntegrationValue(integrationSelected: string, timeSeriesMap: Map<string, boolean>, variableIndex: number, sectionIndex: number) {
             if(integrationSelected != "None") {
-                this.revenueState.sections[sectionIndex].rows[variableIndex].var_type = "integration";
-                this.revenueState.sections[sectionIndex].rows[variableIndex].integration_name = integrationSelected;
-                this.revenueState.sections[sectionIndex].rows[variableIndex].time_series = true;
+                this.costState.sections[sectionIndex].rows[variableIndex].var_type = "integration";
+                this.costState.sections[sectionIndex].rows[variableIndex].integration_name = integrationSelected;
+                this.costState.sections[sectionIndex].rows[variableIndex].time_series = true;
             } else {
-                var checkValue = this.revenueState.sections[sectionIndex].rows[variableIndex].value;
+                var checkValue = this.costState.sections[sectionIndex].rows[variableIndex].value;
                 if (checkValue.includes("+") || checkValue.includes("-") || checkValue.includes("*") || checkValue.includes("/") || checkValue.includes("-")) {
-                    this.revenueState.sections[sectionIndex].rows[variableIndex].var_type = "formula";
+                    this.costState.sections[sectionIndex].rows[variableIndex].var_type = "formula";
                 } else {
-                    this.revenueState.sections[sectionIndex].rows[variableIndex].var_type = "value";
+                    this.costState.sections[sectionIndex].rows[variableIndex].var_type = "value";
                 }
-                this.revenueState.sections[sectionIndex].rows[variableIndex].time_series = this.isTimeSeries(checkValue, timeSeriesMap);
-                this.revenueState.sections[sectionIndex].rows[variableIndex].integration_name = null;
-                this.revenueState.sections[sectionIndex].rows[variableIndex].integration_values = null;
+                this.costState.sections[sectionIndex].rows[variableIndex].time_series = this.isTimeSeries(checkValue, timeSeriesMap);
+                this.costState.sections[sectionIndex].rows[variableIndex].integration_name = null;
+                this.costState.sections[sectionIndex].rows[variableIndex].integration_values = null;
             }
 
             try {
-                //update RevenueState
-                this.revenueState = await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
+                //update CostState
+                this.costState = await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
                 this.updateDisplayedValues();
 
             } catch (e) {
                 console.log(e);
                 //retrieve actual stored sheet from DB
                 //if actual sheet and state match, if not update state to actual sheet
-                const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
-                if (!(actualSheet.sections[0].rows[variableIndex].integration_name === this.revenueState.sections[0].rows[variableIndex].integration_name) ||
-                    !(actualSheet.sections[0].rows[variableIndex].var_type === this.revenueState.sections[0].rows[variableIndex].var_type)) {
-                    this.revenueState = actualSheet;
+                const actualSheet = await useSheetUpdate().getCostSheet(this.route.params.modelId);
+                if (!(actualSheet.sections[0].rows[variableIndex].integration_name === this.costState.sections[0].rows[variableIndex].integration_name) ||
+                    !(actualSheet.sections[0].rows[variableIndex].var_type === this.costState.sections[0].rows[variableIndex].var_type)) {
+                    this.costState = actualSheet;
                 }
             }
         },
@@ -487,28 +487,28 @@ export default {
 
                 const storageValue: string = useGetValueFromHumanReadable(humanReadableInputValue, variableId, variableSearchMap);
 
-                this.revenueState.sections[sectionIndex].end_row.time_series = this.isTimeSeries(storageValue, timeSeriesMap);
-                this.revenueState.sections[sectionIndex].end_row.value = storageValue.toString();
+                this.costState.sections[sectionIndex].end_row.time_series = this.isTimeSeries(storageValue, timeSeriesMap);
+                this.costState.sections[sectionIndex].end_row.value = storageValue.toString();
 
                 //todo: handle integration
                 if (storageValue.includes("+") || storageValue.includes("-") || storageValue.includes("*") || storageValue.includes("/") || storageValue.includes("-")) {
-                    this.revenueState.sections[sectionIndex].end_row.var_type = "formula";
+                    this.costState.sections[sectionIndex].end_row.var_type = "formula";
                 } else {
-                    this.revenueState.sections[sectionIndex].end_row.var_type = "value";
+                    this.costState.sections[sectionIndex].end_row.var_type = "value";
                 }
 
                 try {
-                    //update RevenueState
-                    await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
+                    //update CostState
+                    await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
                     this.updateDisplayedValues();
 
                 } catch (e) {
                     console.log(e);
                     //retrieve actual stored sheet from DB
                     //if actual sheet and state match, if not update state to actual sheet
-                    const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
-                    if (!(actualSheet.sections[0].rows[variableIndex].value === this.revenueState.sections[0].rows[variableIndex].value)) {
-                        this.revenueState = actualSheet;
+                    const actualSheet = await useSheetUpdate().getCostSheet(this.route.params.modelId);
+                    if (!(actualSheet.sections[0].rows[variableIndex].value === this.costState.sections[0].rows[variableIndex].value)) {
+                        this.costState = actualSheet;
                     }
                 }
             } else {
@@ -517,17 +517,17 @@ export default {
         },
         async updateAssumptionName(newName: string, variableIndex: number, sectionIndex: number) {
             if (newName.length > 0 && !useFormulaParser().charIsNumerical(newName[0])) {
-                this.revenueState.assumptions[variableIndex].name = newName;
+                this.costState.assumptions[variableIndex].name = newName;
                 try {
-                    await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
+                    await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
                 } catch (e) {
                     console.log(e);
                     this.errorMessages.push(e);
                     //retrieve actual stored sheet from DB
                     //if actual sheet and state match, if not update state to actual sheet
-                    const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
-                    if (!(this.revenueState.assumptions[variableIndex].name === actualSheet.assumptions[variableIndex].name)) {
-                        this.revenueState = actualSheet;
+                    const actualSheet = await useSheetUpdate().getCostSheet(this.route.params.modelId);
+                    if (!(this.costState.assumptions[variableIndex].name === actualSheet.assumptions[variableIndex].name)) {
+                        this.costState = actualSheet;
                     }
                 }
             } else {
@@ -536,17 +536,17 @@ export default {
         },
         async updateSectionName(sectionIndex: number, newName: string) {
             if (newName.length > 0) {
-                this.revenueState.sections[sectionIndex].name = newName;
+                this.costState.sections[sectionIndex].name = newName;
                 try {
-                    await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
+                    await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
                 } catch (e) {
                     console.log(e);
                     this.errorMessages.push(e);
                     //retrieve actual stored sheet from DB
                     //if actual sheet and state match, if not update state to actual sheet
-                    const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
-                    if (!(this.revenueState.sections[sectionIndex].name === actualSheet.sections[sectionIndex].name)) {
-                        this.revenueState = actualSheet;
+                    const actualSheet = await useSheetUpdate().getCostSheet(this.route.params.modelId);
+                    if (!(this.costState.sections[sectionIndex].name === actualSheet.sections[sectionIndex].name)) {
+                        this.costState = actualSheet;
                     }
                 }
             } else {
@@ -555,17 +555,17 @@ export default {
         },
         async updateVariableName(newName: string, variableIndex: number, sectionIndex: number) {
             if (newName.length > 0 && !useFormulaParser().charIsNumerical(newName[0])) {
-                this.revenueState.sections[sectionIndex].rows[variableIndex].name = newName;
+                this.costState.sections[sectionIndex].rows[variableIndex].name = newName;
                 try {
-                    await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
+                    await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
                 } catch (e) {
                     console.log(e);
                     this.errorMessages.push(e);
                     //retrieve actual stored sheet from DB
                     //if actual sheet and state match, if not update state to actual sheet
-                    const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
-                    if (!(this.revenueState.sections[sectionIndex].rows[variableIndex].name === actualSheet.sections[sectionIndex].rows[variableIndex].name)) {
-                        this.revenueState = actualSheet;
+                    const actualSheet = await useSheetUpdate().getCostSheet(this.route.params.modelId);
+                    if (!(this.costState.sections[sectionIndex].rows[variableIndex].name === actualSheet.sections[sectionIndex].rows[variableIndex].name)) {
+                        this.costState = actualSheet;
                     }
                 }
             } else {
@@ -574,8 +574,8 @@ export default {
         },
         async updateAssumptionSettings(variableIndex: number, value1Input: string, valTypeInput: string, decimalPlaces:number, startingAtInput: number, sectionIndex: number) {
 
-            this.revenueState.assumptions[variableIndex].val_type = valTypeInput;
-            this.revenueState.assumptions[variableIndex].value_1 = value1Input;
+            this.costState.assumptions[variableIndex].val_type = valTypeInput;
+            this.costState.assumptions[variableIndex].value_1 = value1Input;
 
             var value1OnlySpaces: boolean;
 
@@ -587,34 +587,34 @@ export default {
             }
 
             if (value1Input === null ||value1Input === undefined || value1Input === "" || value1OnlySpaces) {
-                this.revenueState.assumptions[variableIndex].value_1 = undefined;
-                this.revenueState.assumptions[variableIndex].first_value_diff = false;
+                this.costState.assumptions[variableIndex].value_1 = undefined;
+                this.costState.assumptions[variableIndex].first_value_diff = false;
             } else {
-                this.revenueState.assumptions[variableIndex].first_value_diff = true;
+                this.costState.assumptions[variableIndex].first_value_diff = true;
             }
 
-            this.revenueState.assumptions[variableIndex].decimal_places = decimalPlaces;
-            this.revenueState.assumptions[variableIndex].starting_at = startingAtInput;
+            this.costState.assumptions[variableIndex].decimal_places = decimalPlaces;
+            this.costState.assumptions[variableIndex].starting_at = startingAtInput;
 
             try {
-                //update RevenueState
-                await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
+                //update CostState
+                await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
                 this.updateDisplayedValues();
             } catch (e) {
                 console.log(e);
                 this.errorMessages.push(e);
                 //retrieve actual stored sheet from DB
                 //if actual sheet and state match, if not update state to actual sheet
-                const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
-                if (!(actualSheet.assumptions[variableIndex].value === this.revenueState.assumptions[variableIndex].value)) {
-                    this.revenueState = actualSheet;
+                const actualSheet = await useSheetUpdate().getCostSheet(this.route.params.modelId);
+                if (!(actualSheet.assumptions[variableIndex].value === this.costState.assumptions[variableIndex].value)) {
+                    this.costState = actualSheet;
                 }
             }
         },
         async updateVariableSettings(variableIndex: number, value1Input: string, valTypeInput: string, decimalPlaces: number, startingAtInput: number, sectionIndex: number) {
             
-            this.revenueState.sections[sectionIndex].rows[variableIndex].val_type = valTypeInput;
-            this.revenueState.sections[sectionIndex].rows[variableIndex].value_1 = value1Input;
+            this.costState.sections[sectionIndex].rows[variableIndex].val_type = valTypeInput;
+            this.costState.sections[sectionIndex].rows[variableIndex].value_1 = value1Input;
 
             var value1OnlySpaces: boolean;
 
@@ -626,18 +626,18 @@ export default {
             }
 
             if (value1Input === null || value1Input === undefined || value1Input === "" || value1OnlySpaces) {
-                this.revenueState.sections[sectionIndex].rows[variableIndex].value_1 = undefined;
-                this.revenueState.sections[sectionIndex].rows[variableIndex].first_value_diff = false;
+                this.costState.sections[sectionIndex].rows[variableIndex].value_1 = undefined;
+                this.costState.sections[sectionIndex].rows[variableIndex].first_value_diff = false;
             } else {
-                this.revenueState.sections[sectionIndex].rows[variableIndex].first_value_diff = true;
+                this.costState.sections[sectionIndex].rows[variableIndex].first_value_diff = true;
             }
 
-            this.revenueState.sections[sectionIndex].rows[variableIndex].decimal_places = decimalPlaces;
-            this.revenueState.sections[sectionIndex].rows[variableIndex].starting_at = startingAtInput;
+            this.costState.sections[sectionIndex].rows[variableIndex].decimal_places = decimalPlaces;
+            this.costState.sections[sectionIndex].rows[variableIndex].starting_at = startingAtInput;
 
             try {
-                //update RevenueState
-                await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
+                //update CostState
+                await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
                 //Update sheet values valuesToDisplay
                 this.updateDisplayedValues();
 
@@ -646,61 +646,61 @@ export default {
                 this.errorMessages.push(e);
                 //retrieve actual stored sheet from DB
                 //if actual sheet and state match, if not update state to actual sheet
-                const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
-                if (!(actualSheet.sections[sectionIndex].rows[variableIndex].value === this.revenueState.sections[sectionIndex].rows[variableIndex].value)) {
-                    this.revenueState = actualSheet;
+                const actualSheet = await useSheetUpdate().getCostSheet(this.route.params.modelId);
+                if (!(actualSheet.sections[sectionIndex].rows[variableIndex].value === this.costState.sections[sectionIndex].rows[variableIndex].value)) {
+                    this.costState = actualSheet;
                 }
             }
         },
         async deleteAssumption(variableIndex: number, sectionIndex: number) {
             //first directly change the state
-            this.revenueState.assumptions.splice(variableIndex, 1);
+            this.costState.assumptions.splice(variableIndex, 1);
             this.assumptionValuesToDisplayState.splice(variableIndex, 1);
 
             //then update the backend
             try {
-                await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
+                await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
             } catch (e) {
                 console.log(e) //todo: throw error message
                 this.errorMessages.push(e);
-                const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
-                if (!(actualSheet.assumptions.length === this.revenueState.assumptions.length)) {
-                    this.revenueState = actualSheet;
+                const actualSheet = await useSheetUpdate().getCostSheet(this.route.params.modelId);
+                if (!(actualSheet.assumptions.length === this.costState.assumptions.length)) {
+                    this.costState = actualSheet;
                     this.updateDisplayedValues();
                 }
             }
         },
         async deleteSection(sectionIndex: number) {
             //first directly change the state
-            this.revenueState.sections.splice(sectionIndex, 1)
+            this.costState.sections.splice(sectionIndex, 1)
             //then update the backend
             try {
-                await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
+                await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
                 this.updateDisplayedValues();
             } catch (e) {
                 console.log(e) //todo: throw error message
                 this.errorMessages.push(e);
-                const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
-                if (!(actualSheet.sections[sectionIndex].rows.length === this.revenueState.sections[sectionIndex].rows.length)) {
-                    this.revenueState = actualSheet;
+                const actualSheet = await useSheetUpdate().getCostSheet(this.route.params.modelId);
+                if (!(actualSheet.sections[sectionIndex].rows.length === this.costState.sections[sectionIndex].rows.length)) {
+                    this.costState = actualSheet;
                     this.updateDisplayedValues();
                 }
             }
         },
         async deleteVariable(variableIndex: number, sectionIndex: number) {
             //first directly change the state
-            this.revenueState.sections[sectionIndex].rows.splice(variableIndex, 1);
+            this.costState.sections[sectionIndex].rows.splice(variableIndex, 1);
             this.variableValuesToDisplayState.get(sectionIndex).splice(variableIndex, 1);
 
             //then update the backend
             try {
-                await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
+                await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
             } catch (e) {
                 console.log(e) //todo: throw error message
                 this.errorMessages.push(e);
-                const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
-                if (!(actualSheet.sections[sectionIndex].rows.length === this.revenueState.sections[sectionIndex].rows.length)) {
-                    this.revenueState = actualSheet;
+                const actualSheet = await useSheetUpdate().getCostSheet(this.route.params.modelId);
+                if (!(actualSheet.sections[sectionIndex].rows.length === this.costState.sections[sectionIndex].rows.length)) {
+                    this.costState = actualSheet;
                     this.updateDisplayedValues();
                 }
             }
@@ -748,20 +748,20 @@ export default {
             
             //assumptions
             try {
-                this.assumptionValuesToDisplayState = useFormulaParser().getSheetRowValues(this.revenueState.assumptions);
+                this.assumptionValuesToDisplayState = useFormulaParser().getSheetRowValues(this.costState.assumptions);
 
                 //Update entire sheet
                 var variablesValuesStorage: Map<number, string[][]> = new Map<number, string[][]>();
                 var endRowValuesStorage: string[][] = [];
-                for (let i = 0; i < this.revenueState.sections.length; i++) {
+                for (let i = 0; i < this.costState.sections.length; i++) {
                     //variables
-                    var sectionVariables: Variable[] = [...this.revenueState.sections[i].rows];
-                    var valuesOfAssumptionsAndVariables: string[][] = useFormulaParser().getSheetRowValues(this.revenueState.assumptions.concat(sectionVariables))
-                    valuesOfAssumptionsAndVariables.splice(0, this.revenueState.assumptions.length);
+                    var sectionVariables: Variable[] = [...this.costState.sections[i].rows];
+                    var valuesOfAssumptionsAndVariables: string[][] = useFormulaParser().getSheetRowValues(this.costState.assumptions.concat(sectionVariables))
+                    valuesOfAssumptionsAndVariables.splice(0, this.costState.assumptions.length);
                     variablesValuesStorage.set(i, valuesOfAssumptionsAndVariables);
                     //endrow
-                    var valuesOfVariablesAndEndRow: string[][] = useFormulaParser().getSheetRowValues(this.revenueState.assumptions.concat(sectionVariables.concat(this.revenueState.sections[i].end_row)));
-                    valuesOfVariablesAndEndRow.splice(0, sectionVariables.length + this.revenueState.assumptions.length);
+                    var valuesOfVariablesAndEndRow: string[][] = useFormulaParser().getSheetRowValues(this.costState.assumptions.concat(sectionVariables.concat(this.costState.sections[i].end_row)));
+                    valuesOfVariablesAndEndRow.splice(0, sectionVariables.length + this.costState.assumptions.length);
                     endRowValuesStorage.push(valuesOfVariablesAndEndRow[0]);
 
                 };
@@ -777,27 +777,27 @@ export default {
     mounted() {
         try {
             //return the display values for all the assumptions
-            const revenues = useRevenueState();
+            const costs = useCostState();
             
-            var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(revenues.value.assumptions);
-            useState('assumptionValues', () => assumptionValuesArray);
+            var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(costs.value.assumptions);
+            useState('costAssumptionValues', () => assumptionValuesArray);
             
             var variablesValuesStorage: Map<number, string[][]> = new Map<number, string[][]>();
             var endRowValuesStorage: string[][] = [];
-            for (let i = 0; i < revenues.value.sections.length; i++) {
+            for (let i = 0; i < costs.value.sections.length; i++) {
                 //variables
-                var sectionVariables: Variable[] = [...revenues.value.sections[i].rows];
-                var valuesOfAssumptionsAndVariables: string[][] = useFormulaParser().getSheetRowValues(revenues.value.assumptions.concat(sectionVariables))
-                valuesOfAssumptionsAndVariables.splice(0, revenues.value.assumptions.length);
+                var sectionVariables: Variable[] = [...costs.value.sections[i].rows];
+                var valuesOfAssumptionsAndVariables: string[][] = useFormulaParser().getSheetRowValues(costs.value.assumptions.concat(sectionVariables))
+                valuesOfAssumptionsAndVariables.splice(0, costs.value.assumptions.length);
                 variablesValuesStorage.set(i, valuesOfAssumptionsAndVariables);
                 //endrow
-                var valuesOfVariablesAndEndRow: string[][] = useFormulaParser().getSheetRowValues(revenues.value.assumptions.concat(sectionVariables.concat(revenues.value.sections[i].end_row)));
-                valuesOfVariablesAndEndRow.splice(0, sectionVariables.length + revenues.value.assumptions.length);
+                var valuesOfVariablesAndEndRow: string[][] = useFormulaParser().getSheetRowValues(costs.value.assumptions.concat(sectionVariables.concat(costs.value.sections[i].end_row)));
+                valuesOfVariablesAndEndRow.splice(0, sectionVariables.length + costs.value.assumptions.length);
                 endRowValuesStorage.push(valuesOfVariablesAndEndRow[0]);
             };
 
-            useState<Map<number, string[][]>>('variableValues', () => variablesValuesStorage);
-            useState<string[][]>('endRowValues', () => endRowValuesStorage);
+            useState<Map<number, string[][]>>('costVariableValues', () => variablesValuesStorage);
+            useState<string[][]>('costEndRowValues', () => endRowValuesStorage);
 
         } catch(e) {
             console.log(e);

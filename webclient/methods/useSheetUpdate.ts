@@ -5,6 +5,8 @@ import { Sheet } from "~~/types/Model";
 export const useSheetUpdate = () => {
 
     var revenueSheet:Sheet = undefined;
+    var costSheet:Sheet = undefined;
+
     
     const getRevenueSheet = async (modelId: string | string[]) => {
 
@@ -25,7 +27,7 @@ export const useSheetUpdate = () => {
     
     }
 
-    const updateRevenueSheet = async (modelId: string | string[], revenueSheet: Sheet) => {
+    const updateRevenueSheet = async (modelId: string | string[], revenueSheetIn: Sheet) => {
 
         const postRevenues = await useFetchAuth(
             '/model/revenues', {
@@ -33,7 +35,7 @@ export const useSheetUpdate = () => {
             params: {
                 model_id: modelId
             },
-            body: revenueSheet
+            body: revenueSheetIn
         }).then((data:Sheet) => {
             revenueSheet = data;
         }).catch((error) => {
@@ -44,6 +46,44 @@ export const useSheetUpdate = () => {
     
     }
 
-    return { getRevenueSheet, updateRevenueSheet }
+    const getCostSheet = async (modelId: string | string[]) => {
+
+        const getCosts = await useFetchAuth(
+            '/model/costs', {
+                method: 'GET',
+            params: {
+                model_id: modelId
+            }
+        }
+        ).then((data: Sheet) => {
+            costSheet = data;
+        }).catch((error) => {
+            throw error;
+        });
+    
+        return costSheet;
+    
+    }
+
+    const updateCostSheet = async (modelId: string | string[], costSheetIn: Sheet) => {
+
+        const postCosts = await useFetchAuth(
+            '/model/costs', {
+                method: 'POST',
+            params: {
+                model_id: modelId
+            },
+            body: costSheetIn
+        }).then((data:Sheet) => {
+            costSheet = data;
+        }).catch((error) => {
+            throw error;
+        });
+
+        return costSheet;
+    
+    }
+
+    return { getRevenueSheet, updateRevenueSheet, getCostSheet, updateCostSheet }
 
 }
