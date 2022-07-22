@@ -159,23 +159,53 @@ async def test_is_viewer_false(users):
 
 
 @pytest.mark.anyio
-async def test_set_admin(users):
-    assert await is_admin("62b488ba433720870b60ec0a", users["johndoe@example.com"])
-    await add_admin_to_model(users["charlie@example.com"], "62b488ba433720870b60ec0a")
-    assert await is_admin("62b488ba433720870b60ec0a", users["charlie@example.com"])
+async def test_add_admin(users):
+    user = users["charlie@example.com"]
+    assert not await is_admin("62b488ba433720870b60ec0a", user)
+    await add_admin_to_model(user, "62b488ba433720870b60ec0a")
+    assert await is_admin("62b488ba433720870b60ec0a", user)
 
 
 @pytest.mark.anyio
-async def test_set_admin_non_existing_user(not_an_id):
+async def test_add_admin_idempotent(users):
+    model_id = "62b488ba433720870b60ec0a"
+    user = users["charlie@example.com"]
+    assert not await is_admin(model_id, user)
+
+    await add_admin_to_model(user, model_id)
+    await add_admin_to_model(user, model_id)
+
+    assert await is_admin(model_id, user)
+    model = await get_model_by_id(model_id)
+    assert (len([str(x) for x in model.meta.admins if str(x) == user])) == 1
+
+
+@pytest.mark.anyio
+async def test_add_admin_non_existing_user(not_an_id):
     with pytest.raises(DoesNotExistException):
         await add_admin_to_model(not_an_id, "62b488ba433720870b60ec0a")
 
 
 @pytest.mark.anyio
 async def test_add_editor_to_model(users):
-    assert not await is_editor("62b488ba433720870b60ec0a", users["johndoe@example.com"])
-    await add_editor_to_model(users["darwin@example.com"], "62b488ba433720870b60ec0a")
-    assert await is_editor("62b488ba433720870b60ec0a", users["darwin@example.com"])
+    user = users["charlie@example.com"]
+    assert not await is_editor("62b488ba433720870b60ec0a", user)
+    await add_editor_to_model(user, "62b488ba433720870b60ec0a")
+    assert await is_editor("62b488ba433720870b60ec0a", user)
+
+
+@pytest.mark.anyio
+async def test_add_editor_to_model_idempotent(users):
+    model_id = "62b488ba433720870b60ec0a"
+    user = users["charlie@example.com"]
+    assert not await is_editor(model_id, user)
+
+    await add_editor_to_model(user, model_id)
+    await add_editor_to_model(user, model_id)
+
+    assert await is_editor(model_id, user)
+    model = await get_model_by_id(model_id)
+    assert (len([str(x) for x in model.meta.editors if str(x) == user])) == 1
 
 
 @pytest.mark.anyio
@@ -186,9 +216,25 @@ async def test_add_editor_to_model_non_existing_user(not_an_id):
 
 @pytest.mark.anyio
 async def test_add_viewer_to_model(users):
-    assert not await is_viewer("62b488ba433720870b60ec0a", users["darwin@example.com"])
-    await add_viewer_to_model(users["darwin@example.com"], "62b488ba433720870b60ec0a")
-    assert await is_viewer("62b488ba433720870b60ec0a", users["charlie@example.com"])
+    user = users["darwin@example.com"]
+    assert not await is_viewer("62b488ba433720870b60ec0a", user)
+    await add_viewer_to_model(user, "62b488ba433720870b60ec0a")
+    assert await is_viewer("62b488ba433720870b60ec0a", user)
+
+
+@pytest.mark.anyio
+async def test_add_viewer_to_model_idempotent(users):
+    model_id = "62b488ba433720870b60ec0a"
+    user = users["darwin@example.com"]
+
+    assert not await is_viewer(model_id, user)
+
+    await add_viewer_to_model(user, model_id)
+    await add_viewer_to_model(user, model_id)
+
+    assert await is_viewer(model_id, user)
+    model = await get_model_by_id(model_id)
+    assert (len([str(x) for x in model.meta.viewers if str(x) == user])) == 1
 
 
 @pytest.mark.anyio
