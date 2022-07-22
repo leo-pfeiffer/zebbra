@@ -12,12 +12,12 @@ from core.dao.users import (
     create_user,
     get_user_by_username,
     username_exists,
-    add_user_to_workspace,
 )
 from core.dao.workspaces import (
     workspace_exists,
     create_workspace,
     workspace_name_exists,
+    add_user_to_workspace,
 )
 from core.schemas.tokens import Token, BlacklistToken
 from core.schemas.users import RegisterUser, UserInDB, User

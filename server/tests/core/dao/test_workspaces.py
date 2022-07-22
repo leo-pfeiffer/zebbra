@@ -1,7 +1,6 @@
 import pytest
 
 from core.dao.models import get_models_for_workspace
-from core.dao.users import add_user_to_workspace
 from core.dao.workspaces import (
     get_workspaces_of_user,
     create_workspace,
@@ -13,6 +12,7 @@ from core.dao.workspaces import (
     is_user_admin_of_workspace,
     get_users_of_workspace,
     get_workspace_by_name,
+    add_user_to_workspace,
 )
 from core.exceptions import UniqueConstraintFailedException, DoesNotExistException
 from core.schemas.workspaces import Workspace
@@ -187,3 +187,26 @@ async def test_get_users_of_workspace(access_token, users, workspaces):
 async def test_get_users_of_workspace_workspace_non_existent(access_token, not_an_id):
     with pytest.raises(DoesNotExistException):
         await get_users_of_workspace(not_an_id)
+
+
+@pytest.mark.anyio
+async def test_add_user_to_workspace(users, workspaces):
+    wsp = workspaces["Boring Co."]
+    u = users["johndoe@example.com"]
+    workspace_before = await get_workspace(wsp)
+    await add_user_to_workspace(u, wsp)
+    workspace_after = await get_workspace(wsp)
+    assert len(workspace_after.users) - len(workspace_before.users) == 1
+    assert u in [str(x) for x in workspace_after.users]
+
+
+@pytest.mark.anyio
+async def test_add_user_to_workspace_idempotent(users, workspaces):
+    wsp = workspaces["Boring Co."]
+    u = users["johndoe@example.com"]
+    workspace_before = await get_workspace(wsp)
+    await add_user_to_workspace(u, wsp)
+    await add_user_to_workspace(u, wsp)
+    workspace_after = await get_workspace(wsp)
+    assert len(workspace_after.users) - len(workspace_before.users) == 1
+    assert len([str(x) for x in workspace_after.users if str(x) == u]) == 1
