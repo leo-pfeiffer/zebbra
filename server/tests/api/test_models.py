@@ -356,6 +356,40 @@ async def test_starting_month_model_non_existent(access_token):
 
 
 @pytest.mark.anyio
+async def test_delete_model(access_token, users):
+    client = TestClient(app)
+    model_id = "62b488ba433720870b60ec0a"
+    response = client.post(
+        f"/model/delete?model_id={model_id}",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["message"] == "Model successfully deleted."
+
+
+@pytest.mark.anyio
+async def test_delete_model_no_access(access_token_alice, users):
+    client = TestClient(app)
+    model_id = "62b488ba433720870b60ec0a"
+    response = client.post(
+        f"/model/delete?model_id={model_id}",
+        headers={"Authorization": f"Bearer {access_token_alice}"},
+    )
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.anyio
+async def test_delete_model_non_existent_model(access_token, users):
+    client = TestClient(app)
+    model_id = "not_an_id"
+    response = client.post(
+        f"/model/delete?model_id={model_id}",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.anyio
 async def test_add_model(access_token, users, workspaces):
     client = TestClient(app)
     new_name = "new_name"

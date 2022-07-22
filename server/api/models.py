@@ -31,6 +31,7 @@ from core.dao.models import (
     update_costs_sheet,
     set_starting_month,
     update_model_employees,
+    delete_model,
 )
 from core.exceptions import (
     DoesNotExistException,
@@ -278,6 +279,28 @@ async def create_new_model(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="User is not in the workspace.",
         )
+
+
+@router.post(
+    "/model/delete",
+    response_model=Message,
+    tags=["model"],
+    responses={
+        400: {"description": "Model does not exist."},
+        403: {"description": "User is not admin."},
+    },
+)
+async def delete_existing_model(
+    model_id: str, current_user: User = Depends(get_current_active_user)
+):
+    """
+    Delete an existing model\n
+        model_id:
+    """
+    await assert_model_exists(model_id)
+    await assert_model_access_admin(user_id=current_user.id, model_id=model_id)
+    await delete_model(model_id)
+    return {"message": "Model successfully deleted."}
 
 
 @router.get(

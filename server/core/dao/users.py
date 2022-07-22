@@ -121,13 +121,6 @@ async def remove_user_from_workspace(user_id: PyObjectId, workspace_id: PyObject
     )
 
 
-async def add_user_to_workspace(user_id: PyObjectId, workspace_id: PyObjectId):
-    # add user to workspace
-    return await db.workspaces.update_one(
-        {"_id": str(workspace_id)}, {"$push": {"users": str(user_id)}}
-    )
-
-
 async def set_user_otp_secret(user_id: PyObjectId, otp_secret: str):
     return await db.users.update_one(
         {"_id": str(user_id)},
