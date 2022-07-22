@@ -76,7 +76,7 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                                     </span>
                                 </div>
                                 <div v-for="(section, sectionIndex) in revenueState.sections" :key="sectionIndex">
-                                    <SectionHeader :sectionName="section.name" :sectionIndex="sectionIndex"
+                                    <SectionHeader :sectionName="section.name" :sectionIndex="sectionIndex" :changingEnabled="true"
                                     @change-section-name="updateSectionName"
                                     @delete-section="deleteSection"></SectionHeader>
                                     <VariableRowHeader @update-value="updateVariableValue"

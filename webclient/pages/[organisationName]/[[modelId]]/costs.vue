@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Section, Variable } from '~~/types/Model';
+import { Employee, Section, Variable } from '~~/types/Model';
 import { useVariableSearchMap } from '~~/methods/useVariableSearchMap';
 import { useVariableTimeSeriesMap } from '~~/methods/useVariableTimeSeriesMap';
 import { useSheetUpdate } from '~~/methods/useSheetUpdate';
@@ -17,6 +17,11 @@ modelMeta.value = await getModelMeta(route.params.modelId);
 
 const costState = useCostState();
 costState.value = await useSheetUpdate().getCostSheet(route.params.modelId);
+
+const payrollState = usePayrollState();
+payrollState.value = await useSheetUpdate().getPayroll(route.params.modelId);
+
+console.log(payrollState.value);
 
 //todo: find better solution
 const date: string[] = modelMeta.value.starting_month.split("-");
@@ -50,13 +55,11 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                             </div>
                             <VariableRowHeader @update-value="updateAssumptionValue"
                                 @update-settings="updateAssumptionSettings" @update-name="updateAssumptionName"
-                                @delete-variable="deleteAssumption"
-                                v-for="(assumption, index) in costState.assumptions" :variable="assumption"
-                                :variableIndex="index"
+                                @delete-variable="deleteAssumption" v-for="(assumption, index) in costState.assumptions"
+                                :variable="assumption" :variableIndex="index"
                                 :timeSeriesMap="useVariableTimeSeriesMap(costState.assumptions)"
                                 :variableSearchMap="useVariableSearchMap(costState.assumptions)" :sectionIndex="0"
-                                :isEndRow="false"
-                                :showIntegration="false">
+                                :isEndRow="false" :showIntegration="false">
                             </VariableRowHeader>
                             <div class="">
                                 <!-- add assumption button -->
@@ -70,26 +73,43 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                         <div id="model-headers">
                             <div>
 
-                                <div class="group flex mt-6 text-xs text-zinc-500 rounded-tl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-100 border-zinc-300 border-l border-t">
+                                <div
+                                    class="group flex mt-6 text-xs text-zinc-500 rounded-tl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-100 border-zinc-300 border-l border-t">
                                     <span class="font-medium uppercase">
                                         Model
                                     </span>
                                 </div>
+                                <div>
+                                    <SectionHeader :sectionName="'Payroll'" :changingEnabled="false"></SectionHeader>
+                                    <EmployeeRowHeader v-for="(employee, index) in payrollState.employees"
+                                        :employee="employee" :employeeIndex="index"></EmployeeRowHeader>
+                                    <div
+                                        class="text-xs py-2 pl-10 min-w-[470px] max-w-[470px] border-zinc-300 border-t border-l">
+                                        <button @click="addEmployee()"
+                                            class="text-zinc-400 italic hover:text-zinc-500"><i
+                                                class="bi bi-plus-lg mr-3"></i>Add Employee</button>
+                                    </div>
+                                    <div
+                                        class="group flex text-xs text-zinc-900 py-2 px-3 min-w-[470px] max-w-[470px] border-zinc-300 border-l border-t border-r-2">
+                                        <span class="font-medium">
+                                            <li class="marker:text-white/0">Total Payroll</li>
+                                        </span>
+                                    </div>
+                                </div>
                                 <div v-for="(section, sectionIndex) in costState.sections" :key="sectionIndex">
                                     <SectionHeader :sectionName="section.name" :sectionIndex="sectionIndex"
-                                    @change-section-name="updateSectionName"
-                                    @delete-section="deleteSection"></SectionHeader>
+                                        :changingEnabled="true" @change-section-name="updateSectionName"
+                                        @delete-section="deleteSection"></SectionHeader>
                                     <VariableRowHeader @update-value="updateVariableValue"
                                         @update-settings="updateVariableSettings" @update-name="updateVariableName"
-                                        @delete-variable="deleteVariable"
-                                        @update-integration="updateIntegrationValue"
-                                        v-for="(variable, index) in section.rows"
-                                        :variable="variable" :variable-index="index"
+                                        @delete-variable="deleteVariable" @update-integration="updateIntegrationValue"
+                                        v-for="(variable, index) in section.rows" :variable="variable"
+                                        :variable-index="index"
                                         :timeSeriesMap="useVariableTimeSeriesMap(costState.assumptions.concat(section.rows))"
                                         :variableSearchMap="useVariableSearchMap(costState.assumptions.concat(section.rows))"
-                                        :sectionIndex="sectionIndex" :isEndRow="false"
-                                        :showIntegration="true"
-                                        :possible-integration-values="possibleIntegrationValuesState"></VariableRowHeader>
+                                        :sectionIndex="sectionIndex" :isEndRow="false" :showIntegration="true"
+                                        :possible-integration-values="possibleIntegrationValuesState">
+                                    </VariableRowHeader>
                                     <div
                                         class="text-xs py-2 pl-10 min-w-[470px] max-w-[470px] border-zinc-300 border-t border-l">
                                         <button @click="addVariable(sectionIndex)"
@@ -97,13 +117,10 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                                                 class="bi bi-plus-lg mr-3"></i>Add Variable</button>
                                     </div>
 
-                                    <VariableRowHeader @update-value="updateEndRowValue"
-                                        :variable="section.end_row" :variable-index="0"
-                                        :timeSeriesMap="useVariableTimeSeriesMap(section.rows)"
+                                    <VariableRowHeader @update-value="updateEndRowValue" :variable="section.end_row"
+                                        :variable-index="0" :timeSeriesMap="useVariableTimeSeriesMap(section.rows)"
                                         :variableSearchMap="useVariableSearchMap(section.rows)"
-                                        :sectionIndex="sectionIndex"
-                                        :sectionName="section.name"
-                                        :isEndRow="true">
+                                        :sectionIndex="sectionIndex" :sectionName="section.name" :isEndRow="true">
                                     </VariableRowHeader>
                                 </div>
                                 <div class="">
@@ -118,7 +135,8 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                         </div>
                         <div>
                             <div>
-                                <div class="group flex text-xs text-zinc-900 rounded-bl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-50 border-zinc-300 border">
+                                <div
+                                    class="group flex text-xs text-zinc-900 rounded-bl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-50 border-zinc-300 border">
                                     <span class="font-medium uppercase">
                                         Total Costs
                                     </span>
@@ -138,7 +156,8 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                                     v-for="date in dates">X</div>
                             </div>
                             <VariableRow v-for="(assumptionValues, index) in assumptionValuesToDisplayState"
-                                :values="assumptionValues" :round-to="costState.assumptions[index].decimal_places"></VariableRow>
+                                :values="assumptionValues" :round-to="costState.assumptions[index].decimal_places">
+                            </VariableRow>
                             <div class="flex">
                                 <!-- add assumption button empty -->
                                 <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-y"
@@ -147,9 +166,26 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                         </div>
                         <div id="model-values">
                             <div class="flex mt-6">
-
                                 <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 bg-zinc-100 border-zinc-300 border-t"
                                     v-for="date in dates">X</div>
+                            </div>
+                            <!-- Payroll -->
+                            <div class="flex">
+                                <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-t"
+                                    v-for="date in dates">X</div>
+                            </div>
+                            <div class="flex" v-for="payrollValues in payrollToDisplay">
+                                <VariableRow :values="payrollValues" :round-to="2"></VariableRow>
+                            </div>
+                            <div class="flex">
+                                <!-- add employee button empty -->
+                                <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-t"
+                                    v-for="date in dates">X</div>
+                            </div>
+                            <div class="flex">
+                                <!-- <VariableRow v-for="index in payrollState.employees" :values="payrollState.payroll_values" :round-to="2"></VariableRow> -->
+                                <VariableRow :values="totalPayrollToDisplay" :round-to="2"
+                                :isFinalRow="false"></VariableRow>
                             </div>
                             <div v-for="(section, index) in costState.sections" :key="index">
                                 <div class="flex">
@@ -158,28 +194,32 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                                 </div>
                                 <VariableRow v-if="variableValuesToDisplayState"
                                     v-for="(variableValues, variableIndex) in variableValuesToDisplayState.get(index)"
-                                    :values="variableValues" :round-to="costState.sections[index].rows[variableIndex].decimal_places"></VariableRow>
+                                    :values="variableValues"
+                                    :round-to="costState.sections[index].rows[variableIndex].decimal_places">
+                                </VariableRow>
                                 <div class="flex">
                                     <!-- add variable button empty -->
                                     <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-t"
                                         v-for="date in dates">X</div>
                                 </div>
                                 <VariableRow v-if="endRowValuesToDisplayState"
-                                        :values="endRowValuesToDisplayState[index]" :round-to="2"></VariableRow>
+                                    :values="endRowValuesToDisplayState[index]" :round-to="2"></VariableRow>
                             </div>
                             <div class="flex">
-                                    <!-- add section button empty -->
-                                    <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-y"
-                                        v-for="date in dates">X</div>
-                                </div>
+                                <!-- add section button empty -->
+                                <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-y"
+                                    v-for="date in dates">X</div>
+                            </div>
                         </div>
                         <div id="total-cost-values" class="border-zinc-300">
-                            <VariableRow v-if="endRowValuesToDisplayState" :values="totalCostsToDisplay" :round-to="2" :isFinalRow="true"></VariableRow>
+                            <VariableRow v-if="endRowValuesToDisplayState" :values="totalCostsToDisplay" :round-to="2"
+                                :isFinalRow="true"></VariableRow>
                         </div>
                     </div>
                 </div>
             </div>
-            <SheetErrorMessages v-if="(errorMessages.length > 0)" :errorMessages="errorMessages" @close="closeErrorMessage"></SheetErrorMessages>
+            <SheetErrorMessages v-if="(errorMessages.length > 0)" :errorMessages="errorMessages"
+                @close="closeErrorMessage"></SheetErrorMessages>
         </div>
     </NuxtLayout>
 </template>
@@ -197,31 +237,68 @@ export default {
         }
     },
     computed: {
-        totalCostsToDisplay() {
-            var returnArray:string[] = [];
+        payrollToDisplay() {
+            var returnArray:string[][] = [];
 
-            if(this.endRowValuesToDisplayState.length > 0) {
+            console.log(this.payrollState.employees.length)
+
+            if(this.payrollState.employees) {
+                for(let i = 0; i < this.payrollState.employees.length; i++) {
+                    var valueArray:string[] = [];
+                    
+                    for(let j=0; j < 24; j++) {
+                        //todo: handle starting month and end month
+                        valueArray.push(this.payrollState.employees[i].monthly_salary.toString())
+                    }
+                    returnArray.push(valueArray);
+                }
+            } 
+            console.log(returnArray);
+            return returnArray;
+        },
+        totalPayrollToDisplay() {
+            var returnArray: string[] = [];
+
+            if (this.payrollState.payroll_values) {
+                for (let i = 0; i < 24; i++) {
+                    returnArray.push(this.payrollState.payroll_values[i].value);
+                }
+            } else {
+                for (let i = 0; i < 24; i++) {
+                    returnArray.push("0");
+                }
+            }
+            return returnArray;
+        },
+        totalCostsToDisplay() {
+            var returnArray: string[] = [];
+
+            if (this.endRowValuesToDisplayState.length > 0) {
 
                 //populate array with all calculation to perform
-                var calcArray:string[] = [];
-                
-                for(let i=0; i < 24; i++) {
+                var calcArray: string[] = [];
+
+                for (let i = 0; i < 24; i++) {
                     calcArray.push("");
                 }
 
-                for(let i=0; i < this.endRowValuesToDisplayState.length; i++) {
-                    for(let j=0; j < this.endRowValuesToDisplayState[i].length; j++) {
-                        if(this.endRowValuesToDisplayState[i][j] != "–") {
+                for (let i = 0; i < this.endRowValuesToDisplayState.length; i++) {
+                    for (let j = 0; j < this.endRowValuesToDisplayState[i].length; j++) {
+                        if (this.endRowValuesToDisplayState[i][j] != "–") {
                             calcArray[j] = calcArray[j] + "+" + this.endRowValuesToDisplayState[i][j];
                         }
                     }
                 }
 
-                for(let i=0; i < calcArray.length; i++) {
+                for(let i = 0; i < calcArray.length; i++) {
+                    calcArray[i] = calcArray[i] + "+" + this.totalPayrollToDisplay[i];
+                }
+
+                for (let i = 0; i < calcArray.length; i++) {
                     try {
                         returnArray.push(useMathParser(calcArray[i]).toString());
-                    } catch(e) {
-                        if(this.endRowValuesToDisplayState.length === 1) {
+                    } catch (e) {
+                        if (this.endRowValuesToDisplayState.length === 1) {
                             returnArray.push(this.endRowValuesToDisplayState[0][i]);
                         } else {
                             returnArray.push("#REF!");
@@ -232,7 +309,7 @@ export default {
                 return returnArray;
 
             } else {
-                for(let i=0; i < 24; i++) {
+                for (let i = 0; i < 24; i++) {
                     returnArray.push("–")
                 }
                 return returnArray;
@@ -241,7 +318,7 @@ export default {
 
     },
     methods: {
-        closeErrorMessage(index:number){
+        closeErrorMessage(index: number) {
             this.errorMessages.splice(index, 1)
         },
         async addSection() {
@@ -330,11 +407,11 @@ export default {
                 assumptionValuesArray = useFormulaParser().getSheetRowValues(this.costState.assumptions);
                 let index = assumptionValuesArray.length - 1;
                 assumptionValuesArrayState.value.push(assumptionValuesArray[index])
-            } catch(e){
+            } catch (e) {
                 console.log(e);
                 this.errorMessages.push("Something went wrong! Please try adding the variable again.");
                 this.costState = await useSheetUpdate().getCostSheet(this.route.params.modelId)
-            } 
+            }
 
             try {
                 await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
@@ -342,6 +419,30 @@ export default {
                 console.log(e)
                 this.errorMessages.push("Something went wrong! Please try adding the variable again.");
                 this.costState = await useSheetUpdate().getCostSheet(this.route.params.modelId)
+            }
+
+        },
+        async addEmployee() {
+
+            const emptyEmployee: Employee = {
+                _id: undefined,
+                name: "Joanna Doe",
+                start_date: "31-01-2021",
+                end_date: null,
+                title: null,
+                department: null,
+                monthly_salary: 0,
+                from_integration: false,
+            }
+
+            this.payrollState.employees.push(emptyEmployee);
+
+            try {
+                await useSheetUpdate().updatePayroll(this.route.params.modelId, this.payrollState.employees);
+            } catch (e) {
+                console.log(e);
+                this.errorMessages.push("Could not add employee! Please try again.");
+                this.payrollState = await useSheetUpdate().getPayroll(this.route.params.modelId);
             }
 
         },
@@ -418,7 +519,7 @@ export default {
                 const storageValue: string = useGetValueFromHumanReadable(humanReadableInputValue, variableId, variableSearchMap);
                 this.costState.sections[sectionIndex].rows[variableIndex].value = storageValue.toString();
 
-                if(this.costState.sections[sectionIndex].rows[variableIndex].integration_name != null) {
+                if (this.costState.sections[sectionIndex].rows[variableIndex].integration_name != null) {
                     this.costState.sections[sectionIndex].rows[variableIndex].var_type = "integration";
                     this.costState.sections[sectionIndex].rows[variableIndex].time_series = true;
                 } else if (storageValue.includes("+") || storageValue.includes("-") || storageValue.includes("*") || storageValue.includes("/") || storageValue.includes("-")) {
@@ -448,7 +549,7 @@ export default {
             }
         },
         async updateIntegrationValue(integrationSelected: string, timeSeriesMap: Map<string, boolean>, variableIndex: number, sectionIndex: number) {
-            if(integrationSelected != "None") {
+            if (integrationSelected != "None") {
                 this.costState.sections[sectionIndex].rows[variableIndex].var_type = "integration";
                 this.costState.sections[sectionIndex].rows[variableIndex].integration_name = integrationSelected;
                 this.costState.sections[sectionIndex].rows[variableIndex].time_series = true;
@@ -572,7 +673,7 @@ export default {
                 this.errorMessages.push("A variable name must be longer than 0 and can't start with a number.");
             }
         },
-        async updateAssumptionSettings(variableIndex: number, value1Input: string, valTypeInput: string, decimalPlaces:number, startingAtInput: number, sectionIndex: number) {
+        async updateAssumptionSettings(variableIndex: number, value1Input: string, valTypeInput: string, decimalPlaces: number, startingAtInput: number, sectionIndex: number) {
 
             this.costState.assumptions[variableIndex].val_type = valTypeInput;
             this.costState.assumptions[variableIndex].value_1 = value1Input;
@@ -586,7 +687,7 @@ export default {
                 value1OnlySpaces = false;
             }
 
-            if (value1Input === null ||value1Input === undefined || value1Input === "" || value1OnlySpaces) {
+            if (value1Input === null || value1Input === undefined || value1Input === "" || value1OnlySpaces) {
                 this.costState.assumptions[variableIndex].value_1 = undefined;
                 this.costState.assumptions[variableIndex].first_value_diff = false;
             } else {
@@ -612,7 +713,7 @@ export default {
             }
         },
         async updateVariableSettings(variableIndex: number, value1Input: string, valTypeInput: string, decimalPlaces: number, startingAtInput: number, sectionIndex: number) {
-            
+
             this.costState.sections[sectionIndex].rows[variableIndex].val_type = valTypeInput;
             this.costState.sections[sectionIndex].rows[variableIndex].value_1 = value1Input;
 
@@ -745,7 +846,7 @@ export default {
             }
         },
         updateDisplayedValues() {
-            
+
             //assumptions
             try {
                 this.assumptionValuesToDisplayState = useFormulaParser().getSheetRowValues(this.costState.assumptions);
@@ -768,7 +869,7 @@ export default {
                 this.variableValuesToDisplayState = variablesValuesStorage;
                 this.endRowValuesToDisplayState = endRowValuesStorage;
 
-            } catch(e) {
+            } catch (e) {
                 console.log(e);
                 this.errorMessages.push(e)
             }
@@ -778,10 +879,10 @@ export default {
         try {
             //return the display values for all the assumptions
             const costs = useCostState();
-            
+
             var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(costs.value.assumptions);
             useState('costAssumptionValues', () => assumptionValuesArray);
-            
+
             var variablesValuesStorage: Map<number, string[][]> = new Map<number, string[][]>();
             var endRowValuesStorage: string[][] = [];
             for (let i = 0; i < costs.value.sections.length; i++) {
@@ -799,7 +900,7 @@ export default {
             useState<Map<number, string[][]>>('costVariableValues', () => variablesValuesStorage);
             useState<string[][]>('costEndRowValues', () => endRowValuesStorage);
 
-        } catch(e) {
+        } catch (e) {
             console.log(e);
             this.errorMessages.push(e)
         }
