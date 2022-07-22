@@ -1,5 +1,4 @@
 from locust import HttpUser, task, between
-
 from mixins import JohnDoeMixin
 
 
@@ -84,7 +83,23 @@ class LocustModels(JohnDoeMixin, HttpUser):
             },
         )
 
-    # @task
-    # def model_add(self):
-    #     # todo
-    #     ...
+    @task
+    def model_add_delete(self):
+        workspace_id = "62bc5706a40e85213c27ce29"
+
+        r = self.client.post(
+            "/model/add",
+            params={
+                "name": "my new model",
+                "workspace_id": workspace_id,
+            },
+        )
+
+        model_id = r.json()["_id"]
+
+        self.client.post(
+            "/model/delete",
+            params={
+                "model_id": model_id,
+            },
+        )
