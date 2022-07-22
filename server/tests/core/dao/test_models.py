@@ -25,6 +25,7 @@ from core.dao.models import (
     update_revenues_sheet,
     set_starting_month,
     update_model_employees,
+    delete_model,
 )
 from core.dao.workspaces import get_workspace
 from core.exceptions import (
@@ -37,6 +38,13 @@ from datetime import date
 
 from core.schemas.models import Employee
 from core.schemas.sheets import Sheet
+
+
+@pytest.mark.anyio
+async def test_delete_model():
+    model_id = "62b488ba433720870b60ec0a"
+    assert await delete_model(model_id)
+    assert await get_model_by_id(model_id) is None
 
 
 @pytest.mark.anyio

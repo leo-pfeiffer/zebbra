@@ -219,6 +219,10 @@ async def set_starting_month(model_id: str, starting_month: date):
     )
 
 
+async def delete_model(model_id: PyObjectId | str):
+    return await db.models.delete_one({"_id": str(model_id)})
+
+
 async def create_model(admin_id: PyObjectId, model_name: str, workspace_id: PyObjectId):
     if not await user_exists(admin_id):
         raise DoesNotExistException("User does not exist")
