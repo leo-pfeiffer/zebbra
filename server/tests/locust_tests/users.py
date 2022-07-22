@@ -5,10 +5,7 @@ from mixins import JohnDoeMixin
 
 class LocustUser(JohnDoeMixin, HttpUser):
     wait_time = between(1, 5)
-
-    @task
-    def baseline(self):
-        self.client.get("/")
+    weight = 10
 
     @task
     def user(self):
