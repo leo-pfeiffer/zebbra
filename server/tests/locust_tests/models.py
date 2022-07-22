@@ -19,12 +19,72 @@ class LocustModels(JohnDoeMixin, HttpUser):
 
     @task
     def model_costs(self):
-        self.client.get("/model/costs", params={"model_id": self.model_id})
+        r = self.client.get("/model/costs", params={"model_id": self.model_id})
+        new_sheet = r.json()
+        self.client.post(
+            "/model/costs", params={"model_id": self.model_id}, json=new_sheet
+        )
 
     @task
     def model_revenues(self):
-        self.client.get("/model/revenues", params={"model_id": self.model_id})
+        r = self.client.get("/model/revenues", params={"model_id": self.model_id})
+        new_sheet = r.json()
+        self.client.post(
+            "/model/revenues", params={"model_id": self.model_id}, json=new_sheet
+        )
 
     @task
     def model_payroll(self):
         self.client.get("/model/payroll", params={"model_id": self.model_id})
+
+    @task
+    def model_grant_revoke(self):
+
+        user_darwin = "62bb11835529faba0704639c"
+
+        # revoke admin permission
+        self.client.post(
+            "/model/grant",
+            params={
+                "model_id": self.model_id,
+                "role": "admin",
+                "user_id": user_darwin,
+            },
+        )
+
+        # revoke admin role
+        self.client.post(
+            "/model/revoke",
+            params={
+                "model_id": self.model_id,
+                "role": "admin",
+                "user_id": user_darwin,
+            },
+        )
+
+    @task
+    def model_rename(self):
+        # revoke admin permission
+        self.client.post(
+            "/model/rename",
+            params={
+                "model_id": self.model_id,
+                "name": "new_model_name",
+            },
+        )
+
+    @task
+    def model_starting_month(self):
+        # revoke admin permission
+        self.client.post(
+            "/model/startingMonth",
+            params={
+                "model_id": self.model_id,
+                "starting_month": "2022-01-01",
+            },
+        )
+
+    # @task
+    # def model_add(self):
+    #     # todo
+    #     ...
