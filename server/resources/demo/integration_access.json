@@ -12,7 +12,7 @@
       "scope": "openid profile email accounting.transactions accounting.reports.read accounting.journals.read accounting.settings accounting.contacts accounting.attachments assets projects offline_access",
       "expires_at": 1656898425
     },
-    "requires_reconnect": false,
+    "requires_reconnect": true,
     "additional_info": null
   },
     {
@@ -28,7 +28,7 @@
       "scope": "public",
       "expires_at": 1657829144
     },
-    "requires_reconnect": false,
+    "requires_reconnect": true,
     "additional_info": null
     }
 ]
