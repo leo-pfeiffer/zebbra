@@ -244,15 +244,35 @@ export default {
         payrollToDisplay() {
             var returnArray:string[][] = [];
 
-            console.log(this.payrollState.employees.length)
+            const modelStartDate = new Date(this.modelMeta.starting_month);
 
             if(this.payrollState.employees) {
                 for(let i = 0; i < this.payrollState.employees.length; i++) {
                     var valueArray:string[] = [];
-                    
+
+                    var startDateDiff:number;
+                    var endDateDiff:number;
+
+                    const employeeStartDate = new Date(this.payrollState.employees[i].start_date);
+
+                    startDateDiff = this.getMonthDiff(modelStartDate, employeeStartDate);
+                    console.log(startDateDiff);
+
+                    var employeeEndDate:Date;
+                    if(this.payrollState.employees[i].end_date != null) {
+                        employeeEndDate = new Date(this.payrollState.employees[i].end_date);
+                        endDateDiff = this.getMonthDiff(modelStartDate, employeeEndDate);
+                    } else {
+                        endDateDiff = 24;
+                    }
+                    console.log(endDateDiff);
+
                     for(let j=0; j < 24; j++) {
-                        //todo: handle starting month and end month
-                        valueArray.push(this.payrollState.employees[i].monthly_salary.toString())
+                        if(j >= startDateDiff && j <= endDateDiff) {
+                            valueArray.push(this.payrollState.employees[i].monthly_salary.toString())
+                        } else {
+                            valueArray.push("–");
+                        }
                     }
                     returnArray.push(valueArray);
                 }
@@ -324,6 +344,9 @@ export default {
     methods: {
         closeErrorMessage(index: number) {
             this.errorMessages.splice(index, 1)
+        },
+        getMonthDiff(startDate:Date, endDate:Date) {
+            return endDate.getMonth() - startDate.getMonth() + (12 * (endDate.getFullYear() - startDate.getFullYear()))
         },
         async addSection() {
 

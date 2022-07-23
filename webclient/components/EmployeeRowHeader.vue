@@ -133,9 +133,12 @@ export default {
                 this.settingsOpen = true;
             } else {
                 this.settingsOpen = false;
-                this.valType = this.variable.val_type;
-                this.value1 = this.variable.value_1;
-                this.startingAt = this.variable.starting_at;
+                this.newName = this.employee.name;
+                this.newTitle = this.employee.title;
+                this.newDepartment = this.employee.department;
+                this.newSalary = this.employee.monthly_salary;
+                this.newStartDate = this.employee.start_date;
+                this.newEndDate = this.employee.end_date;
             }
         },
         toggleDeleteModal() {
