@@ -5,7 +5,6 @@ from core.exceptions import UniqueConstraintFailedException, BusinessLogicExcept
 from core.dao.users import (
     get_user,
     delete_user_full,
-    add_user_to_workspace,
     create_user,
     set_user_otp_secret,
     set_user_otp_secret_validated,
@@ -14,7 +13,10 @@ from core.dao.users import (
     remove_user_from_workspace,
     get_user_by_username,
 )
-from core.dao.workspaces import get_workspaces_of_user, get_workspace
+from core.dao.workspaces import (
+    get_workspaces_of_user,
+    get_workspace,
+)
 from core.schemas.users import UserInDB
 
 
@@ -72,17 +74,6 @@ async def test_delete_user_deletes_workspace_membership(users):
     assert len(await get_workspaces_of_user(users["johndoe@example.com"])) == 1
     await delete_user_full(users["johndoe@example.com"])
     assert len(await get_workspaces_of_user(users["johndoe@example.com"])) == 0
-
-
-@pytest.mark.anyio
-async def test_add_user_to_workspace(users, workspaces):
-    wsp = workspaces["Boring Co."]
-    u = users["johndoe@example.com"]
-    workspace_before = await get_workspace(wsp)
-    await add_user_to_workspace(u, wsp)
-    workspace_after = await get_workspace(wsp)
-    assert len(workspace_after.users) - len(workspace_before.users) == 1
-    assert u in [str(x) for x in workspace_after.users]
 
 
 @pytest.mark.anyio

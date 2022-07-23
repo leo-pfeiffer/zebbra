@@ -31,6 +31,7 @@ from core.dao.models import (
     update_costs_sheet,
     set_starting_month,
     update_model_employees,
+    delete_model,
 )
 from core.exceptions import (
     DoesNotExistException,
@@ -38,7 +39,14 @@ from core.exceptions import (
     CardinalityConstraintFailedException,
     BusinessLogicException,
 )
-from core.schemas.models import Model, ModelUser, ModelMeta, Employee, Payroll
+from core.schemas.models import (
+    Model,
+    ModelUser,
+    ModelMeta,
+    Employee,
+    Payroll,
+    UpdateEmployee,
+)
 from core.schemas.sheets import Sheet
 from core.schemas.users import User
 from core.schemas.utils import Message, PyObjectId
@@ -280,6 +288,28 @@ async def create_new_model(
         )
 
 
+@router.post(
+    "/model/delete",
+    response_model=Message,
+    tags=["model"],
+    responses={
+        400: {"description": "Model does not exist."},
+        403: {"description": "User is not admin."},
+    },
+)
+async def delete_existing_model(
+    model_id: str, current_user: User = Depends(get_current_active_user)
+):
+    """
+    Delete an existing model\n
+        model_id:
+    """
+    await assert_model_exists(model_id)
+    await assert_model_access_admin(user_id=current_user.id, model_id=model_id)
+    await delete_model(model_id)
+    return {"message": "Model successfully deleted."}
+
+
 @router.get(
     "/model/revenues",
     response_model=Sheet,
@@ -436,7 +466,7 @@ async def retrieve_model_payroll(
 )
 async def update_model_payroll(
     model_id: str,
-    employee_data: list[Employee],
+    employee_data: list[UpdateEmployee],
     current_user: User = Depends(get_current_active_user),
 ):
     await _assert_model_exists(model_id)
@@ -444,7 +474,11 @@ async def update_model_payroll(
     await _assert_access_can_edit(current_user.id, model_id)
 
     # filter out integration data
-    filtered = [employee for employee in employee_data if not employee.from_integration]
+    filtered = [
+        Employee(**employee.dict())
+        for employee in employee_data
+        if not employee.from_integration
+    ]
 
     await update_model_employees(model_id, filtered)
 

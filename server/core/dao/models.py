@@ -143,9 +143,10 @@ async def add_admin_to_model(user_id: PyObjectId, model_id: str):
     if not await user_exists(user_id):
         raise DoesNotExistException("User does not exist")
 
-    await db.models.update_one(
-        {"_id": model_id}, {"$push": {"meta.admins": str(user_id)}}
-    )
+    if not await is_admin(model_id, user_id):
+        await db.models.update_one(
+            {"_id": model_id}, {"$push": {"meta.admins": str(user_id)}}
+        )
 
 
 async def add_editor_to_model(user_id: PyObjectId, model_id: str):
@@ -216,6 +217,10 @@ async def set_starting_month(model_id: str, starting_month: date):
     await db.models.update_one(
         {"_id": model_id}, {"$set": {"meta.starting_month": string_date}}
     )
+
+
+async def delete_model(model_id: PyObjectId | str):
+    return await db.models.delete_one({"_id": str(model_id)})
 
 
 async def create_model(admin_id: PyObjectId, model_name: str, workspace_id: PyObjectId):

@@ -165,3 +165,11 @@ async def change_workspace_name(workspace_id: PyObjectId, new_name: str):
     await db.models.update_many(
         {"workspace": str(workspace_id)}, {"$set": {"workspace": new_name}}
     )
+
+
+async def add_user_to_workspace(user_id: PyObjectId, workspace_id: PyObjectId):
+    if not await is_user_in_workspace(user_id, workspace_id):
+        # add user to workspace
+        return await db.workspaces.update_one(
+            {"_id": str(workspace_id)}, {"$push": {"users": str(user_id)}}
+        )
