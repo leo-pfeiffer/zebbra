@@ -8,21 +8,57 @@ const route = useRoute();
         <div class="flex text-zinc-900">
             <div
                 class="relative group hover:bg-zinc-50 text-xs py-2 pl-10 pr-2 border-t border-r-2 border-x border-zinc-300 w-full h-full">
-                <span v-if="employee.from_integration" class="mr-3 text-zinc-400 text-[10px]"><i class="bi bi-server"></i></span>
-                <span v-else class="mr-3 text-zinc-400"><i class="bi bi-person"></i></span>
+                <span v-if="employee.from_integration" class="mr-3 text-zinc-300 text-[10px] pl-[1px] pr-[2px]"><i class="bi bi-server"></i></span>
+                <span v-else class="mr-3 text-green-500"><i class="bi bi-person"></i></span>
                 <span class="text-zinc-900">{{ employee.name }}</span>
                 <span class="ml-2 text-zinc-400">{{ employee.title }} | {{ employee.department }}</span>
-                <span class="text-[10px] float-right hidden group-hover:block"><button type="button"
+                <span v-if="!employee.from_integration" class="text-[10px] float-right hidden group-hover:block"><button type="button"
                         @click="toggleDeleteModal" class="mr-1"><i title="Delete variable"
                             class="bi bi-x-lg text-zinc-500 hover:text-zinc-700"></i></button></span>
-                <span class="text-[9px] float-right hidden group-hover:block"><button type="button"
+                <span v-if="!employee.from_integration" class="text-[9px] float-right hidden group-hover:block"><button type="button"
                         @click="toggleSettings" class="mr-3"><i title="Variable settings"
                             class="bi bi-gear-fill text-zinc-500 hover:text-zinc-700"></i></button></span>
                 <div v-show="settingsOpen"
-                    class="z-50 absolute p-3 border rounded shadow-md text-xs border-zinc-300 bg-white top-0 right-0 translate-x-36 -translate-y-1.5 text-[11px] w-[200px]">
-                    <div class="text-zinc-900 font-medium mb-2">Name</div>
-                    <div class="grid grid-rows-2 grid-flow-col gap-x-1 gap-y-3 mb-3">
-                        todo
+                    class="z-50 absolute p-3 border rounded shadow-md text-xs border-zinc-300 bg-white top-0 right-0 translate-x-36 -translate-y-1.5 text-[11px] w-[350px]">
+                    <div class="columns-2">
+
+                        <div>
+                            <div class="text-zinc-900 font-medium mb-1">Name</div>
+                            <div class="mb-2">
+                                <input v-model="newName" :id="'name-input-' + employee._id" type="text"
+                                    class="border-zinc-300 border rounded w-full font-mono px-2 py-1">
+                            </div>
+                            <div class="text-zinc-900 font-medium mb-1">Monthly Salary</div>
+                            <div class="mb-2">
+                                <input v-model="newSalary" :id="'salary-input-' + employee._id" type="number"
+                                    class="border-zinc-300 border rounded w-full font-mono px-2 py-1">
+                            </div>
+                            <div class="text-zinc-900 font-medium mb-1">Start Date</div>
+                            <div class="mb-2">
+                                <input v-model="newStartDate" :id="'start-date-input-' + employee._id" type="text"
+                                    placeholder="YYYY-MM-DD"
+                                    class="border-zinc-300 border rounded w-full font-mono px-2 py-1">
+                            </div>
+
+                        </div>
+                        <div>
+                            <div class="text-zinc-900 font-medium mb-1">Title</div>
+                            <div class="mb-2">
+                                <input v-model="newTitle" :id="'position-input-' + employee._id" type="text"
+                                    class="border-zinc-300 border rounded w-full font-mono px-2 py-1">
+                            </div>
+                            <div class="text-zinc-900 font-medium mb-1">Department</div>
+                            <div class="mb-2">
+                                <input v-model="newDepartment" :id="'department-input-' + employee._id" type="text"
+                                    class="border-zinc-300 border rounded w-full font-mono px-2 py-1">
+                            </div>
+                                <div class="text-zinc-900 font-medium mb-1">End Date</div>
+                            <div class="mb-2">
+                                <input v-model="newEndDate" :id="'end-date-input-' + employee._id" type="text"
+                                    placeholder="YYYY-MM-DD"
+                                    class="border-zinc-300 border rounded w-full font-mono px-2 py-1">
+                            </div>
+                        </div>
                     </div>
                     <div class="flex justify-end w-full">
                         <button
@@ -30,7 +66,7 @@ const route = useRoute();
                             @click="toggleSettings">Cancel</button>
                         <button class="ml-2 bg-sky-600  drop-shadow-sm
                                 shadow-zinc-50 text-xs px-1.5 py-0.5 font-medium
-                                border border-sky-500 rounded text-neutral-100" @click="$emit('updateEmployee'); toggleSettings()">Update</button>
+                                border border-sky-500 rounded text-neutral-100" @click="$emit('updateEmployee', employeeIndex, newName, newSalary, newTitle, newDepartment, newStartDate, newEndDate); toggleSettings()">Update</button>
                     </div>
                 </div>
             </div>
@@ -68,7 +104,13 @@ export default {
     data() {
         return {
             settingsOpen: false,
-            deleteModalOpen: false
+            deleteModalOpen: false,
+            newName: "",
+            newTitle: "",
+            newDepartment: "",
+            newSalary: null,
+            newStartDate: "",
+            newEndDate: ""
         }
     },
     props: {
@@ -77,7 +119,12 @@ export default {
     },
     mounted() {
 
-        //todo
+        this.newName = this.employee.name;
+        this.newTitle = this.employee.title;
+        this.newDepartment = this.employee.department;
+        this.newSalary = this.employee.monthly_salary;
+        this.newStartDate = this.employee.start_date;
+        this.newEndDate = this.employee.end_date;
 
     },
     methods: {

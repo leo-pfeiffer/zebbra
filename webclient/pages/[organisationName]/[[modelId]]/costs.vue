@@ -84,7 +84,8 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                                 <div>
                                     <SectionHeader :sectionName="'Payroll'" :changingEnabled="false"></SectionHeader>
                                     <EmployeeRowHeader v-for="(employee, index) in payrollState.employees"
-                                        :employee="employee" :employeeIndex="index"></EmployeeRowHeader>
+                                        :employee="employee" :employeeIndex="index"
+                                        @update-employee="updateEmployee"></EmployeeRowHeader>
                                     <div
                                         class="text-xs py-2 pl-10 min-w-[470px] max-w-[470px] border-zinc-300 border-t border-l">
                                         <button @click="addEmployee()"
@@ -515,9 +516,22 @@ export default {
                 this.errorMessages.push("You can't enter an empty value. Please try again.");
             }
         },
-        async updateEmployee() {
+        async updateEmployee(employeeIndex:number, newName:string, newSalary:number, newTitle:string, newDepartment:string, newStartDate:string, newEndDate:string) {
 
-            //todo
+            this.payrollState.employees[employeeIndex].name = newName;
+            this.payrollState.employees[employeeIndex].monthly_salary = newSalary;
+            this.payrollState.employees[employeeIndex].title = newTitle;
+            this.payrollState.employees[employeeIndex].department = newDepartment;
+            this.payrollState.employees[employeeIndex].start_date = newStartDate;
+            this.payrollState.employees[employeeIndex].end_date = newEndDate;
+
+            try {
+                await useSheetUpdate().updatePayroll(this.route.params.modelId, this.payrollState.employees);
+            } catch (e) {
+                console.log(e);
+                this.errorMessages.push("Could not update employee! Please try again.");
+                this.payrollState = await useSheetUpdate().getPayroll(this.route.params.modelId);
+            }
 
         },
         async updateVariableValue(humanReadableInputValue: string, variableId: string, variableSearchMap: Map<string, string>, timeSeriesMap: Map<string, boolean>, variableIndex: number, sectionIndex: number) {
