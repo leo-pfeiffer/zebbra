@@ -256,7 +256,6 @@ export default {
                     const employeeStartDate = new Date(this.payrollState.employees[i].start_date);
 
                     startDateDiff = this.getMonthDiff(modelStartDate, employeeStartDate);
-                    console.log(startDateDiff);
 
                     var employeeEndDate:Date;
                     if(this.payrollState.employees[i].end_date != null) {
@@ -265,7 +264,6 @@ export default {
                     } else {
                         endDateDiff = 24;
                     }
-                    console.log(endDateDiff);
 
                     for(let j=0; j < 24; j++) {
                         if(j >= startDateDiff && j <= endDateDiff) {
@@ -277,7 +275,6 @@ export default {
                     returnArray.push(valueArray);
                 }
             } 
-            console.log(returnArray);
             return returnArray;
         },
         totalPayrollToDisplay() {
