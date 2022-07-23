@@ -1,4 +1,3 @@
-import re
 from datetime import datetime, date
 
 from bson import ObjectId
@@ -67,9 +66,6 @@ class OAuth2PasswordRequestFormWithOTP(OAuth2PasswordRequestForm):
 
 
 class DateString(str):
-    date_string_regex = r"^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$"
-    date_string_regex_compiled = re.compile(date_string_regex)
-
     @classmethod
     def __get_validators__(cls):
         yield cls.validate
@@ -77,7 +73,6 @@ class DateString(str):
     @classmethod
     def __modify_schema__(cls, field_schema):
         field_schema.update(
-            pattern=cls.date_string_regex,
             examples=["1999-01-25", "2001-04-04"],
         )
 
@@ -86,8 +81,9 @@ class DateString(str):
         if not isinstance(v, str) and not isinstance(v, date):
             raise TypeError("string or datetime.date required")
         if isinstance(v, str):
-            m = cls.date_string_regex_compiled.fullmatch(v.upper())
-            if not m:
+            try:
+                datetime.strptime(v, "%Y-%m-%d")
+            except ValueError:
                 raise ValueError(f"invalid date string format: {v}")
             return cls(v)
         return v.strftime("%Y-%m-%d")
