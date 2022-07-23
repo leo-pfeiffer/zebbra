@@ -30,8 +30,8 @@ const route = useRoute();
                             class="bi bi-gear-fill text-zinc-500 hover:text-zinc-700"></i></button></span>
                 <div v-show="settingsOpen && !isEndRow"
                     class="z-50 absolute p-3 border rounded shadow-md text-xs border-zinc-300 bg-white top-0 right-0 translate-x-36 -translate-y-1.5 text-[11px] w-[200px]">
-                    <div class="text-zinc-900 font-medium mb-2">Variable Type</div>
-                    <div class="grid grid-rows-2 grid-flow-col gap-x-1 gap-y-3 mb-3">
+                    <div class="text-zinc-900 font-medium mb-1">Variable Type</div>
+                    <div class="grid grid-rows-2 grid-flow-col gap-x-1 gap-y-3 mb-2">
                         <div>
                             <input v-model="valType" :checked="(valType == 'number')" :id="'number' + variable._id"
                                 type="radio" value="number" :name="'variable-type-select' + variable._id"
@@ -57,20 +57,20 @@ const route = useRoute();
                                     class="bi bi-percent mr-1"></i>Percentage</label>
                         </div>
                     </div>
-                    <div class="text-zinc-900 font-medium mb-2">Rounding Values</div>
-                    <div class="mb-3 flex justify-start align-middle">
+                    <div class="text-zinc-900 font-medium mb-1">Rounding Values</div>
+                    <div class="mb-2 flex justify-start align-middle">
                         <div class="w-3/5">Decimal places:</div>
                         <div class="w-2/5"><input v-model="decimalPlaces" :id="'decimal-places' + variable._id" min="0"
                                 type="number"
                                 class="border-zinc-300 border rounded font-mono w-16 float-right px-2 py-1"></div>
                     </div>
-                    <div class="text-zinc-900 font-medium mb-2">Custom Starting Value</div>
-                    <div class="mb-3">
+                    <div class="text-zinc-900 font-medium mb-1">Custom Starting Value</div>
+                    <div class="mb-2">
                         <input v-model="value1" :id="'value1-input-' + variable._id" type="text"
                             class="border-zinc-300 border rounded w-full font-mono px-2 py-1">
                     </div>
-                    <div class="text-zinc-900 font-medium mb-2">Starting At</div>
-                    <div class="mb-3 flex justify-start align-middle">
+                    <div class="text-zinc-900 font-medium mb-1">Starting At</div>
+                    <div class="mb-2 flex justify-start align-middle">
                         <div class="w-3/5">First month plus:</div>
                         <div class="w-2/5"><input v-model="startingAt" :id="'starting-at-' + variable._id" min="0"
                                 type="number"
