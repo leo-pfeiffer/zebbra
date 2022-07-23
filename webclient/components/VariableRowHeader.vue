@@ -13,7 +13,7 @@ const route = useRoute();
                 <span v-show="(valType === 'percentage') && !isEndRow" class="mr-3 text-amber-600"><i
                         class="bi bi-percent"></i></span>
                 <span v-show="(valType === 'number') && !isEndRow" class="mr-3 text-zinc-500"><i class="bi bi-hash"></i></span>
-                <span v-show="isEndRow" class="font-medium"><li class="marker:text-white/0">Revenues {{sectionName}}</li></span>
+                <span v-show="isEndRow" class="font-medium"><li class="marker:text-white/0">Total {{sectionName}}</li></span>
                 <span v-show="!isEndRow" v-if="!nameChangeSelected" @dblclick="toggleNameChange">{{ variable.name }}</span>
                 <span v-show="!isEndRow" v-else><input ref="name" @keydown.enter="$emit('updateName', newName, variableIndex, sectionIndex); toggleNameChange()" @keydown.esc="toggleNameChange"
                         v-model="newName"
