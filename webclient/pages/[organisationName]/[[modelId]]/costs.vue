@@ -15,6 +15,8 @@ const modelMeta = useModelMetaState();
 
 modelMeta.value = await getModelMeta(route.params.modelId);
 
+console.log(modelMeta.value.starting_month)
+
 const costState = useCostState();
 costState.value = await useSheetUpdate().getCostSheet(route.params.modelId);
 
@@ -424,13 +426,15 @@ export default {
         },
         async addEmployee() {
 
+            console.log(this.modelMeta.starting_month)
+
             const emptyEmployee: Employee = {
-                _id: undefined,
+                _id: null,
                 name: "Joanna Doe",
-                start_date: "31-01-2021",
+                start_date: this.modelMeta.starting_month,
                 end_date: null,
-                title: null,
-                department: null,
+                title: "CEO",
+                department: "Finance",
                 monthly_salary: 0,
                 from_integration: false,
             }
@@ -510,6 +514,11 @@ export default {
             } else {
                 this.errorMessages.push("You can't enter an empty value. Please try again.");
             }
+        },
+        async updateEmployee() {
+
+            //todo
+
         },
         async updateVariableValue(humanReadableInputValue: string, variableId: string, variableSearchMap: Map<string, string>, timeSeriesMap: Map<string, boolean>, variableIndex: number, sectionIndex: number) {
             if (humanReadableInputValue.length > 0) {
@@ -770,6 +779,11 @@ export default {
                     this.updateDisplayedValues();
                 }
             }
+        },
+        async deleteEmployee() {
+
+            //todo
+
         },
         async deleteSection(sectionIndex: number) {
             //first directly change the state
