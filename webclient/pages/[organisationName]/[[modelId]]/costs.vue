@@ -526,7 +526,7 @@ export default {
             this.payrollState.employees[employeeIndex].end_date = newEndDate;
 
             try {
-                await useSheetUpdate().updatePayroll(this.route.params.modelId, this.payrollState.employees);
+                this.payrollState = await useSheetUpdate().updatePayroll(this.route.params.modelId, this.payrollState.employees);
             } catch (e) {
                 console.log(e);
                 this.errorMessages.push("Could not update employee! Please try again.");
