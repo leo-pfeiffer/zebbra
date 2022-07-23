@@ -761,7 +761,6 @@ async def test_post_model_employees(access_token):
     employees.append(
         Employee(
             **{
-                "_id": "101",
                 "name": "Saint West",
                 "start_date": "2021-07-12",
                 "end_date": None,
@@ -809,7 +808,6 @@ async def test_post_model_employees_ignore_integration(access_token):
     employees.append(
         Employee(
             **{
-                "_id": "101",
                 "name": "Saint West",
                 "start_date": "2021-07-12",
                 "end_date": None,

@@ -39,7 +39,14 @@ from core.exceptions import (
     CardinalityConstraintFailedException,
     BusinessLogicException,
 )
-from core.schemas.models import Model, ModelUser, ModelMeta, Employee, Payroll
+from core.schemas.models import (
+    Model,
+    ModelUser,
+    ModelMeta,
+    Employee,
+    Payroll,
+    UpdateEmployee,
+)
 from core.schemas.sheets import Sheet
 from core.schemas.users import User
 from core.schemas.utils import Message, PyObjectId
@@ -459,7 +466,7 @@ async def retrieve_model_payroll(
 )
 async def update_model_payroll(
     model_id: str,
-    employee_data: list[Employee],
+    employee_data: list[UpdateEmployee],
     current_user: User = Depends(get_current_active_user),
 ):
     await _assert_model_exists(model_id)
@@ -467,7 +474,11 @@ async def update_model_payroll(
     await _assert_access_can_edit(current_user.id, model_id)
 
     # filter out integration data
-    filtered = [employee for employee in employee_data if not employee.from_integration]
+    filtered = [
+        Employee(**employee.dict())
+        for employee in employee_data
+        if not employee.from_integration
+    ]
 
     await update_model_employees(model_id, filtered)
 
