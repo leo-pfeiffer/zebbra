@@ -85,7 +85,8 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                                     <SectionHeader :sectionName="'Payroll'" :changingEnabled="false"></SectionHeader>
                                     <EmployeeRowHeader v-for="(employee, index) in payrollState.employees"
                                         :employee="employee" :employeeIndex="index"
-                                        @update-employee="updateEmployee"></EmployeeRowHeader>
+                                        @update-employee="updateEmployee"
+                                        @delete-employee="deleteEmployee"></EmployeeRowHeader>
                                     <div
                                         class="text-xs py-2 pl-10 min-w-[470px] max-w-[470px] border-zinc-300 border-t border-l">
                                         <button @click="addEmployee()"
@@ -794,9 +795,17 @@ export default {
                 }
             }
         },
-        async deleteEmployee() {
+        async deleteEmployee(employeeIndex:number) {
 
-            //todo
+            this.payrollState.employees.splice(employeeIndex, 1);
+
+            try {
+                this.payrollState = await useSheetUpdate().updatePayroll(this.route.params.modelId, this.payrollState.employees);
+            } catch (e) {
+                console.log(e);
+                this.errorMessages.push("Could not delete employee! Please try again.");
+                this.payrollState = await useSheetUpdate().getPayroll(this.route.params.modelId);
+            }
 
         },
         async deleteSection(sectionIndex: number) {

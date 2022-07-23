@@ -13,7 +13,7 @@ const route = useRoute();
                 <span class="text-zinc-900">{{ employee.name }}</span>
                 <span class="ml-2 text-zinc-400">{{ employee.title }} | {{ employee.department }}</span>
                 <span v-if="!employee.from_integration" class="text-[10px] float-right hidden group-hover:block"><button type="button"
-                        @click="toggleDeleteModal" class="mr-1"><i title="Delete variable"
+                        @click="toggleDeleteModal" class="mr-1"><i title="Delete employee"
                             class="bi bi-x-lg text-zinc-500 hover:text-zinc-700"></i></button></span>
                 <span v-if="!employee.from_integration" class="text-[9px] float-right hidden group-hover:block"><button type="button"
                         @click="toggleSettings" class="mr-3"><i title="Variable settings"
