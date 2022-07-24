@@ -44,7 +44,7 @@
                 <form @submit.prevent="changeModelName">
                 <div class="mb-4">
                     <div class="mt-1">
-                        <input required :name="`new-name-${modelId}`"
+                        <input required autofocus :name="`new-name-${modelId}`"
                         class="w-64 border-zinc-300 border rounded text-sm focus:ring-sky-500 focus:border-sky-500 px-2.5 py-1 placeholder:text-zinc-400"
                         :id="`new-name-${modelId}`" type="text" placeholder="New model name" v-model="newName">
                     </div>
