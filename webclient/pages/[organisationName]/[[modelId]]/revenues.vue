@@ -76,7 +76,7 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                                     </span>
                                 </div>
                                 <div v-for="(section, sectionIndex) in revenueState.sections" :key="sectionIndex">
-                                    <SectionHeader :sectionName="section.name" :sectionIndex="sectionIndex"
+                                    <SectionHeader :sectionName="section.name" :sectionIndex="sectionIndex" :changingEnabled="true"
                                     @change-section-name="updateSectionName"
                                     @delete-section="deleteSection"></SectionHeader>
                                     <VariableRowHeader @update-value="updateVariableValue"
@@ -402,7 +402,7 @@ export default {
                     //retrieve actual stored sheet from DB
                     //if actual sheet and state match, if not update state to actual sheet
                     const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
-                    if (!(actualSheet.assumptions[variableIndex].value === this.revenue.assumptions[variableIndex].value)) {
+                    if (!(actualSheet.assumptions[variableIndex].value === this.revenueState.assumptions[variableIndex].value)) {
                         this.revenueState = actualSheet;
                     }
                 }
@@ -606,7 +606,7 @@ export default {
                 //retrieve actual stored sheet from DB
                 //if actual sheet and state match, if not update state to actual sheet
                 const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
-                if (!(this.actualSheet.assumptions[variableIndex].value === this.revenueState.assumptions[variableIndex].value)) {
+                if (!(actualSheet.assumptions[variableIndex].value === this.revenueState.assumptions[variableIndex].value)) {
                     this.revenueState = actualSheet;
                 }
             }

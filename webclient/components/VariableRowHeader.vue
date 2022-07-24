@@ -13,7 +13,7 @@ const route = useRoute();
                 <span v-show="(valType === 'percentage') && !isEndRow" class="mr-3 text-amber-600"><i
                         class="bi bi-percent"></i></span>
                 <span v-show="(valType === 'number') && !isEndRow" class="mr-3 text-zinc-500"><i class="bi bi-hash"></i></span>
-                <span v-show="isEndRow" class="font-medium"><li class="marker:text-white/0">Revenues {{sectionName}}</li></span>
+                <span v-show="isEndRow" class="font-medium"><li class="marker:text-white/0">Total {{sectionName}}</li></span>
                 <span v-show="!isEndRow" v-if="!nameChangeSelected" @dblclick="toggleNameChange">{{ variable.name }}</span>
                 <span v-show="!isEndRow" v-else><input ref="name" @keydown.enter="$emit('updateName', newName, variableIndex, sectionIndex); toggleNameChange()" @keydown.esc="toggleNameChange"
                         v-model="newName"
@@ -30,8 +30,8 @@ const route = useRoute();
                             class="bi bi-gear-fill text-zinc-500 hover:text-zinc-700"></i></button></span>
                 <div v-show="settingsOpen && !isEndRow"
                     class="z-50 absolute p-3 border rounded shadow-md text-xs border-zinc-300 bg-white top-0 right-0 translate-x-36 -translate-y-1.5 text-[11px] w-[200px]">
-                    <div class="text-zinc-900 font-medium mb-2">Variable Type</div>
-                    <div class="grid grid-rows-2 grid-flow-col gap-x-1 gap-y-3 mb-3">
+                    <div class="text-zinc-900 font-medium mb-1">Variable Type</div>
+                    <div class="grid grid-rows-2 grid-flow-col gap-x-1 gap-y-3 mb-2">
                         <div>
                             <input v-model="valType" :checked="(valType == 'number')" :id="'number' + variable._id"
                                 type="radio" value="number" :name="'variable-type-select' + variable._id"
@@ -57,20 +57,20 @@ const route = useRoute();
                                     class="bi bi-percent mr-1"></i>Percentage</label>
                         </div>
                     </div>
-                    <div class="text-zinc-900 font-medium mb-2">Rounding Values</div>
-                    <div class="mb-3 flex justify-start align-middle">
+                    <div class="text-zinc-900 font-medium mb-1">Rounding Values</div>
+                    <div class="mb-2 flex justify-start align-middle">
                         <div class="w-3/5">Decimal places:</div>
                         <div class="w-2/5"><input v-model="decimalPlaces" :id="'decimal-places' + variable._id" min="0"
                                 type="number"
                                 class="border-zinc-300 border rounded font-mono w-16 float-right px-2 py-1"></div>
                     </div>
-                    <div class="text-zinc-900 font-medium mb-2">Custom Starting Value</div>
-                    <div class="mb-3">
+                    <div class="text-zinc-900 font-medium mb-1">Custom Starting Value</div>
+                    <div class="mb-2">
                         <input v-model="value1" :id="'value1-input-' + variable._id" type="text"
                             class="border-zinc-300 border rounded w-full font-mono px-2 py-1">
                     </div>
-                    <div class="text-zinc-900 font-medium mb-2">Starting At</div>
-                    <div class="mb-3 flex justify-start align-middle">
+                    <div class="text-zinc-900 font-medium mb-1">Starting At</div>
+                    <div class="mb-2 flex justify-start align-middle">
                         <div class="w-3/5">First month plus:</div>
                         <div class="w-2/5"><input v-model="startingAt" :id="'starting-at-' + variable._id" min="0"
                                 type="number"
@@ -107,7 +107,7 @@ const route = useRoute();
                     </div>
                 </div>
             </div>
-            <div class="h-full w-full">
+            <div class="h-full w-full relative">
                 <div v-if="!valueInputSelected"
                     class="text-xs relative group border-t border-r border-zinc-300 min-w-[150px] max-w-[150px] h-full w-full text-right">
                     <div @dblclick="toggleInput" class="float-right h-full min-w-[130px] max-w-[130px] text-right text-xs py-2 px-2 border-r-2 border-zinc-300 tabular-nums truncate overflow-hidden">
@@ -120,12 +120,12 @@ const route = useRoute();
                     </div>
                 </div>
                 <div v-else
-                    class="absolute text-xs border-zinc-300 min-w-[500px] max-w-[500px] h-full w-full text-right z-50">
+                    class="absolute top-0 left-0 text-xs border-zinc-300 min-w-[500px] max-w-[500px] h-full w-full text-right z-50">
                     <input v-show="valueInputSelected" autofocus @keydown.enter="$emit('updateValue', humanReadableInputValue, variable._id, variableSearchMap, timeSeriesMap, variableIndex, sectionIndex); toggleInput()" @keydown.esc="toggleInput"
                         v-model="humanReadableInputValue"
                         class="border-t bg-white w-full py-2 px-2 font-mono font-sm focus:rounded-none focus:outline-green-600 border-r-2 border-zinc-300"
                         type=text>
-                <SearchDropDown v-show="variableSearch.size > 0" :variableSearch="variableSearch" @search-click="addSearchItemToInputValue"></SearchDropDown>
+                    <SearchDropDown v-show="variableSearch.size > 0" :variableSearch="variableSearch" @search-click="addSearchItemToInputValue"></SearchDropDown>
                 </div>
             </div>
         </div>
