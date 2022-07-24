@@ -19,12 +19,14 @@ export default {
     <div class="w-screen h-screen flex">
         <div class="w-48 min-w-[12rem] bg-zinc-100 px-3 py-4 border-r border-zinc-300 overflow-hidden">
             <div class="text-sm ml-0.5">
-                <span class="px-2 py-1 rounded-md bg-green-500 text-neutral-50 shadow-sm">
-                    {{ user.workspaces[0].name[0] }}
-                </span>
-                <span class="ml-2 text-zinc-900">
-                    {{ user.workspaces[0].name }}
-                </span>
+                <NuxtLink :to="`/${user.workspaces[0].name}`">
+                    <span class="px-2 py-1 rounded-md bg-green-500 text-neutral-50 shadow-sm">
+                        {{ user.workspaces[0].name[0] }}
+                    </span>
+                    <span class="ml-2 text-zinc-900">
+                        {{ user.workspaces[0].name }}
+                    </span>
+                </NuxtLink>
             </div>
             <div class="text-xs my-4">
                 <NuxtLink :to="`/${user.workspaces[0].name}/settings/workspace`"><div class="px-2 hover:bg-zinc-200 py-1.5 rounded text-zinc-500">
@@ -44,7 +46,7 @@ export default {
 
                 <button
                     class=" bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-xs pl-2.5 pr-3 py-1 border border-zinc-300 rounded text-zinc-700"><i
-                        class="bi bi-bar-chart-fill mr-1"></i>Create New Model</button>
+                        class="bi bi-plus-lg mr-1"></i>Create New Model</button>
 
             </div>
             <div class="pb-3">
