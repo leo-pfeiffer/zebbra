@@ -12,11 +12,11 @@ const route = useRoute();
                 <span v-else class="mr-3 text-green-500"><i class="bi bi-person-fill"></i></span>
                 <span class="text-zinc-900">{{ employee.name }}</span>
                 <span class="ml-2 text-zinc-400">{{ employee.title }} | {{ employee.department }}</span>
-                <span class="text-[10px] float-right hidden group-hover:block"><button type="button"
+                <span v-if="!employee.from_integration" class="text-[10px] float-right hidden group-hover:block"><button type="button"
                         @click="toggleDeleteModal" class="mr-1"><i title="Delete employee"
                             class="bi bi-x-lg text-zinc-500 hover:text-zinc-700"></i></button></span>
                 <span class="text-[9px] float-right hidden group-hover:block"><button type="button"
-                        @click="toggleSettings" class="mr-3"><i title="Variable settings"
+                        @click="toggleSettings" :class="{'mr-3': !employee.from_integration, 'mr-1': employee.from_integration}"><i title="Variable settings"
                             class="bi bi-gear-fill text-zinc-500 hover:text-zinc-700"></i></button></span>
                 <div v-show="settingsOpen"
                     class="z-50 absolute p-3 border rounded shadow-md text-xs border-zinc-300 bg-white top-0 right-0 translate-x-36 -translate-y-1.5 text-[11px] w-[350px]">
