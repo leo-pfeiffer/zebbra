@@ -15,15 +15,11 @@ const modelMeta = useModelMetaState();
 
 modelMeta.value = await getModelMeta(route.params.modelId);
 
-console.log(modelMeta.value.starting_month)
-
 const costState = useCostState();
 costState.value = await useSheetUpdate().getCostSheet(route.params.modelId);
 
 const payrollState = usePayrollState();
 payrollState.value = await useSheetUpdate().getPayroll(route.params.modelId);
-
-console.log(payrollState.value);
 
 //todo: find better solution
 const date: string[] = modelMeta.value.starting_month.split("-");
