@@ -792,7 +792,7 @@ async def test_post_model_employees(access_token):
     assert ct == 1
     assert ct_after == length_before
 
-    assert len(model_afterwards["payroll_values"]) > 0
+    assert len(model_afterwards["payroll_values"]) == 24
     for p in model_afterwards["payroll_values"]:
         IntegrationValue(**p)
 
@@ -917,7 +917,7 @@ async def test_get_model_employees(access_token):
     for e in model_afterwards["employees"]:
         assert Employee(**e)
 
-    assert len(model_afterwards["payroll_values"]) > 0
+    assert len(model_afterwards["payroll_values"]) == 24
     for p in model_afterwards["payroll_values"]:
         IntegrationValue(**p)
 
