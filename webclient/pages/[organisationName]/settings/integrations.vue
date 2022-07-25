@@ -51,6 +51,9 @@ const gustoState = useState<GetIntegrationProvidersResponse>('gustoState', () =>
                                 <div><span class="mr-2">Connect Zebbra with Xero Accounting</span><span
                                         v-if="xeroState.connected"
                                         class="text-[10px] uppercase bg-green-500 text-neutral-50 px-1 py-0.5 rounded">Connected</span>
+                                        <span
+                                        v-else-if="xeroState.requires_reconnect"
+                                        class="text-[10px] uppercase bg-red-500 text-neutral-50 px-1 py-0.5 rounded">Reconnect</span>
                                 </div>
                             </div>
                         </div>
@@ -59,7 +62,7 @@ const gustoState = useState<GetIntegrationProvidersResponse>('gustoState', () =>
                                 Once you connected Xero, you will be able to add your actual accounting data such as revenues, profits or cost centers to both the revenues as well as cost models.
                             </div>
                             <div class="min-w-fit">
-                                <button type="button" v-if="!xeroState.connected"
+                                <button type="button" v-if="!xeroState.connected || xeroState.requires_reconnect"
                                     @click="connectXero"
                                     class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-xs px-2 py-1 border border-zinc-300 rounded text-zinc-700">Connect
                                     Xero</button>
@@ -101,6 +104,9 @@ const gustoState = useState<GetIntegrationProvidersResponse>('gustoState', () =>
                                 <div><span class="mr-2">Connect Zebbra with Gusto</span><span
                                         v-if="gustoState.connected"
                                         class="text-[10px] uppercase bg-green-500 text-neutral-50 px-1 py-0.5 rounded">Connected</span>
+                                        <span
+                                        v-else-if="gustoState.requires_reconnect"
+                                        class="text-[10px] uppercase bg-red-500 text-neutral-50 px-1 py-0.5 rounded">Reconnect</span>
                                 </div>
                             </div>
                         </div>
@@ -109,7 +115,7 @@ const gustoState = useState<GetIntegrationProvidersResponse>('gustoState', () =>
                                 Once you connected Gusto, Zebbra will automatically add all your existing employees to the cost model. You will still be able to add new employees to take future hires into account.
                             </div>
                             <div class="min-w-fit">
-                                <button type="button" v-if="!gustoState.connected"
+                                <button type="button" v-if="!gustoState.connected || gustoState.requires_reconnect"
                                     @click="connectGusto"
                                     class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-xs px-2 py-1 border border-zinc-300 rounded text-zinc-700">Connect
                                     Gusto</button>
