@@ -83,7 +83,7 @@ async def test_grant_permission_admin(access_token, users):
 async def test_grant_permission_editor(access_token, users):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
-    user = users["johndoe@example.com"]
+    user = users["charlie@example.com"]
     role = "editor"
     response = client.post(
         f"/model/grant?model_id={model_id}&role={role}&user_id={user}",
@@ -100,7 +100,7 @@ async def test_grant_permission_editor(access_token, users):
 async def test_grant_permission_viewer(access_token, users):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
-    user = users["johndoe@example.com"]
+    user = users["darwin@example.com"]
     role = "viewer"
     response = client.post(
         f"/model/grant?model_id={model_id}&role={role}&user_id={user}",
@@ -126,6 +126,29 @@ async def test_grant_permission_no_access(access_token_alice, users):
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
+    assert not await is_viewer(model_id, user)
+
+
+@pytest.mark.anyio
+async def test_grant_permission_cannot_demote_workspace_admin(access_token, users):
+    client = TestClient(app)
+
+    model_id = "62b488ba433720870b60ec0a"
+    user = users["johndoe@example.com"]
+    dummy_user = users["charlie@example.com"]
+
+    await add_admin_to_model(dummy_user, model_id)
+    assert await is_admin(model_id, dummy_user)
+
+    role = "viewer"
+    response = client.post(
+        f"/model/grant?model_id={model_id}&role={role}&user_id={user}",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    assert await is_admin(model_id, user)
     assert not await is_viewer(model_id, user)
 
 

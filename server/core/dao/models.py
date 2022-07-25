@@ -91,9 +91,6 @@ async def get_users_for_model(model_id: str):
     if model is None:
         raise DoesNotExistException("Model does not exist")
 
-    # admin_set = set([str(x) for x in model.meta.admins])
-    # editor_set = set([str(x) for x in model.meta.editors])
-    # viewer_set = set([str(x) for x in model.meta.viewers])
     admin_set = set(model.meta.admins)
     editor_set = set(model.meta.editors)
     viewer_set = set(model.meta.viewers)
@@ -144,8 +141,20 @@ async def add_admin_to_model(user_id: PyObjectId, model_id: str):
         raise DoesNotExistException("User does not exist")
 
     if not await is_admin(model_id, user_id):
+
+        # add admin
         await db.models.update_one(
             {"_id": model_id}, {"$push": {"meta.admins": str(user_id)}}
+        )
+
+        # remove viewer
+        await db.models.update_one(
+            {"_id": model_id}, {"$pull": {"meta.viewers": str(user_id)}}
+        )
+
+        # remove editor
+        await db.models.update_one(
+            {"_id": model_id}, {"$pull": {"meta.editors": str(user_id)}}
         )
 
 
@@ -155,6 +164,11 @@ async def add_editor_to_model(user_id: PyObjectId, model_id: str):
 
     # don't add as editor if already is editor
     if not await is_editor(model_id, user_id):
+
+        # remove all permissions first, needed for admin logic checks
+        await remove_user_from_model(user_id, model_id)
+
+        # add editor
         await db.models.update_one(
             {"_id": model_id}, {"$push": {"meta.editors": str(user_id)}}
         )
@@ -166,6 +180,11 @@ async def add_viewer_to_model(user_id: PyObjectId, model_id: str):
 
     # don't add as viewer if already is viewer
     if not await is_viewer(model_id, user_id):
+
+        # remove all permissions first, needed for admin logic checks
+        await remove_user_from_model(user_id, model_id)
+
+        # add viewer
         await db.models.update_one(
             {"_id": model_id}, {"$push": {"meta.viewers": str(user_id)}}
         )
@@ -178,7 +197,7 @@ async def remove_user_from_model(user_id: PyObjectId, model_id: str):
     model = await get_model_by_id(model_id)
 
     # must have at least one admin
-    if len(model.meta.admins) == 1 and model.meta.admins[0] == str(user_id):
+    if len(model.meta.admins) == 1 and str(model.meta.admins[0]) == str(user_id):
         raise CardinalityConstraintFailedException("Model must have at least one admin")
 
     # must not remove workspace admin
