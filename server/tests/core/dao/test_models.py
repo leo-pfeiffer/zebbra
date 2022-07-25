@@ -13,11 +13,8 @@ from core.dao.models import (
     add_admin_to_model,
     add_editor_to_model,
     add_viewer_to_model,
-    remove_viewer_from_model,
-    remove_editor_from_model,
     set_name,
     create_model,
-    remove_admin_from_model,
     get_users_for_model,
     get_revenues_sheet,
     get_costs_sheet,
@@ -26,6 +23,7 @@ from core.dao.models import (
     set_starting_month,
     update_model_employees,
     delete_model,
+    remove_user_from_model,
 )
 from core.dao.workspaces import get_workspace
 from core.exceptions import (
@@ -169,9 +167,10 @@ async def test_is_viewer_false(users):
 @pytest.mark.anyio
 async def test_add_admin(users):
     user = users["charlie@example.com"]
-    assert not await is_admin("62b488ba433720870b60ec0a", user)
-    await add_admin_to_model(user, "62b488ba433720870b60ec0a")
-    assert await is_admin("62b488ba433720870b60ec0a", user)
+    model_id = "62b488ba433720870b60ec0a"
+    assert not await is_admin(model_id, user)
+    await add_admin_to_model(user, model_id)
+    assert await is_admin(model_id, user)
 
 
 @pytest.mark.anyio
@@ -189,6 +188,19 @@ async def test_add_admin_idempotent(users):
 
 
 @pytest.mark.anyio
+async def test_add_admin_removes_previous_role(users):
+    model_id = "62b488ba433720870b60ec0a"
+    user = users["charlie@example.com"]
+    assert not await is_admin(model_id, user)
+
+    await add_editor_to_model(user, model_id)
+    await add_admin_to_model(user, model_id)
+
+    assert await is_admin(model_id, user)
+    assert not await is_editor(model_id, user)
+
+
+@pytest.mark.anyio
 async def test_add_admin_non_existing_user(not_an_id):
     with pytest.raises(DoesNotExistException):
         await add_admin_to_model(not_an_id, "62b488ba433720870b60ec0a")
@@ -197,9 +209,10 @@ async def test_add_admin_non_existing_user(not_an_id):
 @pytest.mark.anyio
 async def test_add_editor_to_model(users):
     user = users["charlie@example.com"]
-    assert not await is_editor("62b488ba433720870b60ec0a", user)
-    await add_editor_to_model(user, "62b488ba433720870b60ec0a")
-    assert await is_editor("62b488ba433720870b60ec0a", user)
+    model_id = "62b488ba433720870b60ec0a"
+    assert not await is_editor(model_id, user)
+    await add_editor_to_model(user, model_id)
+    assert await is_editor(model_id, user)
 
 
 @pytest.mark.anyio
@@ -217,6 +230,19 @@ async def test_add_editor_to_model_idempotent(users):
 
 
 @pytest.mark.anyio
+async def test_add_editor_removes_previous_role(users):
+    model_id = "62b488ba433720870b60ec0a"
+    user = users["charlie@example.com"]
+    assert not await is_editor(model_id, user)
+
+    await add_viewer_to_model(user, model_id)
+    await add_editor_to_model(user, model_id)
+
+    assert await is_editor(model_id, user)
+    assert not await is_viewer(model_id, user)
+
+
+@pytest.mark.anyio
 async def test_add_editor_to_model_non_existing_user(not_an_id):
     with pytest.raises(DoesNotExistException):
         await add_editor_to_model(not_an_id, "62b488ba433720870b60ec0a")
@@ -225,9 +251,10 @@ async def test_add_editor_to_model_non_existing_user(not_an_id):
 @pytest.mark.anyio
 async def test_add_viewer_to_model(users):
     user = users["darwin@example.com"]
-    assert not await is_viewer("62b488ba433720870b60ec0a", user)
-    await add_viewer_to_model(user, "62b488ba433720870b60ec0a")
-    assert await is_viewer("62b488ba433720870b60ec0a", user)
+    model_id = "62b488ba433720870b60ec0a"
+    assert not await is_viewer(model_id, user)
+    await add_viewer_to_model(user, model_id)
+    assert await is_viewer(model_id, user)
 
 
 @pytest.mark.anyio
@@ -246,6 +273,20 @@ async def test_add_viewer_to_model_idempotent(users):
 
 
 @pytest.mark.anyio
+async def test_add_viewer_removes_previous_role(users):
+    model_id = "62b488ba433720870b60ec0a"
+    user = users["darwin@example.com"]
+
+    assert not await is_viewer(model_id, user)
+
+    await add_editor_to_model(user, model_id)
+    await add_viewer_to_model(user, model_id)
+
+    assert await is_viewer(model_id, user)
+    assert not await is_editor(model_id, user)
+
+
+@pytest.mark.anyio
 async def test_add_viewer_to_model_non_existing_user(not_an_id):
     with pytest.raises(DoesNotExistException):
         await add_viewer_to_model(not_an_id, "62b488ba433720870b60ec0a")
@@ -254,7 +295,7 @@ async def test_add_viewer_to_model_non_existing_user(not_an_id):
 @pytest.mark.anyio
 async def test_remove_viewer_from_model(users):
     assert await is_viewer("62b488ba433720870b60ec0a", users["charlie@example.com"])
-    await remove_viewer_from_model(
+    await remove_user_from_model(
         users["charlie@example.com"], "62b488ba433720870b60ec0a"
     )
     assert not await is_viewer("62b488ba433720870b60ec0a", users["charlie@example.com"])
@@ -263,14 +304,14 @@ async def test_remove_viewer_from_model(users):
 @pytest.mark.anyio
 async def test_remove_viewer_from_model_non_existing_user(not_an_id):
     with pytest.raises(DoesNotExistException):
-        await remove_viewer_from_model(not_an_id, "62b488ba433720870b60ec0a")
+        await remove_user_from_model(not_an_id, "62b488ba433720870b60ec0a")
 
 
 @pytest.mark.anyio
 async def test_remove_admin_from_model(users):
     await add_admin_to_model(users["charlie@example.com"], "62b488ba433720870b60ec0a")
     assert await is_admin("62b488ba433720870b60ec0a", users["charlie@example.com"])
-    await remove_admin_from_model(
+    await remove_user_from_model(
         users["charlie@example.com"], "62b488ba433720870b60ec0a"
     )
     assert not await is_admin("62b488ba433720870b60ec0a", users["charlie@example.com"])
@@ -279,13 +320,13 @@ async def test_remove_admin_from_model(users):
 @pytest.mark.anyio
 async def test_remove_admin_from_model_non_existing_user(not_an_id):
     with pytest.raises(DoesNotExistException):
-        await remove_admin_from_model(not_an_id, "62b488ba433720870b60ec0a")
+        await remove_user_from_model(not_an_id, "62b488ba433720870b60ec0a")
 
 
 @pytest.mark.anyio
 async def test_remove_admin_from_model_only_one_admin(users):
     with pytest.raises(CardinalityConstraintFailedException):
-        await remove_admin_from_model(
+        await remove_user_from_model(
             users["johndoe@example.com"], "62b488ba433720870b60ec0a"
         )
 
@@ -295,7 +336,7 @@ async def test_remove_admin_from_model_workspace_admin(users):
     await add_admin_to_model(users["charlie@example.com"], "62b488ba433720870b60ec0a")
     assert await is_admin("62b488ba433720870b60ec0a", users["charlie@example.com"])
     with pytest.raises(BusinessLogicException):
-        await remove_admin_from_model(
+        await remove_user_from_model(
             users["johndoe@example.com"], "62b488ba433720870b60ec0a"
         )
 
@@ -303,7 +344,7 @@ async def test_remove_admin_from_model_workspace_admin(users):
 @pytest.mark.anyio
 async def test_remove_editor_from_model(users):
     assert await is_editor("62b488ba433720870b60ec0a", users["darwin@example.com"])
-    await remove_editor_from_model(
+    await remove_user_from_model(
         users["darwin@example.com"], "62b488ba433720870b60ec0a"
     )
     assert not await is_editor("62b488ba433720870b60ec0a", users["darwin@example.com"])
@@ -312,7 +353,7 @@ async def test_remove_editor_from_model(users):
 @pytest.mark.anyio
 async def test_remove_editor_from_model_non_existing_user(not_an_id):
     with pytest.raises(DoesNotExistException):
-        await remove_editor_from_model(not_an_id, "62b488ba433720870b60ec0a")
+        await remove_user_from_model(not_an_id, "62b488ba433720870b60ec0a")
 
 
 @pytest.mark.anyio

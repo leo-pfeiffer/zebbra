@@ -17,14 +17,11 @@ from core.dao.models import (
     add_admin_to_model,
     add_editor_to_model,
     add_viewer_to_model,
-    remove_viewer_from_model,
-    remove_editor_from_model,
     is_admin,
     set_name,
     create_model,
     is_editor,
     model_exists,
-    remove_admin_from_model,
     get_users_for_model,
     get_revenues_sheet,
     get_costs_sheet,
@@ -33,6 +30,7 @@ from core.dao.models import (
     set_starting_month,
     update_model_employees,
     delete_model,
+    remove_user_from_model,
 )
 from core.exceptions import (
     DoesNotExistException,
@@ -148,6 +146,12 @@ async def grant_permission_for_model(
             detail="User does not exist.",
         )
 
+    except BusinessLogicException:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot demote workspace admin.",
+        )
+
 
 @router.post(
     "/model/revoke",
@@ -159,14 +163,12 @@ async def grant_permission_for_model(
 )
 async def revoke_permission_for_model(
     model_id: str,
-    role: Literal["admin", "editor", "viewer"],
     user_id: PyObjectId,
     current_user: User = Depends(get_current_active_user),
 ):
     """
-    Revoke a permission from a user for a model.\n
+    Revoke all permissions from a user for a model.\n
         model_id: Model for which to revoke permission from
-        role: Permission to be revoked ["admin", "editor", "viewer"]
         user_id: User from whom the permission is revoked
     """
     await _assert_model_exists(model_id)
@@ -176,27 +178,20 @@ async def revoke_permission_for_model(
     await assert_model_access_admin(current_user.id, model_id)
 
     try:
-        if role == "admin":
-            try:
-                await remove_admin_from_model(user_id, model_id)
-            except CardinalityConstraintFailedException:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Each model must have at least one admin.",
-                )
-            except BusinessLogicException:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Cannot remove workspace admin from model.",
-                )
+        try:
+            await remove_user_from_model(user_id, model_id)
+        except CardinalityConstraintFailedException:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Each model must have at least one admin.",
+            )
+        except BusinessLogicException:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cannot remove workspace admin from model.",
+            )
 
-        elif role == "editor":
-            await remove_editor_from_model(user_id, model_id)
-
-        elif role == "viewer":
-            await remove_viewer_from_model(user_id, model_id)
-
-        return {"message": f"Access revoked ({role})"}
+        return {"message": f"Access revoked."}
 
     except DoesNotExistException:
         raise HTTPException(
