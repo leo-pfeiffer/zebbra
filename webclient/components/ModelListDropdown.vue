@@ -230,7 +230,6 @@ export default {
                     }
                     ).then((data) => {
                         this.workspaceUsers = data;
-                        console.log(data);
                     })
             } catch(e) {
                 console.log("Error fetching workspace users");
@@ -242,8 +241,6 @@ export default {
             this.showAccessRightsSuccess = false;
 
             var getUserId:string;
-
-            console.log(this.userInviteSelected);
 
             for(let i=0; i < this.workspaceUsers.length; i++) {
                 if(this.userInviteSelected === this.workspaceUsers[i].username) {

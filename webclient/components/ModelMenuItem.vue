@@ -42,7 +42,6 @@ export default {
     async mounted() {
         try {
             this.modelUsers = await useGetModelPermissions(this.modelId);
-            console.log(this.modelUsers)
         } catch (e) {
             console.log(e);
         }
