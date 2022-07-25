@@ -49,7 +49,7 @@ const gustoState = useState<GetIntegrationProvidersResponse>('gustoState', () =>
                                     height="19px"></div>
                             <div class="font-medium text-zinc-900 text-xs ml-1.5 flex align-middle py-0.5">
                                 <div><span class="mr-2">Connect Zebbra with Xero Accounting</span><span
-                                        v-if="xeroState.connected"
+                                        v-if="xeroState.connected && !xeroState.requires_reconnect"
                                         class="text-[10px] uppercase bg-green-500 text-neutral-50 px-1 py-0.5 rounded">Connected</span>
                                         <span
                                         v-else-if="xeroState.requires_reconnect"
@@ -102,7 +102,7 @@ const gustoState = useState<GetIntegrationProvidersResponse>('gustoState', () =>
                                     height="19px"></div>
                             <div class="font-medium text-zinc-900 text-xs ml-1.5 flex align-middle py-0.5">
                                 <div><span class="mr-2">Connect Zebbra with Gusto</span><span
-                                        v-if="gustoState.connected"
+                                        v-if="gustoState.connected && !gustoState.requires_reconnect"
                                         class="text-[10px] uppercase bg-green-500 text-neutral-50 px-1 py-0.5 rounded">Connected</span>
                                         <span
                                         v-else-if="gustoState.requires_reconnect"
