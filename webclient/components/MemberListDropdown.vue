@@ -20,7 +20,7 @@ const user = useUserState();
 
     <Teleport to="body">
         <div v-show="deleteUserModalOpen" class="fixed left-0 top-1/3 w-full h-full flex justify-center align-middle text-xs">
-            <div class="p-6 border h-max w-fit shadow-lg bg-white border-zinc-300 rounded">
+            <div class="p-6 border h-max w-fit shadow-lg bg-white border-zinc-300 rounded z-50">
                 <div>
                     <h3 class="text-zinc-900 font-medium text-sm mb-2">Do you want to remove this user?</h3>
                 </div>
@@ -37,12 +37,13 @@ const user = useUserState();
                     <ErrorMessage :error-message="deleteUserErrorMessage"></ErrorMessage>
                 </div>
             </div>
+            <div v-show="deleteUserModalOpen" @click="toggleDeleteUserModal" class="fixed top-0 left-0 w-[100vw] h-[100vh] z-0 bg-zinc-100/50"></div>
         </div>
     </Teleport>
 
     <Teleport to="body">
         <div v-show="changeAdminModalOpen" class="fixed left-0 top-1/3 w-full h-full flex justify-center align-middle text-xs">
-            <div class="p-6 border h-max shadow-lg bg-white border-zinc-300 rounded">
+            <div class="p-6 border h-max shadow-lg bg-white border-zinc-300 rounded z-50">
                 <div>
                     <h3 class="text-zinc-900 font-medium text-sm mb-2">Do you want to change the workspace admin?</h3>
                 </div>
@@ -61,6 +62,7 @@ const user = useUserState();
                     <ErrorMessage :error-message="changeAdminErrorMessage"></ErrorMessage>
                 </div>
             </div>
+            <div v-show="changeAdminModalOpen" @click="toggleChangeAdminModal" class="fixed top-0 left-0 w-[100vw] h-[100vh] z-0 bg-zinc-100/50"></div>
         </div>
     </Teleport>
 </div>

@@ -11,9 +11,11 @@ definePageMeta({
 
 const route = useRoute()
 
-const modelMeta = useModelMetaState();
+const userState = useUserState();
 
+const modelMeta = useModelMetaState();
 modelMeta.value = await getModelMeta(route.params.modelId);
+const userIsViewer = modelMeta.value.viewers.includes(userState.value._id);
 
 const costState = useCostState();
 costState.value = await useSheetUpdate().getCostSheet(route.params.modelId);
@@ -57,13 +59,14 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                                 :variable="assumption" :variableIndex="index"
                                 :timeSeriesMap="useVariableTimeSeriesMap(costState.assumptions)"
                                 :variableSearchMap="useVariableSearchMap(costState.assumptions)" :sectionIndex="0"
-                                :isEndRow="false" :showIntegration="false">
+                                :isEndRow="false" :showIntegration="false"
+                                :userIsViewer="userIsViewer">
                             </VariableRowHeader>
                             <div class="">
                                 <!-- add assumption button -->
                                 <div
                                     class="text-xs rounded-bl py-2 pl-10 min-w-[470px] max-w-[470px] border-zinc-300 border-y border-l">
-                                    <button @click="addAssumption" class="text-zinc-400 italic hover:text-zinc-500"><i
+                                    <button :disabled="userIsViewer" @click="addAssumption" class="text-zinc-400 italic hover:text-zinc-500"><i
                                             class="bi bi-plus-lg mr-3"></i>Add Assumption</button>
                                 </div>
                             </div>
@@ -78,14 +81,15 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                                     </span>
                                 </div>
                                 <div>
-                                    <SectionHeader :sectionName="'Payroll'" :changingEnabled="false"></SectionHeader>
+                                    <SectionHeader :sectionName="'Payroll'" :changingEnabled="false" :userIsViewer="userIsViewer"></SectionHeader>
                                     <EmployeeRowHeader v-for="(employee, index) in payrollState.employees"
                                         :employee="employee" :employeeIndex="index"
                                         @update-employee="updateEmployee"
-                                        @delete-employee="deleteEmployee"></EmployeeRowHeader>
+                                        @delete-employee="deleteEmployee"
+                                        :userIsViewer="userIsViewer"></EmployeeRowHeader>
                                     <div
                                         class="text-xs py-2 pl-10 min-w-[470px] max-w-[470px] border-zinc-300 border-t border-l">
-                                        <button @click="addEmployee()"
+                                        <button :disabled="userIsViewer" @click="addEmployee()"
                                             class="text-zinc-400 italic hover:text-zinc-500"><i
                                                 class="bi bi-plus-lg mr-3"></i>Add Employee</button>
                                     </div>
@@ -99,7 +103,7 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                                 <div v-for="(section, sectionIndex) in costState.sections" :key="sectionIndex">
                                     <SectionHeader :sectionName="section.name" :sectionIndex="sectionIndex"
                                         :changingEnabled="true" @change-section-name="updateSectionName"
-                                        @delete-section="deleteSection"></SectionHeader>
+                                        @delete-section="deleteSection" :userIsViewer="userIsViewer"></SectionHeader>
                                     <VariableRowHeader @update-value="updateVariableValue"
                                         @update-settings="updateVariableSettings" @update-name="updateVariableName"
                                         @delete-variable="deleteVariable" @update-integration="updateIntegrationValue"
@@ -108,11 +112,12 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                                         :timeSeriesMap="useVariableTimeSeriesMap(costState.assumptions.concat(section.rows))"
                                         :variableSearchMap="useVariableSearchMap(costState.assumptions.concat(section.rows))"
                                         :sectionIndex="sectionIndex" :isEndRow="false" :showIntegration="true"
-                                        :possible-integration-values="possibleIntegrationValuesState">
+                                        :possible-integration-values="possibleIntegrationValuesState"
+                                        :userIsViewer="userIsViewer">
                                     </VariableRowHeader>
                                     <div
                                         class="text-xs py-2 pl-10 min-w-[470px] max-w-[470px] border-zinc-300 border-t border-l">
-                                        <button @click="addVariable(sectionIndex)"
+                                        <button :disabled="userIsViewer" @click="addVariable(sectionIndex)"
                                             class="text-zinc-400 italic hover:text-zinc-500"><i
                                                 class="bi bi-plus-lg mr-3"></i>Add Variable</button>
                                     </div>
@@ -120,14 +125,15 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                                     <VariableRowHeader @update-value="updateEndRowValue" :variable="section.end_row"
                                         :variable-index="0" :timeSeriesMap="useVariableTimeSeriesMap(section.rows)"
                                         :variableSearchMap="useVariableSearchMap(section.rows)"
-                                        :sectionIndex="sectionIndex" :sectionName="section.name" :isEndRow="true">
+                                        :sectionIndex="sectionIndex" :sectionName="section.name" :isEndRow="true"
+                                        :userIsViewer="userIsViewer">
                                     </VariableRowHeader>
                                 </div>
                                 <div class="">
                                     <!-- add section button -->
                                     <div
                                         class="text-xs py-2 px-3 min-w-[470px] max-w-[470px] border-zinc-300 border-y border-l">
-                                        <button @click="addSection" class="text-zinc-400 italic hover:text-zinc-500"><i
+                                        <button :disabled="userIsViewer" @click="addSection" class="text-zinc-400 italic hover:text-zinc-500"><i
                                                 class="bi bi-plus-lg mr-2"></i>Add Section</button>
                                     </div>
                                 </div>
@@ -276,10 +282,20 @@ export default {
         totalPayrollToDisplay() {
             var returnArray: string[] = [];
 
-            if (this.payrollState.payroll_values) {
+            if (this.payrollState.payroll_values && this.payrollState.payroll_values.length >= 24) {
                 for (let i = 0; i < 24; i++) {
                     returnArray.push(this.payrollState.payroll_values[i].value);
                 }
+            } else if(this.payrollState.payroll_values && this.payrollState.payroll_values.length > 0) {
+
+                for (let i = 0; i < 24; i++) {
+                    if(i < this.payrollState.payroll_values.length) {
+                        returnArray.push(this.payrollState.payroll_values[i].value);
+                    } else {
+                        returnArray.push("–")
+                    }
+                }
+
             } else {
                 for (let i = 0; i < 24; i++) {
                     returnArray.push("0");

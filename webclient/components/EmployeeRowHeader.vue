@@ -25,17 +25,17 @@ const route = useRoute();
                         <div>
                             <div class="text-zinc-900 font-medium mb-1">Name</div>
                             <div class="mb-2">
-                                <input :disabled="employee.from_integration" v-model="newName" :id="'name-input-' + employee._id" type="text"
+                                <input :disabled="employee.from_integration || userIsViewer" v-model="newName" :id="'name-input-' + employee._id" type="text"
                                     class="border-zinc-300 border rounded w-full font-mono px-2 py-1 disabled:text-zinc-500 disabled:placeholder:text-zinc-300/0">
                             </div>
                             <div class="text-zinc-900 font-medium mb-1">Monthly Salary</div>
                             <div class="mb-2">
-                                <input :disabled="employee.from_integration" v-model="newSalary" :id="'salary-input-' + employee._id" type="number"
+                                <input :disabled="employee.from_integration || userIsViewer" v-model="newSalary" :id="'salary-input-' + employee._id" type="number"
                                     class="border-zinc-300 border rounded w-full font-mono px-2 py-1 disabled:text-zinc-500 disabled:placeholder:text-zinc-300/0">
                             </div>
                             <div class="text-zinc-900 font-medium mb-1">Start Date</div>
                             <div class="mb-2">
-                                <input :disabled="employee.from_integration" v-model="newStartDate" :id="'start-date-input-' + employee._id" type="text"
+                                <input :disabled="employee.from_integration || userIsViewer" v-model="newStartDate" :id="'start-date-input-' + employee._id" type="text"
                                     placeholder="YYYY-MM-DD"
                                     class="border-zinc-300 border rounded w-full font-mono px-2 py-1 disabled:text-zinc-500 disabled:placeholder:text-zinc-300/0">
                             </div>
@@ -44,23 +44,23 @@ const route = useRoute();
                         <div>
                             <div class="text-zinc-900 font-medium mb-1">Title</div>
                             <div class="mb-2">
-                                <input :disabled="employee.from_integration" v-model="newTitle" :id="'position-input-' + employee._id" type="text"
+                                <input :disabled="employee.from_integration || userIsViewer" v-model="newTitle" :id="'position-input-' + employee._id" type="text"
                                     class="border-zinc-300 border rounded w-full font-mono px-2 py-1 disabled:text-zinc-500 disabled:placeholder:text-zinc-300/0">
                             </div>
                             <div class="text-zinc-900 font-medium mb-1">Department</div>
                             <div class="mb-2">
-                                <input :disabled="employee.from_integration" v-model="newDepartment" :id="'department-input-' + employee._id" type="text"
+                                <input :disabled="employee.from_integration || userIsViewer" v-model="newDepartment" :id="'department-input-' + employee._id" type="text"
                                     class="border-zinc-300 border rounded w-full font-mono px-2 py-1 disabled:text-zinc-500 disabled:placeholder:text-zinc-300/0">
                             </div>
                                 <div class="text-zinc-900 font-medium mb-1">End Date</div>
                             <div class="mb-2">
-                                <input :disabled="employee.from_integration" v-model="newEndDate" :id="'end-date-input-' + employee._id" type="text"
+                                <input :disabled="employee.from_integration || userIsViewer" v-model="newEndDate" :id="'end-date-input-' + employee._id" type="text"
                                     placeholder="YYYY-MM-DD"
                                     class="border-zinc-300 border rounded w-full font-mono px-2 py-1 disabled:text-zinc-500 disabled:placeholder:text-zinc-300/0">
                             </div>
                         </div>
                     </div>
-                    <div v-if="!employee.from_integration" class="flex justify-end w-full">
+                    <div v-if="!employee.from_integration && !userIsViewer" class="flex justify-end w-full">
                         <button
                             class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-[12px] px-1.5 py-0.5 border border-zinc-300 rounded text-zinc-700"
                             @click="toggleSettings">Cancel</button>
@@ -69,7 +69,7 @@ const route = useRoute();
                                 border border-sky-500 rounded text-neutral-100" @click="$emit('updateEmployee', employeeIndex, newName, newSalary, newTitle, newDepartment, newStartDate, newEndDate); toggleSettings()">Update</button>
                     </div>
                     <div v-else class="w-full">
-                        <div class="py-1 px-2 border rounded border-sky-300 bg-sky-100 w-full">
+                        <div v-show="!userIsViewer" class="py-1 px-2 border rounded border-sky-300 bg-sky-100 w-full">
                             <span class="text-[10px] font-medium text-sky-600">This employee comes from an integration and can't be changed.</span>
                         </div>
                         <div class="mt-2 w-full flex justify-end">
@@ -82,7 +82,7 @@ const route = useRoute();
             </div>
         </div>
         <Teleport to="body">
-            <div v-show="deleteModalOpen" class="absolute left-0 top-1/3 w-full flex justify-center align-middle">
+            <div v-if="!userIsViewer" v-show="deleteModalOpen" class="absolute left-0 top-1/3 w-full flex justify-center align-middle">
                 <div class="p-6 border h-max shadow-lg bg-white border-zinc-300 rounded z-50">
                     <div>
                         <h3 class="text-zinc-900 font-medium text-sm mb-2">Do you really want to delete this employee?
@@ -126,6 +126,7 @@ export default {
     props: {
         employee: Object as () => Employee,
         employeeIndex: Number,
+        userIsViewer: Boolean
     },
     mounted() {
 
@@ -152,7 +153,7 @@ export default {
             }
         },
         toggleDeleteModal() {
-            if (this.deleteModalOpen === false) {
+            if (this.deleteModalOpen === false && !this.userIsViewer) {
                 this.deleteModalOpen = true;
             } else {
                 this.deleteModalOpen = false;
