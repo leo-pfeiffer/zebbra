@@ -59,11 +59,10 @@ const gustoState = useState<GetIntegrationProvidersResponse>('gustoState', () =>
                                 Once you connected Xero, you will be able to add your actual accounting data such as revenues, profits or cost centers to both the revenues as well as cost models.
                             </div>
                             <div class="min-w-fit">
-                                <a v-if="!xeroState.connected"
-                                    :href="`${config.public.backendUrlBase}/integration/xero/login?workspace_id=${userState.workspaces[0]._id}&access_token=${accessToken}`"
-                                    target="_blank"
+                                <button type="button" v-if="!xeroState.connected"
+                                    @click="connectXero"
                                     class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-xs px-2 py-1 border border-zinc-300 rounded text-zinc-700">Connect
-                                    Xero</a>
+                                    Xero</button>
                                 <button v-else @click="toggleXeroDisconnectModal"
                                     class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-xs px-2 py-1 border border-zinc-300 rounded text-red-600">Disconnect
                                     Xero</button>
@@ -110,11 +109,10 @@ const gustoState = useState<GetIntegrationProvidersResponse>('gustoState', () =>
                                 Once you connected Gusto, Zebbra will automatically add all your existing employees to the cost model. You will still be able to add new employees to take future hires into account.
                             </div>
                             <div class="min-w-fit">
-                                <a v-if="!gustoState.connected"
-                                    :href="`${config.public.backendUrlBase}/integration/gusto/login?workspace_id=${userState.workspaces[0]._id}&access_token=${accessToken}`"
-                                    target="_blank"
+                                <button type="button" v-if="!gustoState.connected"
+                                    @click="connectGusto"
                                     class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-xs px-2 py-1 border border-zinc-300 rounded text-zinc-700">Connect
-                                    Gusto</a>
+                                    Gusto</button>
                                 <button v-else @click="toggleGustoDisconnectModal"
                                     class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-xs px-2 py-1 border border-zinc-300 rounded text-red-600">Disconnect
                                     Gusto</button>
@@ -202,6 +200,26 @@ export default {
         },
         closeSuccessMessage(index:number){
             this.successMessages.splice(index, 1)
+        },
+        connectXero() {
+            var w = window.open(`${this.config.public.backendUrlBase}/integration/xero/login?workspace_id=${this.userState.workspaces[0]._id}&access_token=${this.accessToken}`, "_blank");
+
+            const timer = setInterval(() => {
+                if(w.closed) {
+                    clearInterval(timer);
+                    this.updateProviderState();
+                }
+            })
+        },
+        connectGusto() {
+            var w = window.open(`${this.config.public.backendUrlBase}/integration/gusto/login?workspace_id=${this.userState.workspaces[0]._id}&access_token=${this.accessToken}`, "_blank");
+
+            const timer = setInterval(() => {
+                if(w.closed) {
+                    clearInterval(timer);
+                    this.updateProviderState();
+                }
+            })
         },
         async disconnectIntegration(integrationName: string) {
             try {
