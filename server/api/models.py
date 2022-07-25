@@ -1,6 +1,7 @@
 from datetime import date
 from typing import Literal
 
+from dateutil.relativedelta import relativedelta
 from fastapi import APIRouter, Depends, HTTPException
 from starlette import status
 
@@ -450,8 +451,12 @@ async def retrieve_model_payroll(
     await merge_payroll_integration_data(
         model.payroll.employees, str(model.meta.workspace), model.meta.starting_month
     )
+
+    from_date = model.meta.starting_month
+    to_date = from_date + relativedelta(months=23)
+
     model.payroll.payroll_values = aggregate_payroll_info(
-        model.payroll.employees, model.meta.starting_month
+        model.payroll.employees, model.meta.starting_month, to_date
     )
     return model.payroll
 
@@ -486,8 +491,12 @@ async def update_model_payroll(
     await merge_payroll_integration_data(
         model.payroll.employees, str(model.meta.workspace), model.meta.starting_month
     )
+
+    from_date = model.meta.starting_month
+    to_date = from_date + relativedelta(months=23)
+
     model.payroll.payroll_values = aggregate_payroll_info(
-        model.payroll.employees, model.meta.starting_month
+        model.payroll.employees, from_date, to_date
     )
     return model.payroll
 
