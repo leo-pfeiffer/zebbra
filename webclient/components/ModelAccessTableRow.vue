@@ -40,5 +40,10 @@ export default {
     mounted () {
         this.roleSelected = this.user.user_role;
     },
+    watch: {
+        user: function(newVal, oldVal) {
+            this.roleSelected = newVal.user_role;
+        }
+    }
 }
 </script>
