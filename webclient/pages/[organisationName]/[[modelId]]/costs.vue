@@ -276,10 +276,20 @@ export default {
         totalPayrollToDisplay() {
             var returnArray: string[] = [];
 
-            if (this.payrollState.payroll_values) {
+            if (this.payrollState.payroll_values && this.payrollState.payroll_values.length >= 24) {
                 for (let i = 0; i < 24; i++) {
                     returnArray.push(this.payrollState.payroll_values[i].value);
                 }
+            } else if(this.payrollState.payroll_values && this.payrollState.payroll_values.length > 0) {
+
+                for (let i = 0; i < 24; i++) {
+                    if(i < this.payrollState.payroll_values.length) {
+                        returnArray.push(this.payrollState.payroll_values[i].value);
+                    } else {
+                        returnArray.push("–")
+                    }
+                }
+
             } else {
                 for (let i = 0; i < 24; i++) {
                     returnArray.push("0");
