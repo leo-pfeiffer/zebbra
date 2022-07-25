@@ -160,6 +160,7 @@ const userState = useUserState();
 <script lang="ts">
 
 import { useFetchAuth } from '~~/methods/useFetchAuth';
+import { useGetModelPermissions } from '~~/methods/useGetModelPermissions';
 
 export default {
 
@@ -260,18 +261,9 @@ export default {
             this.showAccessRightsSuccess = false;
 
             try {
-                await useFetchAuth(
-                        '/model/users', {
-                        method: 'GET',
-                        params: {
-                            model_id: this.modelId
-                        }
-                    }
-                    ).then((data) => {
-                        this.modelUsers = data;
-                        this.accessRightsSuccessMessage = "Users successfully updated!"
-                        this.showAccessRightsSuccess = true;
-                    })
+                this.modelUsers = await useGetModelPermissions(this.modelId);
+                this.accessRightsSuccessMessage = "Users successfully updated!"
+                this.showAccessRightsSuccess = true;
             } catch(e) {
                 this.accessRightsErrormessage = e.data;
                 console.log(this.accessRightsErrormessage);
