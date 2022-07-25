@@ -5,11 +5,11 @@ const userState = useUserState();
 
 <template>
     <tr class="border-b border-zinc-300 last:border-0">
-        <td class="py-2 pl-2 text-zinc-500">{{ user.first_name }} {{ user.last_name }}</td>
+        <td class="py-2 text-zinc-900">{{ user.first_name }} {{ user.last_name }}</td>
         <td class="py-2 px-2 text-zinc-500">{{ user.username }}</td>
         <td class="py-2 px-2 text-zinc-500">
             <span class="pl-1" v-if="user.user_role === 'Admin' && user._id === userState._id">Admin</span>
-            <span v-else-if="user._id === userState._id">{{user.user_role}}</span>
+            <span class="pl-1" v-else-if="user._id === userState._id">{{user.user_role}}</span>
             <div v-else>
                 <select v-model="roleSelected">
                     <option>Admin</option>

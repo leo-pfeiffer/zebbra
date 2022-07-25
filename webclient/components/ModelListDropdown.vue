@@ -76,23 +76,41 @@ const userState = useUserState();
         </div>
     </Teleport>
     <Teleport to="body">
-        <div v-show="accessRightsModalOpen" class="fixed left-0 top-1/3 w-full h-full flex justify-center align-middle text-xs">
+        <div v-show="accessRightsModalOpen" class="fixed left-0 top-1/4 w-full h-full flex justify-center align-middle text-xs">
             <div class="p-6 border h-max shadow-lg bg-white border-zinc-300 rounded z-50">
                 <div>
                     <h3 class="text-zinc-900 font-medium text-sm mb-2">Manage access rights for <span class="underline">{{modelName}}</span>:</h3>
                 </div>
                 <div class="mb-4">
-                    <div class="text-xs text-zinc-900 my-2">Manage existing users</div>
+                    <div class="text-xs text-zinc-900 my-2"><i class="bi bi-people mr-1"></i>Manage existing users</div>
                     <div class="">
                         <div>
                             <table class="w-full text-xs text-left table-auto">
+                                <tr>
+                                    <td class="text-[10px] text-zinc-500 uppercase">
+                                       Name
+                                    </td>
+                                    <td class="text-[10px] px-2 text-zinc-500 uppercase">
+                                        Email
+                                    </td>
+                                    <td class="text-[10px] px-2 text-zinc-500 uppercase">
+                                        Role
+                                    </td>
+                                    <td class="text-[10px] px-2">
+                                        
+                                    </td>
+                                    <td class="text-[10px] px-2">
+                                       
+                                    </td>
+                                </tr>
                                 <ModelAccessTableRow @grant-access="grantAccess" @revoke-access="revokeAccess" v-for="user in modelUsers" :user="user"></ModelAccessTableRow>
                             </table>
                         </div>
+                        <SuccessMessage v-show="showAccessRightsSuccess" :successMessage="accessRightsSuccessMessage"></SuccessMessage>
                     </div>
                 </div>
-                <div class="py-3 mb-2 border-y border-zinc-300">
-                    <div class="text-xs text-zinc-900 mb-2">Invite user to model</div>
+                <div class="py-3 mb-2 border-t border-zinc-300">
+                    <div class="text-xs text-zinc-900 mb-2"><i class="bi bi-person-plus mr-1"></i>Invite user to model</div>
                     <table class="w-full text-xs text-left table-auto">
                         <tr>
                             <td class="text-[10px] text-zinc-500 uppercase">
@@ -133,7 +151,7 @@ const userState = useUserState();
                     <ErrorMessage :error-message="accessRightsErrormessage"></ErrorMessage>
                 </div>
             </div>
-            <div v-show="accessRightsModalOpen" class="fixed top-0 left-0 w-[100vw] h-[100vh] z-0 bg-zinc-100/50"></div>
+            <div v-if="accessRightsModalOpen" class="fixed top-0 left-0 w-[100vw] h-[100vh] z-0 bg-zinc-100/50"></div>
         </div>
     </Teleport>
 </div>
@@ -160,6 +178,8 @@ export default {
             changeNameErrorMessage: "Something went wrong!",
             modelUsers: [],
             accessRightsModalOpen: false,
+            showAccessRightsSuccess: false,
+            accessRightsSuccessMessage: "Success!",
             showAccessRightsError: false,
             accessRightsErrormessage: "Something went wrong!",
         }
@@ -169,8 +189,9 @@ export default {
         modelName: String,
     },
     async mounted() {
-        this.updateModelUsers();
-        this.getWorkspaceUsers();
+        await this.updateModelUsers();
+        await this.getWorkspaceUsers();
+        this.showAccessRightsSuccess = false;
     },
     methods: {
         toggleDots() {
@@ -191,6 +212,7 @@ export default {
         toggleAccessRightsModal() {
             if (this.accessRightsModalOpen) {
                 this.accessRightsModalOpen = false;
+                this.showAccessRightsSuccess = false;
             } else {
                 this.accessRightsModalOpen = true;
                 this.toggleDots();
@@ -216,6 +238,8 @@ export default {
         },
         async inviteUserToModel() {
 
+            this.showAccessRightsSuccess = false;
+
             var getUserId:string;
 
             console.log(this.userInviteSelected);
@@ -227,13 +251,14 @@ export default {
                 }
             }
 
-            console.log(getUserId);
-
             await this.grantAccess(getUserId, this.userInviteRoleSelected);
             await this.updateModelUsers();
 
         },
         async updateModelUsers() {
+
+            this.showAccessRightsSuccess = false;
+
             try {
                 await useFetchAuth(
                         '/model/users', {
@@ -243,8 +268,10 @@ export default {
                         }
                     }
                     ).then((data) => {
+                        console.log("here")
                         this.modelUsers = data;
-                        console.log(data);
+                        this.accessRightsSuccessMessage = "Users successfully updated!"
+                        this.showAccessRightsSuccess = true;
                     })
             } catch(e) {
                 this.accessRightsErrormessage = e.data;
@@ -275,6 +302,9 @@ export default {
         },
         async revokeAccess(userId: string, role:string) {
 
+            this.showAccessRightsSuccess = false;
+
+
             try {
             await useFetchAuth(
                     '/model/revoke', {
@@ -286,8 +316,8 @@ export default {
                     }
                 }
                 ).then((data) => {
-                    //todo:success
                     this.updateModelUsers();
+                    this.accessRightsSuccessMessage = "Users successfully updated!"
                 })
 
             } catch(e) {
