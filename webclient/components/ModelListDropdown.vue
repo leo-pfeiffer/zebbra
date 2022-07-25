@@ -1,3 +1,10 @@
+<script setup lang="ts">
+
+const userState = useUserState();
+
+</script>
+
+
 <template>
 <div class="relative">
     <button @click="toggleDots" type="button"><i class="bi bi-three-dots"></i></button>
@@ -5,6 +12,9 @@
         class="absolute z-10 bg-white border border-zinc-300 shadow rounded text-xs w-max">
         <div class="text-zinc-700 py-1 border-b border-zinc-300">
             <button type="button" @click="toggleChangeNameModal" class="hover:bg-zinc-100 px-3 py-2 w-full text-left"><i class="bi bi-type mr-1.5 text-zinc-400"></i>Rename model</button>
+        </div>
+        <div class="text-zinc-700 py-1 border-b border-zinc-300">
+            <button type="button" @click="toggleAccessRightsModal" class="hover:bg-zinc-100 px-3 py-2 w-full text-left"><i class="bi bi-pen mr-1.5 text-zinc-400"></i>Manage access rights</button>
         </div>
         <div class="text-zinc-700 py-1">
             <button type="button" @click="toggleDeleteModelModal" class="hover:bg-zinc-100 px-3 py-2 w-full text-left"><i class="bi bi-trash mr-1.5 text-zinc-400"></i>Delete model</button>
@@ -65,6 +75,67 @@
             <div v-show="changeNameModalOpen" @click="toggleChangeNameModal" class="fixed top-0 left-0 w-[100vw] h-[100vh] z-0 bg-zinc-100/50"></div>
         </div>
     </Teleport>
+    <Teleport to="body">
+        <div v-show="accessRightsModalOpen" class="fixed left-0 top-1/3 w-full h-full flex justify-center align-middle text-xs">
+            <div class="p-6 border h-max shadow-lg bg-white border-zinc-300 rounded z-50">
+                <div>
+                    <h3 class="text-zinc-900 font-medium text-sm mb-2">Manage access rights for <span class="underline">{{modelName}}</span>:</h3>
+                </div>
+                <div class="mb-4">
+                    <div class="text-xs text-zinc-900 my-2">Manage existing users</div>
+                    <div class="">
+                        <div>
+                            <table class="w-full text-xs text-left table-auto">
+                                <ModelAccessTableRow @grant-access="grantAccess" @revoke-access="revokeAccess" v-for="user in modelUsers" :user="user"></ModelAccessTableRow>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="py-3 mb-2 border-y border-zinc-300">
+                    <div class="text-xs text-zinc-900 mb-2">Invite user to model</div>
+                    <table class="w-full text-xs text-left table-auto">
+                        <tr>
+                            <td class="text-[10px] text-zinc-500 uppercase">
+                                Select user
+                            </td>
+                            <td class="text-[10px] text-zinc-500 uppercase">
+                                Select role
+                            </td>
+                            <td>
+                                
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-zinc-500 pr-2">
+                                <select v-model="userInviteSelected" class="border border-zinc-300 p-1 rounded w-full">
+                                    <option v-for="user in workspaceUsers">{{ user.username }}</option>
+                                </select>
+                            </td>
+                            <td class="pr-2 text-zinc-500">
+                                <select v-model="userInviteRoleSelected" class="border border-zinc-300 p-1 rounded w-full">
+                                    <option>Editor</option>
+                                    <option>Viewer</option>
+                                    <option>Admin</option>
+                                </select>
+                            </td>
+                            <td class="pl-2 text-zinc-500">
+                                <button @click="inviteUserToModel" type="button" class="font-medium text-xs text-green-600">Invite</button>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="float-right">
+                    <button type="button"
+                        class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-xs px-2 py-1 border border-zinc-300 rounded text-zinc-700"
+                        @click="toggleAccessRightsModal">Close</button>
+                </div>
+                <div v-show="showAccessRightsError" class="mt-11 flex justify-center">
+                    <ErrorMessage :error-message="accessRightsErrormessage"></ErrorMessage>
+                </div>
+            </div>
+            <div v-show="accessRightsModalOpen" class="fixed top-0 left-0 w-[100vw] h-[100vh] z-0 bg-zinc-100/50"></div>
+        </div>
+    </Teleport>
 </div>
 </template>
 
@@ -76,6 +147,9 @@ export default {
 
     data() {
         return {
+            workspaceUsers: [],
+            userInviteSelected: "",
+            userInviteRoleSelected: "Editor",
             clicked: false,
             deleteModelModalOpen: false,
             showDeleteModelError: false,
@@ -83,12 +157,20 @@ export default {
             newName: "",
             changeNameModalOpen: false,
             showChangeChangeNameError: false,
-            changeNameErrorMessage: "Something went wrong!"
+            changeNameErrorMessage: "Something went wrong!",
+            modelUsers: [],
+            accessRightsModalOpen: false,
+            showAccessRightsError: false,
+            accessRightsErrormessage: "Something went wrong!",
         }
     },
     props: {
         modelId: String,
         modelName: String,
+    },
+    async mounted() {
+        this.updateModelUsers();
+        this.getWorkspaceUsers();
     },
     methods: {
         toggleDots() {
@@ -105,6 +187,113 @@ export default {
                 this.deleteModelModalOpen = true;
                 this.toggleDots();
             }
+        },
+        toggleAccessRightsModal() {
+            if (this.accessRightsModalOpen) {
+                this.accessRightsModalOpen = false;
+            } else {
+                this.accessRightsModalOpen = true;
+                this.toggleDots();
+            }
+        },
+        async getWorkspaceUsers() {
+            try {
+                await useFetchAuth(
+                        '/workspace/users', {
+                        method: 'GET',
+                        params: {
+                            workspace_id: this.userState.workspaces[0]._id
+                        }
+                    }
+                    ).then((data) => {
+                        this.workspaceUsers = data;
+                        console.log(data);
+                    })
+            } catch(e) {
+                console.log("Error fetching workspace users");
+            }
+
+        },
+        async inviteUserToModel() {
+
+            var getUserId:string;
+
+            console.log(this.userInviteSelected);
+
+            for(let i=0; i < this.workspaceUsers.length; i++) {
+                if(this.userInviteSelected === this.workspaceUsers[i].username) {
+                    getUserId = this.workspaceUsers[i]._id;
+                    break;
+                }
+            }
+
+            console.log(getUserId);
+
+            await this.grantAccess(getUserId, this.userInviteRoleSelected);
+            await this.updateModelUsers();
+
+        },
+        async updateModelUsers() {
+            try {
+                await useFetchAuth(
+                        '/model/users', {
+                        method: 'GET',
+                        params: {
+                            model_id: this.modelId
+                        }
+                    }
+                    ).then((data) => {
+                        this.modelUsers = data;
+                        console.log(data);
+                    })
+            } catch(e) {
+                this.accessRightsErrormessage = e.data;
+                console.log(this.accessRightsErrormessage);
+            }
+        },
+        async grantAccess(userId: string, role:string) {
+
+            try {
+            await useFetchAuth(
+                    '/model/grant', {
+                    method: 'POST',
+                    params: {
+                        model_id: this.modelId,
+                        role: role.toLowerCase(),
+                        user_id: userId
+                    }
+                }
+                ).then((data) => {
+                    //todo:success
+                    this.updateModelUsers();
+                })
+
+            } catch(e) {
+                this.accessRightsErrormessage = "Chaning the user role failed. Please try again.";
+                console.log(this.accessRightsErrormessage);
+            }
+        },
+        async revokeAccess(userId: string, role:string) {
+
+            try {
+            await useFetchAuth(
+                    '/model/revoke', {
+                    method: 'POST',
+                    params: {
+                        model_id: this.modelId,
+                        role: role.toLowerCase(),
+                        user_id: userId
+                    }
+                }
+                ).then((data) => {
+                    //todo:success
+                    this.updateModelUsers();
+                })
+
+            } catch(e) {
+                this.accessRightsErrormessage = "Removing the user failed. Please try again.";
+            }
+
         },
         async deleteModel() {
             
