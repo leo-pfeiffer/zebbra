@@ -268,7 +268,6 @@ export default {
                         }
                     }
                     ).then((data) => {
-                        console.log("here")
                         this.modelUsers = data;
                         this.accessRightsSuccessMessage = "Users successfully updated!"
                         this.showAccessRightsSuccess = true;
