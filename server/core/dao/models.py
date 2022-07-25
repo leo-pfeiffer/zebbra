@@ -171,14 +171,14 @@ async def add_viewer_to_model(user_id: PyObjectId, model_id: str):
         )
 
 
-async def remove_admin_from_model(user_id: PyObjectId, model_id: str):
+async def remove_user_from_model(user_id: PyObjectId, model_id: str):
     if not await user_exists(user_id):
         raise DoesNotExistException("User does not exist")
 
     model = await get_model_by_id(model_id)
 
     # must have at least one admin
-    if len(model.meta.admins) == 1:
+    if len(model.meta.admins) == 1 and model.meta.admins[0] == str(user_id):
         raise CardinalityConstraintFailedException("Model must have at least one admin")
 
     # must not remove workspace admin
@@ -186,23 +186,17 @@ async def remove_admin_from_model(user_id: PyObjectId, model_id: str):
     if str(user_id) == str(workspace.admin):
         raise BusinessLogicException("Cannot remove workspace admin from model.")
 
+    # remove admin
     await db.models.update_one(
         {"_id": model_id}, {"$pull": {"meta.admins": str(user_id)}}
     )
 
-
-async def remove_viewer_from_model(user_id: PyObjectId, model_id: str):
-    if not await user_exists(user_id):
-        raise DoesNotExistException("User does not exist")
-
+    # remove viewer
     await db.models.update_one(
         {"_id": model_id}, {"$pull": {"meta.viewers": str(user_id)}}
     )
 
-
-async def remove_editor_from_model(user_id: PyObjectId, model_id: str):
-    if not await user_exists(user_id):
-        raise DoesNotExistException("User does not exist")
+    # remove editor
     await db.models.update_one(
         {"_id": model_id}, {"$pull": {"meta.editors": str(user_id)}}
     )

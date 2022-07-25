@@ -14,6 +14,7 @@ from core.dao.models import (
     add_admin_to_model,
     get_revenues_sheet,
     get_costs_sheet,
+    has_access_to_model,
 )
 from core.schemas.models import ModelMeta, Employee
 from core.schemas.rows import IntegrationValue
@@ -147,17 +148,17 @@ async def test_revoke_permission_editor(access_token, users):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
     user = users["darwin@example.com"]
-    role = "editor"
 
     response = client.post(
-        f"/model/revoke?model_id={model_id}&role={role}&user_id={user}",
+        f"/model/revoke?model_id={model_id}&user_id={user}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
     assert response.status_code == status.HTTP_200_OK
-    assert response.json()["message"] == "Access revoked (editor)"
+    assert response.json()["message"] == "Access revoked."
 
     assert not await is_viewer(model_id, user)
+    assert not await has_access_to_model(model_id, user)
 
 
 @pytest.mark.anyio
@@ -165,16 +166,17 @@ async def test_revoke_permission_viewer(access_token, users):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
     user = users["charlie@example.com"]
-    role = "viewer"
+
     response = client.post(
-        f"/model/revoke?model_id={model_id}&role={role}&user_id={user}",
+        f"/model/revoke?model_id={model_id}&user_id={user}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
     assert response.status_code == status.HTTP_200_OK
-    assert response.json()["message"] == "Access revoked (viewer)"
+    assert response.json()["message"] == "Access revoked."
 
     assert not await is_viewer(model_id, user)
+    assert not await has_access_to_model(model_id, user)
 
 
 @pytest.mark.anyio
@@ -182,18 +184,18 @@ async def test_revoke_permission_admin(access_token, users):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
     user = users["charlie@example.com"]
-    role = "admin"
 
     await add_admin_to_model(user, model_id)
     assert await is_admin(model_id, user)
 
     response = client.post(
-        f"/model/revoke?model_id={model_id}&role={role}&user_id={user}",
+        f"/model/revoke?model_id={model_id}&user_id={user}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
     assert response.status_code == status.HTTP_200_OK
     assert not await is_admin(model_id, user)
+    assert not await has_access_to_model(model_id, user)
 
 
 @pytest.mark.anyio
@@ -201,9 +203,8 @@ async def test_revoke_permission_admin_no_admins_left(access_token, users):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
     user = users["johndoe@example.com"]
-    role = "admin"
     response = client.post(
-        f"/model/revoke?model_id={model_id}&role={role}&user_id={user}",
+        f"/model/revoke?model_id={model_id}&user_id={user}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -218,13 +219,12 @@ async def test_revoke_permission_admin_workspace_admin(access_token, users):
     model_id = "62b488ba433720870b60ec0a"
     user = users["johndoe@example.com"]
     dummy_user = users["charlie@example.com"]
-    role = "admin"
 
     await add_admin_to_model(dummy_user, model_id)
     assert await is_admin(model_id, dummy_user)
 
     response = client.post(
-        f"/model/revoke?model_id={model_id}&role={role}&user_id={user}",
+        f"/model/revoke?model_id={model_id}&user_id={user}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -238,9 +238,8 @@ async def test_revoke_permission_no_access(access_token_alice, users):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
     user = users["charlie@example.com"]
-    role = "viewer"
     response = client.post(
-        f"/model/revoke?model_id={model_id}&role={role}&user_id={user}",
+        f"/model/revoke?model_id={model_id}&user_id={user}",
         headers={"Authorization": f"Bearer {access_token_alice}"},
     )
 
@@ -254,9 +253,8 @@ async def test_revoke_permission_non_existent_model(access_token, users):
     client = TestClient(app)
     model_id = "not a model"
     user = users["charlie@example.com"]
-    role = "viewer"
     response = client.post(
-        f"/model/revoke?model_id={model_id}&role={role}&user_id={user}",
+        f"/model/revoke?model_id={model_id}&user_id={user}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
