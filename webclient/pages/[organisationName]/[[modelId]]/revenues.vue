@@ -9,11 +9,14 @@ definePageMeta({
     middleware: ["auth", "route-check"]
 })
 
-const route = useRoute()
+const route = useRoute();
+
+const userState = useUserState();
 
 const modelMeta = useModelMetaState();
-
 modelMeta.value = await getModelMeta(route.params.modelId);
+
+const userIsViewer = modelMeta.value.viewers.includes(userState.value._id);
 
 const revenueState = useRevenueState();
 revenueState.value = await useSheetUpdate().getRevenueSheet(route.params.modelId);
@@ -56,13 +59,14 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                                 :timeSeriesMap="useVariableTimeSeriesMap(revenueState.assumptions)"
                                 :variableSearchMap="useVariableSearchMap(revenueState.assumptions)" :sectionIndex="0"
                                 :isEndRow="false"
-                                :showIntegration="false">
+                                :showIntegration="false"
+                                :userIsViewer="userIsViewer">
                             </VariableRowHeader>
                             <div class="">
                                 <!-- add assumption button -->
                                 <div
                                     class="text-xs rounded-bl py-2 pl-10 min-w-[470px] max-w-[470px] border-zinc-300 border-y border-l">
-                                    <button @click="addAssumption" class="text-zinc-400 italic hover:text-zinc-500"><i
+                                    <button :disabled="userIsViewer" @click="addAssumption" class="text-zinc-400 italic hover:text-zinc-500"><i
                                             class="bi bi-plus-lg mr-3"></i>Add Assumption</button>
                                 </div>
                             </div>
@@ -76,7 +80,7 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                                     </span>
                                 </div>
                                 <div v-for="(section, sectionIndex) in revenueState.sections" :key="sectionIndex">
-                                    <SectionHeader :sectionName="section.name" :sectionIndex="sectionIndex" :changingEnabled="true"
+                                    <SectionHeader :sectionName="section.name" :sectionIndex="sectionIndex" :changingEnabled="true" :userIsViewer="userIsViewer"
                                     @change-section-name="updateSectionName"
                                     @delete-section="deleteSection"></SectionHeader>
                                     <VariableRowHeader @update-value="updateVariableValue"
@@ -89,10 +93,11 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                                         :variableSearchMap="useVariableSearchMap(revenueState.assumptions.concat(section.rows))"
                                         :sectionIndex="sectionIndex" :isEndRow="false"
                                         :showIntegration="true"
-                                        :possible-integration-values="possibleIntegrationValuesState"></VariableRowHeader>
+                                        :possible-integration-values="possibleIntegrationValuesState"
+                                        :userIsViewer="userIsViewer"></VariableRowHeader>
                                     <div
                                         class="text-xs py-2 pl-10 min-w-[470px] max-w-[470px] border-zinc-300 border-t border-l">
-                                        <button @click="addVariable(sectionIndex)"
+                                        <button :disabled="userIsViewer" @click="addVariable(sectionIndex)"
                                             class="text-zinc-400 italic hover:text-zinc-500"><i
                                                 class="bi bi-plus-lg mr-3"></i>Add Variable</button>
                                     </div>
@@ -103,14 +108,15 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                                         :variableSearchMap="useVariableSearchMap(section.rows)"
                                         :sectionIndex="sectionIndex"
                                         :sectionName="section.name"
-                                        :isEndRow="true">
+                                        :isEndRow="true"
+                                        :userIsViewer="userIsViewer">
                                     </VariableRowHeader>
                                 </div>
                                 <div class="">
                                     <!-- add section button -->
                                     <div
                                         class="text-xs py-2 px-3 min-w-[470px] max-w-[470px] border-zinc-300 border-y border-l">
-                                        <button @click="addSection" class="text-zinc-400 italic hover:text-zinc-500"><i
+                                        <button :disabled="userIsViewer" @click="addSection" class="text-zinc-400 italic hover:text-zinc-500"><i
                                                 class="bi bi-plus-lg mr-2"></i>Add Section</button>
                                     </div>
                                 </div>
