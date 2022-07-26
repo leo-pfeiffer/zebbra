@@ -249,6 +249,9 @@ export default {
               },
             },
         },
+        dataLabels: {
+          enabled: false
+        },
         stroke: {
           width: 2,
           curve: 'straight'

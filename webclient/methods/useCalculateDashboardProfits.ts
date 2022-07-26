@@ -99,8 +99,10 @@ export const useCalculateDashboardProfits = (
         },
     ]
 
+    console.log(payrollState.employees)
+
     // prepare payroll data for further processing
-    const actualDepartments = payrollState.employees.map(e => e.department)
+    const actualDepartments = payrollState.employees.map(e => e.department).filter(e => e !== null && e !== "")
     const departments = [...new Set([...actualDepartments, "Other"])]
     const payrollSeries = {}
     const headcountSeries = {}
@@ -118,9 +120,14 @@ export const useCalculateDashboardProfits = (
     // aggregate monthly department salary and monthly headcount
     for (let employee of payrollState.employees) {
         for (let date of dates) {
+
+            // employee start and end dates
+            const start_date = stringToDate(employee.start_date)
             const end_date = employee.end_date !== null ? stringToDate(employee.end_date) : null
-            if (isDateBetweenDates(startingMonth, end_date, date)) {
-                const department = employee.department !== null ? employee.department : "Other"
+
+            // if employee is still employed in current month
+            if (isDateBetweenDates(start_date, end_date, date)) {
+                const department = (employee.department !== null && employee.department !== "") ? employee.department : "Other"
                 payrollSeries[department][date] += employee.monthly_salary
                 headcountSeries[department][date] += 1
             }
