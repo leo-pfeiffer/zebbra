@@ -49,7 +49,7 @@
                 "time_series": true,
                 "starting_at": 0,
                 "first_value_diff": true,
-                "value": "$-1 * 1.05",
+                "value": "$1 * 1.05",
                 "value_1": "100",
                 "integration_values": null,
                 "decimal_places": 0
@@ -79,7 +79,7 @@
                 "time_series": true,
                 "starting_at": 0,
                 "first_value_diff": false,
-                "value": "#1 + #2",
+                "value": "#279239315394233657096642963847420088465 + #109209513362019443602508755211948987835",
                 "value_1": null,
                 "integration_values": null,
                 "decimal_places": 0
@@ -109,22 +109,8 @@
         ],
         "sections": [
           {
-            "name": "section1",
+            "name": "Cost of Goods Sold",
             "rows": [
-              {
-                "_id": "269378395487633310845072415860332066579",
-                "name": "row1",
-                "val_type": "number",
-                "editable": true,
-                "var_type": "formula",
-                "time_series": true,
-                "starting_at": 0,
-                "first_value_diff": true,
-                "value": "$-1 * 1.05",
-                "value_1": "100",
-                "integration_values": null,
-                "decimal_places": 0
-              },
               {
                 "_id": "220899290253998228835136291945093028215",
                 "name": "row2",
@@ -150,7 +136,73 @@
                 "time_series": true,
                 "starting_at": 0,
                 "first_value_diff": false,
-                "value": "#1 + #2",
+                "value": "#220899290253998228835136291945093028215",
+                "value_1": null,
+                "integration_values": null,
+                "decimal_places": 0
+            }
+          },
+          {
+            "name": "Operational Costs",
+            "rows": [
+              {
+                "_id": "154014396970273800635032943872142491777",
+                "name": "Variable 2",
+                "val_type": "number",
+                "editable": true,
+                "var_type": "formula",
+                "time_series": true,
+                "starting_at": 0,
+                "first_value_diff": true,
+                "value": "$1 * 1.05",
+                "value_1": "100",
+                "integration_values": null,
+                "decimal_places": 0
+              }
+            ],
+            "end_row": {
+                "_id": "119275764367570197178225826115654655777",
+                "name": "End Row",
+                "val_type": "number",
+                "editable": true,
+                "var_type": "formula",
+                "time_series": true,
+                "starting_at": 0,
+                "first_value_diff": false,
+                "value": "#154014396970273800635032943872142491777",
+                "value_1": null,
+                "integration_values": null,
+                "decimal_places": 0
+            }
+          },
+          {
+            "name": "Other Costs",
+            "rows": [
+              {
+                "_id": "154014396970273800635032943872142491666",
+                "name": "Variable 2",
+                "val_type": "number",
+                "editable": true,
+                "var_type": "formula",
+                "time_series": true,
+                "starting_at": 0,
+                "first_value_diff": true,
+                "value": "$1 * 1.05",
+                "value_1": "100",
+                "integration_values": null,
+                "decimal_places": 0
+              }
+            ],
+            "end_row": {
+                "_id": "119275764367570197178225826115654655666",
+                "name": "End Row",
+                "val_type": "number",
+                "editable": true,
+                "var_type": "formula",
+                "time_series": true,
+                "starting_at": 0,
+                "first_value_diff": false,
+                "value": "#154014396970273800635032943872142491666",
                 "value_1": null,
                 "integration_values": null,
                 "decimal_places": 0
@@ -243,7 +295,7 @@
                 "time_series": true,
                 "starting_at": 0,
                 "first_value_diff": true,
-                "value": "$-1 * 1.05",
+                "value": "$1 * 1.05",
                 "value_1": "100",
                 "integration_values": null,
                 "decimal_places": 0
@@ -258,7 +310,7 @@
                 "time_series": true,
                 "starting_at": 0,
                 "first_value_diff": false,
-                "value": "#1 + #2",
+                "value": "#141181939880141659151760477717611728249",
                 "value_1": null,
                 "integration_values": null,
                 "decimal_places": 0
@@ -288,18 +340,18 @@
         ],
         "sections": [
           {
-            "name": "section1",
+            "name": "Cost of Goods Sold",
             "rows": [
               {
                 "_id": "154014396970273800635032943872142491846",
-                "name": "row1",
+                "name": "Variable 1",
                 "val_type": "number",
                 "editable": true,
                 "var_type": "formula",
                 "time_series": true,
                 "starting_at": 0,
                 "first_value_diff": true,
-                "value": "$-1 * 1.05",
+                "value": "$1 * 1.05",
                 "value_1": "100",
                 "integration_values": null,
                 "decimal_places": 0
@@ -307,14 +359,80 @@
             ],
             "end_row": {
                 "_id": "119275764367570197178225826115654655639",
-                "name": "end_row",
+                "name": "End Row",
                 "val_type": "number",
                 "editable": true,
                 "var_type": "formula",
                 "time_series": true,
                 "starting_at": 0,
                 "first_value_diff": false,
-                "value": "#1 + #2",
+                "value": "#154014396970273800635032943872142491846",
+                "value_1": null,
+                "integration_values": null,
+                "decimal_places": 0
+            }
+          },
+          {
+            "name": "Operational Costs",
+            "rows": [
+              {
+                "_id": "154014396970273800635032943872142491999",
+                "name": "Variable 2",
+                "val_type": "number",
+                "editable": true,
+                "var_type": "formula",
+                "time_series": true,
+                "starting_at": 0,
+                "first_value_diff": true,
+                "value": "$1 * 1.05",
+                "value_1": "100",
+                "integration_values": null,
+                "decimal_places": 0
+              }
+            ],
+            "end_row": {
+                "_id": "119275764367570197178225826115654655999",
+                "name": "End Row",
+                "val_type": "number",
+                "editable": true,
+                "var_type": "formula",
+                "time_series": true,
+                "starting_at": 0,
+                "first_value_diff": false,
+                "value": "#154014396970273800635032943872142491999",
+                "value_1": null,
+                "integration_values": null,
+                "decimal_places": 0
+            }
+          },
+          {
+            "name": "Other Costs",
+            "rows": [
+              {
+                "_id": "154014396970273800635032943872142491888",
+                "name": "Variable 2",
+                "val_type": "number",
+                "editable": true,
+                "var_type": "formula",
+                "time_series": true,
+                "starting_at": 0,
+                "first_value_diff": true,
+                "value": "$1 * 1.05",
+                "value_1": "100",
+                "integration_values": null,
+                "decimal_places": 0
+              }
+            ],
+            "end_row": {
+                "_id": "119275764367570197178225826115654655888",
+                "name": "End Row",
+                "val_type": "number",
+                "editable": true,
+                "var_type": "formula",
+                "time_series": true,
+                "starting_at": 0,
+                "first_value_diff": false,
+                "value": "#154014396970273800635032943872142491888",
                 "value_1": null,
                 "integration_values": null,
                 "decimal_places": 0

@@ -521,7 +521,7 @@ async def test_post_model_costs(access_token):
     assert response.status_code == status.HTTP_200_OK
 
     sheet2 = response.json()
-    assert len(sheet2["sections"]) == 1
+    assert len(sheet2["sections"]) == len(sheet.sections)
 
     for sec in sheet2["sections"]:
         assert sec["name"].endswith("_changed")
@@ -545,8 +545,8 @@ async def test_post_model_costs_contains_integration_values(access_token):
 
     assert response.status_code == status.HTTP_200_OK
 
-    assert response.json()["sections"][0]["rows"][1]["integration_values"] is not None
-    assert len(response.json()["sections"][0]["rows"][1]["integration_values"]) > 0
+    assert response.json()["sections"][0]["rows"][0]["integration_values"] is not None
+    assert len(response.json()["sections"][0]["rows"][0]["integration_values"]) > 0
 
 
 @pytest.mark.anyio
@@ -683,8 +683,8 @@ async def test_get_model_costs_contains_integration_values(access_token):
 
     assert response.status_code == status.HTTP_200_OK
 
-    assert response.json()["sections"][0]["rows"][1]["integration_values"] is not None
-    assert len(response.json()["sections"][0]["rows"][1]["integration_values"]) > 0
+    assert response.json()["sections"][0]["rows"][0]["integration_values"] is not None
+    assert len(response.json()["sections"][0]["rows"][0]["integration_values"]) > 0
 
 
 @pytest.mark.anyio
