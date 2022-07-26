@@ -29,112 +29,49 @@ class Sheet(BaseModel):
 
 def create_default_sheets():
 
-    ref1 = str(int(uuid.uuid4()))
-    ref2 = str(int(uuid.uuid4()))
+    new_empty_row = dict(
+        name="",
+        val_type="number",
+        editable=True,
+        var_type="value",
+        time_series=False,
+        starting_at=0,
+        first_value_diff=False,
+        value="0",
+        value_1=None,
+        integration_values=None,
+        decimal_places=0,
+    )
 
     return [
         Sheet(
             meta=SheetMeta(name="Revenues"),
-            assumptions=[
-                Row(
-                    name="",
-                    val_type="number",
-                    editable=True,
-                    var_type="value",
-                    time_series=False,
-                    starting_at=0,
-                    first_value_diff=False,
-                    value="0",
-                    value_1=None,
-                    integration_values=None,
-                    decimal_places=0,
-                )
-            ],
+            assumptions=[Row(**new_empty_row)],
             sections=[
                 Section(
-                    name="Product Section 1",
-                    rows=[
-                        Row(
-                            id=ref1,
-                            name="",
-                            val_type="number",
-                            editable=True,
-                            var_type="value",
-                            time_series=False,
-                            starting_at=0,
-                            first_value_diff=False,
-                            value="0",
-                            value_1=None,
-                            integration_values=None,
-                            decimal_places=0,
-                        )
-                    ],
-                    end_row=Row(
-                        name="",
-                        val_type="number",
-                        editable=True,
-                        var_type="formula",
-                        time_series=False,
-                        starting_at=0,
-                        first_value_diff=False,
-                        value=f"#{ref1}",
-                        value_1=None,
-                        integration_values=None,
-                        decimal_places=0,
-                    ),
+                    name="", rows=[Row(**new_empty_row)], end_row=Row(**new_empty_row)
                 )
             ],
         ),
         Sheet(
             meta=SheetMeta(name="Costs"),
-            assumptions=[
-                Row(
-                    name="",
-                    val_type="number",
-                    editable=True,
-                    var_type="value",
-                    time_series=False,
-                    starting_at=0,
-                    first_value_diff=False,
-                    value="0",
-                    value_1=None,
-                    integration_values=None,
-                    decimal_places=0,
-                )
-            ],
+            assumptions=[Row(**new_empty_row)],
             sections=[
                 Section(
-                    name="Product Section 1",
-                    rows=[
-                        Row(
-                            id=ref2,
-                            name="",
-                            val_type="number",
-                            editable=True,
-                            var_type="value",
-                            time_series=False,
-                            starting_at=0,
-                            first_value_diff=False,
-                            value="0",
-                            value_1=None,
-                            integration_values=None,
-                            decimal_places=0,
-                        )
-                    ],
-                    end_row=Row(
-                        name="",
-                        val_type="number",
-                        editable=True,
-                        var_type="formula",
-                        time_series=False,
-                        starting_at=0,
-                        first_value_diff=False,
-                        value=f"#{ref2}",
-                        value_1=None,
-                        integration_values=None,
-                        decimal_places=0,
-                    ),
-                )
+                    name="Cost of Goods Sold",
+                    rows=[Row(**new_empty_row)],
+                    end_row=Row(**new_empty_row),
+                ),
+                Section(
+                    name="Operational Costs",
+                    rows=[Row(**new_empty_row)],
+                    end_row=Row(**new_empty_row),
+                ),
+                Section(
+                    name="Other Costs",
+                    rows=[Row(**new_empty_row)],
+                    end_row=Row(**new_empty_row),
+                ),
             ],
         ),
     ]

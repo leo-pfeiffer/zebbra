@@ -97,7 +97,7 @@ class LocustModels(JohnDoeMixin, HttpUser):
 
         model_id = r.json()["_id"]
 
-        self.client.post(
+        self.client.delete(
             "/model/delete",
             params={
                 "model_id": model_id,
