@@ -31,10 +31,6 @@ try {
     console.log(e)
 }
 
-//todo: find better solution
-const date: string[] = modelMeta.value.starting_month.split("-");
-const dates = useState('dates', () => useDateArray(new Date(+date[0], +date[1] - 1)));
-
 const possibleIntegrationValuesState = usePossibleIntegrationValuesState();
 try {
     possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(route.params.modelId);
@@ -110,7 +106,7 @@ try {
                                 </div>
                                 <div v-for="(section, sectionIndex) in costState.sections" :key="sectionIndex">
                                     <SectionHeader :sectionName="section.name" :sectionIndex="sectionIndex"
-                                        :changingEnabled="true" @change-section-name="updateSectionName"
+                                        :changingEnabled="false" @change-section-name="updateSectionName"
                                         @delete-section="deleteSection" :userIsViewer="userIsViewer"></SectionHeader>
                                     <VariableRowHeader @update-value="updateVariableValue"
                                         @update-settings="updateVariableSettings" @update-name="updateVariableName"
@@ -136,14 +132,6 @@ try {
                                         :sectionIndex="sectionIndex" :sectionName="section.name" :isEndRow="true"
                                         :userIsViewer="userIsViewer">
                                     </VariableRowHeader>
-                                </div>
-                                <div class="">
-                                    <!-- add section button -->
-                                    <div
-                                        class="text-xs py-2 px-3 min-w-[470px] max-w-[470px] border-zinc-300 border-y border-l">
-                                        <button :disabled="userIsViewer" @click="addSection" class="text-zinc-400 italic hover:text-zinc-500"><i
-                                                class="bi bi-plus-lg mr-2"></i>Add Section</button>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -228,11 +216,6 @@ try {
                                         :values="computedEndRowValuesToDisplay[index]" :round-to="2"></VariableRow>
                                 </ClientOnly>
                             </div>
-                            <div class="flex">
-                                <!-- add section button empty -->
-                                <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-y"
-                                    v-for="date in dates">X</div>
-                            </div>
                         </div>
                         <div id="total-cost-values" class="border-zinc-300">
                             <ClientOnly>
@@ -262,6 +245,10 @@ export default {
         }
     },
     computed: {
+        dates() {
+            const date: string[] = this.modelMeta.starting_month.split("-");
+            return useDateArray(new Date(+date[0], +date[1] - 1))
+        },
         computedAssumptionValuesToDisplay() {
             var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(this.costState.assumptions);
             return assumptionValuesArray;
@@ -450,15 +437,12 @@ export default {
 
             this.costState.sections.push(emptySection);
 
-            this.updateDisplayedValues();
-
             try {
                 await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
             } catch (e) {
                 console.log(e)
                 this.errorMessages.push("Something went wrong! Please try adding the section again.");
                 this.costState = await useSheetUpdate().getCostSheet(this.route.params.modelId)
-                this.updateDisplayedValues();
             }
 
         },
@@ -551,7 +535,6 @@ export default {
             }
 
             this.costState.sections[sectionIndex].rows.push(emptyVariable);
-            this.updateDisplayedValues();
 
             try {
                 await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
@@ -559,7 +542,6 @@ export default {
                 console.log(e)
                 this.errorMessages.push("Something went wrong! Please try adding the variable again.");
                 this.costState = await useSheetUpdate().getCostSheet(this.route.params.modelId)
-                this.updateDisplayedValues();
             }
 
         },
@@ -581,8 +563,6 @@ export default {
                 try {
                     //update CostState
                     await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
-                    this.updateDisplayedValues();
-
                 } catch (e) {
                     console.log(e);
                     //retrieve actual stored sheet from DB
@@ -636,8 +616,6 @@ export default {
                 try {
                     //update CostState
                     await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
-                    this.updateDisplayedValues();
-
                 } catch (e) {
                     console.log(e);
                     //retrieve actual stored sheet from DB
@@ -671,8 +649,6 @@ export default {
             try {
                 //update CostState
                 this.costState = await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
-                this.updateDisplayedValues();
-
             } catch (e) {
                 console.log(e);
                 //retrieve actual stored sheet from DB
@@ -704,8 +680,6 @@ export default {
                 try {
                     //update CostState
                     await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
-                    this.updateDisplayedValues();
-
                 } catch (e) {
                     console.log(e);
                     //retrieve actual stored sheet from DB
@@ -803,7 +777,6 @@ export default {
             try {
                 //update CostState
                 await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
-                this.updateDisplayedValues();
             } catch (e) {
                 console.log(e);
                 this.errorMessages.push(e);
@@ -842,9 +815,6 @@ export default {
             try {
                 //update CostState
                 await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
-                //Update sheet values valuesToDisplay
-                this.updateDisplayedValues();
-
             } catch (e) {
                 console.log(e);
                 this.errorMessages.push(e);
@@ -859,7 +829,6 @@ export default {
         async deleteAssumption(variableIndex: number, sectionIndex: number) {
             //first directly change the state
             this.costState.assumptions.splice(variableIndex, 1);
-            this.assumptionValuesToDisplayState.splice(variableIndex, 1);
 
             //then update the backend
             try {
@@ -870,7 +839,6 @@ export default {
                 const actualSheet = await useSheetUpdate().getCostSheet(this.route.params.modelId);
                 if (!(actualSheet.assumptions.length === this.costState.assumptions.length)) {
                     this.costState = actualSheet;
-                    this.updateDisplayedValues();
                 }
             }
         },
@@ -893,21 +861,18 @@ export default {
             //then update the backend
             try {
                 await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
-                this.updateDisplayedValues();
             } catch (e) {
                 console.log(e) //todo: throw error message
                 this.errorMessages.push(e);
                 const actualSheet = await useSheetUpdate().getCostSheet(this.route.params.modelId);
                 if (!(actualSheet.sections[sectionIndex].rows.length === this.costState.sections[sectionIndex].rows.length)) {
                     this.costState = actualSheet;
-                    this.updateDisplayedValues();
                 }
             }
         },
         async deleteVariable(variableIndex: number, sectionIndex: number) {
             //first directly change the state
             this.costState.sections[sectionIndex].rows.splice(variableIndex, 1);
-            this.variableValuesToDisplayState.get(sectionIndex).splice(variableIndex, 1);
 
             //then update the backend
             try {
@@ -918,7 +883,6 @@ export default {
                 const actualSheet = await useSheetUpdate().getCostSheet(this.route.params.modelId);
                 if (!(actualSheet.sections[sectionIndex].rows.length === this.costState.sections[sectionIndex].rows.length)) {
                     this.costState = actualSheet;
-                    this.updateDisplayedValues();
                 }
             }
         },
@@ -959,35 +923,6 @@ export default {
 
             } else {
                 return false;
-            }
-        },
-        updateDisplayedValues() {
-
-            //assumptions
-            try {
-                this.assumptionValuesToDisplayState = useFormulaParser().getSheetRowValues(this.costState.assumptions);
-
-                //Update entire sheet
-                var variablesValuesStorage: Map<number, string[][]> = new Map<number, string[][]>();
-                var endRowValuesStorage: string[][] = [];
-                for (let i = 0; i < this.costState.sections.length; i++) {
-                    //variables
-                    var sectionVariables: Variable[] = [...this.costState.sections[i].rows];
-                    var valuesOfAssumptionsAndVariables: string[][] = useFormulaParser().getSheetRowValues(this.costState.assumptions.concat(sectionVariables))
-                    valuesOfAssumptionsAndVariables.splice(0, this.costState.assumptions.length);
-                    variablesValuesStorage.set(i, valuesOfAssumptionsAndVariables);
-                    //endrow
-                    var valuesOfVariablesAndEndRow: string[][] = useFormulaParser().getSheetRowValues(this.costState.assumptions.concat(sectionVariables.concat(this.costState.sections[i].end_row)));
-                    valuesOfVariablesAndEndRow.splice(0, sectionVariables.length + this.costState.assumptions.length);
-                    endRowValuesStorage.push(valuesOfVariablesAndEndRow[0]);
-
-                };
-                this.variableValuesToDisplayState = variablesValuesStorage;
-                this.endRowValuesToDisplayState = endRowValuesStorage;
-
-            } catch (e) {
-                console.log(e);
-                this.errorMessages.push(e)
             }
         }
     }
