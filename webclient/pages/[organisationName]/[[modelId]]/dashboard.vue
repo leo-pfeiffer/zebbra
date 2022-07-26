@@ -1,9 +1,42 @@
 <script setup lang="ts">
+
+import { useSheetUpdate } from '~~/methods/useSheetUpdate';
+
 definePageMeta({
   middleware: ["auth", "route-check"]
 })
 
+const route = useRoute()
+
 const user = useUserState();
+
+const modelMeta = useModelMetaState();
+
+modelMeta.value = await getModelMeta(route.params.modelId);
+
+const revenueState = useRevenueState();
+
+try {
+  revenueState.value = await useSheetUpdate().getRevenueSheet(route.params.modelId);
+} catch (error) {
+  console.log(error);
+}
+
+const costState = useCostState();
+
+try {
+  costState.value = await useSheetUpdate().getCostSheet(route.params.modelId);
+} catch (e) {
+  console.log(e)
+}
+
+const payrollState = usePayrollState();
+
+try {
+  payrollState.value = await useSheetUpdate().getPayroll(route.params.modelId);
+} catch (e) {
+  console.log(e)
+}
 
 </script>
 
@@ -111,6 +144,7 @@ const user = useUserState();
 
 import { GetIntegrationProvidersResponse } from '~~/types/GetIntegrationProvidersResponse';
 import { useFetchAuth } from '~~/methods/useFetchAuth';
+import {useCalculateDashboardProfits} from "~/methods/useCalculateDashboardProfits";
 
 export default {
   data() {
@@ -126,123 +160,28 @@ export default {
       payrollCostsOptions: {},
       headcountOptions: {},
 
-      profitsSeries: [{
-        name: "Profits",
-        data: [
-            [+ new Date(2020, 1, 1), 100],
-            [+ new Date(2020, 2, 1), 200],
-            [+ new Date(2020, 3, 1), 300],
-            [+ new Date(2020, 4, 1), 200],
-            [+ new Date(2020, 5, 1), 300],
-            [+ new Date(2020, 6, 1), 400],
-            [+ new Date(2020, 7, 1), 300],
-        ]
-      }],
-      cashBalanceSeries: [{
-        name: "Cash Balance",
-        data: [
-          [+ new Date(2020, 1, 1), 100],
-          [+ new Date(2020, 2, 1), 200],
-          [+ new Date(2020, 3, 1), 100],
-          [+ new Date(2020, 4, 1), 5],
-          [+ new Date(2020, 5, 1), -25],
-          [+ new Date(2020, 6, 1), -50],
-          [+ new Date(2020, 7, 1), -100],
-        ]
-      }],
-      revenuesSeries: [{
-        name: "Product A",
-        data: [
-          [+ new Date(2020, 1, 1), 100],
-          [+ new Date(2020, 2, 1), 200],
-          [+ new Date(2020, 3, 1), 100],
-          [+ new Date(2020, 4, 1), 120],
-          [+ new Date(2020, 5, 1), 150],
-          [+ new Date(2020, 6, 1), 225],
-          [+ new Date(2020, 7, 1), 300],
-        ]
-      }, {
-        name: "Product B",
-        data: [
-          [+ new Date(2020, 1, 1), 50],
-          [+ new Date(2020, 2, 1), 130],
-          [+ new Date(2020, 3, 1), 110],
-          [+ new Date(2020, 4, 1), 70],
-          [+ new Date(2020, 5, 1), 75],
-          [+ new Date(2020, 6, 1), 100],
-          [+ new Date(2020, 7, 1), 150],
-        ]
-      }],
-      costsSeries: [{
-        name: "Product A",
-        data: [
-          [+ new Date(2020, 1, 1), 110],
-          [+ new Date(2020, 2, 1), 150],
-          [+ new Date(2020, 3, 1), 120],
-          [+ new Date(2020, 4, 1), 170],
-          [+ new Date(2020, 5, 1), 190],
-          [+ new Date(2020, 6, 1), 215],
-          [+ new Date(2020, 7, 1), 100],
-        ]
-      }, {
-        name: "Product B",
-        data: [
-          [+ new Date(2020, 1, 1), 75],
-          [+ new Date(2020, 2, 1), 150],
-          [+ new Date(2020, 3, 1), 130],
-          [+ new Date(2020, 4, 1), 90],
-          [+ new Date(2020, 5, 1), 95],
-          [+ new Date(2020, 6, 1), 300],
-          [+ new Date(2020, 7, 1), 210],
-        ]
-      }],
-      payrollCostsSeries: [{
-        name: "Sales",
-        data: [
-          [+ new Date(2020, 1, 1), 110],
-          [+ new Date(2020, 2, 1), 150],
-          [+ new Date(2020, 3, 1), 120],
-          [+ new Date(2020, 4, 1), 170],
-          [+ new Date(2020, 5, 1), 190],
-          [+ new Date(2020, 6, 1), 215],
-          [+ new Date(2020, 7, 1), 100],
-        ]
-      }, {
-        name: "R&D",
-        data: [
-          [+ new Date(2020, 1, 1), 75],
-          [+ new Date(2020, 2, 1), 150],
-          [+ new Date(2020, 3, 1), 130],
-          [+ new Date(2020, 4, 1), 90],
-          [+ new Date(2020, 5, 1), 95],
-          [+ new Date(2020, 6, 1), 300],
-          [+ new Date(2020, 7, 1), 210],
-        ]
-      }],
-      headcountSeries: [{
-        name: "Sales",
-        data: [
-          [+ new Date(2020, 1, 1), 20],
-          [+ new Date(2020, 2, 1), 30],
-          [+ new Date(2020, 3, 1), 40],
-          [+ new Date(2020, 4, 1), 35],
-          [+ new Date(2020, 5, 1), 25],
-          [+ new Date(2020, 6, 1), 25],
-          [+ new Date(2020, 7, 1), 30],
-        ]
-      }, {
-        name: "R&D",
-        data: [
-          [+ new Date(2020, 1, 1), 25],
-          [+ new Date(2020, 2, 1), 15],
-          [+ new Date(2020, 3, 1), 20],
-          [+ new Date(2020, 4, 1), 25],
-          [+ new Date(2020, 5, 1), 30],
-          [+ new Date(2020, 6, 1), 25],
-          [+ new Date(2020, 7, 1), 30],
-        ]
-      }],
+      dashboardData: null,
     }
+  },
+  computed: {
+    profitsSeries() {
+      return this.dashboardData.profit;
+    },
+    cashBalanceSeries() {
+      return this.dashboardData.cashBalance;
+    },
+    revenuesSeries() {
+      return this.dashboardData.revenues;
+    },
+    costsSeries() {
+      return this.dashboardData.costs;
+    },
+    payrollCostsSeries() {
+      return this.dashboardData.payrollCosts;
+    },
+    headcountSeries() {
+      return this.dashboardData.headcount;
+    },
   },
   methods: {
     getProfitChartOptions() {
@@ -352,6 +291,9 @@ export default {
     }
   },
   async mounted() {
+
+    // calculate the dashboard data
+    this.dashboardData = useCalculateDashboardProfits(this.revenueState, this.costState, this.payrollState);
 
     this.profitChartOptions = {...this.getProfitChartOptions()};
     this.cashBalanceOptions = {...this.getCashBalanceOptions()};
