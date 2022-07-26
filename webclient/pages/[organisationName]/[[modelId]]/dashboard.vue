@@ -292,8 +292,15 @@ export default {
   },
   async mounted() {
 
+    // convert the string date to a date object
+    const dateParts = this.modelMeta.starting_month.split('-');
+    const startingDate = new Date(Number(dateParts[0]), Number(dateParts[1]) - 1, Number(dateParts[2]));
+
+
     // calculate the dashboard data
-    this.dashboardData = useCalculateDashboardProfits(this.revenueState, this.costState, this.payrollState);
+    this.dashboardData = useCalculateDashboardProfits(
+        this.revenueState, this.costState, this.payrollState, startingDate, 5000
+    );
 
     this.profitChartOptions = {...this.getProfitChartOptions()};
     this.cashBalanceOptions = {...this.getCashBalanceOptions()};
