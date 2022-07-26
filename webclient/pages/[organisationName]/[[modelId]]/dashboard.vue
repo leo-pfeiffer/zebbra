@@ -14,10 +14,11 @@ const user = useUserState();
           <h1 class="font-semibold text-xl inline-block align-middle">Dashboard</h1>
         </div>
 
-        <div class="grid grid-cols-2 gap-4 p-3">
-          <div class="border">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 p-3">
+          <div>
             <ClientOnly>
               <apexchart
+                  v-if="renderChart"
                   width="100%"
                   type="line"
                   :options="profitChartOptions"
@@ -25,9 +26,10 @@ const user = useUserState();
               ></apexchart>
             </ClientOnly>
           </div>
-          <div class="border">
+          <div>
             <ClientOnly>
               <apexchart
+                  v-if="renderChart"
                   width="100%"
                   type="bar"
                   :options="cashBalanceOptions"
@@ -35,9 +37,10 @@ const user = useUserState();
               ></apexchart>
             </ClientOnly>
           </div>
-          <div class="border">
+          <div>
             <ClientOnly>
               <apexchart
+                  v-if="renderChart"
                   width="100%"
                   type="area"
                   :options="revenuesOptions"
@@ -45,9 +48,10 @@ const user = useUserState();
               ></apexchart>
             </ClientOnly>
           </div>
-          <div class="border">
+          <div>
             <ClientOnly>
               <apexchart
+                  v-if="renderChart"
                   width="100%"
                   type="area"
                   :options="costsOptions"
@@ -55,9 +59,10 @@ const user = useUserState();
               ></apexchart>
             </ClientOnly>
           </div>
-          <div class="border">
+          <div>
             <ClientOnly>
               <apexchart
+                  v-if="renderChart"
                   width="100%"
                   type="bar"
                   :options="payrollCostsOptions"
@@ -65,9 +70,10 @@ const user = useUserState();
               ></apexchart>
             </ClientOnly>
           </div>
-          <div class="border">
+          <div>
             <ClientOnly>
               <apexchart
+                  v-if="renderChart"
                   width="100%"
                   type="bar"
                   :options="headcountOptions"
@@ -110,6 +116,16 @@ export default {
   data() {
     return {
       showRequiresReconnectModal: false,
+
+      renderChart: false,
+
+      profitChartOptions: {},
+      cashBalanceOptions: {},
+      revenuesOptions: {},
+      costsOptions: {},
+      payrollCostsOptions: {},
+      headcountOptions: {},
+
       profitsSeries: [{
         name: "Profits",
         data: [
@@ -228,11 +244,11 @@ export default {
       }],
     }
   },
-  computed: {
-    profitChartOptions() {
+  methods: {
+    getProfitChartOptions() {
       return this.makeChartOptions('Profits', 'Profits')
     },
-    cashBalanceOptions() {
+    getCashBalanceOptions() {
       const opts = this.makeChartOptions('Cash Balance', 'Cash Balance')
       opts.plotOptions = {
         bar: {
@@ -252,32 +268,30 @@ export default {
       }
       return opts
     },
-    revenuesOptions() {
+    getRevenuesOptions() {
       const opts = this.makeChartOptions('Revenues', 'Revenues')
       opts.chart.stacked = true;
       opts.chart.stackType = undefined;
       return opts;
     },
-    costsOptions() {
+    getCostsOptions() {
       const opts = this.makeChartOptions('Costs', 'Costs')
       opts.chart.stacked = true;
       opts.chart.stackType = undefined;
       return opts;
     },
-    payrollCostsOptions() {
+    getPayrollCostsOptions() {
       const opts = this.makeChartOptions('Payroll Costs', 'Payroll Costs')
       opts.chart.stacked = true;
       opts.chart.stackType = undefined;
       return opts;
     },
-    headcountOptions() {
+    getHeadcountOptions() {
       const opts = this.makeChartOptions('Headcount', 'Headcount')
       opts.chart.stacked = true;
       opts.chart.stackType = undefined;
       return opts;
-    }
-  },
-  methods: {
+    },
     makeChartOptions(title, yAxisTitle) {
       return {
         chart: {
@@ -339,7 +353,18 @@ export default {
   },
   async mounted() {
 
-    var integrationsProviderResponse: GetIntegrationProvidersResponse[];
+    this.profitChartOptions = {...this.getProfitChartOptions()};
+    this.cashBalanceOptions = {...this.getCashBalanceOptions()};
+    this.revenuesOptions = {...this.getRevenuesOptions()};
+    this.costsOptions = {...this.getCostsOptions()};
+    this.payrollCostsOptions = {...this.getPayrollCostsOptions()};
+    this.headcountOptions = {...this.getHeadcountOptions()};
+
+    // fixes rendering issue in apexcharts if width is not set to a fixed pixel width
+    // https://github.com/apexcharts/apexcharts.js/issues/1077#issuecomment-984386146
+    setTimeout(() => { this.renderChart = true }, 50)
+
+    let integrationsProviderResponse: GetIntegrationProvidersResponse[];
     const getIntegrationsState = await useFetchAuth(
         '/integration/providers', {
         method: 'GET',
@@ -353,11 +378,7 @@ export default {
         console.log(error);
     });
 
-    if(integrationsProviderResponse[0].requires_reconnect || integrationsProviderResponse[1].requires_reconnect) {
-      this.showRequiresReconnectModal = true;
-    } else {
-      this.showRequiresReconnectModal = false;
-    }
+    this.showRequiresReconnectModal = integrationsProviderResponse[0].requires_reconnect || integrationsProviderResponse[1].requires_reconnect;
   }
 }
 </script>
