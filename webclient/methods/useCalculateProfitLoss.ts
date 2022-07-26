@@ -54,7 +54,7 @@ export const useCalculateProfitLoss = (revenueState:Sheet, costState:Sheet, payr
 
         var output:string;
         try {
-            output = useMathParser(calcString).toString();
+            output = useMathParser(calcString).toFixed(4).toString();
         } catch(e) {
             output = "#REF!"
         }
@@ -106,7 +106,7 @@ export const useCalculateProfitLoss = (revenueState:Sheet, costState:Sheet, payr
         var calcString:string = profitLoss.gross_income.total.values[i] + "-" + profitLoss.cost_of_goods_sold.values[i];
         var output:string;
         try {
-            output = useMathParser(calcString).toString();
+            output = useMathParser(calcString).toFixed(4).toString();
         } catch(e) {
             output = "#REF!"
         }
@@ -121,7 +121,7 @@ export const useCalculateProfitLoss = (revenueState:Sheet, costState:Sheet, payr
         var calcString:string = profitLoss.gross_margin.values[i] + "-" + profitLoss.operating_cost.values[i] + "-" + profitLoss.payroll_cost.values[i];
         var output:string;
         try {
-            output = useMathParser(calcString).toString();
+            output = useMathParser(calcString).toFixed(4).toString();
         } catch(e) {
             output = "#REF!"
         }
@@ -136,7 +136,7 @@ export const useCalculateProfitLoss = (revenueState:Sheet, costState:Sheet, payr
         var calcString:string = profitLoss.operating_income.values[i] + "-" + profitLoss.other_cost.values[i];
         var output:string;
         try {
-            output = useMathParser(calcString).toString();
+            output = useMathParser(calcString).toFixed(4).toString();
         } catch(e) {
             output = "#REF!"
         }
