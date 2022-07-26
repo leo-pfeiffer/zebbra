@@ -19,18 +19,24 @@ modelMeta.value = await getModelMeta(route.params.modelId);
 const userIsViewer = modelMeta.value.viewers.includes(userState.value._id);
 
 const revenueState = useRevenueState();
-revenueState.value = await useSheetUpdate().getRevenueSheet(route.params.modelId);
+
+try{
+    revenueState.value = await useSheetUpdate().getRevenueSheet(route.params.modelId);
+} catch(error){
+    console.log(error);
+}
 
 //todo: find better solution
 const date: string[] = modelMeta.value.starting_month.split("-");
 const dates = useState('dates', () => useDateArray(new Date(+date[0], +date[1] - 1)));
 
-const assumptionValuesToDisplayState = useState<string[][]>('assumptionValues');
-const variableValuesToDisplayState = useState<Map<number, string[][]>>('variableValues');
-const endRowValuesToDisplayState = useState<string[][]>('endRowValues');
-
 const possibleIntegrationValuesState = usePossibleIntegrationValuesState();
-possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(route.params.modelId);
+
+try{
+    possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(route.params.modelId);
+} catch(error){
+    console.log(error);
+}
 
 </script>
 
@@ -143,8 +149,10 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                                 <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 bg-zinc-100 border-zinc-300 border-t"
                                     v-for="date in dates">X</div>
                             </div>
-                            <VariableRow v-for="(assumptionValues, index) in assumptionValuesToDisplayState"
+                            <ClientOnly>
+                                <VariableRow v-for="(assumptionValues, index) in computedAssumptionValuesToDisplay"
                                 :values="assumptionValues" :round-to="revenueState.assumptions[index].decimal_places"></VariableRow>
+                            </ClientOnly>
                             <div class="flex">
                                 <!-- add assumption button empty -->
                                 <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-y"
@@ -162,16 +170,20 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                                     <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-t"
                                         v-for="date in dates">X</div>
                                 </div>
-                                <VariableRow v-if="variableValuesToDisplayState"
-                                    v-for="(variableValues, variableIndex) in variableValuesToDisplayState.get(index)"
-                                    :values="variableValues" :round-to="revenueState.sections[index].rows[variableIndex].decimal_places"></VariableRow>
+                                <ClientOnly>
+                                    <VariableRow v-if="computedVariableValuesToDisplay"
+                                        v-for="(variableValues, variableIndex) in computedVariableValuesToDisplay.get(index)"
+                                        :values="variableValues" :round-to="revenueState.sections[index].rows[variableIndex].decimal_places"></VariableRow>
+                                </ClientOnly>
                                 <div class="flex">
                                     <!-- add variable button empty -->
                                     <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-t"
                                         v-for="date in dates">X</div>
                                 </div>
-                                <VariableRow v-if="endRowValuesToDisplayState"
-                                        :values="endRowValuesToDisplayState[index]" :round-to="2"></VariableRow>
+                                <ClientOnly>
+                                    <VariableRow v-if="computedEndRowValuesToDisplay"
+                                        :values="computedEndRowValuesToDisplay[index]" :round-to="2"></VariableRow>
+                                </ClientOnly>
                             </div>
                             <div class="flex">
                                     <!-- add section button empty -->
@@ -180,7 +192,9 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                                 </div>
                         </div>
                         <div id="total-revenue-values" class="border-zinc-300">
-                            <VariableRow v-if="endRowValuesToDisplayState" :values="totalRevenuesToDisplay" :round-to="2" :isFinalRow="true"></VariableRow>
+                            <ClientOnly>
+                                <VariableRow v-if="computedEndRowValuesToDisplay" :values="totalRevenuesToDisplay" :round-to="2" :isFinalRow="true"></VariableRow>
+                            </ClientOnly>
                         </div>
                     </div>
                 </div>
@@ -195,7 +209,7 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
 import { useFormulaParser } from '~~/methods/useFormulaParser';
 import { useGetValueFromHumanReadable } from '~~/methods/useGetValueFromHumanReadable';
 import { useMathParser } from '~~/methods/useMathParser';
-import { useFetchAuth } from '~~/methods/useFetchAuth';
+
 export default {
     data() {
         return {
@@ -203,10 +217,37 @@ export default {
         }
     },
     computed: {
+        computedAssumptionValuesToDisplay() {
+            var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(this.revenueState.assumptions);
+            return assumptionValuesArray;
+        },
+        computedVariableValuesToDisplay() {
+            var variablesValuesStorage: Map<number, string[][]> = new Map<number, string[][]>();
+            for (let i = 0; i < this.revenueState.sections.length; i++) {
+                //variables
+                var sectionVariables: Variable[] = [...this.revenueState.sections[i].rows];
+                var valuesOfAssumptionsAndVariables: string[][] = useFormulaParser().getSheetRowValues(this.revenueState.assumptions.concat(sectionVariables))
+                valuesOfAssumptionsAndVariables.splice(0, this.revenueState.assumptions.length);
+                variablesValuesStorage.set(i, valuesOfAssumptionsAndVariables);
+            };
+
+            return variablesValuesStorage;
+        },
+        computedEndRowValuesToDisplay() {
+            var endRowValuesStorage: string[][] = [];
+            for (let i = 0; i < this.revenueState.sections.length; i++) {
+                var sectionVariables: Variable[] = [...this.revenueState.sections[i].rows];
+                //endrow
+                var valuesOfVariablesAndEndRow: string[][] = useFormulaParser().getSheetRowValues(this.revenueState.assumptions.concat(sectionVariables.concat(this.revenueState.sections[i].end_row)));
+                valuesOfVariablesAndEndRow.splice(0, sectionVariables.length + this.revenueState.assumptions.length);
+                endRowValuesStorage.push(valuesOfVariablesAndEndRow[0]);
+            };
+            return endRowValuesStorage;
+        },
         totalRevenuesToDisplay() {
             var returnArray:string[] = [];
 
-            if(this.endRowValuesToDisplayState.length > 0) {
+            if(this.computedEndRowValuesToDisplay.length > 0) {
 
                 //populate array with all calculation to perform
                 var calcArray:string[] = [];
@@ -215,10 +256,10 @@ export default {
                     calcArray.push("");
                 }
 
-                for(let i=0; i < this.endRowValuesToDisplayState.length; i++) {
-                    for(let j=0; j < this.endRowValuesToDisplayState[i].length; j++) {
-                        if(this.endRowValuesToDisplayState[i][j] != "–") {
-                            calcArray[j] = calcArray[j] + "+" + this.endRowValuesToDisplayState[i][j];
+                for(let i=0; i < this.computedEndRowValuesToDisplay.length; i++) {
+                    for(let j=0; j < this.computedEndRowValuesToDisplay[i].length; j++) {
+                        if(this.computedEndRowValuesToDisplay[i][j] != "–") {
+                            calcArray[j] = calcArray[j] + "+" + this.computedEndRowValuesToDisplay[i][j];
                         }
                     }
                 }
@@ -227,8 +268,8 @@ export default {
                     try {
                         returnArray.push(useMathParser(calcArray[i]).toString());
                     } catch(e) {
-                        if(this.endRowValuesToDisplayState.length === 1) {
-                            returnArray.push(this.endRowValuesToDisplayState[0][i]);
+                        if(this.computedEndRowValuesToDisplay.length === 1) {
+                            returnArray.push(this.computedEndRowValuesToDisplay[0][i]);
                         } else {
                             returnArray.push("#REF!");
                         }
@@ -296,15 +337,12 @@ export default {
 
             this.revenueState.sections.push(emptySection);
 
-            this.updateDisplayedValues();
-
             try {
                 await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
             } catch (e) {
                 console.log(e)
                 this.errorMessages.push("Something went wrong! Please try adding the section again.");
                 this.revenueState = await useSheetUpdate().getRevenueSheet(this.route.params.modelId)
-                this.updateDisplayedValues();
             }
 
         },
@@ -328,19 +366,6 @@ export default {
             }
 
             this.revenueState.assumptions.push(emptyAssumption);
-
-            const assumptionValuesArrayState = useState<string[][]>('assumptionValues');
-            var assumptionValuesArray: string[][];
-
-            try {
-                assumptionValuesArray = useFormulaParser().getSheetRowValues(this.revenueState.assumptions);
-                let index = assumptionValuesArray.length - 1;
-                assumptionValuesArrayState.value.push(assumptionValuesArray[index])
-            } catch(e){
-                console.log(e);
-                this.errorMessages.push("Something went wrong! Please try adding the variable again.");
-                this.revenueState = await useSheetUpdate().getRevenueSheet(this.route.params.modelId)
-            } 
 
             try {
                 await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
@@ -371,7 +396,6 @@ export default {
             }
 
             this.revenueState.sections[sectionIndex].rows.push(emptyVariable);
-            this.updateDisplayedValues();
 
             try {
                 await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
@@ -379,7 +403,6 @@ export default {
                 console.log(e)
                 this.errorMessages.push("Something went wrong! Please try adding the variable again.");
                 this.revenueState = await useSheetUpdate().getRevenueSheet(this.route.params.modelId)
-                this.updateDisplayedValues();
             }
 
         },
@@ -401,7 +424,6 @@ export default {
                 try {
                     //update RevenueState
                     await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
-                    this.updateDisplayedValues();
 
                 } catch (e) {
                     console.log(e);
@@ -438,8 +460,6 @@ export default {
                 try {
                     //update RevenueState
                     await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
-                    this.updateDisplayedValues();
-
                 } catch (e) {
                     console.log(e);
                     //retrieve actual stored sheet from DB
@@ -473,8 +493,6 @@ export default {
             try {
                 //update RevenueState
                 this.revenueState = await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
-                this.updateDisplayedValues();
-
             } catch (e) {
                 console.log(e);
                 //retrieve actual stored sheet from DB
@@ -506,8 +524,6 @@ export default {
                 try {
                     //update RevenueState
                     await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
-                    this.updateDisplayedValues();
-
                 } catch (e) {
                     console.log(e);
                     //retrieve actual stored sheet from DB
@@ -605,7 +621,6 @@ export default {
             try {
                 //update RevenueState
                 await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
-                this.updateDisplayedValues();
             } catch (e) {
                 console.log(e);
                 this.errorMessages.push(e);
@@ -644,9 +659,6 @@ export default {
             try {
                 //update RevenueState
                 await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
-                //Update sheet values valuesToDisplay
-                this.updateDisplayedValues();
-
             } catch (e) {
                 console.log(e);
                 this.errorMessages.push(e);
@@ -661,7 +673,6 @@ export default {
         async deleteAssumption(variableIndex: number, sectionIndex: number) {
             //first directly change the state
             this.revenueState.assumptions.splice(variableIndex, 1);
-            this.assumptionValuesToDisplayState.splice(variableIndex, 1);
 
             //then update the backend
             try {
@@ -672,7 +683,6 @@ export default {
                 const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
                 if (!(actualSheet.assumptions.length === this.revenueState.assumptions.length)) {
                     this.revenueState = actualSheet;
-                    this.updateDisplayedValues();
                 }
             }
         },
@@ -682,21 +692,18 @@ export default {
             //then update the backend
             try {
                 await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.revenueState);
-                this.updateDisplayedValues();
             } catch (e) {
                 console.log(e) //todo: throw error message
                 this.errorMessages.push(e);
                 const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
                 if (!(actualSheet.sections[sectionIndex].rows.length === this.revenueState.sections[sectionIndex].rows.length)) {
                     this.revenueState = actualSheet;
-                    this.updateDisplayedValues();
                 }
             }
         },
         async deleteVariable(variableIndex: number, sectionIndex: number) {
             //first directly change the state
             this.revenueState.sections[sectionIndex].rows.splice(variableIndex, 1);
-            this.variableValuesToDisplayState.get(sectionIndex).splice(variableIndex, 1);
 
             //then update the backend
             try {
@@ -707,7 +714,6 @@ export default {
                 const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
                 if (!(actualSheet.sections[sectionIndex].rows.length === this.revenueState.sections[sectionIndex].rows.length)) {
                     this.revenueState = actualSheet;
-                    this.updateDisplayedValues();
                 }
             }
         },
@@ -749,65 +755,6 @@ export default {
             } else {
                 return false;
             }
-        },
-        updateDisplayedValues() {
-            
-            //assumptions
-            try {
-                this.assumptionValuesToDisplayState = useFormulaParser().getSheetRowValues(this.revenueState.assumptions);
-
-                //Update entire sheet
-                var variablesValuesStorage: Map<number, string[][]> = new Map<number, string[][]>();
-                var endRowValuesStorage: string[][] = [];
-                for (let i = 0; i < this.revenueState.sections.length; i++) {
-                    //variables
-                    var sectionVariables: Variable[] = [...this.revenueState.sections[i].rows];
-                    var valuesOfAssumptionsAndVariables: string[][] = useFormulaParser().getSheetRowValues(this.revenueState.assumptions.concat(sectionVariables))
-                    valuesOfAssumptionsAndVariables.splice(0, this.revenueState.assumptions.length);
-                    variablesValuesStorage.set(i, valuesOfAssumptionsAndVariables);
-                    //endrow
-                    var valuesOfVariablesAndEndRow: string[][] = useFormulaParser().getSheetRowValues(this.revenueState.assumptions.concat(sectionVariables.concat(this.revenueState.sections[i].end_row)));
-                    valuesOfVariablesAndEndRow.splice(0, sectionVariables.length + this.revenueState.assumptions.length);
-                    endRowValuesStorage.push(valuesOfVariablesAndEndRow[0]);
-
-                };
-                this.variableValuesToDisplayState = variablesValuesStorage;
-                this.endRowValuesToDisplayState = endRowValuesStorage;
-
-            } catch(e) {
-                console.log(e);
-                this.errorMessages.push(e)
-            }
-        }
-    },
-    mounted() {
-        try {
-            //return the display values for all the assumptions
-            const revenues = useRevenueState();
-            
-            var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(revenues.value.assumptions);
-            useState('assumptionValues', () => assumptionValuesArray);
-            
-            var variablesValuesStorage: Map<number, string[][]> = new Map<number, string[][]>();
-            var endRowValuesStorage: string[][] = [];
-            for (let i = 0; i < revenues.value.sections.length; i++) {
-                //variables
-                var sectionVariables: Variable[] = [...revenues.value.sections[i].rows];
-                var valuesOfAssumptionsAndVariables: string[][] = useFormulaParser().getSheetRowValues(revenues.value.assumptions.concat(sectionVariables))
-                valuesOfAssumptionsAndVariables.splice(0, revenues.value.assumptions.length);
-                variablesValuesStorage.set(i, valuesOfAssumptionsAndVariables);
-                //endrow
-                var valuesOfVariablesAndEndRow: string[][] = useFormulaParser().getSheetRowValues(revenues.value.assumptions.concat(sectionVariables.concat(revenues.value.sections[i].end_row)));
-                valuesOfVariablesAndEndRow.splice(0, sectionVariables.length + revenues.value.assumptions.length);
-                endRowValuesStorage.push(valuesOfVariablesAndEndRow[0]);
-            };
-
-            useState<Map<number, string[][]>>('variableValues', () => variablesValuesStorage);
-            useState<string[][]>('endRowValues', () => endRowValuesStorage);
-
-        } catch(e) {
-            console.log(e);
-            this.errorMessages.push(e)
         }
     }
 }
