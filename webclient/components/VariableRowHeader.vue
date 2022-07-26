@@ -150,7 +150,7 @@ const route = useRoute();
             </div>
         </div>
         <Teleport to="body">
-            <div v-if="!userIsViewer" v-show="deleteModalOpen"
+            <div v-show="deleteModalOpen"
                 class="absolute left-0 top-1/3 w-full flex justify-center align-middle">
                 <div class="p-6 border h-max shadow-lg bg-white border-zinc-300 rounded z-50">
                     <div>
@@ -282,7 +282,7 @@ export default {
             }
         },
         toggleDeleteModal() {
-            if (!this.deleteModalOpen && this.userIsViewer) {
+            if (!this.deleteModalOpen && !this.userIsViewer) {
                 this.deleteModalOpen = true;
             } else {
                 this.deleteModalOpen = false;
