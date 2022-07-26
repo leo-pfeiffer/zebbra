@@ -26,10 +26,6 @@ try{
     console.log(error);
 }
 
-//todo: find better solution
-const date: string[] = modelMeta.value.starting_month.split("-");
-const dates = useState('dates', () => useDateArray(new Date(+date[0], +date[1] - 1)));
-
 const possibleIntegrationValuesState = usePossibleIntegrationValuesState();
 
 try{
@@ -217,6 +213,10 @@ export default {
         }
     },
     computed: {
+        dates() {
+            const date: string[] = this.modelMeta.starting_month.split("-");
+            return useDateArray(new Date(+date[0], +date[1] - 1))
+        },
         computedAssumptionValuesToDisplay() {
             var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(this.revenueState.assumptions);
             return assumptionValuesArray;

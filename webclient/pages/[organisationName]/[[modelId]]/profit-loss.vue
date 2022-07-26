@@ -35,11 +35,6 @@ try {
     console.log(e)
 }
 
-
-//todo: find better solution
-const date: string[] = modelMeta.value.starting_month.split("-");
-const dates = useState('dates', () => useDateArray(new Date(+date[0], +date[1] - 1)));
-
 </script>
 
 <template>
@@ -183,6 +178,10 @@ export default {
 
     },
     computed: {
+        dates() {
+            const date: string[] = this.modelMeta.starting_month.split("-");
+            return useDateArray(new Date(+date[0], +date[1] - 1))
+        },
         profitLoss() {
             return useCalculateProfitLoss(this.revenueState, this.costState, this.payrollState);
         }

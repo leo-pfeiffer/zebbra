@@ -31,10 +31,6 @@ try {
     console.log(e)
 }
 
-//todo: find better solution
-const date: string[] = modelMeta.value.starting_month.split("-");
-const dates = useState('dates', () => useDateArray(new Date(+date[0], +date[1] - 1)));
-
 const possibleIntegrationValuesState = usePossibleIntegrationValuesState();
 try {
     possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(route.params.modelId);
@@ -249,6 +245,10 @@ export default {
         }
     },
     computed: {
+        dates() {
+            const date: string[] = this.modelMeta.starting_month.split("-");
+            return useDateArray(new Date(+date[0], +date[1] - 1))
+        },
         computedAssumptionValuesToDisplay() {
             var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(this.costState.assumptions);
             return assumptionValuesArray;
