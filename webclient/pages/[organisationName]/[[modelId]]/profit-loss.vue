@@ -1,12 +1,7 @@
 <script setup lang="ts">
-import { Employee, Section, Variable } from '~~/types/Model';
-import { useVariableSearchMap } from '~~/methods/useVariableSearchMap';
-import { useVariableTimeSeriesMap } from '~~/methods/useVariableTimeSeriesMap';
+
 import { useSheetUpdate } from '~~/methods/useSheetUpdate';
-import { useGetPossibleIntegrationValues } from '~~/methods/useGetPossibleIntegrationValues';
-import { ProfitLoss, Row } from '~~/types/ProfitLoss';
-import { useFormulaParser } from '~~/methods/useFormulaParser';
-import { useMathParser } from '~~/methods/useMathParser';
+import { useCalculateProfitLoss } from '~~/methods/useCalculateProfitLoss';
 
 definePageMeta({
     middleware: ["auth", "route-check"]
@@ -123,127 +118,7 @@ export default {
     },
     computed: {
         profitLoss() {
-            const emptyRow:Row = {
-                name: "",
-                values: []
-            }
-            
-            var profitLoss: ProfitLoss = {
-                gross_income: {
-                    revenue_streams: [],
-                    total: {...emptyRow}
-                },
-                cost_of_goods_sold: {...emptyRow},
-                gross_margin: {...emptyRow},
-                payroll_cost: {...emptyRow},
-                operating_cost: {...emptyRow},
-                operating_income: {...emptyRow},
-                other_cost: {...emptyRow},
-                net_income: {...emptyRow}
-            }
-
-            //pushing the endRowValues of each section into gross income
-            for (let i = 0; i < this.revenueState.sections.length; i++) {
-                var sectionVariables: Variable[] = [...this.revenueState.sections[i].rows];
-                var valuesOfVariablesAndEndRow: string[][] = useFormulaParser().getSheetRowValues(this.revenueState.assumptions.concat(sectionVariables.concat(this.revenueState.sections[i].end_row)));
-                
-                valuesOfVariablesAndEndRow.splice(0, sectionVariables.length + this.revenueState.assumptions.length);
-                
-                var rowStorage:Row = {
-                    name: "",
-                    values: []
-                };
-                rowStorage.name = this.revenueState.sections[i].name;
-                rowStorage.values = valuesOfVariablesAndEndRow[0];
-                profitLoss.gross_income.revenue_streams.push(rowStorage);
-            };
-
-            //calculating the total gross income
-            var totalGrossIncome:string[] = [];
-            for (let i=0; i < 24; i++) {
-                var calcString:string = "";
-                for(let j=0; j < profitLoss.gross_income.revenue_streams.length; j++) {
-                    if(calcString.length === 0) {
-                        calcString = calcString + profitLoss.gross_income.revenue_streams[j].values[i];
-                    } else {
-                        calcString = calcString + "+" + profitLoss.gross_income.revenue_streams[j].values[i];
-                    }
-                }
-
-                var output:string;
-                try {
-                    output = useMathParser(calcString).toString();
-                } catch(e) {
-                    output = "#REF!"
-                }
-                totalGrossIncome.push(output);
-            }
-            profitLoss.gross_income.total.name = "Gross Income";
-            profitLoss.gross_income.total.values = totalGrossIncome;
-
-            //todo: getting the all the cost sections and storing them
-            var costRowStorage: Row[] = [];
-            for (let i = 0; i < this.costState.sections.length; i++) {
-                var sectionVariables: Variable[] = [...this.costState.sections[i].rows];
-                var valuesOfVariablesAndEndRow: string[][] = useFormulaParser().getSheetRowValues(this.costState.assumptions.concat(sectionVariables.concat(this.costState.sections[i].end_row)));
-                
-                valuesOfVariablesAndEndRow.splice(0, sectionVariables.length + this.costState.assumptions.length);
-                
-                var rowStorage:Row = {
-                    name: "",
-                    values: []
-                };
-                rowStorage.name = this.costState.sections[i].name;
-                rowStorage.values = valuesOfVariablesAndEndRow[0];
-                costRowStorage.push(rowStorage);
-            };
-
-            if(costRowStorage[0]) {
-                profitLoss.cost_of_goods_sold = costRowStorage[0];
-            }
-
-            if(costRowStorage[1]) {
-                profitLoss.operating_cost = costRowStorage[1];
-            }
-
-            if(costRowStorage[2]) {
-                profitLoss.other_cost = costRowStorage[2];
-            }
-            
-            //todo: calculating the gross margin
-
-            var grossMargin:string[] = [];
-            for (let i=0; i < 24; i++) {
-                var calcString:string = profitLoss.gross_income.total.values[i] + "-" + profitLoss.cost_of_goods_sold.values[i];
-                console.log(calcString)
-                var output:string;
-                try {
-                    output = useMathParser(calcString).toString();
-                } catch(e) {
-                    output = "#REF!"
-                }
-                grossMargin.push(output);
-            }
-            profitLoss.gross_margin.name = "Gross Margin";
-            profitLoss.gross_margin.values = grossMargin;
-
-            //todo: getting the payroll costs
-
-            var payrollCost:string[] = [];
-            for(let i=0; i < this.payrollState.payroll_values.length; i++) {
-                payrollCost.push(this.payrollState.payroll_values[i].value);
-            }
-            profitLoss.payroll_cost.name = "Payroll Cost";
-            profitLoss.payroll_cost.values = payrollCost;
-
-            //todo: calculating the operating income
-
-            //todo: getting the other costs
-
-            //todo: calculating the net income
-            
-
-            return profitLoss;
+            return useCalculateProfitLoss(this.revenueState, this.costState, this.payrollState);
         }
     }
 }
