@@ -18,21 +18,29 @@ modelMeta.value = await getModelMeta(route.params.modelId);
 const userIsViewer = modelMeta.value.viewers.includes(userState.value._id);
 
 const costState = useCostState();
-costState.value = await useSheetUpdate().getCostSheet(route.params.modelId);
+try {
+    costState.value = await useSheetUpdate().getCostSheet(route.params.modelId);
+} catch(e){
+    
+}
 
 const payrollState = usePayrollState();
-payrollState.value = await useSheetUpdate().getPayroll(route.params.modelId);
+try {
+    payrollState.value = await useSheetUpdate().getPayroll(route.params.modelId);
+} catch(e) {
+    console.log(e)
+}
 
 //todo: find better solution
 const date: string[] = modelMeta.value.starting_month.split("-");
 const dates = useState('dates', () => useDateArray(new Date(+date[0], +date[1] - 1)));
 
-const assumptionValuesToDisplayState = useState<string[][]>('costAssumptionValues');
-const variableValuesToDisplayState = useState<Map<number, string[][]>>('costVariableValues');
-const endRowValuesToDisplayState = useState<string[][]>('costEndRowValues');
-
 const possibleIntegrationValuesState = usePossibleIntegrationValuesState();
-possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(route.params.modelId);
+try {
+    possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(route.params.modelId);
+} catch(e) {
+    console.log(e)
+}
 
 </script>
 
@@ -161,9 +169,11 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                                 <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 bg-zinc-100 border-zinc-300 border-t"
                                     v-for="date in dates">X</div>
                             </div>
-                            <VariableRow v-for="(assumptionValues, index) in assumptionValuesToDisplayState"
-                                :values="assumptionValues" :round-to="costState.assumptions[index].decimal_places">
-                            </VariableRow>
+                            <ClientOnly>
+                                <VariableRow v-for="(assumptionValues, index) in computedAssumptionValuesToDisplay"
+                                    :values="assumptionValues" :round-to="costState.assumptions[index].decimal_places">
+                                </VariableRow>
+                            </ClientOnly>
                             <div class="flex">
                                 <!-- add assumption button empty -->
                                 <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-y"
@@ -181,7 +191,9 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                                     v-for="date in dates">X</div>
                             </div>
                             <div class="flex" v-for="payrollValues in payrollToDisplay">
-                                <VariableRow :values="payrollValues" :round-to="2"></VariableRow>
+                                <ClientOnly>
+                                    <VariableRow :values="payrollValues" :round-to="2"></VariableRow>
+                                </ClientOnly>
                             </div>
                             <div class="flex">
                                 <!-- add employee button empty -->
@@ -189,27 +201,32 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                                     v-for="date in dates">X</div>
                             </div>
                             <div class="flex">
-                                <!-- <VariableRow v-for="index in payrollState.employees" :values="payrollState.payroll_values" :round-to="2"></VariableRow> -->
-                                <VariableRow :values="totalPayrollToDisplay" :round-to="2"
-                                :isFinalRow="false"></VariableRow>
+                                <ClientOnly>
+                                    <VariableRow :values="totalPayrollToDisplay" :round-to="2"
+                                    :isFinalRow="false"></VariableRow>
+                                </ClientOnly>
                             </div>
                             <div v-for="(section, index) in costState.sections" :key="index">
                                 <div class="flex">
                                     <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-t"
                                         v-for="date in dates">X</div>
                                 </div>
-                                <VariableRow v-if="variableValuesToDisplayState"
-                                    v-for="(variableValues, variableIndex) in variableValuesToDisplayState.get(index)"
-                                    :values="variableValues"
-                                    :round-to="costState.sections[index].rows[variableIndex].decimal_places">
-                                </VariableRow>
+                                <ClientOnly>
+                                    <VariableRow v-if="computedVariableValuesToDisplay"
+                                        v-for="(variableValues, variableIndex) in computedVariableValuesToDisplay.get(index)"
+                                        :values="variableValues"
+                                        :round-to="costState.sections[index].rows[variableIndex].decimal_places">
+                                    </VariableRow>
+                                </ClientOnly>
                                 <div class="flex">
                                     <!-- add variable button empty -->
                                     <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-t"
                                         v-for="date in dates">X</div>
                                 </div>
-                                <VariableRow v-if="endRowValuesToDisplayState"
-                                    :values="endRowValuesToDisplayState[index]" :round-to="2"></VariableRow>
+                                <ClientOnly>
+                                    <VariableRow v-if="computedEndRowValuesToDisplay"
+                                        :values="computedEndRowValuesToDisplay[index]" :round-to="2"></VariableRow>
+                                </ClientOnly>
                             </div>
                             <div class="flex">
                                 <!-- add section button empty -->
@@ -218,8 +235,10 @@ possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(rou
                             </div>
                         </div>
                         <div id="total-cost-values" class="border-zinc-300">
-                            <VariableRow v-if="endRowValuesToDisplayState" :values="totalCostsToDisplay" :round-to="2"
-                                :isFinalRow="true"></VariableRow>
+                            <ClientOnly>
+                                <VariableRow v-if="computedEndRowValuesToDisplay" :values="totalCostsToDisplay" :round-to="2"
+                                    :isFinalRow="true"></VariableRow>
+                            </ClientOnly>
                         </div>
                     </div>
                 </div>
@@ -243,6 +262,34 @@ export default {
         }
     },
     computed: {
+        computedAssumptionValuesToDisplay() {
+            var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(this.costState.assumptions);
+            return assumptionValuesArray;
+        },
+        computedVariableValuesToDisplay() {
+            var variablesValuesStorage: Map<number, string[][]> = new Map<number, string[][]>();
+            for (let i = 0; i < this.costState.sections.length; i++) {
+                var sectionVariables: Variable[] = [...this.costState.sections[i].rows];
+                var valuesOfAssumptionsAndVariables: string[][] = useFormulaParser().getSheetRowValues(this.costState.assumptions.concat(sectionVariables))
+                valuesOfAssumptionsAndVariables.splice(0, this.costState.assumptions.length);
+                variablesValuesStorage.set(i, valuesOfAssumptionsAndVariables);
+            };
+
+            return variablesValuesStorage;
+        },
+        computedEndRowValuesToDisplay() {
+
+            var endRowValuesStorage: string[][] = [];
+            for (let i = 0; i < this.costState.sections.length; i++) {
+                var sectionVariables: Variable[] = [...this.costState.sections[i].rows];
+                var valuesOfVariablesAndEndRow: string[][] = useFormulaParser().getSheetRowValues(this.costState.assumptions.concat(sectionVariables.concat(this.costState.sections[i].end_row)));
+                valuesOfVariablesAndEndRow.splice(0, sectionVariables.length + this.costState.assumptions.length);
+                endRowValuesStorage.push(valuesOfVariablesAndEndRow[0]);
+            };
+
+            return endRowValuesStorage;
+
+        }, 
         payrollToDisplay() {
             var returnArray:string[][] = [];
 
@@ -306,7 +353,7 @@ export default {
         totalCostsToDisplay() {
             var returnArray: string[] = [];
 
-            if (this.endRowValuesToDisplayState.length > 0) {
+            if (this.computedEndRowValuesToDisplay.length > 0) {
 
                 //populate array with all calculation to perform
                 var calcArray: string[] = [];
@@ -315,10 +362,10 @@ export default {
                     calcArray.push("");
                 }
 
-                for (let i = 0; i < this.endRowValuesToDisplayState.length; i++) {
-                    for (let j = 0; j < this.endRowValuesToDisplayState[i].length; j++) {
-                        if (this.endRowValuesToDisplayState[i][j] != "–") {
-                            calcArray[j] = calcArray[j] + "+" + this.endRowValuesToDisplayState[i][j];
+                for (let i = 0; i < this.computedEndRowValuesToDisplay.length; i++) {
+                    for (let j = 0; j < this.computedEndRowValuesToDisplay[i].length; j++) {
+                        if (this.computedEndRowValuesToDisplay[i][j] != "–") {
+                            calcArray[j] = calcArray[j] + "+" + this.computedEndRowValuesToDisplay[i][j];
                         }
                     }
                 }
@@ -331,8 +378,8 @@ export default {
                     try {
                         returnArray.push(useMathParser(calcArray[i]).toString());
                     } catch (e) {
-                        if (this.endRowValuesToDisplayState.length === 1) {
-                            returnArray.push(this.endRowValuesToDisplayState[0][i]);
+                        if (this.computedEndRowValuesToDisplay.length === 1) {
+                            returnArray.push(this.computedEndRowValuesToDisplay[0][i]);
                         } else {
                             returnArray.push("#REF!");
                         }
@@ -942,36 +989,6 @@ export default {
                 console.log(e);
                 this.errorMessages.push(e)
             }
-        }
-    },
-    mounted() {
-        try {
-            //return the display values for all the assumptions
-            const costs = useCostState();
-
-            var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(costs.value.assumptions);
-            useState('costAssumptionValues', () => assumptionValuesArray);
-
-            var variablesValuesStorage: Map<number, string[][]> = new Map<number, string[][]>();
-            var endRowValuesStorage: string[][] = [];
-            for (let i = 0; i < costs.value.sections.length; i++) {
-                //variables
-                var sectionVariables: Variable[] = [...costs.value.sections[i].rows];
-                var valuesOfAssumptionsAndVariables: string[][] = useFormulaParser().getSheetRowValues(costs.value.assumptions.concat(sectionVariables))
-                valuesOfAssumptionsAndVariables.splice(0, costs.value.assumptions.length);
-                variablesValuesStorage.set(i, valuesOfAssumptionsAndVariables);
-                //endrow
-                var valuesOfVariablesAndEndRow: string[][] = useFormulaParser().getSheetRowValues(costs.value.assumptions.concat(sectionVariables.concat(costs.value.sections[i].end_row)));
-                valuesOfVariablesAndEndRow.splice(0, sectionVariables.length + costs.value.assumptions.length);
-                endRowValuesStorage.push(valuesOfVariablesAndEndRow[0]);
-            };
-
-            useState<Map<number, string[][]>>('costVariableValues', () => variablesValuesStorage);
-            useState<string[][]>('costEndRowValues', () => endRowValuesStorage);
-
-        } catch (e) {
-            console.log(e);
-            this.errorMessages.push(e)
         }
     }
 }
