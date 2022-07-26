@@ -55,8 +55,26 @@ const user = useUserState();
               ></apexchart>
             </ClientOnly>
           </div>
-          <div class="border">05</div>
-          <div class="border">06</div>
+          <div class="border">
+            <ClientOnly>
+              <apexchart
+                  width="100%"
+                  type="bar"
+                  :options="payrollCostsOptions"
+                  :series="payrollCostsSeries"
+              ></apexchart>
+            </ClientOnly>
+          </div>
+          <div class="border">
+            <ClientOnly>
+              <apexchart
+                  width="100%"
+                  type="bar"
+                  :options="headcountOptions"
+                  :series="headcountSeries"
+              ></apexchart>
+            </ClientOnly>
+          </div>
         </div>
 
 
@@ -162,6 +180,52 @@ export default {
           [+ new Date(2020, 7, 1), 210],
         ]
       }],
+      payrollCostsSeries: [{
+        name: "Sales",
+        data: [
+          [+ new Date(2020, 1, 1), 110],
+          [+ new Date(2020, 2, 1), 150],
+          [+ new Date(2020, 3, 1), 120],
+          [+ new Date(2020, 4, 1), 170],
+          [+ new Date(2020, 5, 1), 190],
+          [+ new Date(2020, 6, 1), 215],
+          [+ new Date(2020, 7, 1), 100],
+        ]
+      }, {
+        name: "R&D",
+        data: [
+          [+ new Date(2020, 1, 1), 75],
+          [+ new Date(2020, 2, 1), 150],
+          [+ new Date(2020, 3, 1), 130],
+          [+ new Date(2020, 4, 1), 90],
+          [+ new Date(2020, 5, 1), 95],
+          [+ new Date(2020, 6, 1), 300],
+          [+ new Date(2020, 7, 1), 210],
+        ]
+      }],
+      headcountSeries: [{
+        name: "Sales",
+        data: [
+          [+ new Date(2020, 1, 1), 20],
+          [+ new Date(2020, 2, 1), 30],
+          [+ new Date(2020, 3, 1), 40],
+          [+ new Date(2020, 4, 1), 35],
+          [+ new Date(2020, 5, 1), 25],
+          [+ new Date(2020, 6, 1), 25],
+          [+ new Date(2020, 7, 1), 30],
+        ]
+      }, {
+        name: "R&D",
+        data: [
+          [+ new Date(2020, 1, 1), 25],
+          [+ new Date(2020, 2, 1), 15],
+          [+ new Date(2020, 3, 1), 20],
+          [+ new Date(2020, 4, 1), 25],
+          [+ new Date(2020, 5, 1), 30],
+          [+ new Date(2020, 6, 1), 25],
+          [+ new Date(2020, 7, 1), 30],
+        ]
+      }],
     }
   },
   computed: {
@@ -200,6 +264,18 @@ export default {
       opts.chart.stackType = undefined;
       return opts;
     },
+    payrollCostsOptions() {
+      const opts = this.makeChartOptions('Payroll Costs', 'Payroll Costs')
+      opts.chart.stacked = true;
+      opts.chart.stackType = undefined;
+      return opts;
+    },
+    headcountOptions() {
+      const opts = this.makeChartOptions('Headcount', 'Headcount')
+      opts.chart.stacked = true;
+      opts.chart.stackType = undefined;
+      return opts;
+    }
   },
   methods: {
     makeChartOptions(title, yAxisTitle) {
