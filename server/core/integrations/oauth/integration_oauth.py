@@ -5,6 +5,7 @@ from authlib.integrations.base_client import MismatchingStateError
 from authlib.integrations.starlette_client import OAuth
 from fastapi import APIRouter, Request, Depends, HTTPException
 from starlette import status
+from starlette.responses import HTMLResponse
 
 from api.utils.assertions import assert_workspace_access
 from api.utils.dependencies import get_current_active_user_url
@@ -207,6 +208,26 @@ class IntegrationOAuth(ABC):
                 detail="Connecting to the integration failed.",
             )
 
-        return {
-            "message": f"{self.integration()} connected. You can close this window."
-        }
+        # return {
+        #     "message": f"{self.integration()} connected. You can close this window."
+        # }
+        #
+        html_content = (
+            ""
+            + '<html><head></head><body><div class="center-screen">'
+            + f"✅ {self.integration()} connected. You can close this window."
+            + """</div></body>
+                 <style>
+                 .center-screen {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    text-align: center;
+                    min-height: 100vh;
+                 }
+                 </style>
+            </html>
+            """
+        )
+
+        return HTMLResponse(content=html_content, status_code=200)

@@ -284,7 +284,7 @@ async def create_new_model(
         )
 
 
-@router.post(
+@router.delete(
     "/model/delete",
     response_model=Message,
     tags=["model"],

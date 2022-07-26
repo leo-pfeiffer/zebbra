@@ -380,7 +380,7 @@ async def test_starting_month_model_non_existent(access_token):
 async def test_delete_model(access_token, users):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
-    response = client.post(
+    response = client.delete(
         f"/model/delete?model_id={model_id}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
@@ -392,7 +392,7 @@ async def test_delete_model(access_token, users):
 async def test_delete_model_no_access(access_token_alice, users):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
-    response = client.post(
+    response = client.delete(
         f"/model/delete?model_id={model_id}",
         headers={"Authorization": f"Bearer {access_token_alice}"},
     )
@@ -403,7 +403,7 @@ async def test_delete_model_no_access(access_token_alice, users):
 async def test_delete_model_non_existent_model(access_token, users):
     client = TestClient(app)
     model_id = "not_an_id"
-    response = client.post(
+    response = client.delete(
         f"/model/delete?model_id={model_id}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
@@ -521,7 +521,7 @@ async def test_post_model_costs(access_token):
     assert response.status_code == status.HTTP_200_OK
 
     sheet2 = response.json()
-    assert len(sheet2["sections"]) == 1
+    assert len(sheet2["sections"]) == len(sheet.sections)
 
     for sec in sheet2["sections"]:
         assert sec["name"].endswith("_changed")
@@ -545,8 +545,8 @@ async def test_post_model_costs_contains_integration_values(access_token):
 
     assert response.status_code == status.HTTP_200_OK
 
-    assert response.json()["sections"][0]["rows"][1]["integration_values"] is not None
-    assert len(response.json()["sections"][0]["rows"][1]["integration_values"]) > 0
+    assert response.json()["sections"][0]["rows"][0]["integration_values"] is not None
+    assert len(response.json()["sections"][0]["rows"][0]["integration_values"]) > 0
 
 
 @pytest.mark.anyio
@@ -683,8 +683,8 @@ async def test_get_model_costs_contains_integration_values(access_token):
 
     assert response.status_code == status.HTTP_200_OK
 
-    assert response.json()["sections"][0]["rows"][1]["integration_values"] is not None
-    assert len(response.json()["sections"][0]["rows"][1]["integration_values"]) > 0
+    assert response.json()["sections"][0]["rows"][0]["integration_values"] is not None
+    assert len(response.json()["sections"][0]["rows"][0]["integration_values"]) > 0
 
 
 @pytest.mark.anyio
