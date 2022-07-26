@@ -99,8 +99,6 @@ export const useCalculateDashboardProfits = (
         },
     ]
 
-    console.log(payrollState.employees)
-
     // prepare payroll data for further processing
     const actualDepartments = payrollState.employees.map(e => e.department).filter(e => e !== null && e !== "")
     const departments = [...new Set([...actualDepartments, "Other"])]
