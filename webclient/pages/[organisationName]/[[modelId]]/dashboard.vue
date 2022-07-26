@@ -21,13 +21,40 @@ const user = useUserState();
                   width="100%"
                   type="line"
                   :options="profitChartOptions"
-                  :series="series"
+                  :series="profitsSeries"
               ></apexchart>
             </ClientOnly>
           </div>
-          <div class="border">02</div>
-          <div class="border">03</div>
-          <div class="border">04</div>
+          <div class="border">
+            <ClientOnly>
+              <apexchart
+                  width="100%"
+                  type="bar"
+                  :options="cashBalanceOptions"
+                  :series="cashBalanceSeries"
+              ></apexchart>
+            </ClientOnly>
+          </div>
+          <div class="border">
+            <ClientOnly>
+              <apexchart
+                  width="100%"
+                  type="area"
+                  :options="revenuesOptions"
+                  :series="revenuesSeries"
+              ></apexchart>
+            </ClientOnly>
+          </div>
+          <div class="border">
+            <ClientOnly>
+              <apexchart
+                  width="100%"
+                  type="area"
+                  :options="costsOptions"
+                  :series="costsSeries"
+              ></apexchart>
+            </ClientOnly>
+          </div>
           <div class="border">05</div>
           <div class="border">06</div>
         </div>
@@ -65,7 +92,7 @@ export default {
   data() {
     return {
       showRequiresReconnectModal: false,
-      series: [{
+      profitsSeries: [{
         name: "Profits",
         data: [
             [+ new Date(2020, 1, 1), 100],
@@ -77,40 +104,129 @@ export default {
             [+ new Date(2020, 7, 1), 300],
         ]
       }],
+      cashBalanceSeries: [{
+        name: "Cash Balance",
+        data: [
+          [+ new Date(2020, 1, 1), 100],
+          [+ new Date(2020, 2, 1), 200],
+          [+ new Date(2020, 3, 1), 100],
+          [+ new Date(2020, 4, 1), 5],
+          [+ new Date(2020, 5, 1), -25],
+          [+ new Date(2020, 6, 1), -50],
+          [+ new Date(2020, 7, 1), -100],
+        ]
+      }],
+      revenuesSeries: [{
+        name: "Product A",
+        data: [
+          [+ new Date(2020, 1, 1), 100],
+          [+ new Date(2020, 2, 1), 200],
+          [+ new Date(2020, 3, 1), 100],
+          [+ new Date(2020, 4, 1), 120],
+          [+ new Date(2020, 5, 1), 150],
+          [+ new Date(2020, 6, 1), 225],
+          [+ new Date(2020, 7, 1), 300],
+        ]
+      }, {
+        name: "Product B",
+        data: [
+          [+ new Date(2020, 1, 1), 50],
+          [+ new Date(2020, 2, 1), 130],
+          [+ new Date(2020, 3, 1), 110],
+          [+ new Date(2020, 4, 1), 70],
+          [+ new Date(2020, 5, 1), 75],
+          [+ new Date(2020, 6, 1), 100],
+          [+ new Date(2020, 7, 1), 150],
+        ]
+      }],
+      costsSeries: [{
+        name: "Product A",
+        data: [
+          [+ new Date(2020, 1, 1), 110],
+          [+ new Date(2020, 2, 1), 150],
+          [+ new Date(2020, 3, 1), 120],
+          [+ new Date(2020, 4, 1), 170],
+          [+ new Date(2020, 5, 1), 190],
+          [+ new Date(2020, 6, 1), 215],
+          [+ new Date(2020, 7, 1), 100],
+        ]
+      }, {
+        name: "Product B",
+        data: [
+          [+ new Date(2020, 1, 1), 75],
+          [+ new Date(2020, 2, 1), 150],
+          [+ new Date(2020, 3, 1), 130],
+          [+ new Date(2020, 4, 1), 90],
+          [+ new Date(2020, 5, 1), 95],
+          [+ new Date(2020, 6, 1), 300],
+          [+ new Date(2020, 7, 1), 210],
+        ]
+      }],
     }
   },
   computed: {
     profitChartOptions() {
-      return this.makeLineChartOptions('Profits', 'Profits')
-    }
+      return this.makeChartOptions('Profits', 'Profits')
+    },
+    cashBalanceOptions() {
+      const opts = this.makeChartOptions('Cash Balance', 'Cash Balance')
+      opts.plotOptions = {
+        bar: {
+          colors: {
+            ranges: [{
+              from: -100,
+              to: -46,
+              color: '#F15B46'
+            }, {
+              from: -45,
+              to: 0,
+              color: '#FEB019'
+            }]
+          },
+          columnWidth: '80%',
+        }
+      }
+      return opts
+    },
+    revenuesOptions() {
+      const opts = this.makeChartOptions('Revenues', 'Revenues')
+      opts.chart.stacked = true;
+      opts.chart.stackType = undefined;
+      return opts;
+    },
+    costsOptions() {
+      const opts = this.makeChartOptions('Costs', 'Costs')
+      opts.chart.stacked = true;
+      opts.chart.stackType = undefined;
+      return opts;
+    },
   },
   methods: {
-    makeLineChartOptions(title, yAxisTitle) {
+    makeChartOptions(title, yAxisTitle) {
       return {
         chart: {
-          type: 'line',
-              stackType: '100%',
-              toolbar: {
+          stackType: '100%',
+          toolbar: {
             show: true,
-                tools: {
-              download: true,
-                  selection: false,
-                  zoom: false,
-                  zoomin: false,
-                  zoomout: false,
-                  pan: false,
-                  reset: false,
-                  customIcons: []
+              tools: {
+                download: true,
+                selection: false,
+                zoom: false,
+                zoomin: false,
+                zoomout: false,
+                pan: false,
+                reset: false,
+                customIcons: []
+              },
             },
-          },
         },
         stroke: {
           width: 2,
-              curve: 'straight'
+          curve: 'straight'
         },
         xaxis: {
           categories: [],
-              type: 'datetime',
+          type: 'datetime',
         },
         yaxis: {
           labels: {
@@ -118,9 +234,7 @@ export default {
               return (val).toFixed(0);
             },
           },
-          title: {
-            text: yAxisTitle
-          },
+          title: {text: yAxisTitle},
         },
         tooltip: {
           y: {
@@ -131,8 +245,8 @@ export default {
         },
         legend: {
           position: 'top',
-              horizontalAlign: 'left',
-              offsetX: 0
+          horizontalAlign: 'left',
+          offsetX: 0
         },
         theme: {
           palette: 'palette10',
@@ -141,7 +255,7 @@ export default {
         grid: {
           row: {
             colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
-                opacity: 0.5
+            opacity: 0.5
           },
         },
       }
