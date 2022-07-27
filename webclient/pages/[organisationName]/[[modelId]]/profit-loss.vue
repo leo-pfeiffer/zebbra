@@ -39,25 +39,25 @@ try {
 
 <template>
     <NuxtLayout name="navbar">
-        <div class="h-full">
+        <div class="h-full overflow-hidden">
             <div class="py-3 border-b px-3 border-zinc-300 top-0 min-h-[70px] max-h-[70px]">
                 <SheetHeader :sheetName="'Profit & Loss'" :workspaceName="userState.workspaces[0].name" :modelName="modelMeta.name"></SheetHeader>
             </div>
-            <div class="ml-1 pb-3 pl-2 mr-0 overflow-x-hidden min-h-[calc(100%-70px)] max-h-[calc(100%-70px)]">
-                <div class="flex sticky top-0 bg-white pt-2 z-50">
-                    <div class="min-w-[470px] max-w-[470px]">
-                    </div>
-                    <div class="overflow-x-auto no-scrollbar z-10" id="dates" @scroll="stickScroll('dates', 'table-right')">
-                        <div class="border-zinc-300 flex">
-                            <div class="first:border-l first:rounded-tl first:rounded-bl text-xs py-2 px-2 border-r border-y border-zinc-300 min-w-[75px] max-w-[75px] text-center uppercase bg-zinc-100 text-zinc-700"
-                                v-for="date in dates">{{ date }}</div>
-                        </div>
+            <div class="ml-1 pl-2 flex top-0 bg-white pt-2 min-h-[50px] max-h-[50px]">
+                <div class="min-w-[470px] max-w-[470px]">
+                </div>
+                <div class="overflow-x-auto no-scrollbar z-10" id="dates" @scroll="stickScroll('dates', 'table-right')">
+                    <div class="border-zinc-300 flex">
+                        <div class="first:border-l first:rounded-tl first:rounded-bl text-xs py-2 px-2 border-r border-y border-zinc-300 min-w-[75px] max-w-[75px] text-center uppercase bg-zinc-100 text-zinc-700"
+                            v-for="date in dates">{{ date }}</div>
                     </div>
                 </div>
+            </div>
+            <div class="ml-1 pb-3 pl-2 mr-0 overflow-x-hidden min-h-[calc(100%-120px)] max-h-[calc(100%-120px)]">
                 <div class="flex">
                     <div>
                         <div
-                            class="group flex mt-3 text-xs text-zinc-500 rounded-tl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-100 border-zinc-300 border-l border-t">
+                            class="group flex text-xs text-zinc-500 rounded-tl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-100 border-zinc-300 border-l border-t">
                             <span class="font-medium uppercase">
                                 Profit & Loss Statement
                             </span>
@@ -132,7 +132,7 @@ try {
                     </div>
                     <div id="table-right" class="overflow-x-auto" @scroll="stickScroll('table-right', 'dates')">
                         <div id="model-values" class="">
-                            <div class="flex mt-3">
+                            <div class="flex">
                                 <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 bg-zinc-100 border-zinc-300 border-t"
                                     v-for="date in dates">X</div>
                             </div>

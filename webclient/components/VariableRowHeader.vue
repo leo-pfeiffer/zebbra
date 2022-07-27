@@ -37,7 +37,7 @@ const route = useRoute();
                         @click="toggleSettings" class="mr-3"><i title="Variable settings"
                             class="bi bi-gear-fill text-zinc-500 hover:text-zinc-700"></i></button></span>
                 <div v-show="settingsOpen && !isEndRow"
-                    class="z-46 absolute p-3 border rounded shadow-md text-xs border-zinc-300 bg-white top-0 right-0 translate-x-36 -translate-y-1.5 text-[11px] w-[200px]">
+                    class="z-50 absolute p-3 border rounded shadow-md text-xs border-zinc-300 bg-white top-0 right-0 translate-x-36 -translate-y-1.5 text-[11px] w-[200px]">
                     <div class="text-zinc-900 font-medium mb-1">Variable Type</div>
                     <div class="grid grid-rows-2 grid-flow-col gap-x-1 gap-y-3 mb-2">
                         <div>
@@ -95,7 +95,7 @@ const route = useRoute();
                     </div>
                 </div>
                 <div v-if="showIntegration && !isEndRow" v-show="integrationMenuOpen"
-                    class="z-46 absolute p-3 border rounded shadow-md text-xs border-zinc-300 bg-white top-0 right-0 translate-x-36 -translate-y-1.5 text-[11px] w-[200px]">
+                    class="z-50 absolute p-3 border rounded shadow-md text-xs border-zinc-300 bg-white top-0 right-0 translate-x-36 -translate-y-1.5 text-[11px] w-[200px]">
                     <div class="text-zinc-900 font-medium mb-2">Choose Integration Value</div>
                     <div class="w-full mb-3">
                         <select v-model="integrationSelected"
@@ -151,8 +151,8 @@ const route = useRoute();
         </div>
         <Teleport to="body">
             <div v-show="deleteModalOpen"
-                class="absolute left-0 top-1/3 w-full flex justify-center align-middle">
-                <div class="p-6 border h-max shadow-lg bg-white border-zinc-300 rounded z-46">
+                class="absolute left-0 top-1/3 w-full flex justify-center align-middle z-50">
+                <div class="p-6 border h-max shadow-lg bg-white border-zinc-300 rounded z-50">
                     <div>
                         <h3 class="text-zinc-900 font-medium text-sm mb-2">Do you really want to delete this variable?
                         </h3>
@@ -169,7 +169,7 @@ const route = useRoute();
                     </div>
                 </div>
                 <div v-show="deleteModalOpen" @click="toggleDeleteModal"
-                    class="fixed top-0 left-0 w-[100vw] h-[100vh] z-40 bg-zinc-100/50">
+                    class="fixed top-0 left-0 w-[100vw] h-[100vh] z-49 bg-zinc-100/50">
                 </div>
             </div>
         </Teleport>
