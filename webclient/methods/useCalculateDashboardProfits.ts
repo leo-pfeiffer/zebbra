@@ -1,4 +1,4 @@
-import {DashboardData} from "~/types/DashboardSeries";
+import {DashboardData, DashboardSeriesElement} from "~/types/DashboardSeries";
 import { Payroll, Sheet } from "~~/types/Model";
 import {useCalculateProfitLoss} from "~/methods/useCalculateProfitLoss";
 
@@ -23,7 +23,7 @@ const stringToDate = function(dateString:string) {
 
 
 export const useCalculateDashboardProfits = (
-    revenueState:Sheet, costState:Sheet, payrollState:Payroll, startingMonth:Date, startingBalance:number
+    revenueState:Sheet, costState:Sheet, payrollState:Payroll, startingMonth:Date
 ) => {
 
     startingMonth.setDate(1)
@@ -47,6 +47,12 @@ export const useCalculateDashboardProfits = (
         costs: [],
         payrollCosts: [],
         headcount: [],
+        cashBalanceCalc: (startingBalance: number, cashBalance: DashboardSeriesElement[]) => {
+            return [{
+                name: cashBalance[0].name,
+                data: cashBalance[0].data.map(e => [e[0], (e[1] + startingBalance)])
+            }]
+        }
     }
 
     // Calculate profit
@@ -62,7 +68,7 @@ export const useCalculateDashboardProfits = (
         data: []
     }]
 
-    let currBalance = startingBalance;
+    let currBalance = 0;
     for (let i = 0; i < dates.length; i++) {
         currBalance += Number(profitLoss.net_income.values[i])
         dashboardData.cashBalance[0].data.push([+dates[i], currBalance])

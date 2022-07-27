@@ -47,6 +47,15 @@ try {
           <h1 class="font-semibold text-xl inline-block align-middle">Dashboard</h1>
         </div>
 
+        <div class="p-3">
+          <input type="number" class="border" name="starting-balance" placeholder="Starting balance" v-model="startingBalance">
+          <button type="button" @click="calculateCashBalance"
+                  class=" bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50
+                  font-medium text-xs pl-2.5 pr-3 py-1 border border-zinc-300 rounded text-zinc-700">
+            Set
+          </button>
+        </div>
+
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 p-3">
           <div>
             <ClientOnly>
@@ -149,6 +158,9 @@ import {useCalculateDashboardProfits} from "~/methods/useCalculateDashboardProfi
 export default {
   data() {
     return {
+
+      startingBalance: 10000,
+
       showRequiresReconnectModal: false,
 
       renderChart: false,
@@ -160,6 +172,8 @@ export default {
       payrollCostsOptions: {},
       headcountOptions: {},
 
+      cashBalanceCalculated: [],
+
       dashboardData: null,
     }
   },
@@ -168,7 +182,7 @@ export default {
       return this.dashboardData.profit;
     },
     cashBalanceSeries() {
-      return this.dashboardData.cashBalance;
+      return this.cashBalanceCalculated;
     },
     revenuesSeries() {
       return this.dashboardData.revenues;
@@ -184,6 +198,14 @@ export default {
     },
   },
   methods: {
+    calculateCashBalance() {
+      if (this.startingBalance === null) {
+        this.startingBalance = 0;
+      }
+      this.cashBalanceCalculated = this.dashboardData.cashBalanceCalc(
+          this.startingBalance, this.dashboardData.cashBalance
+      )
+    },
     getProfitChartOptions() {
       const opts = this.makeChartOptions('Profits')
       opts.annotations = {
@@ -333,7 +355,7 @@ export default {
 
     // calculate the dashboard data
     this.dashboardData = useCalculateDashboardProfits(
-        this.revenueState, this.costState, this.payrollState, startingDate, 5000
+        this.revenueState, this.costState, this.payrollState, startingDate
     );
 
     this.profitChartOptions = {...this.getProfitChartOptions()};
@@ -342,6 +364,8 @@ export default {
     this.costsOptions = {...this.getCostsOptions()};
     this.payrollCostsOptions = {...this.getPayrollCostsOptions()};
     this.headcountOptions = {...this.getHeadcountOptions()};
+
+    this.calculateCashBalance();
 
     // fixes rendering issue in apexcharts if width is not set to a fixed pixel width
     // https://github.com/apexcharts/apexcharts.js/issues/1077#issuecomment-984386146
