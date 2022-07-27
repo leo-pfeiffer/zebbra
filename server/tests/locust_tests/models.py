@@ -102,4 +102,5 @@ class LocustModels(JohnDoeMixin, HttpUser):
             params={
                 "model_id": model_id,
             },
+            name="/model/delete?model_id=[model_id]"
         )
