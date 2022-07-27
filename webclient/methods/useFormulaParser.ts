@@ -126,9 +126,6 @@ export const useFormulaParser = () => {
         if (variableInput.first_value_diff) {
             startingPointForI++;
         }
-
-        console.log(variableInput.integration_values);
-
         
         for (let i = startingPointForI; i < 24; i++) {
 
