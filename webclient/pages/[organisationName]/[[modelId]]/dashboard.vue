@@ -50,6 +50,11 @@ try {
         </div>
 
         <div class="p-3">
+
+          <!-- todo @Patrick: format and styling -->
+          <p>{{ statusMessage }}</p>
+
+          <!-- todo @Patrick: format and styling -->
           <label for="starting-balance">Starting balance: </label>
           <input type="number" class="border" name="starting-balance" placeholder="Starting balance" v-model="startingBalance">
           <button type="button" @click="updateStartingBalance"
@@ -59,6 +64,7 @@ try {
           </button>
         </div>
 
+        <!-- todo @Patrick: format and styling -->
         <div class="p-3">
           <label for="starting-month">Starting month: </label>
           <input type="month" class="border" name="starting-month" placeholder="Starting month" v-model="newStartingMonth">
@@ -187,6 +193,9 @@ export default {
       headcountOptions: {},
 
       dashboardData: null,
+
+      defaultStatusMessage: "Up to date.",
+      statusMessage: "Up to date.",
     }
   },
   methods: {
@@ -250,6 +259,7 @@ export default {
 
       return opts;
     },
+
     getCashBalanceOptions() {
       const opts = this.makeChartOptions('Cash Balance')
       opts.plotOptions = {
@@ -279,6 +289,7 @@ export default {
       }
       return opts
     },
+
     getRevenuesOptions() {
       const opts = this.makeChartOptions('Revenues')
       opts.chart.stacked = true;
@@ -288,6 +299,7 @@ export default {
       }
       return opts;
     },
+
     getCostsOptions() {
       const opts = this.makeChartOptions('Costs')
       opts.chart.stacked = true;
@@ -297,6 +309,7 @@ export default {
       }
       return opts;
     },
+
     getPayrollCostsOptions() {
       const opts = this.makeChartOptions('Payroll Costs')
       opts.chart.stacked = true;
@@ -306,11 +319,13 @@ export default {
       }
       return opts;
     },
+
     getHeadcountOptions() {
       const opts = this.makeChartOptions('Headcount')
       opts.chart.stacked = true;
       return opts;
     },
+
     makeChartOptions(title) {
       return {
         chart: {
@@ -368,7 +383,10 @@ export default {
         },
       }
     },
+
     async refreshModelData() {
+
+      this.statusMessage = "Refreshing models..."
 
       this.modelMeta = await getModelMeta(this.modelId);
 
@@ -389,8 +407,13 @@ export default {
       } catch (e) {
         console.log(e)
       }
+
+      this.statusMessage = this.defaultStatusMessage
+
     },
     calculateData() {
+
+      this.statusMessage = "Processing data..."
 
       // convert the string date to a date object
       const dateParts = this.modelMeta.starting_month.split('-');
@@ -410,6 +433,8 @@ export default {
       this.costsOptions = {...this.getCostsOptions()};
       this.payrollCostsOptions = {...this.getPayrollCostsOptions()};
       this.headcountOptions = {...this.getHeadcountOptions()};
+
+      this.statusMessage = this.defaultStatusMessage
     }
   },
   async mounted() {
