@@ -23,7 +23,7 @@ from core.dao.models import (
     set_starting_month,
     update_model_employees,
     delete_model,
-    remove_user_from_model,
+    remove_user_from_model, set_starting_balance,
 )
 from core.dao.workspaces import get_workspace
 from core.exceptions import (
@@ -366,12 +366,21 @@ async def test_set_name():
 
 
 @pytest.mark.anyio
-async def test_set_starting_mont():
+async def test_set_starting_month():
     model_id = "62b488ba433720870b60ec0a"
     new_date = date(2030, 12, 31)
     await set_starting_month(model_id, new_date)
     model = await get_model_by_id(model_id)
     assert model.meta.starting_month == new_date
+
+
+@pytest.mark.anyio
+async def test_set_starting_balance():
+    model_id = "62b488ba433720870b60ec0a"
+    balance = 1234.56
+    await set_starting_balance(model_id, balance)
+    model = await get_model_by_id(model_id)
+    assert model.meta.starting_balance == balance
 
 
 @pytest.mark.anyio

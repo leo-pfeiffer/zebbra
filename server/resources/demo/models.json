@@ -13,7 +13,8 @@
         "62bb11835529faba0704639a"
       ],
       "workspace": "62bc5706a40e85213c27ce29",
-      "starting_month": "2020-01-01"
+      "starting_month": "2020-01-01",
+      "starting_balance": 35000
     },
     "sheets": [
       {
@@ -259,7 +260,8 @@
         "62bb11835529faba0704639b"
       ],
       "workspace": "62bc5706a40e85213c27ce28",
-      "starting_month": "2020-01-01"
+      "starting_month": "2020-01-01",
+      "starting_balance": 15500
     },
     "sheets": [
       {

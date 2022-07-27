@@ -43,6 +43,7 @@ class ModelMeta(BaseModel):
     viewers: list[PyObjectId]  # list of user_ids
     workspace: PyObjectId  # workspace id
     starting_month: date
+    starting_balance: float = 0
 
     class Config:
         allow_population_by_field_name = True
