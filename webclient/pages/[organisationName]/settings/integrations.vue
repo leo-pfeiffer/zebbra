@@ -161,9 +161,9 @@ const gustoState = useState<GetIntegrationProvidersResponse>('gustoState', () =>
                                 Due to its open API Zebbra allows you to build custom integrations to any other accounting or payroll software very easily.
                             </div>
                             <div class="min-w-fit">
-                                <a
+                                <NuxtLink to="https://leo-pfeiffer.github.io/zebbra/add_integration/" target="_blank"
                                     class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-xs px-2 py-1 border border-zinc-300 rounded text-zinc-700">Learn
-                                    more <i class="bi bi-arrow-up-right"></i></a> <!-- todo: link -->
+                                    more <i class="bi bi-arrow-up-right"></i></NuxtLink> <!-- todo: link -->
                             </div>
                         </div>
                     </div>
