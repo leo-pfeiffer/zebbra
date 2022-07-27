@@ -3,6 +3,8 @@ export interface Model {
     meta: ModelMeta;
     sheets: Sheet[];
     payroll: Payroll;
+    starting_balance: number,
+    starting_month: string
 }
 
 export interface Payroll {
