@@ -1,7 +1,7 @@
 <template>
     <div class="flex">
         <div class="flex">
-            <div :class="{'text-zinc-700 font-medium bg-zinc-50 border-b border-zinc-300': isFinalRow}" class="tabular-nums text-xs py-2 px-2 border-t border-r border-zinc-300 min-w-[75px] max-w-[75px] h-full text-right overflow-hidden overflow-x-scroll" v-for="value in computedValues(values)">{{value}}</div>
+            <div :class="{'border-t border-r border-zinc-300': hierarchy === 'low', 'bg-zinc-50 border-t border-zinc-300': hierarchy === 'med', 'bg-zinc-200 font-medium border-t-2 border-t-zinc-400 border-b border-zinc-400 border-b-zinc-300': hierarchy === 'high', 'text-red-600': isNegative(value)}" class="tabular-nums text-xs py-2 px-2 min-w-[75px] max-w-[75px] h-full text-right overflow-hidden overflow-x-scroll" v-for="value in computedValues(values)">{{value}}</div>
         </div>
     </div>
 </template>
@@ -16,7 +16,7 @@ export default {
     props: {
         values: Object as () => string[],
         roundTo: Number,
-        isFinalRow: Boolean
+        hierarchy: String
     },
     methods: {
         computedValues(input:string[]) {
@@ -24,7 +24,9 @@ export default {
 
             for(let i=0; i < input.length; i++) {
                 var value:string = input[i];
-                if(value.includes(".")) {
+                if(value === null) {
+                    output.push("–"); //error handling for null values (could be coming from integration)
+                } else if(value.includes(".")) {
                     var splittedValue = value.split(".");
 
                     var valueWithDecimals;
@@ -40,6 +42,13 @@ export default {
                 }
             }
             return output;
+        },
+        isNegative(value:string) {
+            if(value[0] === "-") {
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 }

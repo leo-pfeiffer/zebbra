@@ -31,7 +31,7 @@ const user = useUserState();
                         <i class="bi bi-server text-[11px] text-zinc-400"></i><span class="pl-2">Integrations</span>
                     </div>
                 </NuxtLink>
-                <NuxtLink to="#">
+                <NuxtLink to="https://leo-pfeiffer.github.io/zebbra/" target="_blank">
                     <div class="px-2 hover:bg-zinc-200 py-1.5 rounded text-zinc-500">
                         <i class="bi bi-file-earmark-code-fill text-zinc-400"></i><span
                             class="pl-2">Documentation</span>
@@ -68,7 +68,7 @@ const user = useUserState();
         </div>
         <Teleport to="body">
             <div v-show="newModelModalOpen"
-                class="fixed left-0 top-1/3 w-full h-full flex justify-center align-middle text-xs">
+                class="fixed left-0 top-1/3 w-full h-full flex justify-center align-middle text-xs z-50">
                 <div class="p-6 border h-max shadow-lg bg-white border-zinc-300 rounded z-50">
                     <div>
                         <h3 class="text-zinc-900 font-medium text-sm mb-2">Create a new model</h3>
@@ -95,7 +95,7 @@ const user = useUserState();
                     </div>
                 </div>
                 <div v-show="newModelModalOpen" @click="toggleNewModelModal"
-                    class="fixed top-0 left-0 w-[100vw] h-[100vh] z-0 bg-zinc-100/50"></div>
+                    class="fixed top-0 left-0 w-[100vw] h-[100vh] z-49 bg-zinc-100/50"></div>
             </div>
         </Teleport>
     </div>

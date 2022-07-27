@@ -317,7 +317,7 @@ export default {
             
             const deleteModel = await useFetchAuth(
             '/model/delete', {
-                method: 'POST',
+                method: 'DELETE',
             params: {
                model_id: this.modelId
             }
@@ -326,8 +326,7 @@ export default {
                 console.log("Model deleted sucessfully.");
                 location.reload();
             }).catch((error) => {
-            console.log(error);
-                this.deleteModelErrorMessage = error.data.details;
+                this.deleteModelErrorMessage = error.data.detail;
                 this.showDeleteModelError = true;
             });
             

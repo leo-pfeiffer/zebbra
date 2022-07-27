@@ -232,6 +232,12 @@ async def set_starting_month(model_id: str, starting_month: date):
     )
 
 
+async def set_starting_balance(model_id: str, starting_balance: float):
+    await db.models.update_one(
+        {"_id": model_id}, {"$set": {"meta.starting_balance": starting_balance}}
+    )
+
+
 async def delete_model(model_id: PyObjectId | str):
     return await db.models.delete_one({"_id": str(model_id)})
 
@@ -260,6 +266,7 @@ async def create_model(admin_id: PyObjectId, model_name: str, workspace_id: PyOb
             "editors": [],
             "viewers": [],
             "starting_month": date.today(),
+            "starting_balance": 0
         }
     )
     sheets = create_default_sheets()

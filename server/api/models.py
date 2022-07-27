@@ -30,7 +30,7 @@ from core.dao.models import (
     set_starting_month,
     update_model_employees,
     delete_model,
-    remove_user_from_model,
+    remove_user_from_model, set_starting_balance,
 )
 from core.exceptions import (
     DoesNotExistException,
@@ -241,13 +241,38 @@ async def change_starting_month_of_model(
     """
     Set the starting month of a model. The starting month is provided as a date\n
         model_id: Model whose starting month to change
-        startingMonth: New starting month
+        starting_month: New starting month
     """
     await _assert_model_exists(model_id)
-    # only editor can rename
+    # only editor can set start month
     await assert_model_access_can_edit(current_user.id, model_id)
     await set_starting_month(model_id, starting_month)
     return {"message": f"Starting month set ({starting_month})"}
+
+
+@router.post(
+    "/model/startingBalance",
+    response_model=Message,
+    tags=["model"],
+    responses={
+        403: {"description": "User does not have access to the resource."},
+    },
+)
+async def change_starting_balance_of_model(
+    model_id: str,
+    starting_balance: float,
+    current_user: User = Depends(get_current_active_user),
+):
+    """
+    Set the starting balance of a model.\n
+        model_id: Model whose starting balance to change
+        starting_balance: New starting month
+    """
+    await _assert_model_exists(model_id)
+    # only editor can set balance
+    await assert_model_access_can_edit(current_user.id, model_id)
+    await set_starting_balance(model_id, starting_balance)
+    return {"message": f"Starting balance set ({starting_balance})"}
 
 
 @router.post(

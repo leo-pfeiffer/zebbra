@@ -8,9 +8,12 @@ const revenueState = useRevenueState();
 
     <div
         class="group flex text-xs text-zinc-900 py-2 px-3 min-w-[470px] max-w-[470px] border-zinc-300 border-l border-t">
-        <span class="font-medium" v-if="!changingEnabled"><i class="text-zinc-500 bi bi-people-fill -ml-1 mr-2"></i>{{
-                sectionName
-        }}</span>
+        <span class="font-medium" v-if="!changingEnabled">
+        <i v-if="sectionName === 'Payroll'" class="text-zinc-500 bi bi-people-fill -ml-1 mr-2"></i>
+        <i v-else-if="sectionName === 'Cost of Goods Sold'" class="text-zinc-500 bi bi-wallet-fill -ml-1 mr-2"></i>
+        <i v-else-if="sectionName === 'Operational Costs'" class="text-zinc-500 bi bi-hammer -ml-1 mr-2"></i>
+        <i v-else-if="sectionName === 'Other Costs'" class="text-zinc-500 bi bi-layers-fill -ml-1 mr-2"></i>
+        {{sectionName }}</span>
         <span class="font-medium" v-if="!sectionNameChangeSelected && changingEnabled"
             @dblclick="toggleSectionNameChange">
             <li class="marker:text-zinc-500">{{ sectionName }}</li>
@@ -67,6 +70,13 @@ export default {
         sectionName: String,
         changingEnabled: Boolean,
         userIsViewer: Boolean
+    },
+    mounted () {
+        if(this.sectionName === "") {
+            this.sectionNameChangeSelected = true;
+        } else {
+            this.sectionNameChangeSelected = false;
+        }
     },
     methods: {
         toggleSectionNameChange() {

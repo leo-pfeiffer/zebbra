@@ -31,10 +31,6 @@ try {
     console.log(e)
 }
 
-//todo: find better solution
-const date: string[] = modelMeta.value.starting_month.split("-");
-const dates = useState('dates', () => useDateArray(new Date(+date[0], +date[1] - 1)));
-
 const possibleIntegrationValuesState = usePossibleIntegrationValuesState();
 try {
     possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(route.params.modelId);
@@ -47,17 +43,27 @@ try {
 <template>
     <NuxtLayout name="navbar">
         <div class="h-full">
-            <div class="p-3 border-b border-zinc-300 top-0 min-h-[60px] max-h-[60px]">
-                <h1 class="font-semibold text-xl inline-block align-middle">Costs</h1>
+            <div class="py-3 border-b px-3 border-zinc-300 top-0 min-h-[70px] max-h-[70px]">
+                <SheetHeader :sheetName="'Costs'" :workspaceName="userState.workspaces[0].name" :modelName="modelMeta.name"></SheetHeader>
             </div>
-            <div class="ml-1 py-3 pl-2 mr-0 overflow-x-hidden min-h-[calc(100%-60px)] max-h-[calc(100%-60px)]">
+            <div class="ml-1 pl-2 flex top-0 bg-white pt-2 min-h-[50px] max-h-[50px]">
+                <div class="min-w-[470px] max-w-[470px]">
+                </div>
+                <div class="overflow-x-auto no-scrollbar z-10" id="dates" @scroll="stickScroll('dates', 'table-right')">
+                    <div class="border-zinc-300 flex">
+                        <div class="first:border-l first:rounded-tl first:rounded-bl text-xs py-2 px-2 border-r border-y border-zinc-300 min-w-[75px] max-w-[75px] text-center uppercase bg-zinc-100 text-zinc-700"
+                            v-for="date in dates">{{ date }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="ml-1 pb-3 pl-2 mr-0 overflow-x-hidden min-h-[calc(100%-120px)] max-h-[calc(100%-120px)]">
                 <div class="flex">
                     <div>
                         <div id="assumptions-headers">
                             <div>
                                 <!-- assumption header -->
                                 <div
-                                    class="mt-12 text-xs text-zinc-500 font-medium uppercase rounded-tl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-100 border-zinc-300 border-l border-t">
+                                    class="text-xs text-zinc-500 font-medium uppercase rounded-tl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-100 border-zinc-300 border-l border-t">
                                     Assumptions
                                 </div>
                             </div>
@@ -102,7 +108,7 @@ try {
                                                 class="bi bi-plus-lg mr-3"></i>Add Employee</button>
                                     </div>
                                     <div
-                                        class="group flex text-xs text-zinc-900 py-2 px-3 min-w-[470px] max-w-[470px] border-zinc-300 border-l border-t border-r-2">
+                                        class="flex text-xs text-zinc-700 bg-zinc-50 py-2 px-3 min-w-[470px] max-w-[470px] border-zinc-300 border-l border-t">
                                         <span class="font-medium">
                                             <li class="marker:text-white/0">Total Payroll</li>
                                         </span>
@@ -110,7 +116,7 @@ try {
                                 </div>
                                 <div v-for="(section, sectionIndex) in costState.sections" :key="sectionIndex">
                                     <SectionHeader :sectionName="section.name" :sectionIndex="sectionIndex"
-                                        :changingEnabled="true" @change-section-name="updateSectionName"
+                                        :changingEnabled="false" @change-section-name="updateSectionName"
                                         @delete-section="deleteSection" :userIsViewer="userIsViewer"></SectionHeader>
                                     <VariableRowHeader @update-value="updateVariableValue"
                                         @update-settings="updateVariableSettings" @update-name="updateVariableName"
@@ -134,23 +140,16 @@ try {
                                         :variable-index="0" :timeSeriesMap="useVariableTimeSeriesMap(section.rows)"
                                         :variableSearchMap="useVariableSearchMap(section.rows)"
                                         :sectionIndex="sectionIndex" :sectionName="section.name" :isEndRow="true"
+                                        :hierarchy="'med'"
                                         :userIsViewer="userIsViewer">
                                     </VariableRowHeader>
-                                </div>
-                                <div class="">
-                                    <!-- add section button -->
-                                    <div
-                                        class="text-xs py-2 px-3 min-w-[470px] max-w-[470px] border-zinc-300 border-y border-l">
-                                        <button :disabled="userIsViewer" @click="addSection" class="text-zinc-400 italic hover:text-zinc-500"><i
-                                                class="bi bi-plus-lg mr-2"></i>Add Section</button>
-                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div>
                             <div>
                                 <div
-                                    class="group flex text-xs text-zinc-900 rounded-bl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-50 border-zinc-300 border">
+                                    class="group flex text-xs text-zinc-900 rounded-bl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-200 border-zinc-300 border-t-zinc-400 border-l border-b border-t-2">
                                     <span class="font-medium uppercase">
                                         Total Costs
                                     </span>
@@ -158,20 +157,16 @@ try {
                             </div>
                         </div>
                     </div>
-                    <div class="relative overflow-x-auto">
-                        <div id="dates" class="border-zinc-300 flex mb-4 absolute">
-                            <div class="first:border-l first:rounded-tl first:rounded-bl text-xs py-2 px-2 border-r border-y border-zinc-300 min-w-[75px] max-w-[75px] text-center uppercase bg-zinc-100 text-zinc-700"
-                                v-for="date in dates">{{ date }}</div>
-                        </div>
+                    <div class="overflow-x-auto" id="table-right" @scroll="stickScroll('table-right', 'dates')">
                         <div id="assumption-values">
-                            <div class="flex mt-12">
+                            <div class="flex">
                                 <!-- assumption header empty -->
                                 <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 bg-zinc-100 border-zinc-300 border-t"
                                     v-for="date in dates">X</div>
                             </div>
                             <ClientOnly>
                                 <VariableRow v-for="(assumptionValues, index) in computedAssumptionValuesToDisplay"
-                                    :values="assumptionValues" :round-to="costState.assumptions[index].decimal_places">
+                                    :values="assumptionValues" :round-to="costState.assumptions[index].decimal_places" :hierarchy="'low'">
                                 </VariableRow>
                             </ClientOnly>
                             <div class="flex">
@@ -192,7 +187,7 @@ try {
                             </div>
                             <div class="flex" v-for="payrollValues in payrollToDisplay">
                                 <ClientOnly>
-                                    <VariableRow :values="payrollValues" :round-to="2"></VariableRow>
+                                    <VariableRow :values="payrollValues" :round-to="2" :hierarchy="'low'"></VariableRow>
                                 </ClientOnly>
                             </div>
                             <div class="flex">
@@ -203,7 +198,7 @@ try {
                             <div class="flex">
                                 <ClientOnly>
                                     <VariableRow :values="totalPayrollToDisplay" :round-to="2"
-                                    :isFinalRow="false"></VariableRow>
+                                    :isFinalRow="false" :hierarchy="'med'"></VariableRow>
                                 </ClientOnly>
                             </div>
                             <div v-for="(section, index) in costState.sections" :key="index">
@@ -215,7 +210,7 @@ try {
                                     <VariableRow v-if="computedVariableValuesToDisplay"
                                         v-for="(variableValues, variableIndex) in computedVariableValuesToDisplay.get(index)"
                                         :values="variableValues"
-                                        :round-to="costState.sections[index].rows[variableIndex].decimal_places">
+                                        :round-to="costState.sections[index].rows[variableIndex].decimal_places" :hierarchy="'low'">
                                     </VariableRow>
                                 </ClientOnly>
                                 <div class="flex">
@@ -225,19 +220,14 @@ try {
                                 </div>
                                 <ClientOnly>
                                     <VariableRow v-if="computedEndRowValuesToDisplay"
-                                        :values="computedEndRowValuesToDisplay[index]" :round-to="2"></VariableRow>
+                                        :values="computedEndRowValuesToDisplay[index]" :round-to="2" :hierarchy="'med'"></VariableRow>
                                 </ClientOnly>
-                            </div>
-                            <div class="flex">
-                                <!-- add section button empty -->
-                                <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-y"
-                                    v-for="date in dates">X</div>
                             </div>
                         </div>
                         <div id="total-cost-values" class="border-zinc-300">
                             <ClientOnly>
                                 <VariableRow v-if="computedEndRowValuesToDisplay" :values="totalCostsToDisplay" :round-to="2"
-                                    :isFinalRow="true"></VariableRow>
+                                    :isFinalRow="true" :hierarchy="'high'"></VariableRow>
                             </ClientOnly>
                         </div>
                     </div>
@@ -262,6 +252,10 @@ export default {
         }
     },
     computed: {
+        dates() {
+            const date: string[] = this.modelMeta.starting_month.split("-");
+            return useDateArray(new Date(+date[0], +date[1] - 1))
+        },
         computedAssumptionValuesToDisplay() {
             var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(this.costState.assumptions);
             return assumptionValuesArray;
@@ -401,6 +395,11 @@ export default {
         closeErrorMessage(index: number) {
             this.errorMessages.splice(index, 1)
         },
+        stickScroll(idParent:string, idChild:string) {
+            const scrollParent = document.querySelector(`#${idParent}`);
+            const scrollChild = document.querySelector(`#${idChild}`);
+            scrollChild.scrollLeft = scrollParent.scrollLeft;
+        },
         getMonthDiff(startDate:Date, endDate:Date) {
             return endDate.getMonth() - startDate.getMonth() + (12 * (endDate.getFullYear() - startDate.getFullYear()))
         },
@@ -450,15 +449,12 @@ export default {
 
             this.costState.sections.push(emptySection);
 
-            this.updateDisplayedValues();
-
             try {
                 await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
             } catch (e) {
                 console.log(e)
                 this.errorMessages.push("Something went wrong! Please try adding the section again.");
                 this.costState = await useSheetUpdate().getCostSheet(this.route.params.modelId)
-                this.updateDisplayedValues();
             }
 
         },
@@ -551,7 +547,6 @@ export default {
             }
 
             this.costState.sections[sectionIndex].rows.push(emptyVariable);
-            this.updateDisplayedValues();
 
             try {
                 await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
@@ -559,7 +554,6 @@ export default {
                 console.log(e)
                 this.errorMessages.push("Something went wrong! Please try adding the variable again.");
                 this.costState = await useSheetUpdate().getCostSheet(this.route.params.modelId)
-                this.updateDisplayedValues();
             }
 
         },
@@ -581,8 +575,6 @@ export default {
                 try {
                     //update CostState
                     await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
-                    this.updateDisplayedValues();
-
                 } catch (e) {
                     console.log(e);
                     //retrieve actual stored sheet from DB
@@ -636,8 +628,6 @@ export default {
                 try {
                     //update CostState
                     await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
-                    this.updateDisplayedValues();
-
                 } catch (e) {
                     console.log(e);
                     //retrieve actual stored sheet from DB
@@ -671,8 +661,6 @@ export default {
             try {
                 //update CostState
                 this.costState = await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
-                this.updateDisplayedValues();
-
             } catch (e) {
                 console.log(e);
                 //retrieve actual stored sheet from DB
@@ -704,8 +692,6 @@ export default {
                 try {
                     //update CostState
                     await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
-                    this.updateDisplayedValues();
-
                 } catch (e) {
                     console.log(e);
                     //retrieve actual stored sheet from DB
@@ -803,7 +789,6 @@ export default {
             try {
                 //update CostState
                 await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
-                this.updateDisplayedValues();
             } catch (e) {
                 console.log(e);
                 this.errorMessages.push(e);
@@ -842,9 +827,6 @@ export default {
             try {
                 //update CostState
                 await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
-                //Update sheet values valuesToDisplay
-                this.updateDisplayedValues();
-
             } catch (e) {
                 console.log(e);
                 this.errorMessages.push(e);
@@ -859,7 +841,6 @@ export default {
         async deleteAssumption(variableIndex: number, sectionIndex: number) {
             //first directly change the state
             this.costState.assumptions.splice(variableIndex, 1);
-            this.assumptionValuesToDisplayState.splice(variableIndex, 1);
 
             //then update the backend
             try {
@@ -870,7 +851,6 @@ export default {
                 const actualSheet = await useSheetUpdate().getCostSheet(this.route.params.modelId);
                 if (!(actualSheet.assumptions.length === this.costState.assumptions.length)) {
                     this.costState = actualSheet;
-                    this.updateDisplayedValues();
                 }
             }
         },
@@ -893,21 +873,18 @@ export default {
             //then update the backend
             try {
                 await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
-                this.updateDisplayedValues();
             } catch (e) {
                 console.log(e) //todo: throw error message
                 this.errorMessages.push(e);
                 const actualSheet = await useSheetUpdate().getCostSheet(this.route.params.modelId);
                 if (!(actualSheet.sections[sectionIndex].rows.length === this.costState.sections[sectionIndex].rows.length)) {
                     this.costState = actualSheet;
-                    this.updateDisplayedValues();
                 }
             }
         },
         async deleteVariable(variableIndex: number, sectionIndex: number) {
             //first directly change the state
             this.costState.sections[sectionIndex].rows.splice(variableIndex, 1);
-            this.variableValuesToDisplayState.get(sectionIndex).splice(variableIndex, 1);
 
             //then update the backend
             try {
@@ -918,7 +895,6 @@ export default {
                 const actualSheet = await useSheetUpdate().getCostSheet(this.route.params.modelId);
                 if (!(actualSheet.sections[sectionIndex].rows.length === this.costState.sections[sectionIndex].rows.length)) {
                     this.costState = actualSheet;
-                    this.updateDisplayedValues();
                 }
             }
         },
@@ -959,35 +935,6 @@ export default {
 
             } else {
                 return false;
-            }
-        },
-        updateDisplayedValues() {
-
-            //assumptions
-            try {
-                this.assumptionValuesToDisplayState = useFormulaParser().getSheetRowValues(this.costState.assumptions);
-
-                //Update entire sheet
-                var variablesValuesStorage: Map<number, string[][]> = new Map<number, string[][]>();
-                var endRowValuesStorage: string[][] = [];
-                for (let i = 0; i < this.costState.sections.length; i++) {
-                    //variables
-                    var sectionVariables: Variable[] = [...this.costState.sections[i].rows];
-                    var valuesOfAssumptionsAndVariables: string[][] = useFormulaParser().getSheetRowValues(this.costState.assumptions.concat(sectionVariables))
-                    valuesOfAssumptionsAndVariables.splice(0, this.costState.assumptions.length);
-                    variablesValuesStorage.set(i, valuesOfAssumptionsAndVariables);
-                    //endrow
-                    var valuesOfVariablesAndEndRow: string[][] = useFormulaParser().getSheetRowValues(this.costState.assumptions.concat(sectionVariables.concat(this.costState.sections[i].end_row)));
-                    valuesOfVariablesAndEndRow.splice(0, sectionVariables.length + this.costState.assumptions.length);
-                    endRowValuesStorage.push(valuesOfVariablesAndEndRow[0]);
-
-                };
-                this.variableValuesToDisplayState = variablesValuesStorage;
-                this.endRowValuesToDisplayState = endRowValuesStorage;
-
-            } catch (e) {
-                console.log(e);
-                this.errorMessages.push(e)
             }
         }
     }

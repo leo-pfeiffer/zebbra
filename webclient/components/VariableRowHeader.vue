@@ -7,7 +7,7 @@ const route = useRoute();
     <div class="">
         <div class="flex text-zinc-900">
             <div class="relative group text-xs py-2 border-t border-x border-zinc-300 min-w-[320px] max-w-[320px]"
-                :class="{ 'hover:bg-zinc-50 pl-10 pr-2': !isEndRow, 'px-3': isEndRow }">
+                :class="{ 'hover:bg-zinc-50 pl-10 pr-2': !isEndRow, 'px-3': isEndRow, 'text-zinc-700 border-zinc-300 bg-zinc-50': hierarchy === 'med' }">
                 <span v-show="(valType === 'currency') && !isEndRow" class="mr-3 text-green-600"><i
                         class="bi bi-currency-dollar"></i></span>
                 <span v-show="(valType === 'percentage') && !isEndRow" class="mr-3 text-amber-600"><i
@@ -15,7 +15,7 @@ const route = useRoute();
                 <span v-show="(valType === 'number') && !isEndRow" class="mr-3 text-zinc-500"><i
                         class="bi bi-hash"></i></span>
                 <span v-show="isEndRow" class="font-medium">
-                    <li class="marker:text-white/0">Total {{ sectionName }}</li>
+                    <li class="marker:text-white/0">Total – {{ sectionName }}</li>
                 </span>
                 <span v-show="!isEndRow" v-if="!nameChangeSelected" @dblclick="toggleNameChange">{{ variable.name
                 }}</span>
@@ -121,24 +121,24 @@ const route = useRoute();
                     </div>
                 </div>
             </div>
-            <div class="h-full w-full relative">
+            <div class="h-full w-full relative" :class="{'bg-zinc-50': hierarchy === 'med' }">
                 <div v-if="!valueInputSelected"
                     class="text-xs relative group border-t border-r border-zinc-300 min-w-[150px] max-w-[150px] h-full w-full text-right">
-                    <div @dblclick="toggleInput"
+                    <div @dblclick="toggleInput" :class="{'text-sky-700': variable.var_type === 'value'}"
                         class="float-right h-full min-w-[130px] max-w-[130px] text-right text-xs py-2 px-2 border-r-2 border-zinc-300 tabular-nums truncate overflow-hidden">
                         {{ outputValue }}
                     </div>
                     <div class="absolute top-2 left-2 flex justify-center">
                         <i v-if="variable.var_type === 'formula' && variable.time_series === false" title="Formula"
-                            class="text-[10px] text-zinc-300 bi-calculator-fill"></i>
+                            class="text-[10px] text-amber-600/50 bi-calculator-fill"></i>
                         <i v-if="variable.var_type === 'formula' && variable.time_series === true"
-                            title="Time-Series Formula" class="text-[10px] text-zinc-300 bi-bar-chart-fill"></i>
+                            title="Time-Series Formula" class="text-[10px] text-green-500/50 bi-bar-chart-fill"></i>
                         <i v-else-if="variable.var_type === 'integration'" title="Integration"
-                            class="text-[8px] text-zinc-300 bi bi-server"></i>
+                            class="text-[8px] text-sky-700/50 bi bi-server"></i>
                     </div>
                 </div>
                 <div v-else
-                    class="absolute top-0 left-0 text-xs border-zinc-300 min-w-[500px] max-w-[500px] h-full w-full text-right z-50">
+                    class="absolute top-0 left-0 text-xs border-zinc-300 min-w-[500px] max-w-[500px] h-full w-full text-right z-40">
                     <input v-show="valueInputSelected" autofocus
                         @keydown.enter="$emit('updateValue', humanReadableInputValue, variable._id, variableSearchMap, timeSeriesMap, variableIndex, sectionIndex); toggleInput()"
                         @keydown.esc="toggleInput" v-model="humanReadableInputValue"
@@ -151,7 +151,7 @@ const route = useRoute();
         </div>
         <Teleport to="body">
             <div v-show="deleteModalOpen"
-                class="absolute left-0 top-1/3 w-full flex justify-center align-middle">
+                class="absolute left-0 top-1/3 w-full flex justify-center align-middle z-50">
                 <div class="p-6 border h-max shadow-lg bg-white border-zinc-300 rounded z-50">
                     <div>
                         <h3 class="text-zinc-900 font-medium text-sm mb-2">Do you really want to delete this variable?
@@ -169,7 +169,7 @@ const route = useRoute();
                     </div>
                 </div>
                 <div v-show="deleteModalOpen" @click="toggleDeleteModal"
-                    class="fixed top-0 left-0 w-[100vw] h-[100vh] z-40 bg-zinc-100/50">
+                    class="fixed top-0 left-0 w-[100vw] h-[100vh] z-49 bg-zinc-100/50">
                 </div>
             </div>
         </Teleport>
@@ -208,6 +208,7 @@ export default {
         sectionIndex: Number,
         sectionName: String,
         isEndRow: Boolean,
+        hierarchy: String,
         showIntegration: Boolean,
         possibleIntegrationValues: Object as () => IntegrationValueInfo[],
         userIsViewer: Boolean
