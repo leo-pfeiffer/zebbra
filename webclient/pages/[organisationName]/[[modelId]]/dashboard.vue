@@ -97,7 +97,7 @@ try {
               <apexchart
                   v-if="renderChart"
                   width="100%"
-                  type="bar"
+                  type="area"
                   :options="payrollCostsOptions"
                   :series="payrollCostsSeries"
               ></apexchart>
