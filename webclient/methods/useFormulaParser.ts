@@ -97,9 +97,17 @@ export const useFormulaParser = () => {
             valuesToDisplay.push("–");
         }
 
+        var integrationValueExists:boolean
+        try {
+            variableInput.integration_values[0].value;
+            integrationValueExists = true;
+        } catch(e) {
+            integrationValueExists = false;
+        }
+
         if (variableInput.first_value_diff) {
             var firstValue:string;
-            if(variableInput.var_type === "integration" && variableInput.integration_values[0].value != null){
+            if(variableInput.var_type === "integration" && integrationValueExists){
                 firstValue = variableInput.integration_values[0].value;
             } else if(variableInput.value_1.includes("#")) {
                 firstValue = getExternalRefValue(variableInput.value_1, variableInput.starting_at, variablesAlreadyCovered);
@@ -119,12 +127,22 @@ export const useFormulaParser = () => {
             startingPointForI++;
         }
 
-        //todo: months
+        console.log(variableInput.integration_values);
+
+        
         for (let i = startingPointForI; i < 24; i++) {
 
             var valueToDisplay: string;
 
-            if(variableInput.var_type === "integration" && variableInput.integration_values && variableInput.integration_values[i].value != null) {
+            var integrationValueExists:boolean
+            try {
+                variableInput.integration_values[i].value;
+                integrationValueExists = true;
+            } catch(e) {
+                integrationValueExists = false;
+            }
+
+            if(variableInput.var_type === "integration" && variableInput.integration_values && integrationValueExists && variableInput.integration_values[i].value != null) {
                 valueToDisplay = variableInput.integration_values[i].value;
             } else {
                 //store valueArray with refs in new array so refs can be overwritten
@@ -142,7 +160,7 @@ export const useFormulaParser = () => {
                 for (let x = 0; x < valueArrayToBeOverwritten.length; x++) {
                     stringForParser = stringForParser + valueArrayToBeOverwritten[x];
                 }
-                
+
                 try{
                     valueToDisplay = useMathParser(stringForParser).toString();
                 } catch(e) {
