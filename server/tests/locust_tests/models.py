@@ -63,7 +63,6 @@ class LocustModels(JohnDoeMixin, HttpUser):
 
     @task
     def model_rename(self):
-        # revoke admin permission
         self.client.post(
             "/model/rename",
             params={
@@ -74,12 +73,21 @@ class LocustModels(JohnDoeMixin, HttpUser):
 
     @task
     def model_starting_month(self):
-        # revoke admin permission
         self.client.post(
             "/model/startingMonth",
             params={
                 "model_id": self.model_id,
                 "starting_month": "2022-01-01",
+            },
+        )
+
+    @task
+    def model_starting_balance(self):
+        self.client.post(
+            "/model/startingBalance",
+            params={
+                "model_id": self.model_id,
+                "starting_balance": 12345.67,
             },
         )
 
