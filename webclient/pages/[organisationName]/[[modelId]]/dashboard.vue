@@ -14,6 +14,8 @@ const modelMeta = useModelMetaState();
 
 modelMeta.value = await getModelMeta(route.params.modelId);
 
+const modelId = route.params.modelId
+
 const revenueState = useRevenueState();
 
 try {
@@ -57,6 +59,16 @@ try {
           </button>
         </div>
 
+        <div class="p-3">
+          <label for="starting-month">Starting month: </label>
+          <input type="month" class="border" name="starting-month" placeholder="Starting month" v-model="newStartingMonth">
+          <button type="button" @click="updateStartingMonth"
+                  class=" bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50
+                  font-medium text-xs pl-2.5 pr-3 py-1 border border-zinc-300 rounded text-zinc-700">
+            Update
+          </button>
+        </div>
+
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 p-3">
           <div>
             <ClientOnly>
@@ -65,7 +77,7 @@ try {
                   width="100%"
                   type="line"
                   :options="profitChartOptions"
-                  :series="profitsSeries"
+                  :series="dashboardData.profit"
               ></apexchart>
             </ClientOnly>
           </div>
@@ -76,7 +88,7 @@ try {
                   width="100%"
                   type="bar"
                   :options="cashBalanceOptions"
-                  :series="cashBalanceSeries"
+                  :series="cashBalanceCalculated"
               ></apexchart>
             </ClientOnly>
           </div>
@@ -87,7 +99,7 @@ try {
                   width="100%"
                   type="area"
                   :options="revenuesOptions"
-                  :series="revenuesSeries"
+                  :series="dashboardData.revenues"
               ></apexchart>
             </ClientOnly>
           </div>
@@ -98,7 +110,7 @@ try {
                   width="100%"
                   type="area"
                   :options="costsOptions"
-                  :series="costsSeries"
+                  :series="dashboardData.costs"
               ></apexchart>
             </ClientOnly>
           </div>
@@ -109,7 +121,7 @@ try {
                   width="100%"
                   type="area"
                   :options="payrollCostsOptions"
-                  :series="payrollCostsSeries"
+                  :series="dashboardData.payrollCosts"
               ></apexchart>
             </ClientOnly>
           </div>
@@ -120,7 +132,7 @@ try {
                   width="100%"
                   type="bar"
                   :options="headcountOptions"
-                  :series="headcountSeries"
+                  :series="dashboardData.headcount"
               ></apexchart>
             </ClientOnly>
           </div>
@@ -162,6 +174,8 @@ export default {
 
       startingBalance: 10000,
 
+      newStartingMonth: this.modelMeta.starting_month.slice(0, 7),
+
       showRequiresReconnectModal: false,
 
       renderChart: false,
@@ -178,27 +192,26 @@ export default {
       dashboardData: null,
     }
   },
-  computed: {
-    profitsSeries() {
-      return this.dashboardData.profit;
-    },
-    cashBalanceSeries() {
-      return this.cashBalanceCalculated;
-    },
-    revenuesSeries() {
-      return this.dashboardData.revenues;
-    },
-    costsSeries() {
-      return this.dashboardData.costs;
-    },
-    payrollCostsSeries() {
-      return this.dashboardData.payrollCosts;
-    },
-    headcountSeries() {
-      return this.dashboardData.headcount;
-    },
-  },
   methods: {
+    async updateStartingMonth() {
+      console.log(this.newStartingMonth)
+
+      const data = await useFetchAuth(
+        '/model/startingMonth', {
+          method: 'POST',
+          params: {
+            model_id: this.modelId,
+            starting_month: `${this.newStartingMonth}-01` }
+        }).then(async (data) => {
+          console.log(data)
+        }).catch((error) => {
+          console.log(error);
+        });
+
+      await this.refreshModelData()
+      this.calculateData()
+
+    },
     calculateCashBalance() {
       if (this.startingBalance === null) {
         this.startingBalance = 0;
@@ -344,28 +357,56 @@ export default {
           },
         },
       }
+    },
+    async refreshModelData() {
+
+      this.modelMeta = await getModelMeta(this.modelId);
+
+      try {
+        this.revenueState = await useSheetUpdate().getRevenueSheet(this.modelId);
+      } catch (error) {
+        console.log(error);
+      }
+
+      try {
+        this.costState = await useSheetUpdate().getCostSheet(this.modelId);
+      } catch (e) {
+        console.log(e)
+      }
+
+      try {
+        this.payrollState = await useSheetUpdate().getPayroll(this.modelId);
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    calculateData() {
+
+      // convert the string date to a date object
+      const dateParts = this.modelMeta.starting_month.split('-');
+      const startingDate = new Date(Number(dateParts[0]), Number(dateParts[1]) - 1, Number(dateParts[2]));
+
+
+      // calculate the dashboard data
+      const newDashboardData = useCalculateDashboardProfits(
+          this.revenueState, this.costState, this.payrollState, startingDate
+      );
+
+      this.dashboardData = {...newDashboardData};
+
+      this.profitChartOptions = {...this.getProfitChartOptions()};
+      this.cashBalanceOptions = {...this.getCashBalanceOptions()};
+      this.revenuesOptions = {...this.getRevenuesOptions()};
+      this.costsOptions = {...this.getCostsOptions()};
+      this.payrollCostsOptions = {...this.getPayrollCostsOptions()};
+      this.headcountOptions = {...this.getHeadcountOptions()};
+
+      this.calculateCashBalance();
     }
   },
   async mounted() {
 
-    // convert the string date to a date object
-    const dateParts = this.modelMeta.starting_month.split('-');
-    const startingDate = new Date(Number(dateParts[0]), Number(dateParts[1]) - 1, Number(dateParts[2]));
-
-
-    // calculate the dashboard data
-    this.dashboardData = useCalculateDashboardProfits(
-        this.revenueState, this.costState, this.payrollState, startingDate
-    );
-
-    this.profitChartOptions = {...this.getProfitChartOptions()};
-    this.cashBalanceOptions = {...this.getCashBalanceOptions()};
-    this.revenuesOptions = {...this.getRevenuesOptions()};
-    this.costsOptions = {...this.getCostsOptions()};
-    this.payrollCostsOptions = {...this.getPayrollCostsOptions()};
-    this.headcountOptions = {...this.getHeadcountOptions()};
-
-    this.calculateCashBalance();
+    this.calculateData()
 
     // fixes rendering issue in apexcharts if width is not set to a fixed pixel width
     // https://github.com/apexcharts/apexcharts.js/issues/1077#issuecomment-984386146
