@@ -185,7 +185,16 @@ export default {
   },
   methods: {
     getProfitChartOptions() {
-      return this.makeChartOptions('Profits', 'Profits')
+      const opts = this.makeChartOptions('Profits', 'Profits')
+      opts.annotations = {
+        yaxis: [
+          {
+            y: 0,
+            borderColor: '#000000',
+          }
+        ]
+      }
+      return opts;
     },
     getCashBalanceOptions() {
       const opts = this.makeChartOptions('Cash Balance', 'Cash Balance')
@@ -193,18 +202,26 @@ export default {
         bar: {
           colors: {
             ranges: [{
-              from: -100,
-              to: -46,
-              color: '#F15B46'
+              from: 0,
+              to: Infinity,
+              color: '#22c55e'
             }, {
-              from: -45,
-              to: 0,
-              color: '#FEB019'
+              from: 0,
+              to: -Infinity,
+              color: '#ef4444'
             }]
           },
-          columnWidth: '80%',
         }
       }
+      opts.annotations = {
+        yaxis: [
+          {
+            y: 0,
+            borderColor: '#000000'
+          }
+        ]
+      }
+      console.log(opts)
       return opts
     },
     getRevenuesOptions() {
@@ -249,6 +266,11 @@ export default {
               },
             },
         },
+        colors: [
+            '#22c55e', '#0ea5e9', '#f59e0b', '#ef4444',
+            '#14b8a6', '#6366f1', '#f97316', '#ec4899',
+            '#84cc16', '#06b6d4', '#f43f5e', '#a855f7'
+        ],
         dataLabels: {
           enabled: false
         },
@@ -279,9 +301,6 @@ export default {
           position: 'top',
           horizontalAlign: 'left',
           offsetX: 0
-        },
-        theme: {
-          palette: 'palette10',
         },
         title: {text: title},
         grid: {
