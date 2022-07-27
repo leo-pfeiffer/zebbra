@@ -6,7 +6,6 @@ export interface DashboardSeriesElement {
 export interface DashboardData {
     profit: DashboardSeriesElement[],
     cashBalance: DashboardSeriesElement[],
-    cashBalanceCalc: (startingBalance: number, cashBalance: DashboardSeriesElement[]) => DashboardSeriesElement[],
     revenues: DashboardSeriesElement[],
     costs: DashboardSeriesElement[],
     payrollCosts: DashboardSeriesElement[],

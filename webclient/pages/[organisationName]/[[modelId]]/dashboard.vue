@@ -52,10 +52,10 @@ try {
         <div class="p-3">
           <label for="starting-balance">Starting balance: </label>
           <input type="number" class="border" name="starting-balance" placeholder="Starting balance" v-model="startingBalance">
-          <button type="button" @click="calculateCashBalance"
+          <button type="button" @click="updateStartingBalance"
                   class=" bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50
                   font-medium text-xs pl-2.5 pr-3 py-1 border border-zinc-300 rounded text-zinc-700">
-            Set
+            Update
           </button>
         </div>
 
@@ -88,7 +88,7 @@ try {
                   width="100%"
                   type="bar"
                   :options="cashBalanceOptions"
-                  :series="cashBalanceCalculated"
+                  :series="dashboardData.cashBalance"
               ></apexchart>
             </ClientOnly>
           </div>
@@ -172,8 +172,7 @@ export default {
   data() {
     return {
 
-      startingBalance: 10000,
-
+      startingBalance: this.modelMeta.starting_balance,
       newStartingMonth: this.modelMeta.starting_month.slice(0, 7),
 
       showRequiresReconnectModal: false,
@@ -187,14 +186,32 @@ export default {
       payrollCostsOptions: {},
       headcountOptions: {},
 
-      cashBalanceCalculated: [],
-
       dashboardData: null,
     }
   },
   methods: {
+
+    async updateStartingBalance() {
+
+      const data = await useFetchAuth(
+          '/model/startingBalance', {
+            method: 'POST',
+            params: {
+              model_id: this.modelId,
+              starting_balance: this.startingBalance
+            }
+          }).then(async (data) => {
+        console.log(data)
+      }).catch((error) => {
+        console.log(error);
+      });
+
+      await this.refreshModelData()
+      this.calculateData()
+
+    },
+
     async updateStartingMonth() {
-      console.log(this.newStartingMonth)
 
       const data = await useFetchAuth(
         '/model/startingMonth', {
@@ -212,14 +229,7 @@ export default {
       this.calculateData()
 
     },
-    calculateCashBalance() {
-      if (this.startingBalance === null) {
-        this.startingBalance = 0;
-      }
-      this.cashBalanceCalculated = this.dashboardData.cashBalanceCalc(
-          this.startingBalance, this.dashboardData.cashBalance
-      )
-    },
+
     getProfitChartOptions() {
       const opts = this.makeChartOptions('Profits')
       opts.annotations = {
@@ -389,7 +399,7 @@ export default {
 
       // calculate the dashboard data
       const newDashboardData = useCalculateDashboardProfits(
-          this.revenueState, this.costState, this.payrollState, startingDate
+          this.revenueState, this.costState, this.payrollState, startingDate, this.startingBalance
       );
 
       this.dashboardData = {...newDashboardData};
@@ -400,8 +410,6 @@ export default {
       this.costsOptions = {...this.getCostsOptions()};
       this.payrollCostsOptions = {...this.getPayrollCostsOptions()};
       this.headcountOptions = {...this.getHeadcountOptions()};
-
-      this.calculateCashBalance();
     }
   },
   async mounted() {
