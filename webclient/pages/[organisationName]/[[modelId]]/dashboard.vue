@@ -42,11 +42,10 @@ try {
 
 <template>
     <NuxtLayout name="navbar">
-      <div class="h-full">
-        <div class="p-3 border-b border-zinc-300 top-0 min-h-[60px] max-h-[60px]">
-          <h1 class="font-semibold text-xl inline-block align-middle">Dashboard</h1>
+      <div class="h-full overflow-y-auto">
+        <div class="py-3 border-b bg-white px-3 border-zinc-300 top-0 min-h-[70px] max-h-[70px] sticky z-40">
+            <SheetHeader :sheetName="'Dashboard'" :workspaceName="user.workspaces[0].name" :modelName="modelMeta.name"></SheetHeader>
         </div>
-
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 p-3">
           <div>
             <ClientOnly>

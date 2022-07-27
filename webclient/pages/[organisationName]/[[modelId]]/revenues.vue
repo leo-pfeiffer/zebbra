@@ -39,17 +39,27 @@ try{
 <template>
     <NuxtLayout name="navbar">
         <div class="h-full">
-            <div class="p-3 border-b border-zinc-300 top-0 min-h-[60px] max-h-[60px]">
-                <h1 class="font-semibold text-xl inline-block align-middle">Revenues</h1>
+            <div class="py-3 border-b px-3 border-zinc-300 top-0 min-h-[70px] max-h-[70px]">
+                <SheetHeader :sheetName="'Revenues'" :workspaceName="userState.workspaces[0].name" :modelName="modelMeta.name"></SheetHeader>
             </div>
-            <div class="ml-1 py-3 pl-2 mr-0 overflow-x-hidden min-h-[calc(100%-60px)] max-h-[calc(100%-60px)]">
+            <div class="ml-1 pb-3 pl-2 mr-0 overflow-x-hidden min-h-[calc(100%-70px)] max-h-[calc(100%-70px)]">
+                <div class="flex sticky top-0 bg-white pt-2 z-50">
+                    <div class="min-w-[470px] max-w-[470px]">
+                    </div>
+                    <div class="overflow-x-auto no-scrollbar z-10" id="dates" @scroll="stickScroll('dates', 'table-right')">
+                        <div class="border-zinc-300 flex">
+                            <div class="first:border-l first:rounded-tl first:rounded-bl text-xs py-2 px-2 border-r border-y border-zinc-300 min-w-[75px] max-w-[75px] text-center uppercase bg-zinc-100 text-zinc-700"
+                                v-for="date in dates">{{ date }}</div>
+                        </div>
+                    </div>
+                </div>
                 <div class="flex">
                     <div>
                         <div id="assumptions-headers">
                             <div>
                                 <!-- assumption header -->
                                 <div
-                                    class="mt-12 text-xs text-zinc-500 font-medium uppercase rounded-tl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-100 border-zinc-300 border-l border-t">
+                                    class="mt-3 text-xs text-zinc-500 font-medium uppercase rounded-tl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-100 border-zinc-300 border-l border-t">
                                     Assumptions
                                 </div>
                             </div>
@@ -134,13 +144,9 @@ try{
                             </div>
                         </div>
                     </div>
-                    <div class="relative overflow-x-auto">
-                        <div id="dates" class="border-zinc-300 flex mb-4 absolute">
-                            <div class="first:border-l first:rounded-tl first:rounded-bl text-xs py-2 px-2 border-r border-y border-zinc-300 min-w-[75px] max-w-[75px] text-center uppercase bg-zinc-100 text-zinc-700"
-                                v-for="date in dates">{{ date }}</div>
-                        </div>
+                    <div class="overflow-x-auto" id="table-right" @scroll="stickScroll('table-right', 'dates')">
                         <div id="assumption-values">
-                            <div class="flex mt-12">
+                            <div class="flex mt-3">
                                 <!-- assumption header empty -->
                                 <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 bg-zinc-100 border-zinc-300 border-t"
                                     v-for="date in dates">X</div>
@@ -290,6 +296,11 @@ export default {
     methods: {
         closeErrorMessage(index:number){
             this.errorMessages.splice(index, 1)
+        },
+        stickScroll(idParent:string, idChild:string) {
+            const scrollParent = document.querySelector(`#${idParent}`);
+            const scrollChild = document.querySelector(`#${idChild}`);
+            scrollChild.scrollLeft = scrollParent.scrollLeft;
         },
         async addSection() {
 
