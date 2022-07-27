@@ -24,7 +24,9 @@ export default {
 
             for(let i=0; i < input.length; i++) {
                 var value:string = input[i];
-                if(value.includes(".")) {
+                if(value === null) {
+                    output.push("–"); //error handling for null values (could be coming from integration)
+                } else if(value.includes(".")) {
                     var splittedValue = value.split(".");
 
                     var valueWithDecimals;
