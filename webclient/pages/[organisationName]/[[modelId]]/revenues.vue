@@ -121,13 +121,14 @@ try{
                                         :sectionIndex="sectionIndex"
                                         :sectionName="section.name"
                                         :isEndRow="true"
+                                        :hierarchy="'med'"
                                         :userIsViewer="userIsViewer">
                                     </VariableRowHeader>
                                 </div>
                                 <div class="">
                                     <!-- add section button -->
                                     <div
-                                        class="text-xs py-2 px-3 min-w-[470px] max-w-[470px] border-zinc-300 border-y border-l">
+                                        class="text-xs py-2 px-3 min-w-[470px] max-w-[470px] border-zinc-300 border-t border-l">
                                         <button :disabled="userIsViewer" @click="addSection" class="text-zinc-400 italic hover:text-zinc-500"><i
                                                 class="bi bi-plus-lg mr-2"></i>Add Section</button>
                                     </div>
@@ -136,7 +137,7 @@ try{
                         </div>
                         <div>
                             <div>
-                                <div class="group flex text-xs text-zinc-900 rounded-bl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-50 border-zinc-300 border">
+                                <div class="flex text-xs text-zinc-900 rounded-bl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-200 border-zinc-300 border-t-zinc-400 border-l border-b border-t-2">
                                     <span class="font-medium uppercase">
                                         Total Revenues
                                     </span>
@@ -153,7 +154,7 @@ try{
                             </div>
                             <ClientOnly>
                                 <VariableRow v-for="(assumptionValues, index) in computedAssumptionValuesToDisplay"
-                                :values="assumptionValues" :round-to="revenueState.assumptions[index].decimal_places"></VariableRow>
+                                :values="assumptionValues" :round-to="revenueState.assumptions[index].decimal_places" :hierarchy="'low'"></VariableRow>
                             </ClientOnly>
                             <div class="flex">
                                 <!-- add assumption button empty -->
@@ -175,7 +176,7 @@ try{
                                 <ClientOnly>
                                     <VariableRow v-if="computedVariableValuesToDisplay"
                                         v-for="(variableValues, variableIndex) in computedVariableValuesToDisplay.get(index)"
-                                        :values="variableValues" :round-to="revenueState.sections[index].rows[variableIndex].decimal_places"></VariableRow>
+                                        :values="variableValues" :round-to="revenueState.sections[index].rows[variableIndex].decimal_places" :hierarchy="'low'"></VariableRow>
                                 </ClientOnly>
                                 <div class="flex">
                                     <!-- add variable button empty -->
@@ -184,18 +185,18 @@ try{
                                 </div>
                                 <ClientOnly>
                                     <VariableRow v-if="computedEndRowValuesToDisplay"
-                                        :values="computedEndRowValuesToDisplay[index]" :round-to="2"></VariableRow>
+                                        :values="computedEndRowValuesToDisplay[index]" :round-to="2" :hierarchy="'med'"></VariableRow>
                                 </ClientOnly>
                             </div>
                             <div class="flex">
                                     <!-- add section button empty -->
-                                    <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-y"
+                                    <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-t"
                                         v-for="date in dates">X</div>
                                 </div>
                         </div>
                         <div id="total-revenue-values" class="border-zinc-300">
                             <ClientOnly>
-                                <VariableRow v-if="computedEndRowValuesToDisplay" :values="totalRevenuesToDisplay" :round-to="2" :isFinalRow="true"></VariableRow>
+                                <VariableRow v-if="computedEndRowValuesToDisplay" :values="totalRevenuesToDisplay" :round-to="2" :isFinalRow="true" :hierarchy="'high'"></VariableRow>
                             </ClientOnly>
                         </div>
                     </div>

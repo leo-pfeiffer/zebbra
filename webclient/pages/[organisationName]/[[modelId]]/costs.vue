@@ -108,7 +108,7 @@ try {
                                                 class="bi bi-plus-lg mr-3"></i>Add Employee</button>
                                     </div>
                                     <div
-                                        class="group flex text-xs text-zinc-900 py-2 px-3 min-w-[470px] max-w-[470px] border-zinc-300 border-l border-t border-r-2">
+                                        class="flex text-xs text-zinc-700 bg-zinc-50 py-2 px-3 min-w-[470px] max-w-[470px] border-zinc-300 border-l border-t">
                                         <span class="font-medium">
                                             <li class="marker:text-white/0">Total Payroll</li>
                                         </span>
@@ -140,6 +140,7 @@ try {
                                         :variable-index="0" :timeSeriesMap="useVariableTimeSeriesMap(section.rows)"
                                         :variableSearchMap="useVariableSearchMap(section.rows)"
                                         :sectionIndex="sectionIndex" :sectionName="section.name" :isEndRow="true"
+                                        :hierarchy="'med'"
                                         :userIsViewer="userIsViewer">
                                     </VariableRowHeader>
                                 </div>
@@ -148,7 +149,7 @@ try {
                         <div>
                             <div>
                                 <div
-                                    class="group flex text-xs text-zinc-900 rounded-bl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-50 border-zinc-300 border">
+                                    class="group flex text-xs text-zinc-900 rounded-bl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-200 border-zinc-300 border-t-zinc-400 border-l border-b border-t-2">
                                     <span class="font-medium uppercase">
                                         Total Costs
                                     </span>
@@ -165,7 +166,7 @@ try {
                             </div>
                             <ClientOnly>
                                 <VariableRow v-for="(assumptionValues, index) in computedAssumptionValuesToDisplay"
-                                    :values="assumptionValues" :round-to="costState.assumptions[index].decimal_places">
+                                    :values="assumptionValues" :round-to="costState.assumptions[index].decimal_places" :hierarchy="'low'">
                                 </VariableRow>
                             </ClientOnly>
                             <div class="flex">
@@ -186,7 +187,7 @@ try {
                             </div>
                             <div class="flex" v-for="payrollValues in payrollToDisplay">
                                 <ClientOnly>
-                                    <VariableRow :values="payrollValues" :round-to="2"></VariableRow>
+                                    <VariableRow :values="payrollValues" :round-to="2" :hierarchy="'low'"></VariableRow>
                                 </ClientOnly>
                             </div>
                             <div class="flex">
@@ -197,7 +198,7 @@ try {
                             <div class="flex">
                                 <ClientOnly>
                                     <VariableRow :values="totalPayrollToDisplay" :round-to="2"
-                                    :isFinalRow="false"></VariableRow>
+                                    :isFinalRow="false" :hierarchy="'med'"></VariableRow>
                                 </ClientOnly>
                             </div>
                             <div v-for="(section, index) in costState.sections" :key="index">
@@ -209,7 +210,7 @@ try {
                                     <VariableRow v-if="computedVariableValuesToDisplay"
                                         v-for="(variableValues, variableIndex) in computedVariableValuesToDisplay.get(index)"
                                         :values="variableValues"
-                                        :round-to="costState.sections[index].rows[variableIndex].decimal_places">
+                                        :round-to="costState.sections[index].rows[variableIndex].decimal_places" :hierarchy="'low'">
                                     </VariableRow>
                                 </ClientOnly>
                                 <div class="flex">
@@ -219,14 +220,14 @@ try {
                                 </div>
                                 <ClientOnly>
                                     <VariableRow v-if="computedEndRowValuesToDisplay"
-                                        :values="computedEndRowValuesToDisplay[index]" :round-to="2"></VariableRow>
+                                        :values="computedEndRowValuesToDisplay[index]" :round-to="2" :hierarchy="'med'"></VariableRow>
                                 </ClientOnly>
                             </div>
                         </div>
                         <div id="total-cost-values" class="border-zinc-300">
                             <ClientOnly>
                                 <VariableRow v-if="computedEndRowValuesToDisplay" :values="totalCostsToDisplay" :round-to="2"
-                                    :isFinalRow="true"></VariableRow>
+                                    :isFinalRow="true" :hierarchy="'high'"></VariableRow>
                             </ClientOnly>
                         </div>
                     </div>

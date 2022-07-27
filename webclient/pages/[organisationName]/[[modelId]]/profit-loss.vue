@@ -44,7 +44,7 @@ try {
                 <SheetHeader :sheetName="'Profit & Loss'" :workspaceName="userState.workspaces[0].name" :modelName="modelMeta.name"></SheetHeader>
             </div>
             <div class="ml-1 pl-2 flex top-0 bg-white pt-2 min-h-[50px] max-h-[50px]">
-                <div class="min-w-[470px] max-w-[470px]">
+                <div class="min-w-[300px] max-w-[300px]">
                 </div>
                 <div class="overflow-x-auto no-scrollbar z-10" id="dates" @scroll="stickScroll('dates', 'table-right')">
                     <div class="border-zinc-300 flex">
@@ -57,73 +57,73 @@ try {
                 <div class="flex">
                     <div>
                         <div
-                            class="group flex text-xs text-zinc-500 rounded-tl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-100 border-zinc-300 border-l border-t">
+                            class="group flex text-xs text-zinc-500 rounded-tl py-2 px-3 min-w-[300px] max-w-[300px] bg-zinc-100 border-zinc-300 border-l border-t">
                             <span class="font-medium uppercase">
                                 Profit & Loss Statement
                             </span>
                         </div>
                         <div
-                            class="group flex text-xs text-zinc-900 py-2 px-3 min-w-[470px] max-w-[470px] border-zinc-300 border-t border-l border-r">
+                            class="group flex text-xs text-zinc-500 py-2 px-3 min-w-[300px] max-w-[300px] border-zinc-300 border-t border-l">
                             <span class="font-medium">
                                 Revenues
                             </span>
                         </div>
                         <div v-for="revenueStream in profitLoss.gross_income.revenue_streams"
-                            class="group flex text-xs text-zinc-900 py-2 px-3 min-w-[470px] max-w-[470px] border-zinc-300 border-t border-l border-r">
+                            class="group flex text-xs text-zinc-900 py-2 px-3 min-w-[300px] max-w-[300px] border-zinc-300 border-t border-l border-r">
                             <span class="pl-6">
-                                {{ revenueStream.name }}
+                                <li class="marker:text-zinc-500">{{ revenueStream.name }}</li>
                             </span>
                         </div>
                         <div
-                            class="group flex text-xs text-zinc-900 py-2 px-3 min-w-[470px] max-w-[470px] border-zinc-300 border-t border-l border-r bg-zinc-100">
+                            class="flex text-xs text-zinc-700 py-2 px-3 min-w-[300px] max-w-[300px] border-l border-y border-zinc-300 bg-zinc-50">
                             <span class="font-medium uppercase">
                                 {{ profitLoss.gross_income.total.name }}
                             </span>
                         </div>
                         <div
-                            class="group flex text-xs text-zinc-900 py-2 px-3 min-w-[470px] max-w-[470px] border-zinc-300 border-t border-l border-r">
+                            class="group flex text-xs text-zinc-500 py-2 px-3 min-w-[300px] max-w-[300px] border-zinc-300 border-l">
                             <span class="font-medium">
-                                Costs
+                                Cost
                             </span>
                         </div>
                         <div
-                            class="group flex text-xs text-zinc-900 py-2 px-3 min-w-[470px] max-w-[470px] border-zinc-300 border-t border-l border-r">
-                            <span class="pl-6">
-                                {{ profitLoss.cost_of_goods_sold.name }}
+                            class="group flex text-xs text-zinc-900 py-2 px-3 min-w-[300px] max-w-[300px] border-zinc-300 border-t border-l border-r">
+                            <span class="pl-5">
+                                <i class="bi bi-wallet-fill text-zinc-500 mr-2"></i>{{ profitLoss.cost_of_goods_sold.name }}
                             </span>
                         </div>
                         <div
-                            class="group flex text-xs text-zinc-900 py-2 px-3 min-w-[470px] max-w-[470px] border-zinc-300 border-t border-l border-r bg-zinc-100">
+                            class="flex text-xs text-zinc-700 py-2 px-3 min-w-[300px] max-w-[300px] border-l border-y border-zinc-300 bg-zinc-50">
                             <span class="font-medium uppercase">
                                 {{ profitLoss.gross_margin.name }}
                             </span>
                         </div>
                         <div
-                            class="group flex text-xs text-zinc-900 py-2 px-3 min-w-[470px] max-w-[470px] border-zinc-300 border-t border-l border-r">
-                            <span class="pl-6">
-                                {{ profitLoss.payroll_cost.name }}
+                            class="group flex text-xs text-zinc-900 py-2 px-3 min-w-[300px] max-w-[300px] border-zinc-300 border-l border-r">
+                            <span class="pl-5">
+                                <i class="bi bi-people-fill text-zinc-500 mr-2"></i>{{ profitLoss.payroll_cost.name }}
                             </span>
                         </div>
                         <div
-                            class="group flex text-xs text-zinc-900 py-2 px-3 min-w-[470px] max-w-[470px] border-zinc-300 border-t border-l border-r">
-                            <span class="pl-6">
-                                {{ profitLoss.operating_cost.name }}
+                            class="group flex text-xs text-zinc-900 py-2 px-3 min-w-[300px] max-w-[300px] border-zinc-300 border-t border-l border-r">
+                            <span class="pl-5">
+                                <i class="bi bi-hammer text-zinc-500 mr-2"></i>{{ profitLoss.operating_cost.name }}
                             </span>
                         </div>
                         <div
-                            class="group flex text-xs text-zinc-900 py-2 px-3 min-w-[470px] max-w-[470px] border-zinc-300 border-t border-l border-r bg-zinc-100">
+                            class="flex text-xs text-zinc-700 py-2 px-3 min-w-[300px] max-w-[300px] border-l border-y border-zinc-300 bg-zinc-50">
                             <span class="font-medium uppercase">
                                 {{ profitLoss.operating_income.name }}
                             </span>
                         </div>
                         <div
-                            class="group flex text-xs text-zinc-900 py-2 px-3 min-w-[470px]  max-w-[470px] border-zinc-300 border-t border-l border-r">
-                            <span class="pl-6">
-                                {{ profitLoss.other_cost.name }}
+                            class="group flex text-xs text-zinc-900 py-2 px-3 min-w-[300px]  max-w-[300px] border-zinc-300 border-l border-r">
+                            <span class="pl-5">
+                                 <i class="bi bi-layers-fill text-zinc-500 mr-2"></i>{{ profitLoss.other_cost.name }}
                             </span>
                         </div>
                         <div
-                            class="group flex text-xs text-zinc-900 rounded-bl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-200 border-zinc-300 border border-y-2">
+                            class="flex text-xs text-zinc-900 rounded-bl py-2 px-3 min-w-[300px] max-w-[300px] bg-zinc-200 border-zinc-300 border-t-zinc-400 border-l border-b border-t-2">
                             <span class="font-medium uppercase">
                                 {{ profitLoss.net_income.name }}
                             </span>
@@ -143,30 +143,22 @@ try {
                             </div>
                             <ClientOnly>
                                 <VariableRow v-for="revenueStream in profitLoss.gross_income.revenue_streams"
-                                    :values="revenueStream.values" :round-to="2" :isFinalRow="false"></VariableRow>
-                                <VariableRow :values="profitLoss.gross_income.total.values" :round-to="2"
-                                    :isFinalRow="true"></VariableRow>
+                                    :values="revenueStream.values" :round-to="2" :hierarchy="'low'"></VariableRow>
+                                <VariableRow :values="profitLoss.gross_income.total.values" :round-to="2" :hierarchy="'med'"></VariableRow>
                             </ClientOnly>
                             <!-- Costs title -->
                             <div class="flex">
-                                <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300"
+                                <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-t"
                                     v-for="date in dates">X</div>
                             </div>
                             <ClientOnly>
-                                <VariableRow :values="profitLoss.cost_of_goods_sold.values" :round-to="2"
-                                    :isFinalRow="false"></VariableRow>
-                                <VariableRow :values="profitLoss.gross_margin.values" :round-to="2" :isFinalRow="true">
-                                </VariableRow>
-                                <VariableRow :values="profitLoss.payroll_cost.values" :round-to="2" :isFinalRow="false">
-                                </VariableRow>
-                                <VariableRow :values="profitLoss.operating_cost.values" :round-to="2"
-                                    :isFinalRow="false"></VariableRow>
-                                <VariableRow :values="profitLoss.operating_income.values" :round-to="2"
-                                    :isFinalRow="true"></VariableRow>
-                                <VariableRow :values="profitLoss.other_cost.values" :round-to="2" :isFinalRow="false">
-                                </VariableRow>
-                                <VariableRow :values="profitLoss.net_income.values" :round-to="2" :isFinalRow="true">
-                                </VariableRow>
+                                <VariableRow :values="profitLoss.cost_of_goods_sold.values" :round-to="2" :hierarchy="'low'"></VariableRow>
+                                <VariableRow :values="profitLoss.gross_margin.values" :round-to="2" :hierarchy="'med'"></VariableRow>
+                                <VariableRow :values="profitLoss.payroll_cost.values" :round-to="2" :hierarchy="'low'"></VariableRow>
+                                <VariableRow :values="profitLoss.operating_cost.values" :round-to="2" :hierarchy="'low'"></VariableRow>
+                                <VariableRow :values="profitLoss.operating_income.values" :round-to="2" :hierarchy="'med'"></VariableRow>
+                                <VariableRow :values="profitLoss.other_cost.values" :round-to="2" :hierarchy="'low'"></VariableRow>
+                                <VariableRow :values="profitLoss.net_income.values" :round-to="2" :hierarchy="'high'"></VariableRow>
                             </ClientOnly>
 
                         </div>
