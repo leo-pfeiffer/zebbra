@@ -48,6 +48,7 @@ try {
         </div>
 
         <div class="p-3">
+          <label for="starting-balance">Starting balance: </label>
           <input type="number" class="border" name="starting-balance" placeholder="Starting balance" v-model="startingBalance">
           <button type="button" @click="calculateCashBalance"
                   class=" bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50
@@ -253,7 +254,6 @@ export default {
           }
         ]
       }
-      console.log(opts)
       return opts
     },
     getRevenuesOptions() {
