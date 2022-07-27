@@ -1,4 +1,4 @@
-import {DashboardData} from "~/types/DashboardSeries";
+import {DashboardData, DashboardSeriesElement} from "~/types/DashboardSeries";
 import { Payroll, Sheet } from "~~/types/Model";
 import {useCalculateProfitLoss} from "~/methods/useCalculateProfitLoss";
 

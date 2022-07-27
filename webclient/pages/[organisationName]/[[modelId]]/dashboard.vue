@@ -14,6 +14,8 @@ const modelMeta = useModelMetaState();
 
 modelMeta.value = await getModelMeta(route.params.modelId);
 
+const modelId = route.params.modelId
+
 const revenueState = useRevenueState();
 
 try {
@@ -46,6 +48,33 @@ try {
         <div class="py-3 border-b bg-white px-3 border-zinc-300 top-0 min-h-[70px] max-h-[70px] sticky z-40">
             <SheetHeader :sheetName="'Dashboard'" :workspaceName="user.workspaces[0].name" :modelName="modelMeta.name"></SheetHeader>
         </div>
+
+        <div class="p-3">
+
+          <!-- todo @Patrick: format and styling -->
+          <p>{{ statusMessage }}</p>
+
+          <!-- todo @Patrick: format and styling -->
+          <label for="starting-balance">Starting balance: </label>
+          <input type="number" class="border" name="starting-balance" placeholder="Starting balance" v-model="startingBalance">
+          <button type="button" @click="updateStartingBalance"
+                  class=" bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50
+                  font-medium text-xs pl-2.5 pr-3 py-1 border border-zinc-300 rounded text-zinc-700">
+            Update
+          </button>
+        </div>
+
+        <!-- todo @Patrick: format and styling -->
+        <div class="p-3">
+          <label for="starting-month">Starting month: </label>
+          <input type="month" class="border" name="starting-month" placeholder="Starting month" v-model="newStartingMonth">
+          <button type="button" @click="updateStartingMonth"
+                  class=" bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50
+                  font-medium text-xs pl-2.5 pr-3 py-1 border border-zinc-300 rounded text-zinc-700">
+            Update
+          </button>
+        </div>
+
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 p-3">
           <div>
             <ClientOnly>
@@ -54,7 +83,7 @@ try {
                   width="100%"
                   type="line"
                   :options="profitChartOptions"
-                  :series="profitsSeries"
+                  :series="dashboardData.profit"
               ></apexchart>
             </ClientOnly>
           </div>
@@ -65,7 +94,7 @@ try {
                   width="100%"
                   type="bar"
                   :options="cashBalanceOptions"
-                  :series="cashBalanceSeries"
+                  :series="dashboardData.cashBalance"
               ></apexchart>
             </ClientOnly>
           </div>
@@ -76,7 +105,7 @@ try {
                   width="100%"
                   type="area"
                   :options="revenuesOptions"
-                  :series="revenuesSeries"
+                  :series="dashboardData.revenues"
               ></apexchart>
             </ClientOnly>
           </div>
@@ -87,7 +116,7 @@ try {
                   width="100%"
                   type="area"
                   :options="costsOptions"
-                  :series="costsSeries"
+                  :series="dashboardData.costs"
               ></apexchart>
             </ClientOnly>
           </div>
@@ -96,9 +125,9 @@ try {
               <apexchart
                   v-if="renderChart"
                   width="100%"
-                  type="bar"
+                  type="area"
                   :options="payrollCostsOptions"
-                  :series="payrollCostsSeries"
+                  :series="dashboardData.payrollCosts"
               ></apexchart>
             </ClientOnly>
           </div>
@@ -109,7 +138,7 @@ try {
                   width="100%"
                   type="bar"
                   :options="headcountOptions"
-                  :series="headcountSeries"
+                  :series="dashboardData.headcount"
               ></apexchart>
             </ClientOnly>
           </div>
@@ -148,6 +177,10 @@ import {useCalculateDashboardProfits} from "~/methods/useCalculateDashboardProfi
 export default {
   data() {
     return {
+
+      startingBalance: this.modelMeta.starting_balance,
+      newStartingMonth: this.modelMeta.starting_month.slice(0, 7),
+
       showRequiresReconnectModal: false,
 
       renderChart: false,
@@ -160,80 +193,142 @@ export default {
       headcountOptions: {},
 
       dashboardData: null,
+
+      defaultStatusMessage: "Up to date.",
+      statusMessage: "Up to date.",
     }
   },
-  computed: {
-    profitsSeries() {
-      return this.dashboardData.profit;
-    },
-    cashBalanceSeries() {
-      return this.dashboardData.cashBalance;
-    },
-    revenuesSeries() {
-      return this.dashboardData.revenues;
-    },
-    costsSeries() {
-      return this.dashboardData.costs;
-    },
-    payrollCostsSeries() {
-      return this.dashboardData.payrollCosts;
-    },
-    headcountSeries() {
-      return this.dashboardData.headcount;
-    },
-  },
   methods: {
-    getProfitChartOptions() {
-      return this.makeChartOptions('Profits', 'Profits')
+
+    async updateStartingBalance() {
+
+      const data = await useFetchAuth(
+          '/model/startingBalance', {
+            method: 'POST',
+            params: {
+              model_id: this.modelId,
+              starting_balance: this.startingBalance
+            }
+          }).then(async (data) => {
+        console.log(data)
+      }).catch((error) => {
+        console.log(error);
+      });
+
+      await this.refreshModelData()
+      this.calculateData()
+
     },
+
+    async updateStartingMonth() {
+
+      const data = await useFetchAuth(
+        '/model/startingMonth', {
+          method: 'POST',
+          params: {
+            model_id: this.modelId,
+            starting_month: `${this.newStartingMonth}-01` }
+        }).then(async (data) => {
+          console.log(data)
+        }).catch((error) => {
+          console.log(error);
+        });
+
+      await this.refreshModelData()
+      this.calculateData()
+
+    },
+
+    getProfitChartOptions() {
+      const opts = this.makeChartOptions('Profits')
+      opts.annotations = {
+        yaxis: [
+          {
+            y: 0,
+            borderColor: '#000000',
+          }
+        ]
+      }
+
+      opts.stroke = {
+        width: 2,
+            curve: 'straight'
+      }
+
+      opts.colors = ['#0ea5e9']
+
+      return opts;
+    },
+
     getCashBalanceOptions() {
-      const opts = this.makeChartOptions('Cash Balance', 'Cash Balance')
+      const opts = this.makeChartOptions('Cash Balance')
       opts.plotOptions = {
         bar: {
+          borderRadius: 0,
           colors: {
             ranges: [{
-              from: -100,
-              to: -46,
-              color: '#F15B46'
+              from: 0,
+              to: Infinity,
+              color: '#22c55e'
             }, {
-              from: -45,
+              from: -Infinity,
               to: 0,
-              color: '#FEB019'
-            }]
+              color: '#ef4444'
+            }],
           },
-          columnWidth: '80%',
         }
+      }
+
+      opts.annotations = {
+        yaxis: [
+          {
+            y: 0,
+            borderColor: '#000000'
+          }
+        ]
       }
       return opts
     },
+
     getRevenuesOptions() {
-      const opts = this.makeChartOptions('Revenues', 'Revenues')
+      const opts = this.makeChartOptions('Revenues')
       opts.chart.stacked = true;
-      opts.chart.stackType = undefined;
+      opts.stroke = {
+        width: 2,
+        curve: 'straight'
+      }
       return opts;
     },
+
     getCostsOptions() {
-      const opts = this.makeChartOptions('Costs', 'Costs')
+      const opts = this.makeChartOptions('Costs')
       opts.chart.stacked = true;
-      opts.chart.stackType = undefined;
+      opts.stroke = {
+        width: 2,
+        curve: 'straight'
+      }
       return opts;
     },
+
     getPayrollCostsOptions() {
-      const opts = this.makeChartOptions('Payroll Costs', 'Payroll Costs')
+      const opts = this.makeChartOptions('Payroll Costs')
       opts.chart.stacked = true;
-      opts.chart.stackType = undefined;
+      opts.stroke = {
+        width: 2,
+        curve: 'straight'
+      }
       return opts;
     },
+
     getHeadcountOptions() {
-      const opts = this.makeChartOptions('Headcount', 'Headcount')
+      const opts = this.makeChartOptions('Headcount')
       opts.chart.stacked = true;
-      opts.chart.stackType = undefined;
       return opts;
     },
-    makeChartOptions(title, yAxisTitle) {
+
+    makeChartOptions(title) {
       return {
         chart: {
-          stackType: '100%',
           toolbar: {
             show: true,
               tools: {
@@ -248,15 +343,15 @@ export default {
               },
             },
         },
+        colors: [
+            '#22c55e', '#0ea5e9', '#f59e0b', '#ef4444',
+            '#14b8a6', '#6366f1', '#f97316', '#ec4899',
+            '#84cc16', '#06b6d4', '#f43f5e', '#a855f7'
+        ],
         dataLabels: {
           enabled: false
         },
-        stroke: {
-          width: 2,
-          curve: 'straight'
-        },
         xaxis: {
-          categories: [],
           type: 'datetime',
         },
         yaxis: {
@@ -265,7 +360,7 @@ export default {
               return (val).toFixed(0);
             },
           },
-          title: {text: yAxisTitle},
+          title: {text: title},
         },
         tooltip: {
           y: {
@@ -279,9 +374,6 @@ export default {
           horizontalAlign: 'left',
           offsetX: 0
         },
-        theme: {
-          palette: 'palette10',
-        },
         title: {text: title},
         grid: {
           row: {
@@ -290,26 +382,64 @@ export default {
           },
         },
       }
+    },
+
+    async refreshModelData() {
+
+      this.statusMessage = "Refreshing models..."
+
+      this.modelMeta = await getModelMeta(this.modelId);
+
+      try {
+        this.revenueState = await useSheetUpdate().getRevenueSheet(this.modelId);
+      } catch (error) {
+        console.log(error);
+      }
+
+      try {
+        this.costState = await useSheetUpdate().getCostSheet(this.modelId);
+      } catch (e) {
+        console.log(e)
+      }
+
+      try {
+        this.payrollState = await useSheetUpdate().getPayroll(this.modelId);
+      } catch (e) {
+        console.log(e)
+      }
+
+      this.statusMessage = this.defaultStatusMessage
+
+    },
+    calculateData() {
+
+      this.statusMessage = "Processing data..."
+
+      // convert the string date to a date object
+      const dateParts = this.modelMeta.starting_month.split('-');
+      const startingDate = new Date(Number(dateParts[0]), Number(dateParts[1]) - 1, Number(dateParts[2]));
+
+
+      // calculate the dashboard data
+      const newDashboardData = useCalculateDashboardProfits(
+          this.revenueState, this.costState, this.payrollState, startingDate, this.startingBalance
+      );
+
+      this.dashboardData = {...newDashboardData};
+
+      this.profitChartOptions = {...this.getProfitChartOptions()};
+      this.cashBalanceOptions = {...this.getCashBalanceOptions()};
+      this.revenuesOptions = {...this.getRevenuesOptions()};
+      this.costsOptions = {...this.getCostsOptions()};
+      this.payrollCostsOptions = {...this.getPayrollCostsOptions()};
+      this.headcountOptions = {...this.getHeadcountOptions()};
+
+      this.statusMessage = this.defaultStatusMessage
     }
   },
   async mounted() {
 
-    // convert the string date to a date object
-    const dateParts = this.modelMeta.starting_month.split('-');
-    const startingDate = new Date(Number(dateParts[0]), Number(dateParts[1]) - 1, Number(dateParts[2]));
-
-
-    // calculate the dashboard data
-    this.dashboardData = useCalculateDashboardProfits(
-        this.revenueState, this.costState, this.payrollState, startingDate, 5000
-    );
-
-    this.profitChartOptions = {...this.getProfitChartOptions()};
-    this.cashBalanceOptions = {...this.getCashBalanceOptions()};
-    this.revenuesOptions = {...this.getRevenuesOptions()};
-    this.costsOptions = {...this.getCostsOptions()};
-    this.payrollCostsOptions = {...this.getPayrollCostsOptions()};
-    this.headcountOptions = {...this.getHeadcountOptions()};
+    this.calculateData()
 
     // fixes rendering issue in apexcharts if width is not set to a fixed pixel width
     // https://github.com/apexcharts/apexcharts.js/issues/1077#issuecomment-984386146

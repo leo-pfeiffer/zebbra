@@ -1,6 +1,6 @@
 export interface DashboardSeriesElement {
     name: string,
-    data: [Number, Number][]
+    data: [number, number][]
 }
 
 export interface DashboardData {

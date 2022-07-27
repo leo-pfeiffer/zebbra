@@ -24,6 +24,7 @@ export interface Employee {
 export interface ModelMeta {
     name: string,
     starting_month:string,
+    starting_balance:number,
     admins: string[],
     editors: string[],
     viewers: string[],
