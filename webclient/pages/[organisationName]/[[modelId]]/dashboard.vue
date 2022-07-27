@@ -185,7 +185,7 @@ export default {
   },
   methods: {
     getProfitChartOptions() {
-      const opts = this.makeChartOptions('Profits', 'Profits')
+      const opts = this.makeChartOptions('Profits')
       opts.annotations = {
         yaxis: [
           {
@@ -194,25 +194,35 @@ export default {
           }
         ]
       }
+
+      opts.stroke = {
+        width: 2,
+            curve: 'straight'
+      }
+
+      opts.colors = ['#0ea5e9']
+
       return opts;
     },
     getCashBalanceOptions() {
-      const opts = this.makeChartOptions('Cash Balance', 'Cash Balance')
+      const opts = this.makeChartOptions('Cash Balance')
       opts.plotOptions = {
         bar: {
+          borderRadius: 0,
           colors: {
             ranges: [{
               from: 0,
               to: Infinity,
               color: '#22c55e'
             }, {
-              from: 0,
-              to: -Infinity,
+              from: -Infinity,
+              to: 0,
               color: '#ef4444'
-            }]
+            }],
           },
         }
       }
+
       opts.annotations = {
         yaxis: [
           {
@@ -225,33 +235,40 @@ export default {
       return opts
     },
     getRevenuesOptions() {
-      const opts = this.makeChartOptions('Revenues', 'Revenues')
+      const opts = this.makeChartOptions('Revenues')
       opts.chart.stacked = true;
-      opts.chart.stackType = undefined;
+      opts.stroke = {
+        width: 2,
+        curve: 'straight'
+      }
       return opts;
     },
     getCostsOptions() {
-      const opts = this.makeChartOptions('Costs', 'Costs')
+      const opts = this.makeChartOptions('Costs')
       opts.chart.stacked = true;
-      opts.chart.stackType = undefined;
+      opts.stroke = {
+        width: 2,
+        curve: 'straight'
+      }
       return opts;
     },
     getPayrollCostsOptions() {
-      const opts = this.makeChartOptions('Payroll Costs', 'Payroll Costs')
+      const opts = this.makeChartOptions('Payroll Costs')
       opts.chart.stacked = true;
-      opts.chart.stackType = undefined;
+      opts.stroke = {
+        width: 2,
+        curve: 'straight'
+      }
       return opts;
     },
     getHeadcountOptions() {
-      const opts = this.makeChartOptions('Headcount', 'Headcount')
+      const opts = this.makeChartOptions('Headcount')
       opts.chart.stacked = true;
-      opts.chart.stackType = undefined;
       return opts;
     },
-    makeChartOptions(title, yAxisTitle) {
+    makeChartOptions(title) {
       return {
         chart: {
-          stackType: '100%',
           toolbar: {
             show: true,
               tools: {
@@ -274,12 +291,7 @@ export default {
         dataLabels: {
           enabled: false
         },
-        stroke: {
-          width: 2,
-          curve: 'straight'
-        },
         xaxis: {
-          categories: [],
           type: 'datetime',
         },
         yaxis: {
@@ -288,7 +300,7 @@ export default {
               return (val).toFixed(0);
             },
           },
-          title: {text: yAxisTitle},
+          title: {text: title},
         },
         tooltip: {
           y: {
