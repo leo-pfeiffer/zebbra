@@ -71,6 +71,13 @@ export default {
         changingEnabled: Boolean,
         userIsViewer: Boolean
     },
+    mounted () {
+        if(this.sectionName === "") {
+            this.sectionNameChangeSelected = true;
+        } else {
+            this.sectionNameChangeSelected = false;
+        }
+    },
     methods: {
         toggleSectionNameChange() {
             if (!this.sectionNameChangeSelected && !this.userIsViewer) {
