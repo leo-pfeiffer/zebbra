@@ -260,7 +260,7 @@ export default {
 
     },
 
-    getProfitChartOptions() {
+    getProfitChartOptions(showZeroLine:boolean) {
       const opts = this.makeChartOptions('Net Income')
       opts.subtitle = {
         text: 'Total net income per month',
@@ -270,14 +270,6 @@ export default {
         }
 
       };
-      opts.annotations = {
-        yaxis: [
-          {
-            y: 0,
-            borderColor: '#000000',
-          }
-        ]
-      }
 
       opts.stroke = {
         width: 2,
@@ -286,10 +278,21 @@ export default {
 
       opts.colors = ['#0ea5e9']
 
+      if (showZeroLine) {
+        opts.annotations = {
+          yaxis: [
+            {
+              y: 0,
+              borderColor: '#000000',
+            }
+          ]
+        }
+      }
+
       return opts;
     },
 
-    getCashBalanceOptions() {
+    getCashBalanceOptions(showZeroLine:boolean) {
       const opts = this.makeChartOptions('Cash Balance');
       opts.subtitle = {
         text: 'Total cash reserves per month (approximated)',
@@ -316,14 +319,17 @@ export default {
         }
       }
 
-      opts.annotations = {
-        yaxis: [
-          {
-            y: 0,
-            borderColor: '#000000'
-          }
-        ]
+      if (showZeroLine) {
+        opts.annotations = {
+          yaxis: [
+            {
+              y: 0,
+              borderColor: '#000000',
+            }
+          ]
+        }
       }
+
       return opts
     },
 
@@ -534,8 +540,18 @@ export default {
 
       this.dashboardData = { ...newDashboardData };
 
-      this.profitChartOptions = { ...this.getProfitChartOptions() };
-      this.cashBalanceOptions = { ...this.getCashBalanceOptions() };
+      const showZeroLine = (arr) => {
+        const countNegative = (arr) => arr.filter(x => x < 0).length;
+        const countPositive = (arr) => arr.filter(x => x > 0).length;
+        return (countPositive(arr)) > 0 && (countNegative(arr) > 0)
+      }
+
+      // determine if we need to show the zero line
+      const zeroLineProfit = showZeroLine(this.dashboardData.profit[0].data.map(e => e[1]))
+      const zeroLineCash = showZeroLine(this.dashboardData.cashBalance[0].data.map(e => e[1]))
+
+      this.profitChartOptions = { ...this.getProfitChartOptions(zeroLineProfit) };
+      this.cashBalanceOptions = { ...this.getCashBalanceOptions(zeroLineCash) };
       this.revenuesOptions = { ...this.getRevenuesOptions() };
       this.costsOptions = { ...this.getCostsOptions() };
       this.payrollCostsOptions = { ...this.getPayrollCostsOptions() };
