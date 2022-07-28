@@ -2,6 +2,9 @@
 
 const config = useRuntimeConfig();
 
+console.log("setup")
+console.log(config);
+
 </script>
 
 <template>
@@ -100,6 +103,12 @@ export default {
     },
 
     async login() {
+
+      console.log("login")
+      console.log(this.config);
+      console.log(this.$config);
+      console.log(this);
+
       if (!this.promptForOtp) {
         await this.checkOtp();
       } else {
