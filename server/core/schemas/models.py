@@ -12,11 +12,21 @@ from core.schemas.sheets import Sheet
 
 class Employee(BaseModel):
     id: str = Field(default_factory=lambda: str(int(uuid.uuid4())), alias="_id")
-    name: str
+    name: str | None
     start_date: DateString
     end_date: DateString | None
-    title: str
-    department: str
+    title: str | None
+    department: str | None
+    monthly_salary: int
+    from_integration: bool  # has this employee been imported from an integration?
+
+
+class UpdateEmployee(BaseModel):
+    name: str | None
+    start_date: DateString
+    end_date: DateString | None
+    title: str | None
+    department: str | None
     monthly_salary: int
     from_integration: bool  # has this employee been imported from an integration?
 
@@ -33,6 +43,7 @@ class ModelMeta(BaseModel):
     viewers: list[PyObjectId]  # list of user_ids
     workspace: PyObjectId  # workspace id
     starting_month: date
+    starting_balance: float = 0
 
     class Config:
         allow_population_by_field_name = True

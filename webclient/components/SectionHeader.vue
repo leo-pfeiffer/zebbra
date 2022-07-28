@@ -8,16 +8,27 @@ const revenueState = useRevenueState();
 
     <div
         class="group flex text-xs text-zinc-900 py-2 px-3 min-w-[470px] max-w-[470px] border-zinc-300 border-l border-t">
-        <span class="font-medium" v-if="!sectionNameChangeSelected" @dblclick="toggleSectionNameChange"><li class="marker:text-zinc-500">{{ sectionName }}</li></span>
-        <span v-else>
-            <input @keydown.enter="$emit('changeSectionName', sectionIndex, sectionNameInput); toggleSectionNameChange()"
+        <span class="font-medium" v-if="!changingEnabled">
+        <i v-if="sectionName === 'Payroll'" class="text-zinc-500 bi bi-people-fill -ml-1 mr-2"></i>
+        <i v-else-if="sectionName === 'Cost of Goods Sold'" class="text-zinc-500 bi bi-wallet-fill -ml-1 mr-2"></i>
+        <i v-else-if="sectionName === 'Operational Costs'" class="text-zinc-500 bi bi-hammer -ml-1 mr-2"></i>
+        <i v-else-if="sectionName === 'Other Costs'" class="text-zinc-500 bi bi-layers-fill -ml-1 mr-2"></i>
+        {{sectionName }}</span>
+        <span class="font-medium" v-if="!sectionNameChangeSelected && changingEnabled"
+            @dblclick="toggleSectionNameChange">
+            <li class="marker:text-zinc-500">{{ sectionName }}</li>
+        </span>
+        <span v-else-if="sectionNameChangeSelected && changingEnabled">
+            <input
+                @keydown.enter="$emit('changeSectionName', sectionIndex, sectionNameInput); toggleSectionNameChange()"
                 @keydown.esc="toggleSectionNameChange()" v-model="sectionNameInput"
                 class="bg-zinc-100/0 focus:border-b border-sky-600 focus:outline-none placeholder:text-zinc-500"
                 type="text" placeholder="Change Section name"></span>
-        <span class="ml-2 hidden group-hover:block text-[10px]"><button @click="toggleSectionDeleteModal"><i
-                    title="Delete section" class="bi bi-x-lg text-zinc-500 hover:text-zinc-700"></i></button></span>
+        <span v-if="changingEnabled && !userIsViewer" class="ml-2 hidden group-hover:block text-[10px]"><button
+                @click="toggleSectionDeleteModal"><i title="Delete section"
+                    class="bi bi-x-lg text-zinc-500 hover:text-zinc-700"></i></button></span>
         <Teleport to="body">
-            <div v-show="deleteSectionModalOpen"
+            <div v-if="changingEnabled && !userIsViewer" v-show="deleteSectionModalOpen"
                 class="absolute left-0 top-1/3 w-full flex justify-center align-middle">
                 <div class="p-6 border h-max shadow-lg bg-white border-zinc-300 rounded z-50">
                     <div>
@@ -56,18 +67,27 @@ export default {
     },
     props: {
         sectionIndex: Number,
-        sectionName: String
+        sectionName: String,
+        changingEnabled: Boolean,
+        userIsViewer: Boolean
+    },
+    mounted () {
+        if(this.sectionName === "") {
+            this.sectionNameChangeSelected = true;
+        } else {
+            this.sectionNameChangeSelected = false;
+        }
     },
     methods: {
         toggleSectionNameChange() {
-            if (!this.sectionNameChangeSelected) {
+            if (!this.sectionNameChangeSelected && !this.userIsViewer) {
                 this.sectionNameChangeSelected = true;
             } else {
                 this.sectionNameChangeSelected = false;
             }
         },
         toggleSectionDeleteModal() {
-            if (!this.deleteSectionModalOpen) {
+            if (!this.deleteSectionModalOpen && !this.userIsViewer) {
                 this.deleteSectionModalOpen = true;
             } else {
                 this.deleteSectionModalOpen = false;

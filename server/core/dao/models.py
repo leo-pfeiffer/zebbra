@@ -91,9 +91,6 @@ async def get_users_for_model(model_id: str):
     if model is None:
         raise DoesNotExistException("Model does not exist")
 
-    # admin_set = set([str(x) for x in model.meta.admins])
-    # editor_set = set([str(x) for x in model.meta.editors])
-    # viewer_set = set([str(x) for x in model.meta.viewers])
     admin_set = set(model.meta.admins)
     editor_set = set(model.meta.editors)
     viewer_set = set(model.meta.viewers)
@@ -143,9 +140,22 @@ async def add_admin_to_model(user_id: PyObjectId, model_id: str):
     if not await user_exists(user_id):
         raise DoesNotExistException("User does not exist")
 
-    await db.models.update_one(
-        {"_id": model_id}, {"$push": {"meta.admins": str(user_id)}}
-    )
+    if not await is_admin(model_id, user_id):
+
+        # add admin
+        await db.models.update_one(
+            {"_id": model_id}, {"$push": {"meta.admins": str(user_id)}}
+        )
+
+        # remove viewer
+        await db.models.update_one(
+            {"_id": model_id}, {"$pull": {"meta.viewers": str(user_id)}}
+        )
+
+        # remove editor
+        await db.models.update_one(
+            {"_id": model_id}, {"$pull": {"meta.editors": str(user_id)}}
+        )
 
 
 async def add_editor_to_model(user_id: PyObjectId, model_id: str):
@@ -154,6 +164,11 @@ async def add_editor_to_model(user_id: PyObjectId, model_id: str):
 
     # don't add as editor if already is editor
     if not await is_editor(model_id, user_id):
+
+        # remove all permissions first, needed for admin logic checks
+        await remove_user_from_model(user_id, model_id)
+
+        # add editor
         await db.models.update_one(
             {"_id": model_id}, {"$push": {"meta.editors": str(user_id)}}
         )
@@ -165,19 +180,24 @@ async def add_viewer_to_model(user_id: PyObjectId, model_id: str):
 
     # don't add as viewer if already is viewer
     if not await is_viewer(model_id, user_id):
+
+        # remove all permissions first, needed for admin logic checks
+        await remove_user_from_model(user_id, model_id)
+
+        # add viewer
         await db.models.update_one(
             {"_id": model_id}, {"$push": {"meta.viewers": str(user_id)}}
         )
 
 
-async def remove_admin_from_model(user_id: PyObjectId, model_id: str):
+async def remove_user_from_model(user_id: PyObjectId, model_id: str):
     if not await user_exists(user_id):
         raise DoesNotExistException("User does not exist")
 
     model = await get_model_by_id(model_id)
 
     # must have at least one admin
-    if len(model.meta.admins) == 1:
+    if len(model.meta.admins) == 1 and str(model.meta.admins[0]) == str(user_id):
         raise CardinalityConstraintFailedException("Model must have at least one admin")
 
     # must not remove workspace admin
@@ -185,23 +205,17 @@ async def remove_admin_from_model(user_id: PyObjectId, model_id: str):
     if str(user_id) == str(workspace.admin):
         raise BusinessLogicException("Cannot remove workspace admin from model.")
 
+    # remove admin
     await db.models.update_one(
         {"_id": model_id}, {"$pull": {"meta.admins": str(user_id)}}
     )
 
-
-async def remove_viewer_from_model(user_id: PyObjectId, model_id: str):
-    if not await user_exists(user_id):
-        raise DoesNotExistException("User does not exist")
-
+    # remove viewer
     await db.models.update_one(
         {"_id": model_id}, {"$pull": {"meta.viewers": str(user_id)}}
     )
 
-
-async def remove_editor_from_model(user_id: PyObjectId, model_id: str):
-    if not await user_exists(user_id):
-        raise DoesNotExistException("User does not exist")
+    # remove editor
     await db.models.update_one(
         {"_id": model_id}, {"$pull": {"meta.editors": str(user_id)}}
     )
@@ -216,6 +230,16 @@ async def set_starting_month(model_id: str, starting_month: date):
     await db.models.update_one(
         {"_id": model_id}, {"$set": {"meta.starting_month": string_date}}
     )
+
+
+async def set_starting_balance(model_id: str, starting_balance: float):
+    await db.models.update_one(
+        {"_id": model_id}, {"$set": {"meta.starting_balance": starting_balance}}
+    )
+
+
+async def delete_model(model_id: PyObjectId | str):
+    return await db.models.delete_one({"_id": str(model_id)})
 
 
 async def create_model(admin_id: PyObjectId, model_name: str, workspace_id: PyObjectId):
@@ -242,6 +266,7 @@ async def create_model(admin_id: PyObjectId, model_name: str, workspace_id: PyOb
             "editors": [],
             "viewers": [],
             "starting_month": date.today(),
+            "starting_balance": 0
         }
     )
     sheets = create_default_sheets()
