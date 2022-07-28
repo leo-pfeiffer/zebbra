@@ -83,7 +83,7 @@ export default {
   methods: {
     async checkOtp () {
       const data = await $fetch(
-          `${this.config.public.backendUrlBase}/user/requiresOtp`,{ method: 'GET',
+          `${this.$config.public.backendUrlBase}/user/requiresOtp`,{ method: 'GET',
             params: {username: this.form.username}
           }
       ).then((data:OtpRequiredResponse) => {
@@ -103,11 +103,6 @@ export default {
     },
 
     async login() {
-
-      console.log("login")
-      console.log(this.config);
-      console.log(this.$config);
-      console.log(this);
 
       if (!this.promptForOtp) {
         await this.checkOtp();
@@ -129,7 +124,7 @@ export default {
       }
 
       const data = await $fetch(
-        `${this.config.public.backendUrlBase}/token`,{ method: 'POST',
+        `${this.$config.public.backendUrlBase}/token`,{ method: 'POST',
         body: loginBody }
         ).then((data:PostTokenResponse) => {
           
