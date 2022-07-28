@@ -11,7 +11,6 @@ from api.utils.assertions import (
 )
 from core.dao.invite_codes import add_invite_code
 from core.dao.users import (
-    add_user_to_workspace,
     remove_user_from_workspace,
     user_exists,
 )
@@ -24,6 +23,7 @@ from core.dao.workspaces import (
     is_user_admin_of_workspace,
     change_workspace_admin,
     get_users_of_workspace,
+    add_user_to_workspace,
 )
 from core.exceptions import (
     UniqueConstraintFailedException,

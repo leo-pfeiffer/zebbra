@@ -66,7 +66,8 @@ async def merge_payroll_integration_data(
             workspace_id, adapter.integration()
         ):
             employees_from_adapter = await adapter.get_data(from_date)
-            employees.extend(employees_from_adapter)
+            for e in employees_from_adapter:
+                employees.insert(0, e)
 
     return employees
 

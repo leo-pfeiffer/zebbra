@@ -1,6 +1,7 @@
 from datetime import date
 from typing import Literal
 
+from dateutil.relativedelta import relativedelta
 from fastapi import APIRouter, Depends, HTTPException
 from starlette import status
 
@@ -16,14 +17,11 @@ from core.dao.models import (
     add_admin_to_model,
     add_editor_to_model,
     add_viewer_to_model,
-    remove_viewer_from_model,
-    remove_editor_from_model,
     is_admin,
     set_name,
     create_model,
     is_editor,
     model_exists,
-    remove_admin_from_model,
     get_users_for_model,
     get_revenues_sheet,
     get_costs_sheet,
@@ -31,6 +29,8 @@ from core.dao.models import (
     update_costs_sheet,
     set_starting_month,
     update_model_employees,
+    delete_model,
+    remove_user_from_model, set_starting_balance,
 )
 from core.exceptions import (
     DoesNotExistException,
@@ -38,7 +38,14 @@ from core.exceptions import (
     CardinalityConstraintFailedException,
     BusinessLogicException,
 )
-from core.schemas.models import Model, ModelUser, ModelMeta, Employee, Payroll
+from core.schemas.models import (
+    Model,
+    ModelUser,
+    ModelMeta,
+    Employee,
+    Payroll,
+    UpdateEmployee,
+)
 from core.schemas.sheets import Sheet
 from core.schemas.users import User
 from core.schemas.utils import Message, PyObjectId
@@ -139,6 +146,12 @@ async def grant_permission_for_model(
             detail="User does not exist.",
         )
 
+    except BusinessLogicException:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot demote workspace admin.",
+        )
+
 
 @router.post(
     "/model/revoke",
@@ -150,14 +163,12 @@ async def grant_permission_for_model(
 )
 async def revoke_permission_for_model(
     model_id: str,
-    role: Literal["admin", "editor", "viewer"],
     user_id: PyObjectId,
     current_user: User = Depends(get_current_active_user),
 ):
     """
-    Revoke a permission from a user for a model.\n
+    Revoke all permissions from a user for a model.\n
         model_id: Model for which to revoke permission from
-        role: Permission to be revoked ["admin", "editor", "viewer"]
         user_id: User from whom the permission is revoked
     """
     await _assert_model_exists(model_id)
@@ -167,27 +178,20 @@ async def revoke_permission_for_model(
     await assert_model_access_admin(current_user.id, model_id)
 
     try:
-        if role == "admin":
-            try:
-                await remove_admin_from_model(user_id, model_id)
-            except CardinalityConstraintFailedException:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Each model must have at least one admin.",
-                )
-            except BusinessLogicException:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Cannot remove workspace admin from model.",
-                )
+        try:
+            await remove_user_from_model(user_id, model_id)
+        except CardinalityConstraintFailedException:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Each model must have at least one admin.",
+            )
+        except BusinessLogicException:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cannot remove workspace admin from model.",
+            )
 
-        elif role == "editor":
-            await remove_editor_from_model(user_id, model_id)
-
-        elif role == "viewer":
-            await remove_viewer_from_model(user_id, model_id)
-
-        return {"message": f"Access revoked ({role})"}
+        return {"message": f"Access revoked."}
 
     except DoesNotExistException:
         raise HTTPException(
@@ -237,13 +241,38 @@ async def change_starting_month_of_model(
     """
     Set the starting month of a model. The starting month is provided as a date\n
         model_id: Model whose starting month to change
-        startingMonth: New starting month
+        starting_month: New starting month
     """
     await _assert_model_exists(model_id)
-    # only editor can rename
+    # only editor can set start month
     await assert_model_access_can_edit(current_user.id, model_id)
     await set_starting_month(model_id, starting_month)
     return {"message": f"Starting month set ({starting_month})"}
+
+
+@router.post(
+    "/model/startingBalance",
+    response_model=Message,
+    tags=["model"],
+    responses={
+        403: {"description": "User does not have access to the resource."},
+    },
+)
+async def change_starting_balance_of_model(
+    model_id: str,
+    starting_balance: float,
+    current_user: User = Depends(get_current_active_user),
+):
+    """
+    Set the starting balance of a model.\n
+        model_id: Model whose starting balance to change
+        starting_balance: New starting month
+    """
+    await _assert_model_exists(model_id)
+    # only editor can set balance
+    await assert_model_access_can_edit(current_user.id, model_id)
+    await set_starting_balance(model_id, starting_balance)
+    return {"message": f"Starting balance set ({starting_balance})"}
 
 
 @router.post(
@@ -278,6 +307,28 @@ async def create_new_model(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="User is not in the workspace.",
         )
+
+
+@router.delete(
+    "/model/delete",
+    response_model=Message,
+    tags=["model"],
+    responses={
+        400: {"description": "Model does not exist."},
+        403: {"description": "User is not admin."},
+    },
+)
+async def delete_existing_model(
+    model_id: str, current_user: User = Depends(get_current_active_user)
+):
+    """
+    Delete an existing model\n
+        model_id:
+    """
+    await assert_model_exists(model_id)
+    await assert_model_access_admin(user_id=current_user.id, model_id=model_id)
+    await delete_model(model_id)
+    return {"message": "Model successfully deleted."}
 
 
 @router.get(
@@ -420,8 +471,12 @@ async def retrieve_model_payroll(
     await merge_payroll_integration_data(
         model.payroll.employees, str(model.meta.workspace), model.meta.starting_month
     )
+
+    from_date = model.meta.starting_month
+    to_date = from_date + relativedelta(months=23)
+
     model.payroll.payroll_values = aggregate_payroll_info(
-        model.payroll.employees, model.meta.starting_month
+        model.payroll.employees, model.meta.starting_month, to_date
     )
     return model.payroll
 
@@ -436,7 +491,7 @@ async def retrieve_model_payroll(
 )
 async def update_model_payroll(
     model_id: str,
-    employee_data: list[Employee],
+    employee_data: list[UpdateEmployee],
     current_user: User = Depends(get_current_active_user),
 ):
     await _assert_model_exists(model_id)
@@ -444,7 +499,11 @@ async def update_model_payroll(
     await _assert_access_can_edit(current_user.id, model_id)
 
     # filter out integration data
-    filtered = [employee for employee in employee_data if not employee.from_integration]
+    filtered = [
+        Employee(**employee.dict())
+        for employee in employee_data
+        if not employee.from_integration
+    ]
 
     await update_model_employees(model_id, filtered)
 
@@ -452,8 +511,12 @@ async def update_model_payroll(
     await merge_payroll_integration_data(
         model.payroll.employees, str(model.meta.workspace), model.meta.starting_month
     )
+
+    from_date = model.meta.starting_month
+    to_date = from_date + relativedelta(months=23)
+
     model.payroll.payroll_values = aggregate_payroll_info(
-        model.payroll.employees, model.meta.starting_month
+        model.payroll.employees, from_date, to_date
     )
     return model.payroll
 

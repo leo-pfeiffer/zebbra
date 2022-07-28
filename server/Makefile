@@ -15,12 +15,6 @@ setup_db:
 	chmod +x scripts/setup_db.sh
 	scripts/setup_db.sh
 
-.PHONY: setup_db_no_integrations
-# Run the setup db script
-setup_db_no_integrations:
-	chmod +x scripts/setup_db_no_integrations.sh
-	scripts/setup_db_no_integrations.sh
-
 .PHONY: run_server
 # Start the Zebbra API server
 run_server:

@@ -16,6 +16,7 @@ pymongo==4.1.1
 
 # test
 pytest==7.1.2
+locust==2.10.1
 
 # utils
 email-validator==1.2.1

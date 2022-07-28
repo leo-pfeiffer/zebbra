@@ -49,22 +49,23 @@ const gustoState = useState<GetIntegrationProvidersResponse>('gustoState', () =>
                                     height="19px"></div>
                             <div class="font-medium text-zinc-900 text-xs ml-1.5 flex align-middle py-0.5">
                                 <div><span class="mr-2">Connect Zebbra with Xero Accounting</span><span
-                                        v-if="xeroState.connected"
+                                        v-if="xeroState.connected && !xeroState.requires_reconnect"
                                         class="text-[10px] uppercase bg-green-500 text-neutral-50 px-1 py-0.5 rounded">Connected</span>
+                                        <span
+                                        v-else-if="xeroState.requires_reconnect"
+                                        class="text-[10px] uppercase bg-red-500 text-neutral-50 px-1 py-0.5 rounded">Reconnect</span>
                                 </div>
                             </div>
                         </div>
                         <div class="flex text-xs text-left">
                             <div class="text-zinc-500 mr-3">
-                                Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum
-                                has been the industry's standard dummy text
+                                Once you connected Xero, you will be able to add your actual accounting data such as revenues, profits or cost centers to both the revenues as well as cost models.
                             </div>
                             <div class="min-w-fit">
-                                <a v-if="!xeroState.connected"
-                                    :href="`${config.public.backendUrlBase}/integration/xero/login?workspace_id=${userState.workspaces[0]._id}&access_token=${accessToken}`"
-                                    target="_blank"
+                                <button type="button" v-if="!xeroState.connected || xeroState.requires_reconnect"
+                                    @click="connectXero"
                                     class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-xs px-2 py-1 border border-zinc-300 rounded text-zinc-700">Connect
-                                    Xero</a>
+                                    Xero</button>
                                 <button v-else @click="toggleXeroDisconnectModal"
                                     class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-xs px-2 py-1 border border-zinc-300 rounded text-red-600">Disconnect
                                     Xero</button>
@@ -101,22 +102,23 @@ const gustoState = useState<GetIntegrationProvidersResponse>('gustoState', () =>
                                     height="19px"></div>
                             <div class="font-medium text-zinc-900 text-xs ml-1.5 flex align-middle py-0.5">
                                 <div><span class="mr-2">Connect Zebbra with Gusto</span><span
-                                        v-if="gustoState.connected"
+                                        v-if="gustoState.connected && !gustoState.requires_reconnect"
                                         class="text-[10px] uppercase bg-green-500 text-neutral-50 px-1 py-0.5 rounded">Connected</span>
+                                        <span
+                                        v-else-if="gustoState.requires_reconnect"
+                                        class="text-[10px] uppercase bg-red-500 text-neutral-50 px-1 py-0.5 rounded">Reconnect</span>
                                 </div>
                             </div>
                         </div>
                         <div class="flex text-xs text-left">
                             <div class="text-zinc-500 mr-3">
-                                Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum
-                                has been the industry's standard dummy text
+                                Once you connected Gusto, Zebbra will automatically add all your existing employees to the cost model. You will still be able to add new employees to take future hires into account.
                             </div>
                             <div class="min-w-fit">
-                                <a v-if="!gustoState.connected"
-                                    :href="`${config.public.backendUrlBase}/integration/gusto/login?workspace_id=${userState.workspaces[0]._id}&access_token=${accessToken}`"
-                                    target="_blank"
+                                <button type="button" v-if="!gustoState.connected || gustoState.requires_reconnect"
+                                    @click="connectGusto"
                                     class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-xs px-2 py-1 border border-zinc-300 rounded text-zinc-700">Connect
-                                    Gusto</a>
+                                    Gusto</button>
                                 <button v-else @click="toggleGustoDisconnectModal"
                                     class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-xs px-2 py-1 border border-zinc-300 rounded text-red-600">Disconnect
                                     Gusto</button>
@@ -156,13 +158,12 @@ const gustoState = useState<GetIntegrationProvidersResponse>('gustoState', () =>
                         </div>
                         <div class="flex text-xs text-left">
                             <div class="text-zinc-500 mr-3">
-                                Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum
-                                has been the industry's standard dummy text
+                                Due to its open API Zebbra allows you to build custom integrations to any other accounting or payroll software very easily.
                             </div>
                             <div class="min-w-fit">
-                                <a
+                                <NuxtLink to="https://leo-pfeiffer.github.io/zebbra/add_integration/" target="_blank"
                                     class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-xs px-2 py-1 border border-zinc-300 rounded text-zinc-700">Learn
-                                    more <i class="bi bi-arrow-up-right"></i></a>
+                                    more <i class="bi bi-arrow-up-right"></i></NuxtLink> <!-- todo: link -->
                             </div>
                         </div>
                     </div>
@@ -205,6 +206,26 @@ export default {
         },
         closeSuccessMessage(index:number){
             this.successMessages.splice(index, 1)
+        },
+        connectXero() {
+            var w = window.open(`${this.config.public.backendUrlBase}/integration/xero/login?workspace_id=${this.userState.workspaces[0]._id}&access_token=${this.accessToken}`, "_blank");
+
+            const timer = setInterval(() => {
+                if(w.closed) {
+                    clearInterval(timer);
+                    this.updateProviderState();
+                }
+            })
+        },
+        connectGusto() {
+            var w = window.open(`${this.config.public.backendUrlBase}/integration/gusto/login?workspace_id=${this.userState.workspaces[0]._id}&access_token=${this.accessToken}`, "_blank");
+
+            const timer = setInterval(() => {
+                if(w.closed) {
+                    clearInterval(timer);
+                    this.updateProviderState();
+                }
+            })
         },
         async disconnectIntegration(integrationName: string) {
             try {

@@ -32,10 +32,20 @@ export default {
         "bg-fuchsia-400",
         "bg-red-400"
       ];
-      const randomIndex = Math.floor(Math.random() * colors.length);
-      return colors[randomIndex];
+
+      // convert the name into a byte array
+      const utf8Encode = new TextEncoder();
+      const byteArr = utf8Encode.encode(this.firstName + this.lastName);
+
+      // sum up the bytes
+      const byteSum = byteArr.reduce((a, b) => a + b)
+
+      // trim the bytes to get an index from the colors
+      const index = byteSum % colors.length
+
+      return colors[index];
     }
   }
-  }
+}
 
 </script>

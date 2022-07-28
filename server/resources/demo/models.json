@@ -13,7 +13,8 @@
         "62bb11835529faba0704639a"
       ],
       "workspace": "62bc5706a40e85213c27ce29",
-      "starting_month": "2020-01-01"
+      "starting_month": "2020-01-01",
+      "starting_balance": 35000
     },
     "sheets": [
       {
@@ -30,7 +31,7 @@
             "time_series": false,
             "starting_at": 0,
             "first_value_diff": false,
-            "value": "100",
+            "value": "6000",
             "value_1": null,
             "integration_values": null,
             "decimal_places": 0
@@ -49,8 +50,8 @@
                 "time_series": true,
                 "starting_at": 0,
                 "first_value_diff": true,
-                "value": "$-1 * 1.05",
-                "value_1": "100",
+                "value": "$1 * 1.05",
+                "value_1": "15000",
                 "integration_values": null,
                 "decimal_places": 0
               },
@@ -63,7 +64,7 @@
                 "time_series": true,
                 "starting_at": 0,
                 "first_value_diff": false,
-                "value": "100",
+                "value": "3000",
                 "integration_name": "Xero[Total Income]",
                 "value_1": null,
                 "integration_values": null,
@@ -79,7 +80,7 @@
                 "time_series": true,
                 "starting_at": 0,
                 "first_value_diff": false,
-                "value": "#1 + #2",
+                "value": "#279239315394233657096642963847420088465 + #109209513362019443602508755211948987835",
                 "value_1": null,
                 "integration_values": null,
                 "decimal_places": 0
@@ -101,7 +102,7 @@
             "time_series": false,
             "starting_at": 0,
             "first_value_diff": false,
-            "value": "100",
+            "value": "3000",
             "value_1": null,
             "integration_values": null,
             "decimal_places": 0
@@ -109,22 +110,8 @@
         ],
         "sections": [
           {
-            "name": "section1",
+            "name": "Cost of Goods Sold",
             "rows": [
-              {
-                "_id": "269378395487633310845072415860332066579",
-                "name": "row1",
-                "val_type": "number",
-                "editable": true,
-                "var_type": "formula",
-                "time_series": true,
-                "starting_at": 0,
-                "first_value_diff": true,
-                "value": "$-1 * 1.05",
-                "value_1": "100",
-                "integration_values": null,
-                "decimal_places": 0
-              },
               {
                 "_id": "220899290253998228835136291945093028215",
                 "name": "row2",
@@ -134,7 +121,7 @@
                 "time_series": true,
                 "starting_at": 0,
                 "first_value_diff": false,
-                "value": "100",
+                "value": "2500",
                 "integration_name": "Xero[Total Cost of Sales]",
                 "value_1": null,
                 "integration_values": null,
@@ -150,7 +137,73 @@
                 "time_series": true,
                 "starting_at": 0,
                 "first_value_diff": false,
-                "value": "#1 + #2",
+                "value": "#220899290253998228835136291945093028215",
+                "value_1": null,
+                "integration_values": null,
+                "decimal_places": 0
+            }
+          },
+          {
+            "name": "Operational Costs",
+            "rows": [
+              {
+                "_id": "154014396970273800635032943872142491777",
+                "name": "Variable 2",
+                "val_type": "number",
+                "editable": true,
+                "var_type": "formula",
+                "time_series": true,
+                "starting_at": 0,
+                "first_value_diff": true,
+                "value": "$1 * 1.05",
+                "value_1": "1000",
+                "integration_values": null,
+                "decimal_places": 0
+              }
+            ],
+            "end_row": {
+                "_id": "119275764367570197178225826115654655777",
+                "name": "End Row",
+                "val_type": "number",
+                "editable": true,
+                "var_type": "formula",
+                "time_series": true,
+                "starting_at": 0,
+                "first_value_diff": false,
+                "value": "#154014396970273800635032943872142491777",
+                "value_1": null,
+                "integration_values": null,
+                "decimal_places": 0
+            }
+          },
+          {
+            "name": "Other Costs",
+            "rows": [
+              {
+                "_id": "154014396970273800635032943872142491666",
+                "name": "Variable 2",
+                "val_type": "number",
+                "editable": true,
+                "var_type": "formula",
+                "time_series": true,
+                "starting_at": 0,
+                "first_value_diff": true,
+                "value": "$1 * 1.05",
+                "value_1": "1250",
+                "integration_values": null,
+                "decimal_places": 0
+              }
+            ],
+            "end_row": {
+                "_id": "119275764367570197178225826115654655666",
+                "name": "End Row",
+                "val_type": "number",
+                "editable": true,
+                "var_type": "formula",
+                "time_series": true,
+                "starting_at": 0,
+                "first_value_diff": false,
+                "value": "#154014396970273800635032943872142491666",
                 "value_1": null,
                 "integration_values": null,
                 "decimal_places": 0
@@ -164,18 +217,18 @@
       "employees": [
         {
           "_id": "123",
-          "name": "North West",
-          "start_date": "2021-07-12",
+          "name": "Chicago West",
+          "start_date": "2020-01-01",
           "end_date": null,
           "title": "CEO",
           "department": "Management",
-          "monthly_salary": 3810,
+          "monthly_salary": 4110,
           "from_integration": false
         },
         {
           "_id": "456",
           "name": "North West",
-          "start_date": "2021-07-12",
+          "start_date": "2020-03-01",
           "end_date": null,
           "title": "CTO",
           "department": "Technology",
@@ -185,11 +238,11 @@
         {
           "_id": "789",
           "name": "Psalm West",
-          "start_date": "2021-07-12",
+          "start_date": "2020-07-12",
           "end_date": null,
           "title": "CFO",
           "department": "Finance",
-          "monthly_salary": 3810,
+          "monthly_salary": 3570,
           "from_integration": false
         }
       ]
@@ -202,14 +255,13 @@
       "admins": [
         "62bb11835529faba07046398"
       ],
-      "editors": [
-        "62bb11835529faba07046398"
-      ],
+      "editors": [],
       "viewers": [
         "62bb11835529faba0704639b"
       ],
       "workspace": "62bc5706a40e85213c27ce28",
-      "starting_month": "2020-01-01"
+      "starting_month": "2020-01-01",
+      "starting_balance": 15500
     },
     "sheets": [
       {
@@ -226,7 +278,7 @@
             "time_series": false,
             "starting_at": 0,
             "first_value_diff": false,
-            "value": "100",
+            "value": "10000",
             "value_1": null,
             "integration_values": null,
             "decimal_places": 0
@@ -245,8 +297,8 @@
                 "time_series": true,
                 "starting_at": 0,
                 "first_value_diff": true,
-                "value": "$-1 * 1.05",
-                "value_1": "100",
+                "value": "$1 * 1.05",
+                "value_1": "15000",
                 "integration_values": null,
                 "decimal_places": 0
               }
@@ -260,7 +312,7 @@
                 "time_series": true,
                 "starting_at": 0,
                 "first_value_diff": false,
-                "value": "#1 + #2",
+                "value": "#141181939880141659151760477717611728249",
                 "value_1": null,
                 "integration_values": null,
                 "decimal_places": 0
@@ -282,7 +334,7 @@
             "time_series": false,
             "starting_at": 0,
             "first_value_diff": false,
-            "value": "100",
+            "value": "3000",
             "value_1": null,
             "integration_values": null,
             "decimal_places": 0
@@ -290,33 +342,99 @@
         ],
         "sections": [
           {
-            "name": "section1",
+            "name": "Cost of Goods Sold",
             "rows": [
               {
                 "_id": "154014396970273800635032943872142491846",
-                "name": "row1",
+                "name": "Variable 1",
                 "val_type": "number",
                 "editable": true,
                 "var_type": "formula",
                 "time_series": true,
                 "starting_at": 0,
                 "first_value_diff": true,
-                "value": "$-1 * 1.05",
-                "value_1": "100",
+                "value": "$1 * 1.05",
+                "value_1": "2000",
                 "integration_values": null,
                 "decimal_places": 0
               }
             ],
             "end_row": {
                 "_id": "119275764367570197178225826115654655639",
-                "name": "end_row",
+                "name": "End Row",
                 "val_type": "number",
                 "editable": true,
                 "var_type": "formula",
                 "time_series": true,
                 "starting_at": 0,
                 "first_value_diff": false,
-                "value": "#1 + #2",
+                "value": "#154014396970273800635032943872142491846",
+                "value_1": null,
+                "integration_values": null,
+                "decimal_places": 0
+            }
+          },
+          {
+            "name": "Operational Costs",
+            "rows": [
+              {
+                "_id": "154014396970273800635032943872142491999",
+                "name": "Variable 2",
+                "val_type": "number",
+                "editable": true,
+                "var_type": "formula",
+                "time_series": true,
+                "starting_at": 0,
+                "first_value_diff": true,
+                "value": "$1 * 1.05",
+                "value_1": "2200",
+                "integration_values": null,
+                "decimal_places": 0
+              }
+            ],
+            "end_row": {
+                "_id": "119275764367570197178225826115654655999",
+                "name": "End Row",
+                "val_type": "number",
+                "editable": true,
+                "var_type": "formula",
+                "time_series": true,
+                "starting_at": 0,
+                "first_value_diff": false,
+                "value": "#154014396970273800635032943872142491999",
+                "value_1": null,
+                "integration_values": null,
+                "decimal_places": 0
+            }
+          },
+          {
+            "name": "Other Costs",
+            "rows": [
+              {
+                "_id": "154014396970273800635032943872142491888",
+                "name": "Variable 2",
+                "val_type": "number",
+                "editable": true,
+                "var_type": "formula",
+                "time_series": true,
+                "starting_at": 0,
+                "first_value_diff": true,
+                "value": "$1 * 1.05",
+                "value_1": "2500",
+                "integration_values": null,
+                "decimal_places": 0
+              }
+            ],
+            "end_row": {
+                "_id": "119275764367570197178225826115654655888",
+                "name": "End Row",
+                "val_type": "number",
+                "editable": true,
+                "var_type": "formula",
+                "time_series": true,
+                "starting_at": 0,
+                "first_value_diff": false,
+                "value": "#154014396970273800635032943872142491888",
                 "value_1": null,
                 "integration_values": null,
                 "decimal_places": 0
@@ -330,17 +448,17 @@
       "employees": [      {
           "_id": "123",
           "name": "Regniae Carter",
-          "start_date": "2021-07-12",
+          "start_date": "2020-01-01",
           "end_date": null,
           "title": "CEO",
           "department": "Management",
-          "monthly_salary": 3810,
+          "monthly_salary": 4810,
           "from_integration": false
         },
         {
           "_id": "456",
           "name": "Kameron Carter",
-          "start_date": "2021-07-12",
+          "start_date": "2020-02-01",
           "end_date": null,
           "title": "CTO",
           "department": "Technology",
@@ -350,11 +468,11 @@
         {
           "_id": "789",
           "name": "Dwayne Carter III",
-          "start_date": "2021-07-12",
+          "start_date": "2021-04-01",
           "end_date": null,
           "title": "CFO",
           "department": "Finance",
-          "monthly_salary": 3810,
+          "monthly_salary": 2810,
           "from_integration": false
         }]
     }

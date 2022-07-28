@@ -14,6 +14,7 @@ from core.dao.models import (
     add_admin_to_model,
     get_revenues_sheet,
     get_costs_sheet,
+    has_access_to_model,
 )
 from core.schemas.models import ModelMeta, Employee
 from core.schemas.rows import IntegrationValue
@@ -82,7 +83,7 @@ async def test_grant_permission_admin(access_token, users):
 async def test_grant_permission_editor(access_token, users):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
-    user = users["johndoe@example.com"]
+    user = users["charlie@example.com"]
     role = "editor"
     response = client.post(
         f"/model/grant?model_id={model_id}&role={role}&user_id={user}",
@@ -99,7 +100,7 @@ async def test_grant_permission_editor(access_token, users):
 async def test_grant_permission_viewer(access_token, users):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
-    user = users["johndoe@example.com"]
+    user = users["darwin@example.com"]
     role = "viewer"
     response = client.post(
         f"/model/grant?model_id={model_id}&role={role}&user_id={user}",
@@ -129,6 +130,29 @@ async def test_grant_permission_no_access(access_token_alice, users):
 
 
 @pytest.mark.anyio
+async def test_grant_permission_cannot_demote_workspace_admin(access_token, users):
+    client = TestClient(app)
+
+    model_id = "62b488ba433720870b60ec0a"
+    user = users["johndoe@example.com"]
+    dummy_user = users["charlie@example.com"]
+
+    await add_admin_to_model(dummy_user, model_id)
+    assert await is_admin(model_id, dummy_user)
+
+    role = "viewer"
+    response = client.post(
+        f"/model/grant?model_id={model_id}&role={role}&user_id={user}",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    assert await is_admin(model_id, user)
+    assert not await is_viewer(model_id, user)
+
+
+@pytest.mark.anyio
 async def test_grant_permission_non_existent_model(access_token, users):
     client = TestClient(app)
     model_id = "not a model"
@@ -147,17 +171,17 @@ async def test_revoke_permission_editor(access_token, users):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
     user = users["darwin@example.com"]
-    role = "editor"
 
     response = client.post(
-        f"/model/revoke?model_id={model_id}&role={role}&user_id={user}",
+        f"/model/revoke?model_id={model_id}&user_id={user}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
     assert response.status_code == status.HTTP_200_OK
-    assert response.json()["message"] == "Access revoked (editor)"
+    assert response.json()["message"] == "Access revoked."
 
     assert not await is_viewer(model_id, user)
+    assert not await has_access_to_model(model_id, user)
 
 
 @pytest.mark.anyio
@@ -165,16 +189,17 @@ async def test_revoke_permission_viewer(access_token, users):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
     user = users["charlie@example.com"]
-    role = "viewer"
+
     response = client.post(
-        f"/model/revoke?model_id={model_id}&role={role}&user_id={user}",
+        f"/model/revoke?model_id={model_id}&user_id={user}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
     assert response.status_code == status.HTTP_200_OK
-    assert response.json()["message"] == "Access revoked (viewer)"
+    assert response.json()["message"] == "Access revoked."
 
     assert not await is_viewer(model_id, user)
+    assert not await has_access_to_model(model_id, user)
 
 
 @pytest.mark.anyio
@@ -182,18 +207,18 @@ async def test_revoke_permission_admin(access_token, users):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
     user = users["charlie@example.com"]
-    role = "admin"
 
     await add_admin_to_model(user, model_id)
     assert await is_admin(model_id, user)
 
     response = client.post(
-        f"/model/revoke?model_id={model_id}&role={role}&user_id={user}",
+        f"/model/revoke?model_id={model_id}&user_id={user}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
     assert response.status_code == status.HTTP_200_OK
     assert not await is_admin(model_id, user)
+    assert not await has_access_to_model(model_id, user)
 
 
 @pytest.mark.anyio
@@ -201,9 +226,8 @@ async def test_revoke_permission_admin_no_admins_left(access_token, users):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
     user = users["johndoe@example.com"]
-    role = "admin"
     response = client.post(
-        f"/model/revoke?model_id={model_id}&role={role}&user_id={user}",
+        f"/model/revoke?model_id={model_id}&user_id={user}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -218,13 +242,12 @@ async def test_revoke_permission_admin_workspace_admin(access_token, users):
     model_id = "62b488ba433720870b60ec0a"
     user = users["johndoe@example.com"]
     dummy_user = users["charlie@example.com"]
-    role = "admin"
 
     await add_admin_to_model(dummy_user, model_id)
     assert await is_admin(model_id, dummy_user)
 
     response = client.post(
-        f"/model/revoke?model_id={model_id}&role={role}&user_id={user}",
+        f"/model/revoke?model_id={model_id}&user_id={user}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -238,9 +261,8 @@ async def test_revoke_permission_no_access(access_token_alice, users):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
     user = users["charlie@example.com"]
-    role = "viewer"
     response = client.post(
-        f"/model/revoke?model_id={model_id}&role={role}&user_id={user}",
+        f"/model/revoke?model_id={model_id}&user_id={user}",
         headers={"Authorization": f"Bearer {access_token_alice}"},
     )
 
@@ -254,9 +276,8 @@ async def test_revoke_permission_non_existent_model(access_token, users):
     client = TestClient(app)
     model_id = "not a model"
     user = users["charlie@example.com"]
-    role = "viewer"
     response = client.post(
-        f"/model/revoke?model_id={model_id}&role={role}&user_id={user}",
+        f"/model/revoke?model_id={model_id}&user_id={user}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -327,6 +348,23 @@ async def test_starting_month_model(access_token):
 
 
 @pytest.mark.anyio
+async def test_starting_balance(access_token):
+    client = TestClient(app)
+    model_id = "62b488ba433720870b60ec0a"
+    balance = 1234.56
+    response = client.post(
+        f"/model/startingBalance?model_id={model_id}&starting_balance={balance}",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["message"] == f"Starting balance set ({balance})"
+
+    model = await get_model_by_id(model_id)
+    assert model.meta.starting_balance == balance
+
+
+@pytest.mark.anyio
 async def test_starting_month_model_no_access(access_token_alice):
     client = TestClient(app)
     model_id = "62b488ba433720870b60ec0a"
@@ -352,6 +390,40 @@ async def test_starting_month_model_non_existent(access_token):
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.anyio
+async def test_delete_model(access_token, users):
+    client = TestClient(app)
+    model_id = "62b488ba433720870b60ec0a"
+    response = client.delete(
+        f"/model/delete?model_id={model_id}",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["message"] == "Model successfully deleted."
+
+
+@pytest.mark.anyio
+async def test_delete_model_no_access(access_token_alice, users):
+    client = TestClient(app)
+    model_id = "62b488ba433720870b60ec0a"
+    response = client.delete(
+        f"/model/delete?model_id={model_id}",
+        headers={"Authorization": f"Bearer {access_token_alice}"},
+    )
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.anyio
+async def test_delete_model_non_existent_model(access_token, users):
+    client = TestClient(app)
+    model_id = "not_an_id"
+    response = client.delete(
+        f"/model/delete?model_id={model_id}",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
@@ -466,7 +538,7 @@ async def test_post_model_costs(access_token):
     assert response.status_code == status.HTTP_200_OK
 
     sheet2 = response.json()
-    assert len(sheet2["sections"]) == 1
+    assert len(sheet2["sections"]) == len(sheet.sections)
 
     for sec in sheet2["sections"]:
         assert sec["name"].endswith("_changed")
@@ -490,8 +562,8 @@ async def test_post_model_costs_contains_integration_values(access_token):
 
     assert response.status_code == status.HTTP_200_OK
 
-    assert response.json()["sections"][0]["rows"][1]["integration_values"] is not None
-    assert len(response.json()["sections"][0]["rows"][1]["integration_values"]) > 0
+    assert response.json()["sections"][0]["rows"][0]["integration_values"] is not None
+    assert len(response.json()["sections"][0]["rows"][0]["integration_values"]) > 0
 
 
 @pytest.mark.anyio
@@ -628,8 +700,8 @@ async def test_get_model_costs_contains_integration_values(access_token):
 
     assert response.status_code == status.HTTP_200_OK
 
-    assert response.json()["sections"][0]["rows"][1]["integration_values"] is not None
-    assert len(response.json()["sections"][0]["rows"][1]["integration_values"]) > 0
+    assert response.json()["sections"][0]["rows"][0]["integration_values"] is not None
+    assert len(response.json()["sections"][0]["rows"][0]["integration_values"]) > 0
 
 
 @pytest.mark.anyio
@@ -727,7 +799,6 @@ async def test_post_model_employees(access_token):
     employees.append(
         Employee(
             **{
-                "_id": "101",
                 "name": "Saint West",
                 "start_date": "2021-07-12",
                 "end_date": None,
@@ -759,7 +830,7 @@ async def test_post_model_employees(access_token):
     assert ct == 1
     assert ct_after == length_before
 
-    assert len(model_afterwards["payroll_values"]) > 0
+    assert len(model_afterwards["payroll_values"]) == 24
     for p in model_afterwards["payroll_values"]:
         IntegrationValue(**p)
 
@@ -775,7 +846,6 @@ async def test_post_model_employees_ignore_integration(access_token):
     employees.append(
         Employee(
             **{
-                "_id": "101",
                 "name": "Saint West",
                 "start_date": "2021-07-12",
                 "end_date": None,
@@ -885,7 +955,7 @@ async def test_get_model_employees(access_token):
     for e in model_afterwards["employees"]:
         assert Employee(**e)
 
-    assert len(model_afterwards["payroll_values"]) > 0
+    assert len(model_afterwards["payroll_values"]) == 24
     for p in model_afterwards["payroll_values"]:
         IntegrationValue(**p)
 
