@@ -6,203 +6,214 @@ definePageMeta({
 
 <template>
     <NuxtLayout name="navbar">
-        <div class="h-full" v-if="!costDataLoading">
-            <div v-if="!userAndMetaDataLoading"
-                class="py-3 border-b px-3 border-zinc-300 top-0 min-h-[70px] max-h-[70px]">
-                <SheetHeader :sheetName="'Costs'" :workspaceName="piniaUserStore.workspaces[0].name"
-                    :modelName="piniaModelMetaStore.name"></SheetHeader>
-            </div>
-            <div class="ml-1 pl-2 flex top-0 bg-white pt-2 min-h-[50px] max-h-[50px]">
-                <div class="min-w-[470px] max-w-[470px]">
+        <div>
+            <LoadingSpinner v-if="costDataLoading && !costDataLoadingFailed" :text="'Loading'"></LoadingSpinner>
+            <div class="h-full" v-if="!costDataLoading">
+                <div
+                    class="py-3 border-b px-3 border-zinc-300 top-0 min-h-[70px] max-h-[70px]">
+                    <SheetHeader :sheetName="'Costs'" :workspaceName="piniaUserStore.workspaces[0].name"
+                        :modelName="piniaModelMetaStore.name"></SheetHeader>
                 </div>
-                <div class="overflow-x-auto no-scrollbar z-10" id="dates" @scroll="stickScroll('dates', 'table-right')">
-                    <div class="border-zinc-300 flex">
-                        <div class="first:border-l first:rounded-tl first:rounded-bl text-xs py-2 px-2 border-r border-y border-zinc-300 min-w-[75px] max-w-[75px] text-center uppercase bg-zinc-100 text-zinc-700"
-                            v-for="date in dates">{{ date }}</div>
+                <div class="ml-1 pl-2 flex top-0 bg-white pt-2 min-h-[50px] max-h-[50px]">
+                    <div class="min-w-[470px] max-w-[470px]">
+                    </div>
+                    <div class="overflow-x-auto no-scrollbar z-10" id="dates"
+                        @scroll="stickScroll('dates', 'table-right')">
+                        <div class="border-zinc-300 flex">
+                            <div class="first:border-l first:rounded-tl first:rounded-bl text-xs py-2 px-2 border-r border-y border-zinc-300 min-w-[75px] max-w-[75px] text-center uppercase bg-zinc-100 text-zinc-700"
+                                v-for="date in dates">{{ date }}</div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="ml-1 pb-3 pl-2 mr-0 overflow-x-hidden min-h-[calc(100%-120px)] max-h-[calc(100%-120px)]">
-                <div class="flex">
-                    <div>
-                        <div id="assumptions-headers">
-                            <div>
-                                <!-- assumption header -->
-                                <div
-                                    class="text-xs text-zinc-500 font-medium uppercase rounded-tl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-100 border-zinc-300 border-l border-t">
-                                    Assumptions
-                                </div>
-                            </div>
-                            <VariableRowHeader @update-value="updateAssumptionValue"
-                                @update-settings="updateAssumptionSettings" @update-name="updateAssumptionName"
-                                @delete-variable="deleteAssumption" v-for="(assumption, index) in piniaCostStore.assumptions"
-                                :variable="assumption" :variableIndex="index"
-                                :timeSeriesMap="useVariableTimeSeriesMap(piniaCostStore.assumptions)"
-                                :variableSearchMap="useVariableSearchMap(piniaCostStore.assumptions)" :sectionIndex="0"
-                                :isEndRow="false" :showIntegration="false" :userIsViewer="userIsViewer">
-                            </VariableRowHeader>
-                            <div class="">
-                                <!-- add assumption button -->
-                                <div
-                                    class="text-xs rounded-bl py-2 pl-10 min-w-[470px] max-w-[470px] border-zinc-300 border-y border-l">
-                                    <button :disabled="userIsViewer" @click="addAssumption"
-                                        class="text-zinc-400 italic hover:text-zinc-500"><i
-                                            class="bi bi-plus-lg mr-3"></i>Add Assumption</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="model-headers">
-                            <div>
-
-                                <div
-                                    class="group flex mt-6 text-xs text-zinc-500 rounded-tl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-100 border-zinc-300 border-l border-t">
-                                    <span class="font-medium uppercase">
-                                        Model
-                                    </span>
-                                </div>
+                <div class="ml-1 pb-3 pl-2 mr-0 overflow-x-hidden min-h-[calc(100%-120px)] max-h-[calc(100%-120px)]">
+                    <div class="flex">
+                        <div>
+                            <div id="assumptions-headers">
                                 <div>
-                                    <SectionHeader :sectionName="'Payroll'" :changingEnabled="false"
-                                        :userIsViewer="userIsViewer"></SectionHeader>
-                                    <EmployeeRowHeader v-for="(employee, index) in piniaPayrollStore.employees"
-                                        :employee="employee" :employeeIndex="index" @update-employee="updateEmployee"
-                                        @delete-employee="deleteEmployee" :userIsViewer="userIsViewer">
-                                    </EmployeeRowHeader>
+                                    <!-- assumption header -->
                                     <div
-                                        class="text-xs py-2 pl-10 min-w-[470px] max-w-[470px] border-zinc-300 border-t border-l">
-                                        <button :disabled="userIsViewer" @click="addEmployee()"
-                                            class="text-zinc-400 italic hover:text-zinc-500"><i
-                                                class="bi bi-plus-lg mr-3"></i>Add Employee</button>
+                                        class="text-xs text-zinc-500 font-medium uppercase rounded-tl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-100 border-zinc-300 border-l border-t">
+                                        Assumptions
                                     </div>
+                                </div>
+                                <VariableRowHeader @update-value="updateAssumptionValue"
+                                    @update-settings="updateAssumptionSettings" @update-name="updateAssumptionName"
+                                    @delete-variable="deleteAssumption"
+                                    v-for="(assumption, index) in piniaCostStore.assumptions" :variable="assumption"
+                                    :variableIndex="index"
+                                    :timeSeriesMap="useVariableTimeSeriesMap(piniaCostStore.assumptions)"
+                                    :variableSearchMap="useVariableSearchMap(piniaCostStore.assumptions)"
+                                    :sectionIndex="0" :isEndRow="false" :showIntegration="false"
+                                    :userIsViewer="userIsViewer">
+                                </VariableRowHeader>
+                                <div class="">
+                                    <!-- add assumption button -->
                                     <div
-                                        class="flex text-xs text-zinc-700 bg-zinc-50 py-2 px-3 min-w-[470px] max-w-[470px] border-zinc-300 border-l border-t">
-                                        <span class="font-medium">
-                                            <li class="marker:text-white/0">Total Payroll</li>
+                                        class="text-xs rounded-bl py-2 pl-10 min-w-[470px] max-w-[470px] border-zinc-300 border-y border-l">
+                                        <button :disabled="userIsViewer" @click="addAssumption"
+                                            class="text-zinc-400 italic hover:text-zinc-500"><i
+                                                class="bi bi-plus-lg mr-3"></i>Add Assumption</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="model-headers">
+                                <div>
+
+                                    <div
+                                        class="group flex mt-6 text-xs text-zinc-500 rounded-tl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-100 border-zinc-300 border-l border-t">
+                                        <span class="font-medium uppercase">
+                                            Model
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <SectionHeader :sectionName="'Payroll'" :changingEnabled="false"
+                                            :userIsViewer="userIsViewer"></SectionHeader>
+                                        <EmployeeRowHeader v-for="(employee, index) in piniaPayrollStore.employees"
+                                            :employee="employee" :employeeIndex="index"
+                                            @update-employee="updateEmployee" @delete-employee="deleteEmployee"
+                                            :userIsViewer="userIsViewer">
+                                        </EmployeeRowHeader>
+                                        <div
+                                            class="text-xs py-2 pl-10 min-w-[470px] max-w-[470px] border-zinc-300 border-t border-l">
+                                            <button :disabled="userIsViewer" @click="addEmployee()"
+                                                class="text-zinc-400 italic hover:text-zinc-500"><i
+                                                    class="bi bi-plus-lg mr-3"></i>Add Employee</button>
+                                        </div>
+                                        <div
+                                            class="flex text-xs text-zinc-700 bg-zinc-50 py-2 px-3 min-w-[470px] max-w-[470px] border-zinc-300 border-l border-t">
+                                            <span class="font-medium">
+                                                <li class="marker:text-white/0">Total Payroll</li>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div v-for="(section, sectionIndex) in piniaCostStore.sections" :key="sectionIndex">
+                                        <SectionHeader :sectionName="section.name" :sectionIndex="sectionIndex"
+                                            :changingEnabled="false" @change-section-name="updateSectionName"
+                                            @delete-section="deleteSection" :userIsViewer="userIsViewer">
+                                        </SectionHeader>
+                                        <VariableRowHeader @update-value="updateVariableValue"
+                                            @update-settings="updateVariableSettings" @update-name="updateVariableName"
+                                            @delete-variable="deleteVariable"
+                                            @update-integration="updateIntegrationValue"
+                                            v-for="(variable, index) in section.rows" :variable="variable"
+                                            :variable-index="index"
+                                            :timeSeriesMap="useVariableTimeSeriesMap(piniaCostStore.assumptions.concat(section.rows))"
+                                            :variableSearchMap="useVariableSearchMap(piniaCostStore.assumptions.concat(section.rows))"
+                                            :sectionIndex="sectionIndex" :isEndRow="false" :showIntegration="true"
+                                            :possible-integration-values="piniaPossibleIntegrationsStore"
+                                            :userIsViewer="userIsViewer">
+                                        </VariableRowHeader>
+                                        <div
+                                            class="text-xs py-2 pl-10 min-w-[470px] max-w-[470px] border-zinc-300 border-t border-l">
+                                            <button :disabled="userIsViewer" @click="addVariable(sectionIndex)"
+                                                class="text-zinc-400 italic hover:text-zinc-500"><i
+                                                    class="bi bi-plus-lg mr-3"></i>Add Variable</button>
+                                        </div>
+
+                                        <VariableRowHeader @update-value="updateEndRowValue" :variable="section.end_row"
+                                            :variable-index="0" :timeSeriesMap="useVariableTimeSeriesMap(section.rows)"
+                                            :variableSearchMap="useVariableSearchMap(section.rows)"
+                                            :sectionIndex="sectionIndex" :sectionName="section.name" :isEndRow="true"
+                                            :hierarchy="'med'" :userIsViewer="userIsViewer">
+                                        </VariableRowHeader>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div>
+                                    <div
+                                        class="group flex text-xs text-zinc-900 rounded-bl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-200 border-zinc-300 border-t-zinc-400 border-l border-b border-t-2">
+                                        <span class="font-medium uppercase">
+                                            Total Costs
                                         </span>
                                     </div>
                                 </div>
-                                <div v-for="(section, sectionIndex) in piniaCostStore.sections" :key="sectionIndex">
-                                    <SectionHeader :sectionName="section.name" :sectionIndex="sectionIndex"
-                                        :changingEnabled="false" @change-section-name="updateSectionName"
-                                        @delete-section="deleteSection" :userIsViewer="userIsViewer"></SectionHeader>
-                                    <VariableRowHeader @update-value="updateVariableValue"
-                                        @update-settings="updateVariableSettings" @update-name="updateVariableName"
-                                        @delete-variable="deleteVariable" @update-integration="updateIntegrationValue"
-                                        v-for="(variable, index) in section.rows" :variable="variable"
-                                        :variable-index="index"
-                                        :timeSeriesMap="useVariableTimeSeriesMap(piniaCostStore.assumptions.concat(section.rows))"
-                                        :variableSearchMap="useVariableSearchMap(piniaCostStore.assumptions.concat(section.rows))"
-                                        :sectionIndex="sectionIndex" :isEndRow="false" :showIntegration="true"
-                                        :possible-integration-values="piniaPossibleIntegrationsStore"
-                                        :userIsViewer="userIsViewer">
-                                    </VariableRowHeader>
-                                    <div
-                                        class="text-xs py-2 pl-10 min-w-[470px] max-w-[470px] border-zinc-300 border-t border-l">
-                                        <button :disabled="userIsViewer" @click="addVariable(sectionIndex)"
-                                            class="text-zinc-400 italic hover:text-zinc-500"><i
-                                                class="bi bi-plus-lg mr-3"></i>Add Variable</button>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto" id="table-right" @scroll="stickScroll('table-right', 'dates')">
+                            <div id="assumption-values">
+                                <div class="flex">
+                                    <!-- assumption header empty -->
+                                    <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 bg-zinc-100 border-zinc-300 border-t"
+                                        v-for="date in dates">X</div>
+                                </div>
+                                <ClientOnly>
+                                    <VariableRow v-for="(assumptionValues, index) in computedAssumptionValuesToDisplay"
+                                        :values="assumptionValues"
+                                        :round-to="piniaCostStore.assumptions[index].decimal_places" :hierarchy="'low'">
+                                    </VariableRow>
+                                </ClientOnly>
+                                <div class="flex">
+                                    <!-- add assumption button empty -->
+                                    <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-y"
+                                        v-for="date in dates">X</div>
+                                </div>
+                            </div>
+                            <div id="model-values">
+                                <div class="flex mt-6">
+                                    <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 bg-zinc-100 border-zinc-300 border-t"
+                                        v-for="date in dates">X</div>
+                                </div>
+                                <!-- Payroll -->
+                                <div class="flex">
+                                    <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-t"
+                                        v-for="date in dates">X</div>
+                                </div>
+                                <div class="flex" v-for="payrollValues in payrollToDisplay">
+                                    <ClientOnly>
+                                        <VariableRow :values="payrollValues" :round-to="2" :hierarchy="'low'">
+                                        </VariableRow>
+                                    </ClientOnly>
+                                </div>
+                                <div class="flex">
+                                    <!-- add employee button empty -->
+                                    <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-t"
+                                        v-for="date in dates">X</div>
+                                </div>
+                                <div class="flex">
+                                    <ClientOnly>
+                                        <VariableRow :values="totalPayrollToDisplay" :round-to="2" :isFinalRow="false"
+                                            :hierarchy="'med'"></VariableRow>
+                                    </ClientOnly>
+                                </div>
+                                <div v-for="(section, index) in piniaCostStore.sections" :key="index">
+                                    <div class="flex">
+                                        <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-t"
+                                            v-for="date in dates">X</div>
                                     </div>
-
-                                    <VariableRowHeader @update-value="updateEndRowValue" :variable="section.end_row"
-                                        :variable-index="0" :timeSeriesMap="useVariableTimeSeriesMap(section.rows)"
-                                        :variableSearchMap="useVariableSearchMap(section.rows)"
-                                        :sectionIndex="sectionIndex" :sectionName="section.name" :isEndRow="true"
-                                        :hierarchy="'med'" :userIsViewer="userIsViewer">
-                                    </VariableRowHeader>
+                                    <ClientOnly>
+                                        <VariableRow v-if="computedVariableValuesToDisplay"
+                                            v-for="(variableValues, variableIndex) in computedVariableValuesToDisplay.get(index)"
+                                            :values="variableValues"
+                                            :round-to="piniaCostStore.sections[index].rows[variableIndex].decimal_places"
+                                            :hierarchy="'low'">
+                                        </VariableRow>
+                                    </ClientOnly>
+                                    <div class="flex">
+                                        <!-- add variable button empty -->
+                                        <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-t"
+                                            v-for="date in dates">X</div>
+                                    </div>
+                                    <ClientOnly>
+                                        <VariableRow v-if="computedEndRowValuesToDisplay"
+                                            :values="computedEndRowValuesToDisplay[index]" :round-to="2"
+                                            :hierarchy="'med'">
+                                        </VariableRow>
+                                    </ClientOnly>
                                 </div>
                             </div>
-                        </div>
-                        <div>
-                            <div>
-                                <div
-                                    class="group flex text-xs text-zinc-900 rounded-bl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-200 border-zinc-300 border-t-zinc-400 border-l border-b border-t-2">
-                                    <span class="font-medium uppercase">
-                                        Total Costs
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="overflow-x-auto" id="table-right" @scroll="stickScroll('table-right', 'dates')">
-                        <div id="assumption-values">
-                            <div class="flex">
-                                <!-- assumption header empty -->
-                                <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 bg-zinc-100 border-zinc-300 border-t"
-                                    v-for="date in dates">X</div>
-                            </div>
-                            <ClientOnly>
-                                <VariableRow v-for="(assumptionValues, index) in computedAssumptionValuesToDisplay"
-                                    :values="assumptionValues" :round-to="piniaCostStore.assumptions[index].decimal_places"
-                                    :hierarchy="'low'">
-                                </VariableRow>
-                            </ClientOnly>
-                            <div class="flex">
-                                <!-- add assumption button empty -->
-                                <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-y"
-                                    v-for="date in dates">X</div>
-                            </div>
-                        </div>
-                        <div id="model-values">
-                            <div class="flex mt-6">
-                                <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 bg-zinc-100 border-zinc-300 border-t"
-                                    v-for="date in dates">X</div>
-                            </div>
-                            <!-- Payroll -->
-                            <div class="flex">
-                                <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-t"
-                                    v-for="date in dates">X</div>
-                            </div>
-                            <div class="flex" v-for="payrollValues in payrollToDisplay">
+                            <div id="total-cost-values" class="border-zinc-300">
                                 <ClientOnly>
-                                    <VariableRow :values="payrollValues" :round-to="2" :hierarchy="'low'"></VariableRow>
+                                    <VariableRow v-if="computedEndRowValuesToDisplay" :values="totalCostsToDisplay"
+                                        :round-to="2" :isFinalRow="true" :hierarchy="'high'"></VariableRow>
                                 </ClientOnly>
                             </div>
-                            <div class="flex">
-                                <!-- add employee button empty -->
-                                <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-t"
-                                    v-for="date in dates">X</div>
-                            </div>
-                            <div class="flex">
-                                <ClientOnly>
-                                    <VariableRow :values="totalPayrollToDisplay" :round-to="2" :isFinalRow="false"
-                                        :hierarchy="'med'"></VariableRow>
-                                </ClientOnly>
-                            </div>
-                            <div v-for="(section, index) in piniaCostStore.sections" :key="index">
-                                <div class="flex">
-                                    <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-t"
-                                        v-for="date in dates">X</div>
-                                </div>
-                                <ClientOnly>
-                                    <VariableRow v-if="computedVariableValuesToDisplay"
-                                        v-for="(variableValues, variableIndex) in computedVariableValuesToDisplay.get(index)"
-                                        :values="variableValues"
-                                        :round-to="piniaCostStore.sections[index].rows[variableIndex].decimal_places"
-                                        :hierarchy="'low'">
-                                    </VariableRow>
-                                </ClientOnly>
-                                <div class="flex">
-                                    <!-- add variable button empty -->
-                                    <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-t"
-                                        v-for="date in dates">X</div>
-                                </div>
-                                <ClientOnly>
-                                    <VariableRow v-if="computedEndRowValuesToDisplay"
-                                        :values="computedEndRowValuesToDisplay[index]" :round-to="2" :hierarchy="'med'">
-                                    </VariableRow>
-                                </ClientOnly>
-                            </div>
-                        </div>
-                        <div id="total-cost-values" class="border-zinc-300">
-                            <ClientOnly>
-                                <VariableRow v-if="computedEndRowValuesToDisplay" :values="totalCostsToDisplay"
-                                    :round-to="2" :isFinalRow="true" :hierarchy="'high'"></VariableRow>
-                            </ClientOnly>
                         </div>
                     </div>
                 </div>
             </div>
             <SheetErrorMessages v-if="(errorMessages.length > 0)" :errorMessages="errorMessages"
-                @close="closeErrorMessage"></SheetErrorMessages>
+                    @close="closeErrorMessage"></SheetErrorMessages>
         </div>
     </NuxtLayout>
 </template>
@@ -227,32 +238,27 @@ import { useDateArray } from '~~/methods/useDateArray';
 export default {
     data() {
         return {
-            userAndMetaDataLoading: true,
             costDataLoading: true,
+            costDataLoadingFailed: false,
             errorMessages: [],
             userIsViewer: false
         }
     },
     async mounted() {
-        this.userAndMetaDataLoading = true;
-        try {
-            await this.updatePiniaUserStore();
-            await this.updatePiniaModelMetaStore(this.$route.params.modelId);
-            this.userAndMetaDataLoading = false;
-        } catch (e) {
-            console.log(e) //todo: handle error
-        }
-
-        this.userIsViewer = this.piniaModelMetaStore.viewers.includes(this.piniaUserStore._id);
 
         this.costDataLoading = true;
         try {
+            await this.updatePiniaUserStore();
+            await this.updatePiniaModelMetaStore(this.$route.params.modelId);
             await this.setPiniaCostStore(this.$route.params.modelId);
             await this.setPiniaPayrollStore(this.$route.params.modelId);
             await this.setPossibleIntegrationsStore(this.$route.params.modelId);
+            this.userIsViewer = this.piniaModelMetaStore.viewers.includes(this.piniaUserStore._id);
             this.costDataLoading = false;
         } catch (e) {
-            console.log(e) //todo: handle error
+            this.errorMessages.push("Failed to load data. Please reload the page.");
+            this.costDataLoadingFailed = true;
+            console.log(e)
         }
 
     },

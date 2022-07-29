@@ -9,25 +9,12 @@ definePageMeta({
 <template>
   <NuxtLayout name="navbar">
     <div class="h-full overflow-y-auto" v-if="!dataIsLoading">
+      <LoadingSpinner v-if="showLoading" :text="'Reloading the model'"></LoadingSpinner>
       <div class="py-3 border-b bg-white px-3 border-zinc-300 top-0 min-h-[70px] max-h-[70px] sticky z-40">
         <SheetHeader :sheetName="'Dashboard'" :workspaceName="piniaUserStore.workspaces[0].name"
           :modelName="piniaModelMetaStore.name">
         </SheetHeader>
       </div>
-      <Teleport to="body">
-        <div v-if="showLoading" class="absolute left-0 top-1/3 w-full flex justify-center align-middle">
-          <div class="py-3 px-6 border h-max shadow-lg bg-white border-zinc-300 rounded z-50 inline-flex items-center">
-            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none"
-              viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-              </path>
-            </svg>
-            <span class="text-xs font-medium text-zinc-900">Reloading the model...</span>
-          </div>
-        </div>
-      </Teleport>
       <div class="border-b border-zinc-300 py-8 p-2 mb-6 mx-14 flex flex-wrap md:flex-nowrap">
         <div class="min-w-fit mr-6">
           <p class="uppercase font-medium text-xs text-zinc-500 mb-2">Starting month:</p>
