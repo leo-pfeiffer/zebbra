@@ -4,7 +4,6 @@ import { defineNuxtConfig } from 'nuxt'
 export default defineNuxtConfig({
     runtimeConfig: {
         public: {
-            frontEndUrlBase: process.env.FRONTEND_URL_BASE,
             backendUrlBase: process.env.BACKEND_URL_BASE,
         }
     },
