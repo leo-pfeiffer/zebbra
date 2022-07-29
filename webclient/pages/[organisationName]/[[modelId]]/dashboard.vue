@@ -12,7 +12,8 @@ definePageMeta({
   <NuxtLayout name="navbar">
     <div class="h-full overflow-y-auto" v-if="!dataIsLoading">
       <div class="py-3 border-b bg-white px-3 border-zinc-300 top-0 min-h-[70px] max-h-[70px] sticky z-40">
-        <SheetHeader :sheetName="'Dashboard'" :workspaceName="piniaUserStore.workspaces[0].name" :modelName="piniaModelMetaStore.name">
+        <SheetHeader :sheetName="'Dashboard'" :workspaceName="piniaUserStore.workspaces[0].name"
+          :modelName="piniaModelMetaStore.name">
         </SheetHeader>
       </div>
       <Teleport to="body">
@@ -490,7 +491,11 @@ export default {
       this.statusMessage = "Refreshing models..."
       this.showLoading = true;
 
-      this.modelMeta = await getModelMeta(this.$route.params.modelId);
+      try {
+        await this.updatePiniaModelMetaStore(this.$route.params.modelId);
+      } catch (error) {
+        console.log(error);
+      }
 
       try {
         this.piniaRevenueStore = await useSheetUpdate().getRevenueSheet(this.$route.params.modelId);
@@ -521,11 +526,11 @@ export default {
 
       var startingDate = new Date;
       // convert the string date to a date object
-      if(this.piniaModelMetaStore.starting_month) {
+      if (this.piniaModelMetaStore.starting_month) {
         const dateParts = this.piniaModelMetaStore.starting_month.split('-');
         startingDate = new Date(Number(dateParts[0]), Number(dateParts[1]) - 1, Number(dateParts[2]));
       }
-     
+
       //todo: ask leo if all right!!!!
 
       // calculate the dashboard data
