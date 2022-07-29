@@ -16,6 +16,11 @@ definePageMeta({
                 <p class="text-sm text-zinc-500 border-b border-zinc-300 pb-5">Sync your accounting and payroll tools
                     with Zebbra to save time and have more accurate models.</p>
                 <div class="py-6">
+                    <div v-if="!userIsWorkspaceAdmin && (piniaXeroStore.connected || piniaGustoStore.connected)" class="flex justify-center mb-6">
+                        <div class="max-w-fit rounded border border-amber-300 bg-amber-50 text-amber-600 p-3 text-xs text-center">
+                            <span><i class="bi bi-exclamation-triangle mr-1"></i>Only workspace admins can disconnect an integration.</span>
+                        </div>
+                    </div>
                     <h2 class="text-xl text-zinc-900 mb-2">Accounting</h2>
                     <p class="text-xs text-zinc-500">Connect your favorite accounting tools and access all accouting
                         data within your models.</p>
@@ -42,14 +47,14 @@ definePageMeta({
                                     @click="connectXero"
                                     class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-xs px-2 py-1 border border-zinc-300 rounded text-zinc-700">Connect
                                     Xero</button>
-                                <button v-else @click="toggleXeroDisconnectModal"
-                                    class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-xs px-2 py-1 border border-zinc-300 rounded text-red-600">Disconnect
+                                <button v-else @click="toggleXeroDisconnectModal" :disabled="!userIsWorkspaceAdmin"
+                                    class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-xs px-2 py-1 border border-zinc-300 rounded text-red-600 disabled:text-zinc-400 disabled:hover:bg-zinc-50">Disconnect
                                     Xero</button>
                             </div>
                         </div>
                     </div>
                     <Teleport to="body">
-                        <div v-show="disconnectXeroModalOpen"
+                        <div v-if="userIsWorkspaceAdmin" v-show="disconnectXeroModalOpen"
                             class="absolute left-0 top-1/3 w-full flex justify-center align-middle">
                             <div class="p-6 border h-max shadow-lg bg-white border-zinc-300 rounded z-50">
                                 <div>
@@ -101,14 +106,14 @@ definePageMeta({
                                     @click="connectGusto"
                                     class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-xs px-2 py-1 border border-zinc-300 rounded text-zinc-700">Connect
                                     Gusto</button>
-                                <button v-else @click="toggleGustoDisconnectModal"
-                                    class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-xs px-2 py-1 border border-zinc-300 rounded text-red-600">Disconnect
+                                <button v-else @click="toggleGustoDisconnectModal" :disabled="!userIsWorkspaceAdmin"
+                                    class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-xs px-2 py-1 border border-zinc-300 rounded text-red-600 disabled:text-zinc-400 disabled:hover:bg-zinc-50">Disconnect
                                     Gusto</button>
                             </div>
                         </div>
                     </div>
                     <Teleport to="body">
-                        <div v-show="disconnectGustoModalOpen"
+                        <div v-if="userIsWorkspaceAdmin" v-show="disconnectGustoModalOpen"
                             class="absolute left-0 top-1/3 w-full flex justify-center align-middle">
                             <div class="p-6 border h-max shadow-lg bg-white border-zinc-300 rounded z-50">
                                 <div>
@@ -171,10 +176,12 @@ definePageMeta({
 import { mapWritableState, mapActions } from 'pinia';
 import { useUserStore } from '~~/store/useUserStore';
 import { useIntegrationStore } from '~~/store/useIntegrationStore';
+import { useIsWorkspaceAdmin } from '~~/methods/useIsWorkspaceAdmin';
 
 export default {
     data() {
         return {
+            userIsWorkspaceAdmin: true,
             disconnectXeroModalOpen: false,
             disconnectGustoModalOpen: false,
             successMessages: [],
@@ -186,6 +193,7 @@ export default {
         try {
             await this.updatePiniaUserStore();
             await this.updatePiniaIntegrationStore(this.piniaUserStore.workspaces[0]._id);
+            this.userIsWorkspaceAdmin = await useIsWorkspaceAdmin();
         } catch (e) {
             console.log(e);
         }
