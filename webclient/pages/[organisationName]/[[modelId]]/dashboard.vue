@@ -1,72 +1,28 @@
 <script setup lang="ts">
 
-import { useSheetUpdate } from '~~/methods/useSheetUpdate';
-
 definePageMeta({
   middleware: ["auth", "route-check"]
 })
-
-const route = useRoute()
-
-const user = useUserState();
-
-const modelMeta = useModelMetaState();
-
-modelMeta.value = await getModelMeta(route.params.modelId);
-
-const modelId = route.params.modelId
-
-const revenueState = useRevenueState();
-
-try {
-  revenueState.value = await useSheetUpdate().getRevenueSheet(route.params.modelId);
-} catch (error) {
-  console.log(error);
-}
-
-const costState = useCostState();
-
-try {
-  costState.value = await useSheetUpdate().getCostSheet(route.params.modelId);
-} catch (e) {
-  console.log(e)
-}
-
-const payrollState = usePayrollState();
-
-try {
-  payrollState.value = await useSheetUpdate().getPayroll(route.params.modelId);
-} catch (e) {
-  console.log(e)
-}
 
 </script>
 
 <template>
   <NuxtLayout name="navbar">
-    <div class="h-full overflow-y-auto">
+    <div class="h-full overflow-y-auto" v-if="!dataIsLoading">
+      <LoadingSpinner v-if="showLoading" :text="'Reloading the model'"></LoadingSpinner>
       <div class="py-3 border-b bg-white px-3 border-zinc-300 top-0 min-h-[70px] max-h-[70px] sticky z-40">
-        <SheetHeader :sheetName="'Dashboard'" :workspaceName="user.workspaces[0].name" :modelName="modelMeta.name">
+        <SheetHeader :sheetName="'Dashboard'" :workspaceName="piniaUserStore.workspaces[0].name"
+          :modelName="piniaModelMetaStore.name">
         </SheetHeader>
       </div>
-      <Teleport to="body">
-        <div v-if="showLoading" class="absolute left-0 top-1/3 w-full flex justify-center align-middle">
-          <div class="py-3 px-6 border h-max shadow-lg bg-white border-zinc-300 rounded z-50 inline-flex items-center">
-            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <span class="text-xs font-medium text-zinc-900">Reloading the model...</span>
-          </div>
-        </div>
-      </Teleport>
       <div class="border-b border-zinc-300 py-8 p-2 mb-6 mx-14 flex flex-wrap md:flex-nowrap">
         <div class="min-w-fit mr-6">
           <p class="uppercase font-medium text-xs text-zinc-500 mb-2">Starting month:</p>
           <div class="flex">
-            <input type="month" class="border border-zinc-300 rounded py-0.5 px-2 mr-2 text-sm text-zinc-700" name="starting-month" placeholder="Starting month"
-              v-model="newStartingMonth">
-            <button type="button" @click="updateStartingMonth" class=" bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-sm px-2.5 py-1 border border-zinc-300 rounded text-zinc-700">
+            <input type="month" class="border border-zinc-300 rounded py-0.5 px-2 mr-2 text-sm text-zinc-700"
+              name="starting-month" placeholder="Starting month" v-model="newStartingMonth">
+            <button type="button" @click="updateStartingMonth"
+              class=" bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-sm px-2.5 py-1 border border-zinc-300 rounded text-zinc-700">
               Set
             </button>
           </div>
@@ -74,9 +30,10 @@ try {
         <div class="min-w-fit">
           <p class="uppercase font-medium text-xs text-zinc-500 mb-2">Starting balance:</p>
           <div class="flex">
-            <input type="number" class="border border-zinc-300 rounded py-0.5 px-2 mr-2 text-sm text-zinc-700" name="starting-balance" placeholder="Starting balance"
-              v-model="startingBalance">
-            <button type="button" @click="updateStartingBalance" class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-sm px-2.5 py-1 border border-zinc-300 rounded text-zinc-700">
+            <input type="number" class="border border-zinc-300 rounded py-0.5 px-2 mr-2 text-sm text-zinc-700"
+              name="starting-balance" placeholder="Starting balance" v-model="startingBalance">
+            <button type="button" @click="updateStartingBalance"
+              class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-sm px-2.5 py-1 border border-zinc-300 rounded text-zinc-700">
               Set
             </button>
           </div>
@@ -171,7 +128,7 @@ try {
             <p class="text-zinc-500 text-xs mb-3">Please head to the integrations settings and reconnect it, so we can
               be sure that the values are up to date.</p>
             <div class="float-right">
-              <NuxtLink :to="`/${user.workspaces[0].name}/settings/integrations`">
+              <NuxtLink :to="`/${piniaUserStore.workspaces[0].name}/settings/integrations`">
                 <button
                   class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-xs px-2 py-1 border border-zinc-300 rounded text-zinc-700">Go
                   to Integrations</button>
@@ -192,6 +149,13 @@ try {
 import { GetIntegrationProvidersResponse } from '~~/types/GetIntegrationProvidersResponse';
 import { useFetchAuth } from '~~/methods/useFetchAuth';
 import { useCalculateDashboardProfits } from "~/methods/useCalculateDashboardProfits";
+import { mapState, mapWritableState, mapActions } from 'pinia';
+import { useUserStore } from '~~/store/useUserStore';
+import { useCostStore } from '~~/store/useCostStore';
+import { useRevenueStore } from '~~/store/useRevenueStore';
+import { usePayrollStore } from '~~/store/usePayrollStore';
+import { useModelMetaStore } from '~~/store/useModelMetaStore';
+import { useSheetUpdate } from '~~/methods/useSheetUpdate';
 
 export default {
   data() {
@@ -216,9 +180,22 @@ export default {
       defaultStatusMessage: "Up to date.",
       statusMessage: "Up to date.",
       showLoading: false,
+      dataIsLoading: true
     }
   },
+  computed: {
+    ...mapState(useUserStore, ['piniaUserStore']),
+    ...mapWritableState(useModelMetaStore, ['piniaModelMetaStore']),
+    ...mapWritableState(useCostStore, ['piniaCostStore']),
+    ...mapWritableState(useRevenueStore, ['piniaRevenueStore']),
+    ...mapWritableState(usePayrollStore, ['piniaPayrollStore']),
+  },
   methods: {
+    ...mapActions(useModelMetaStore, ['updatePiniaModelMetaStore']),
+    ...mapActions(useUserStore, ['updatePiniaUserStore']),
+    ...mapActions(useCostStore, ['setPiniaCostStore']),
+    ...mapActions(useRevenueStore, ['setPiniaRevenueStore']),
+    ...mapActions(usePayrollStore, ['setPiniaPayrollStore']),
 
     async updateStartingBalance() {
 
@@ -226,7 +203,7 @@ export default {
         '/model/startingBalance', {
         method: 'POST',
         params: {
-          model_id: this.modelId,
+          model_id: this.$route.params.modelId,
           starting_balance: this.startingBalance
         }
       }).then(async (data) => {
@@ -246,7 +223,7 @@ export default {
         '/model/startingMonth', {
         method: 'POST',
         params: {
-          model_id: this.modelId,
+          model_id: this.$route.params.modelId,
           starting_month: `${this.newStartingMonth}-01`
         }
       }).then(async (data) => {
@@ -260,7 +237,7 @@ export default {
 
     },
 
-    getProfitChartOptions(showZeroLine:boolean) {
+    getProfitChartOptions(showZeroLine: boolean) {
       const opts = this.makeChartOptions('Net Income')
       opts.subtitle = {
         text: 'Total net income per month',
@@ -292,7 +269,7 @@ export default {
       return opts;
     },
 
-    getCashBalanceOptions(showZeroLine:boolean) {
+    getCashBalanceOptions(showZeroLine: boolean) {
       const opts = this.makeChartOptions('Cash Balance');
       opts.subtitle = {
         text: 'Total cash reserves per month (approximated)',
@@ -499,22 +476,26 @@ export default {
       this.statusMessage = "Refreshing models..."
       this.showLoading = true;
 
-      this.modelMeta = await getModelMeta(this.modelId);
-
       try {
-        this.revenueState = await useSheetUpdate().getRevenueSheet(this.modelId);
+        await this.updatePiniaModelMetaStore(this.$route.params.modelId);
       } catch (error) {
         console.log(error);
       }
 
       try {
-        this.costState = await useSheetUpdate().getCostSheet(this.modelId);
+        this.piniaRevenueStore = await useSheetUpdate().getRevenueSheet(this.$route.params.modelId);
+      } catch (error) {
+        console.log(error);
+      }
+
+      try {
+        this.piniaCostStore = await useSheetUpdate().getCostSheet(this.$route.params.modelId);
       } catch (e) {
         console.log(e)
       }
 
       try {
-        this.payrollState = await useSheetUpdate().getPayroll(this.modelId);
+        this.piniaPayrollStore = await useSheetUpdate().getPayroll(this.$route.params.modelId);
       } catch (e) {
         console.log(e)
       }
@@ -528,14 +509,18 @@ export default {
       this.statusMessage = "Processing data..."
       this.showLoading = true;
 
+      if (!this.piniaModelMetaStore.starting_month) {
+        return
+      }
       // convert the string date to a date object
-      const dateParts = this.modelMeta.starting_month.split('-');
+      
+      const dateParts = this.piniaModelMetaStore.starting_month.split('-');
       const startingDate = new Date(Number(dateParts[0]), Number(dateParts[1]) - 1, Number(dateParts[2]));
-
+    
 
       // calculate the dashboard data
       const newDashboardData = useCalculateDashboardProfits(
-        this.revenueState, this.costState, this.payrollState, startingDate, this.startingBalance
+        this.piniaRevenueStore, this.piniaCostStore, this.piniaPayrollStore, startingDate, this.startingBalance
       );
 
       this.dashboardData = { ...newDashboardData };
@@ -563,10 +548,25 @@ export default {
   },
   async mounted() {
 
-    this.startingBalance = this.modelMeta.starting_balance;
-    this.newStartingMonth = this.modelMeta.starting_month.slice(0, 7);
+    this.dataIsLoading = true;
+    try {
+      await this.updatePiniaUserStore();
+      await this.updatePiniaModelMetaStore(this.$route.params.modelId);
+      await this.setPiniaCostStore(this.$route.params.modelId);
+      await this.setPiniaRevenueStore(this.$route.params.modelId);
+      await this.setPiniaPayrollStore(this.$route.params.modelId);
 
-    this.calculateData()
+      this.startingBalance = this.piniaModelMetaStore.starting_balance;
+      this.newStartingMonth = this.piniaModelMetaStore.starting_month.slice(0, 7);
+
+      this.dataIsLoading = false;
+
+      this.calculateData();
+
+    } catch (e) {
+      console.log(e);
+      //todo error handling
+    }
 
     // fixes rendering issue in apexcharts if width is not set to a fixed pixel width
     // https://github.com/apexcharts/apexcharts.js/issues/1077#issuecomment-984386146
@@ -577,7 +577,7 @@ export default {
       '/integration/providers', {
       method: 'GET',
       params: {
-        workspace_id: this.user.workspaces[0]._id
+        workspace_id: this.piniaUserStore.workspaces[0]._id
       }
     }
     ).then((data: GetIntegrationProvidersResponse[]) => {

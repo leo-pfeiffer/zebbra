@@ -1,9 +1,3 @@
-<script setup lang="ts">
-
-const config = useRuntimeConfig();
-
-</script>
-
 <template>
   <div class="container flex justify-center mx-auto">
     <div class="w-1/2 md:w-1/4">
@@ -80,7 +74,7 @@ export default {
   methods: {
     async checkOtp () {
       const data = await $fetch(
-          `${this.config.public.backendUrlBase}/user/requiresOtp`,{ method: 'GET',
+          `${this.$config.public.backendUrlBase}/user/requiresOtp`,{ method: 'GET',
             params: {username: this.form.username}
           }
       ).then((data:OtpRequiredResponse) => {
@@ -120,7 +114,7 @@ export default {
       }
 
       const data = await $fetch(
-        `${this.config.public.backendUrlBase}/token`,{ method: 'POST',
+        `${this.$config.public.backendUrlBase}/token`,{ method: 'POST',
         body: loginBody }
         ).then((data:PostTokenResponse) => {
           

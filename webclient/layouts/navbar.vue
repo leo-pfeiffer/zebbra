@@ -1,32 +1,23 @@
-<script setup lang="ts">
-
-import { useLogout } from '~~/methods/useLogout';
-
-//get the current user state
-const user = useUserState();
-
-</script>
-
 <template>
-    <div class="w-screen h-screen flex">
+    <div class="w-screen h-screen flex" v-if="!userDataLoading">
         <div class="w-48 min-w-[12rem] bg-zinc-100 px-3 py-4 border-r border-zinc-300 overflow-hidden">
             <div class="text-sm ml-0.5">
-                <NuxtLink :to="`/${user.workspaces[0].name}`">
+                <NuxtLink :to="`/${piniaUserStore.workspaces[0].name}`">
                     <span class="px-2 py-1 rounded-md bg-green-500 text-neutral-50 shadow-sm">
-                        {{ user.workspaces[0].name[0] }}
+                        {{ piniaUserStore.workspaces[0].name[0] }}
                     </span>
                     <span class="ml-2 text-zinc-900">
-                        {{ user.workspaces[0].name }}
+                        {{ piniaUserStore.workspaces[0].name }}
                     </span>
                 </NuxtLink>
             </div>
             <div class="text-xs my-4">
-                <NuxtLink :to="`/${user.workspaces[0].name}/settings/workspace`">
+                <NuxtLink :to="`/${piniaUserStore.workspaces[0].name}/settings/workspace`">
                     <div class="px-2 hover:bg-zinc-200 py-1.5 rounded text-zinc-500">
                         <i class="bi bi-gear-fill text-zinc-400"></i><span class="pl-2">Settings</span>
                     </div>
                 </NuxtLink>
-                <NuxtLink :to="`/${user.workspaces[0].name}/settings/integrations`">
+                <NuxtLink :to="`/${piniaUserStore.workspaces[0].name}/settings/integrations`">
                     <div class="px-2 hover:bg-zinc-200 py-1.5 rounded text-zinc-500">
                         <i class="bi bi-server text-[11px] text-zinc-400"></i><span class="pl-2">Integrations</span>
                     </div>
@@ -49,7 +40,7 @@ const user = useUserState();
                 <div>
                     <span class="text-xs text-zinc-500">Your Models</span>
                     <div v-if="true" class="overflow-auto min-h-[55vh] max-h-[55vh] px-2">
-                        <ModelDropdown v-for="model in user.models" :model=model></ModelDropdown>
+                        <ModelDropdown v-for="model in piniaUserStore.models" :model=model></ModelDropdown>
                     </div>
                     <div v-else>
                         <p class="text-xs mt-2 text-zinc-500">Start by creating your first model.</p>
@@ -59,7 +50,7 @@ const user = useUserState();
         </div>
         <div class="absolute bottom-0 left-0 bg-zinc-100 border-r border-zinc-300 w-48 flex justify-center px-3">
             <div class="flex justify-center w-full border-t border-zinc-300 py-3">
-                <button type="button" @click="useLogout()"
+                <button type="button" @click="logout()"
                     class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-sm px-2.5 py-1 border border-zinc-300 rounded text-zinc-700">Logout</button>
             </div>
         </div>
@@ -103,12 +94,16 @@ const user = useUserState();
 
 <script lang="ts">
 
+import { useLogout } from '~~/methods/useLogout';
 import { useFetchAuth } from '~~/methods/useFetchAuth';
 import { Model } from '~~/types/Model';
+import { mapState, mapActions } from 'pinia';
+import { useUserStore } from '~~/store/useUserStore';
 
 export default {
     data() {
         return {
+            userDataLoading: true,
             newModelName: "",
             newModelModalOpen: false,
             showCreateNewModalError: false,
@@ -116,7 +111,20 @@ export default {
 
         }
     },
+    async mounted () {
+        this.userDataLoading = true;
+        try {
+            await this.updatePiniaUserStore();
+            this.userDataLoading = false;
+        } catch (e) {
+            console.log(e) //todo: handle error
+        }
+    },
+    computed: {
+        ...mapState(useUserStore, ['piniaUserStore']),
+    },
     methods: {
+        ...mapActions(useUserStore, ['updatePiniaUserStore']),
         toggleNewModelModal() {
             if (this.newModelModalOpen) {
                 this.newModelModalOpen = false;
@@ -134,19 +142,22 @@ export default {
                 method: 'POST',
                 params: {
                     name: this.newModelName,
-                    workspace_id: this.user.workspaces[0]._id
+                    workspace_id: this.piniaUserStore.workspaces[0]._id
                 }
             }
             ).then((data:Model) => {
                 console.log("Model created sucessfully.");
                 newModelId = data._id;
-                navigateTo(`/${this.user.workspaces[0].name}/${newModelId}/dashboard`);
+                navigateTo(`/${this.piniaUserStore.workspaces[0].name}/${newModelId}/dashboard`);
             }).catch((error) => {
                 console.log(error);
                 this.createNewModalErrorMessage = error.data.details;
                 this.showCreateNewModalError = true;
             });
 
+        },
+        logout() {
+            useLogout();
         }
     },
 }

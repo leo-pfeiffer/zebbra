@@ -2,11 +2,6 @@
 definePageMeta({
   middleware: ["auth", "route-check"]
 })
-
-const config = useRuntimeConfig();
-
-const user = useUserState();
-
 </script>
 
 <template>
@@ -32,7 +27,7 @@ const user = useUserState();
                 <td class="py-4 px-3 text-zinc-500">{{ member.user_role }}</td>
                 <td v-show="userIsWorkspaceAdmin" class="text-base py-4 px-3 text-zinc-500">
                   <MemberListDropdown :user-id="member._id" :username="member.username"
-                    v-show="(member._id != user._id)"></MemberListDropdown>
+                    v-show="(member._id != piniaUserStore._id)"></MemberListDropdown>
                 </td>
               </tr>
             </table>
@@ -70,10 +65,12 @@ const user = useUserState();
 
 <script lang="ts">
 
+import { mapState, mapActions } from 'pinia';
+import { useUserStore } from '~~/store/useUserStore';
 import { useFetchAuth } from "~~/methods/useFetchAuth";
-
 import { WorkspaceUser } from "~~/types/WorkspaceUser";
 import { GetWorkspaceInviteCodeResponse } from "~~/types/GetWorkspaceInviteCodeResponse";
+import { useIsWorkspaceAdmin } from '~~/methods/useIsWorkspaceAdmin';
 
 export default {
   data() {
@@ -87,15 +84,20 @@ export default {
   },
   async beforeMount() {
 
+    try {
+      await this.updatePiniaUserStore()
+    } catch(e) {
+      console.log(e);
+    }
+
     //check if user is admin
     this.userIsWorkspaceAdmin = await useIsWorkspaceAdmin();
-    const user = useUserState();
 
     const getWorkspaceMembers = await useFetchAuth(
       '/workspace/users', {
       method: 'GET',
       params: {
-        workspace_id: user.value.workspaces[0]._id
+        workspace_id: this.piniaUserStore.workspaces[0]._id
       }
     }
     ).then((data: WorkspaceUser[]) => {
@@ -110,7 +112,7 @@ export default {
         '/workspace/inviteCode', {
         method: 'POST',
         params: {
-          workspace_id: user.value.workspaces[0]._id
+          workspace_id: this.piniaUserStore.workspaces[0]._id
         }
       }
       ).then((data: GetWorkspaceInviteCodeResponse) => {
@@ -122,6 +124,7 @@ export default {
     }
   },
   computed: {
+    ...mapState(useUserStore, ['piniaUserStore']),
     getRandomColor() {
       // todo is this still used anywhere?? I think this was moved to the Avatar component.
       const colors = [
@@ -134,6 +137,7 @@ export default {
     }
   },
   methods: {
+    ...mapActions(useUserStore, ['updatePiniaUserStore']),
     toggleInviteUserModal() {
       if (this.inviteUserModalOpen) {
         this.inviteUserModalOpen = false;

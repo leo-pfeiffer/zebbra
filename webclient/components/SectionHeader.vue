@@ -1,9 +1,3 @@
-<script setup>
-
-const revenueState = useRevenueState();
-
-</script>
-
 <template>
 
     <div

@@ -6,9 +6,10 @@ export default defineNuxtConfig({
         public: {
             frontEndUrlBase: process.env.FRONTEND_URL_BASE,
             backendUrlBase: process.env.BACKEND_URL_BASE,
-          }
+        }
     },
-    modules: ['@nuxtjs/tailwindcss'],
+    
+    buildModules: ['@nuxtjs/tailwindcss', '@pinia/nuxt'],
     app: {
         head: {
             link: [
@@ -16,5 +17,5 @@ export default defineNuxtConfig({
                 { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.3/font/bootstrap-icons.css' }
             ]
         }
-    }
+    },
 })

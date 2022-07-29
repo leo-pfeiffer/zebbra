@@ -15,8 +15,10 @@
   },
   "dependencies": {
     "@nuxt/test-utils-edge": "^3.0.0-rc.4-27619747.ad8b5f9",
+    "@pinia/nuxt": "^0.3.1",
     "apexcharts": "^3.35.3",
     "math-expression-evaluator": "^1.4.0",
+    "pinia": "^2.0.17",
     "vitest": "^0.17.1",
     "vue3-apexcharts": "^1.4.1"
   }
