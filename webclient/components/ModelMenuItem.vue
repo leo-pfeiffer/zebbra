@@ -1,9 +1,3 @@
-<script setup>
-
-const user = useUserState();
-
-</script>
-
 <template>
     <div
         class="my-3 group flex align-center align-middle rounded border border-zinc-300 p-3 hover:border-sky-500 hover:shadow-md hover:shadow-sky-50">
@@ -19,14 +13,15 @@ const user = useUserState();
             </span>
         </div>
         <div class="group-hover:inline-block hidden">
-            <NuxtLink :to="`/${user.workspaces[0].name}/${modelId}/dashboard`"><span
+            <NuxtLink :to="`/${piniaUserStore.workspaces[0].name}/${modelId}/dashboard`"><span
                     class="text-sm font-medium text-sky-600">--></span></NuxtLink>
         </div>
     </div>
 </template>
 
 <script>
-
+import { mapState } from 'pinia';
+import { useUserStore } from '~~/store/useUserStore';
 import { useGetModelPermissions } from '~~/methods/useGetModelPermissions';
 
 export default {
@@ -47,9 +42,10 @@ export default {
         }
     },
     computed: {
+        ...mapState(useUserStore, ['piniaUserStore']),
         isModelAdmin() {
             for(let i=0; i < this.modelUsers.length; i++) {
-                if(this.user._id === this.modelUsers[i]._id && this.modelUsers[i].user_role === "Admin") {
+                if(this.piniaUserStore._id === this.modelUsers[i]._id && this.modelUsers[i].user_role === "Admin") {
                     return true;
                 }
             }
@@ -57,7 +53,7 @@ export default {
         },
         modelAccess() {
             for(let i=0; i < this.modelUsers.length; i++) {
-                if(this.user._id === this.modelUsers[i]._id) {
+                if(this.piniaUserStore._id === this.modelUsers[i]._id) {
                     return this.modelUsers[i].user_role;
                 }
             }

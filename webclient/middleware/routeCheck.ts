@@ -1,18 +1,40 @@
+import { GetUserResponse } from '~~/types/GetUserResponse';
+import { useFetchAuth } from '~~/methods/useFetchAuth';
+
+
 //middleware that checks whether the route to be accessed matches the users workspace
 export default defineNuxtRouteMiddleware( async (to, from) => {
-    
-    const user = useUserState();
-    user.value = await updateUserState();
+
+    let user:GetUserResponse;
+
+    try{
+
+        await useFetchAuth(
+            '/user', { method: 'GET' }
+          ).then((data: GetUserResponse) => {
+            user = data;
+          }).catch((error) => {
+            throw error
+          });
+
+    } catch(e) {
+        navigateTo('/login')
+        console.log("User state could not be accessed");
+        console.log(e);
+        //todo message
+    }
 
     //const userWorkspace = user.value.workspaces[0].name;
 
     var userWorkspace:string;
     
     try {
-        userWorkspace = user.value.workspaces[0].name;
+        userWorkspace = user.workspaces[0].name;
     } catch(error) {
+        navigateTo('/login')
         console.log("User state could not be accessed");
         console.log(error);
+        //todo message
     }
 
     const path:string[] = to.fullPath.split("/");

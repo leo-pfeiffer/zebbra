@@ -1,271 +1,289 @@
 <script setup lang="ts">
-import { Employee, Section, Variable } from '~~/types/Model';
-import { useVariableSearchMap } from '~~/methods/useVariableSearchMap';
-import { useVariableTimeSeriesMap } from '~~/methods/useVariableTimeSeriesMap';
-import { useSheetUpdate } from '~~/methods/useSheetUpdate';
-import { useGetPossibleIntegrationValues } from '~~/methods/useGetPossibleIntegrationValues';
-
 definePageMeta({
     middleware: ["auth", "route-check"]
 })
-
-const route = useRoute()
-
-const userState = useUserState();
-
-const modelMeta = useModelMetaState();
-modelMeta.value = await getModelMeta(route.params.modelId);
-const userIsViewer = modelMeta.value.viewers.includes(userState.value._id);
-
-const costState = useCostState();
-try {
-    costState.value = await useSheetUpdate().getCostSheet(route.params.modelId);
-} catch(e){
-    
-}
-
-const payrollState = usePayrollState();
-try {
-    payrollState.value = await useSheetUpdate().getPayroll(route.params.modelId);
-} catch(e) {
-    console.log(e)
-}
-
-const possibleIntegrationValuesState = usePossibleIntegrationValuesState();
-try {
-    possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(route.params.modelId);
-} catch(e) {
-    console.log(e)
-}
-
 </script>
 
 <template>
     <NuxtLayout name="navbar">
-        <div class="h-full">
-            <div class="py-3 border-b px-3 border-zinc-300 top-0 min-h-[70px] max-h-[70px]">
-                <SheetHeader :sheetName="'Costs'" :workspaceName="userState.workspaces[0].name" :modelName="modelMeta.name"></SheetHeader>
-            </div>
-            <div class="ml-1 pl-2 flex top-0 bg-white pt-2 min-h-[50px] max-h-[50px]">
-                <div class="min-w-[470px] max-w-[470px]">
+        <div>
+            <LoadingSpinner v-if="costDataLoading && !costDataLoadingFailed" :text="'Loading'"></LoadingSpinner>
+            <div class="h-full" v-if="!costDataLoading">
+                <div
+                    class="py-3 border-b px-3 border-zinc-300 top-0 min-h-[70px] max-h-[70px]">
+                    <SheetHeader :sheetName="'Costs'" :workspaceName="piniaUserStore.workspaces[0].name"
+                        :modelName="piniaModelMetaStore.name"></SheetHeader>
                 </div>
-                <div class="overflow-x-auto no-scrollbar z-10" id="dates" @scroll="stickScroll('dates', 'table-right')">
-                    <div class="border-zinc-300 flex">
-                        <div class="first:border-l first:rounded-tl first:rounded-bl text-xs py-2 px-2 border-r border-y border-zinc-300 min-w-[75px] max-w-[75px] text-center uppercase bg-zinc-100 text-zinc-700"
-                            v-for="date in dates">{{ date }}</div>
+                <div class="ml-1 pl-2 flex top-0 bg-white pt-2 min-h-[50px] max-h-[50px]">
+                    <div class="min-w-[470px] max-w-[470px]">
+                    </div>
+                    <div class="overflow-x-auto no-scrollbar z-10" id="dates"
+                        @scroll="stickScroll('dates', 'table-right')">
+                        <div class="border-zinc-300 flex">
+                            <div class="first:border-l first:rounded-tl first:rounded-bl text-xs py-2 px-2 border-r border-y border-zinc-300 min-w-[75px] max-w-[75px] text-center uppercase bg-zinc-100 text-zinc-700"
+                                v-for="date in dates">{{ date }}</div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="ml-1 pb-3 pl-2 mr-0 overflow-x-hidden min-h-[calc(100%-120px)] max-h-[calc(100%-120px)]">
-                <div class="flex">
-                    <div>
-                        <div id="assumptions-headers">
-                            <div>
-                                <!-- assumption header -->
-                                <div
-                                    class="text-xs text-zinc-500 font-medium uppercase rounded-tl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-100 border-zinc-300 border-l border-t">
-                                    Assumptions
-                                </div>
-                            </div>
-                            <VariableRowHeader @update-value="updateAssumptionValue"
-                                @update-settings="updateAssumptionSettings" @update-name="updateAssumptionName"
-                                @delete-variable="deleteAssumption" v-for="(assumption, index) in costState.assumptions"
-                                :variable="assumption" :variableIndex="index"
-                                :timeSeriesMap="useVariableTimeSeriesMap(costState.assumptions)"
-                                :variableSearchMap="useVariableSearchMap(costState.assumptions)" :sectionIndex="0"
-                                :isEndRow="false" :showIntegration="false"
-                                :userIsViewer="userIsViewer">
-                            </VariableRowHeader>
-                            <div class="">
-                                <!-- add assumption button -->
-                                <div
-                                    class="text-xs rounded-bl py-2 pl-10 min-w-[470px] max-w-[470px] border-zinc-300 border-y border-l">
-                                    <button :disabled="userIsViewer" @click="addAssumption" class="text-zinc-400 italic hover:text-zinc-500"><i
-                                            class="bi bi-plus-lg mr-3"></i>Add Assumption</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="model-headers">
-                            <div>
-
-                                <div
-                                    class="group flex mt-6 text-xs text-zinc-500 rounded-tl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-100 border-zinc-300 border-l border-t">
-                                    <span class="font-medium uppercase">
-                                        Model
-                                    </span>
-                                </div>
+                <div class="ml-1 pb-3 pl-2 mr-0 overflow-x-hidden min-h-[calc(100%-120px)] max-h-[calc(100%-120px)]">
+                    <div class="flex">
+                        <div>
+                            <div id="assumptions-headers">
                                 <div>
-                                    <SectionHeader :sectionName="'Payroll'" :changingEnabled="false" :userIsViewer="userIsViewer"></SectionHeader>
-                                    <EmployeeRowHeader v-for="(employee, index) in payrollState.employees"
-                                        :employee="employee" :employeeIndex="index"
-                                        @update-employee="updateEmployee"
-                                        @delete-employee="deleteEmployee"
-                                        :userIsViewer="userIsViewer"></EmployeeRowHeader>
+                                    <!-- assumption header -->
                                     <div
-                                        class="text-xs py-2 pl-10 min-w-[470px] max-w-[470px] border-zinc-300 border-t border-l">
-                                        <button :disabled="userIsViewer" @click="addEmployee()"
-                                            class="text-zinc-400 italic hover:text-zinc-500"><i
-                                                class="bi bi-plus-lg mr-3"></i>Add Employee</button>
+                                        class="text-xs text-zinc-500 font-medium uppercase rounded-tl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-100 border-zinc-300 border-l border-t">
+                                        Assumptions
                                     </div>
+                                </div>
+                                <VariableRowHeader @update-value="updateAssumptionValue"
+                                    @update-settings="updateAssumptionSettings" @update-name="updateAssumptionName"
+                                    @delete-variable="deleteAssumption"
+                                    v-for="(assumption, index) in piniaCostStore.assumptions" :variable="assumption"
+                                    :variableIndex="index"
+                                    :timeSeriesMap="useVariableTimeSeriesMap(piniaCostStore.assumptions)"
+                                    :variableSearchMap="useVariableSearchMap(piniaCostStore.assumptions)"
+                                    :sectionIndex="0" :isEndRow="false" :showIntegration="false"
+                                    :userIsViewer="userIsViewer">
+                                </VariableRowHeader>
+                                <div class="">
+                                    <!-- add assumption button -->
                                     <div
-                                        class="flex text-xs text-zinc-700 bg-zinc-50 py-2 px-3 min-w-[470px] max-w-[470px] border-zinc-300 border-l border-t">
-                                        <span class="font-medium">
-                                            <li class="marker:text-white/0">Total Payroll</li>
+                                        class="text-xs rounded-bl py-2 pl-10 min-w-[470px] max-w-[470px] border-zinc-300 border-y border-l">
+                                        <button :disabled="userIsViewer" @click="addAssumption"
+                                            class="text-zinc-400 italic hover:text-zinc-500"><i
+                                                class="bi bi-plus-lg mr-3"></i>Add Assumption</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="model-headers">
+                                <div>
+
+                                    <div
+                                        class="group flex mt-6 text-xs text-zinc-500 rounded-tl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-100 border-zinc-300 border-l border-t">
+                                        <span class="font-medium uppercase">
+                                            Model
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <SectionHeader :sectionName="'Payroll'" :changingEnabled="false"
+                                            :userIsViewer="userIsViewer"></SectionHeader>
+                                        <EmployeeRowHeader v-for="(employee, index) in piniaPayrollStore.employees"
+                                            :employee="employee" :employeeIndex="index"
+                                            @update-employee="updateEmployee" @delete-employee="deleteEmployee"
+                                            :userIsViewer="userIsViewer">
+                                        </EmployeeRowHeader>
+                                        <div
+                                            class="text-xs py-2 pl-10 min-w-[470px] max-w-[470px] border-zinc-300 border-t border-l">
+                                            <button :disabled="userIsViewer" @click="addEmployee()"
+                                                class="text-zinc-400 italic hover:text-zinc-500"><i
+                                                    class="bi bi-plus-lg mr-3"></i>Add Employee</button>
+                                        </div>
+                                        <div
+                                            class="flex text-xs text-zinc-700 bg-zinc-50 py-2 px-3 min-w-[470px] max-w-[470px] border-zinc-300 border-l border-t">
+                                            <span class="font-medium">
+                                                <li class="marker:text-white/0">Total Payroll</li>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div v-for="(section, sectionIndex) in piniaCostStore.sections" :key="sectionIndex">
+                                        <SectionHeader :sectionName="section.name" :sectionIndex="sectionIndex"
+                                            :changingEnabled="false" @change-section-name="updateSectionName"
+                                            @delete-section="deleteSection" :userIsViewer="userIsViewer">
+                                        </SectionHeader>
+                                        <VariableRowHeader @update-value="updateVariableValue"
+                                            @update-settings="updateVariableSettings" @update-name="updateVariableName"
+                                            @delete-variable="deleteVariable"
+                                            @update-integration="updateIntegrationValue"
+                                            v-for="(variable, index) in section.rows" :variable="variable"
+                                            :variable-index="index"
+                                            :timeSeriesMap="useVariableTimeSeriesMap(piniaCostStore.assumptions.concat(section.rows))"
+                                            :variableSearchMap="useVariableSearchMap(piniaCostStore.assumptions.concat(section.rows))"
+                                            :sectionIndex="sectionIndex" :isEndRow="false" :showIntegration="true"
+                                            :possible-integration-values="piniaPossibleIntegrationsStore"
+                                            :userIsViewer="userIsViewer">
+                                        </VariableRowHeader>
+                                        <div
+                                            class="text-xs py-2 pl-10 min-w-[470px] max-w-[470px] border-zinc-300 border-t border-l">
+                                            <button :disabled="userIsViewer" @click="addVariable(sectionIndex)"
+                                                class="text-zinc-400 italic hover:text-zinc-500"><i
+                                                    class="bi bi-plus-lg mr-3"></i>Add Variable</button>
+                                        </div>
+
+                                        <VariableRowHeader @update-value="updateEndRowValue" :variable="section.end_row"
+                                            :variable-index="0" :timeSeriesMap="useVariableTimeSeriesMap(section.rows)"
+                                            :variableSearchMap="useVariableSearchMap(section.rows)"
+                                            :sectionIndex="sectionIndex" :sectionName="section.name" :isEndRow="true"
+                                            :hierarchy="'med'" :userIsViewer="userIsViewer">
+                                        </VariableRowHeader>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div>
+                                    <div
+                                        class="group flex text-xs text-zinc-900 rounded-bl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-200 border-zinc-300 border-t-zinc-400 border-l border-b border-t-2">
+                                        <span class="font-medium uppercase">
+                                            Total Costs
                                         </span>
                                     </div>
                                 </div>
-                                <div v-for="(section, sectionIndex) in costState.sections" :key="sectionIndex">
-                                    <SectionHeader :sectionName="section.name" :sectionIndex="sectionIndex"
-                                        :changingEnabled="false" @change-section-name="updateSectionName"
-                                        @delete-section="deleteSection" :userIsViewer="userIsViewer"></SectionHeader>
-                                    <VariableRowHeader @update-value="updateVariableValue"
-                                        @update-settings="updateVariableSettings" @update-name="updateVariableName"
-                                        @delete-variable="deleteVariable" @update-integration="updateIntegrationValue"
-                                        v-for="(variable, index) in section.rows" :variable="variable"
-                                        :variable-index="index"
-                                        :timeSeriesMap="useVariableTimeSeriesMap(costState.assumptions.concat(section.rows))"
-                                        :variableSearchMap="useVariableSearchMap(costState.assumptions.concat(section.rows))"
-                                        :sectionIndex="sectionIndex" :isEndRow="false" :showIntegration="true"
-                                        :possible-integration-values="possibleIntegrationValuesState"
-                                        :userIsViewer="userIsViewer">
-                                    </VariableRowHeader>
-                                    <div
-                                        class="text-xs py-2 pl-10 min-w-[470px] max-w-[470px] border-zinc-300 border-t border-l">
-                                        <button :disabled="userIsViewer" @click="addVariable(sectionIndex)"
-                                            class="text-zinc-400 italic hover:text-zinc-500"><i
-                                                class="bi bi-plus-lg mr-3"></i>Add Variable</button>
-                                    </div>
-
-                                    <VariableRowHeader @update-value="updateEndRowValue" :variable="section.end_row"
-                                        :variable-index="0" :timeSeriesMap="useVariableTimeSeriesMap(section.rows)"
-                                        :variableSearchMap="useVariableSearchMap(section.rows)"
-                                        :sectionIndex="sectionIndex" :sectionName="section.name" :isEndRow="true"
-                                        :hierarchy="'med'"
-                                        :userIsViewer="userIsViewer">
-                                    </VariableRowHeader>
-                                </div>
                             </div>
                         </div>
-                        <div>
-                            <div>
-                                <div
-                                    class="group flex text-xs text-zinc-900 rounded-bl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-200 border-zinc-300 border-t-zinc-400 border-l border-b border-t-2">
-                                    <span class="font-medium uppercase">
-                                        Total Costs
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="overflow-x-auto" id="table-right" @scroll="stickScroll('table-right', 'dates')">
-                        <div id="assumption-values">
-                            <div class="flex">
-                                <!-- assumption header empty -->
-                                <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 bg-zinc-100 border-zinc-300 border-t"
-                                    v-for="date in dates">X</div>
-                            </div>
-                            <ClientOnly>
-                                <VariableRow v-for="(assumptionValues, index) in computedAssumptionValuesToDisplay"
-                                    :values="assumptionValues" :round-to="costState.assumptions[index].decimal_places" :hierarchy="'low'">
-                                </VariableRow>
-                            </ClientOnly>
-                            <div class="flex">
-                                <!-- add assumption button empty -->
-                                <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-y"
-                                    v-for="date in dates">X</div>
-                            </div>
-                        </div>
-                        <div id="model-values">
-                            <div class="flex mt-6">
-                                <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 bg-zinc-100 border-zinc-300 border-t"
-                                    v-for="date in dates">X</div>
-                            </div>
-                            <!-- Payroll -->
-                            <div class="flex">
-                                <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-t"
-                                    v-for="date in dates">X</div>
-                            </div>
-                            <div class="flex" v-for="payrollValues in payrollToDisplay">
-                                <ClientOnly>
-                                    <VariableRow :values="payrollValues" :round-to="2" :hierarchy="'low'"></VariableRow>
-                                </ClientOnly>
-                            </div>
-                            <div class="flex">
-                                <!-- add employee button empty -->
-                                <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-t"
-                                    v-for="date in dates">X</div>
-                            </div>
-                            <div class="flex">
-                                <ClientOnly>
-                                    <VariableRow :values="totalPayrollToDisplay" :round-to="2"
-                                    :isFinalRow="false" :hierarchy="'med'"></VariableRow>
-                                </ClientOnly>
-                            </div>
-                            <div v-for="(section, index) in costState.sections" :key="index">
+                        <div class="overflow-x-auto" id="table-right" @scroll="stickScroll('table-right', 'dates')">
+                            <div id="assumption-values">
                                 <div class="flex">
-                                    <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-t"
+                                    <!-- assumption header empty -->
+                                    <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 bg-zinc-100 border-zinc-300 border-t"
                                         v-for="date in dates">X</div>
                                 </div>
                                 <ClientOnly>
-                                    <VariableRow v-if="computedVariableValuesToDisplay"
-                                        v-for="(variableValues, variableIndex) in computedVariableValuesToDisplay.get(index)"
-                                        :values="variableValues"
-                                        :round-to="costState.sections[index].rows[variableIndex].decimal_places" :hierarchy="'low'">
+                                    <VariableRow v-for="(assumptionValues, index) in computedAssumptionValuesToDisplay"
+                                        :values="assumptionValues"
+                                        :round-to="piniaCostStore.assumptions[index].decimal_places" :hierarchy="'low'">
                                     </VariableRow>
                                 </ClientOnly>
                                 <div class="flex">
-                                    <!-- add variable button empty -->
+                                    <!-- add assumption button empty -->
+                                    <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-y"
+                                        v-for="date in dates">X</div>
+                                </div>
+                            </div>
+                            <div id="model-values">
+                                <div class="flex mt-6">
+                                    <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 bg-zinc-100 border-zinc-300 border-t"
+                                        v-for="date in dates">X</div>
+                                </div>
+                                <!-- Payroll -->
+                                <div class="flex">
                                     <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-t"
                                         v-for="date in dates">X</div>
                                 </div>
+                                <div class="flex" v-for="payrollValues in payrollToDisplay">
+                                    <ClientOnly>
+                                        <VariableRow :values="payrollValues" :round-to="2" :hierarchy="'low'">
+                                        </VariableRow>
+                                    </ClientOnly>
+                                </div>
+                                <div class="flex">
+                                    <!-- add employee button empty -->
+                                    <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-t"
+                                        v-for="date in dates">X</div>
+                                </div>
+                                <div class="flex">
+                                    <ClientOnly>
+                                        <VariableRow :values="totalPayrollToDisplay" :round-to="2" :isFinalRow="false"
+                                            :hierarchy="'med'"></VariableRow>
+                                    </ClientOnly>
+                                </div>
+                                <div v-for="(section, index) in piniaCostStore.sections" :key="index">
+                                    <div class="flex">
+                                        <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-t"
+                                            v-for="date in dates">X</div>
+                                    </div>
+                                    <ClientOnly>
+                                        <VariableRow v-if="computedVariableValuesToDisplay"
+                                            v-for="(variableValues, variableIndex) in computedVariableValuesToDisplay.get(index)"
+                                            :values="variableValues"
+                                            :round-to="piniaCostStore.sections[index].rows[variableIndex].decimal_places"
+                                            :hierarchy="'low'">
+                                        </VariableRow>
+                                    </ClientOnly>
+                                    <div class="flex">
+                                        <!-- add variable button empty -->
+                                        <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-t"
+                                            v-for="date in dates">X</div>
+                                    </div>
+                                    <ClientOnly>
+                                        <VariableRow v-if="computedEndRowValuesToDisplay"
+                                            :values="computedEndRowValuesToDisplay[index]" :round-to="2"
+                                            :hierarchy="'med'">
+                                        </VariableRow>
+                                    </ClientOnly>
+                                </div>
+                            </div>
+                            <div id="total-cost-values" class="border-zinc-300">
                                 <ClientOnly>
-                                    <VariableRow v-if="computedEndRowValuesToDisplay"
-                                        :values="computedEndRowValuesToDisplay[index]" :round-to="2" :hierarchy="'med'"></VariableRow>
+                                    <VariableRow v-if="computedEndRowValuesToDisplay" :values="totalCostsToDisplay"
+                                        :round-to="2" :isFinalRow="true" :hierarchy="'high'"></VariableRow>
                                 </ClientOnly>
                             </div>
-                        </div>
-                        <div id="total-cost-values" class="border-zinc-300">
-                            <ClientOnly>
-                                <VariableRow v-if="computedEndRowValuesToDisplay" :values="totalCostsToDisplay" :round-to="2"
-                                    :isFinalRow="true" :hierarchy="'high'"></VariableRow>
-                            </ClientOnly>
                         </div>
                     </div>
                 </div>
             </div>
             <SheetErrorMessages v-if="(errorMessages.length > 0)" :errorMessages="errorMessages"
-                @close="closeErrorMessage"></SheetErrorMessages>
+                    @close="closeErrorMessage"></SheetErrorMessages>
         </div>
     </NuxtLayout>
 </template>
 
 <script lang="ts">
-
+import { Employee, Section, Variable } from '~~/types/Model';
+import { useVariableSearchMap } from '~~/methods/useVariableSearchMap';
+import { useVariableTimeSeriesMap } from '~~/methods/useVariableTimeSeriesMap';
+import { useSheetUpdate } from '~~/methods/useSheetUpdate';
 import { useFormulaParser } from '~~/methods/useFormulaParser';
 import { useGetValueFromHumanReadable } from '~~/methods/useGetValueFromHumanReadable';
 import { useMathParser } from '~~/methods/useMathParser';
-import { useFetchAuth } from '~~/methods/useFetchAuth';
+import { mapWritableState, mapActions } from 'pinia';
+import { useUserStore } from '~~/store/useUserStore';
+import { useCostStore } from '~~/store/useCostStore';
+import { usePayrollStore } from '~~/store/usePayrollStore';
+import { useModelMetaStore } from '~~/store/useModelMetaStore';
+import { usePossibleIntegrationsStore } from '~~/store/usePossibleIntegrationsStore';
+import { useDateArray } from '~~/methods/useDateArray';
+
+
 export default {
     data() {
         return {
-            errorMessages: []
+            costDataLoading: true,
+            costDataLoadingFailed: false,
+            errorMessages: [],
+            userIsViewer: false
         }
     },
+    async mounted() {
+
+        this.costDataLoading = true;
+        try {
+            await this.updatePiniaUserStore();
+            await this.updatePiniaModelMetaStore(this.$route.params.modelId);
+            await this.setPiniaCostStore(this.$route.params.modelId);
+            await this.setPiniaPayrollStore(this.$route.params.modelId);
+            await this.setPossibleIntegrationsStore(this.$route.params.modelId);
+            this.userIsViewer = this.piniaModelMetaStore.viewers.includes(this.piniaUserStore._id);
+            this.costDataLoading = false;
+        } catch (e) {
+            this.errorMessages.push("Failed to load data. Please reload the page.");
+            this.costDataLoadingFailed = true;
+            console.log(e)
+        }
+
+    },
     computed: {
+        ...mapWritableState(useUserStore, ['piniaUserStore']),
+        ...mapWritableState(useModelMetaStore, ['piniaModelMetaStore']),
+        ...mapWritableState(useCostStore, ['piniaCostStore']),
+        ...mapWritableState(usePayrollStore, ['piniaPayrollStore']),
+        ...mapWritableState(usePossibleIntegrationsStore, ['piniaPossibleIntegrationsStore']),
         dates() {
-            const date: string[] = this.modelMeta.starting_month.split("-");
-            return useDateArray(new Date(+date[0], +date[1] - 1))
+            if (this.piniaModelMetaStore.starting_month) {
+                const date: string[] = this.piniaModelMetaStore.starting_month.split("-");
+                return useDateArray(new Date(+date[0], +date[1] - 1))
+            }
         },
         computedAssumptionValuesToDisplay() {
-            var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(this.costState.assumptions);
+            var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(this.piniaCostStore.assumptions);
             return assumptionValuesArray;
         },
         computedVariableValuesToDisplay() {
             var variablesValuesStorage: Map<number, string[][]> = new Map<number, string[][]>();
-            for (let i = 0; i < this.costState.sections.length; i++) {
-                var sectionVariables: Variable[] = [...this.costState.sections[i].rows];
-                var valuesOfAssumptionsAndVariables: string[][] = useFormulaParser().getSheetRowValues(this.costState.assumptions.concat(sectionVariables))
-                valuesOfAssumptionsAndVariables.splice(0, this.costState.assumptions.length);
+            for (let i = 0; i < this.piniaCostStore.sections.length; i++) {
+                var sectionVariables: Variable[] = [...this.piniaCostStore.sections[i].rows];
+                var valuesOfAssumptionsAndVariables: string[][] = useFormulaParser().getSheetRowValues(this.piniaCostStore.assumptions.concat(sectionVariables))
+                valuesOfAssumptionsAndVariables.splice(0, this.piniaCostStore.assumptions.length);
                 variablesValuesStorage.set(i, valuesOfAssumptionsAndVariables);
             };
 
@@ -274,64 +292,64 @@ export default {
         computedEndRowValuesToDisplay() {
 
             var endRowValuesStorage: string[][] = [];
-            for (let i = 0; i < this.costState.sections.length; i++) {
-                var sectionVariables: Variable[] = [...this.costState.sections[i].rows];
-                var valuesOfVariablesAndEndRow: string[][] = useFormulaParser().getSheetRowValues(this.costState.assumptions.concat(sectionVariables.concat(this.costState.sections[i].end_row)));
-                valuesOfVariablesAndEndRow.splice(0, sectionVariables.length + this.costState.assumptions.length);
+            for (let i = 0; i < this.piniaCostStore.sections.length; i++) {
+                var sectionVariables: Variable[] = [...this.piniaCostStore.sections[i].rows];
+                var valuesOfVariablesAndEndRow: string[][] = useFormulaParser().getSheetRowValues(this.piniaCostStore.assumptions.concat(sectionVariables.concat(this.piniaCostStore.sections[i].end_row)));
+                valuesOfVariablesAndEndRow.splice(0, sectionVariables.length + this.piniaCostStore.assumptions.length);
                 endRowValuesStorage.push(valuesOfVariablesAndEndRow[0]);
             };
 
             return endRowValuesStorage;
 
-        }, 
+        },
         payrollToDisplay() {
-            var returnArray:string[][] = [];
+            var returnArray: string[][] = [];
 
-            const modelStartDate = new Date(this.modelMeta.starting_month);
+            const modelStartDate = new Date(this.piniaModelMetaStore.starting_month);
 
-            if(this.payrollState.employees) {
-                for(let i = 0; i < this.payrollState.employees.length; i++) {
-                    var valueArray:string[] = [];
+            if (this.piniaPayrollStore.employees) {
+                for (let i = 0; i < this.piniaPayrollStore.employees.length; i++) {
+                    var valueArray: string[] = [];
 
-                    var startDateDiff:number;
-                    var endDateDiff:number;
+                    var startDateDiff: number;
+                    var endDateDiff: number;
 
-                    const employeeStartDate = new Date(this.payrollState.employees[i].start_date);
+                    const employeeStartDate = new Date(this.piniaPayrollStore.employees[i].start_date);
 
                     startDateDiff = this.getMonthDiff(modelStartDate, employeeStartDate);
 
-                    var employeeEndDate:Date;
-                    if(this.payrollState.employees[i].end_date != null) {
-                        employeeEndDate = new Date(this.payrollState.employees[i].end_date);
+                    var employeeEndDate: Date;
+                    if (this.piniaPayrollStore.employees[i].end_date != null) {
+                        employeeEndDate = new Date(this.piniaPayrollStore.employees[i].end_date);
                         endDateDiff = this.getMonthDiff(modelStartDate, employeeEndDate);
                     } else {
                         endDateDiff = 24;
                     }
 
-                    for(let j=0; j < 24; j++) {
-                        if(j >= startDateDiff && j <= endDateDiff) {
-                            valueArray.push(this.payrollState.employees[i].monthly_salary.toString())
+                    for (let j = 0; j < 24; j++) {
+                        if (j >= startDateDiff && j <= endDateDiff) {
+                            valueArray.push(this.piniaPayrollStore.employees[i].monthly_salary.toString())
                         } else {
                             valueArray.push("–");
                         }
                     }
                     returnArray.push(valueArray);
                 }
-            } 
+            }
             return returnArray;
         },
         totalPayrollToDisplay() {
             var returnArray: string[] = [];
 
-            if (this.payrollState.payroll_values && this.payrollState.payroll_values.length >= 24) {
+            if (this.piniaPayrollStore.payroll_values && this.piniaPayrollStore.payroll_values.length >= 24) {
                 for (let i = 0; i < 24; i++) {
-                    returnArray.push(this.payrollState.payroll_values[i].value);
+                    returnArray.push(this.piniaPayrollStore.payroll_values[i].value);
                 }
-            } else if(this.payrollState.payroll_values && this.payrollState.payroll_values.length > 0) {
+            } else if (this.piniaPayrollStore.payroll_values && this.piniaPayrollStore.payroll_values.length > 0) {
 
                 for (let i = 0; i < 24; i++) {
-                    if(i < this.payrollState.payroll_values.length) {
-                        returnArray.push(this.payrollState.payroll_values[i].value);
+                    if (i < this.piniaPayrollStore.payroll_values.length) {
+                        returnArray.push(this.piniaPayrollStore.payroll_values[i].value);
                     } else {
                         returnArray.push("–")
                     }
@@ -364,7 +382,7 @@ export default {
                     }
                 }
 
-                for(let i = 0; i < calcArray.length; i++) {
+                for (let i = 0; i < calcArray.length; i++) {
                     calcArray[i] = calcArray[i] + "+" + this.totalPayrollToDisplay[i];
                 }
 
@@ -392,15 +410,20 @@ export default {
 
     },
     methods: {
+        ...mapActions(useModelMetaStore, ['updatePiniaModelMetaStore']),
+        ...mapActions(useUserStore, ['updatePiniaUserStore']),
+        ...mapActions(useCostStore, ['setPiniaCostStore']),
+        ...mapActions(usePayrollStore, ['setPiniaPayrollStore']),
+        ...mapActions(usePossibleIntegrationsStore, ['setPossibleIntegrationsStore']),
         closeErrorMessage(index: number) {
             this.errorMessages.splice(index, 1)
         },
-        stickScroll(idParent:string, idChild:string) {
+        stickScroll(idParent: string, idChild: string) {
             const scrollParent = document.querySelector(`#${idParent}`);
             const scrollChild = document.querySelector(`#${idChild}`);
             scrollChild.scrollLeft = scrollParent.scrollLeft;
         },
-        getMonthDiff(startDate:Date, endDate:Date) {
+        getMonthDiff(startDate: Date, endDate: Date) {
             return endDate.getMonth() - startDate.getMonth() + (12 * (endDate.getFullYear() - startDate.getFullYear()))
         },
         async addSection() {
@@ -447,14 +470,14 @@ export default {
                 end_row: emptyEndRow
             }
 
-            this.costState.sections.push(emptySection);
+            this.piniaCostStore.sections.push(emptySection);
 
             try {
-                await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
+                await useSheetUpdate().updateCostSheet(this.$route.params.modelId, this.piniaCostStore);
             } catch (e) {
                 console.log(e)
                 this.errorMessages.push("Something went wrong! Please try adding the section again.");
-                this.costState = await useSheetUpdate().getCostSheet(this.route.params.modelId)
+                this.piniaCostStore = await useSheetUpdate().getCostSheet(this.$route.params.modelId)
             }
 
         },
@@ -477,38 +500,38 @@ export default {
 
             }
 
-            this.costState.assumptions.push(emptyAssumption);
+            this.piniaCostStore.assumptions.push(emptyAssumption);
 
             const assumptionValuesArrayState = useState<string[][]>('costAssumptionValues');
             var assumptionValuesArray: string[][];
 
             try {
-                assumptionValuesArray = useFormulaParser().getSheetRowValues(this.costState.assumptions);
+                assumptionValuesArray = useFormulaParser().getSheetRowValues(this.piniaCostStore.assumptions);
                 let index = assumptionValuesArray.length - 1;
                 assumptionValuesArrayState.value.push(assumptionValuesArray[index])
             } catch (e) {
                 console.log(e);
                 this.errorMessages.push("Something went wrong! Please try adding the variable again.");
-                this.costState = await useSheetUpdate().getCostSheet(this.route.params.modelId)
+                this.piniaCostStore = await useSheetUpdate().getCostSheet(this.$route.params.modelId)
             }
 
             try {
-                await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
+                await useSheetUpdate().updateCostSheet(this.$route.params.modelId, this.piniaCostStore);
             } catch (e) {
                 console.log(e)
                 this.errorMessages.push("Something went wrong! Please try adding the variable again.");
-                this.costState = await useSheetUpdate().getCostSheet(this.route.params.modelId)
+                this.piniaCostStore = await useSheetUpdate().getCostSheet(this.$route.params.modelId)
             }
 
         },
         async addEmployee() {
 
-            console.log(this.modelMeta.starting_month)
+            console.log(this.piniaModelMetaStore.starting_month)
 
             const emptyEmployee: Employee = {
                 _id: null,
                 name: "Joanna Doe",
-                start_date: this.modelMeta.starting_month,
+                start_date: this.piniaModelMetaStore.starting_month,
                 end_date: null,
                 title: "CEO",
                 department: "Finance",
@@ -516,14 +539,14 @@ export default {
                 from_integration: false,
             }
 
-            this.payrollState.employees.push(emptyEmployee);
+            this.piniaPayrollStore.employees.push(emptyEmployee);
 
             try {
-                await useSheetUpdate().updatePayroll(this.route.params.modelId, this.payrollState.employees);
+                await useSheetUpdate().updatePayroll(this.$route.params.modelId, this.piniaPayrollStore.employees);
             } catch (e) {
                 console.log(e);
                 this.errorMessages.push("Could not add employee! Please try again.");
-                this.payrollState = await useSheetUpdate().getPayroll(this.route.params.modelId);
+                this.piniaPayrollStore = await useSheetUpdate().getPayroll(this.$route.params.modelId);
             }
 
         },
@@ -546,14 +569,14 @@ export default {
 
             }
 
-            this.costState.sections[sectionIndex].rows.push(emptyVariable);
+            this.piniaCostStore.sections[sectionIndex].rows.push(emptyVariable);
 
             try {
-                await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
+                await useSheetUpdate().updateCostSheet(this.$route.params.modelId, this.piniaCostStore);
             } catch (e) {
                 console.log(e)
                 this.errorMessages.push("Something went wrong! Please try adding the variable again.");
-                this.costState = await useSheetUpdate().getCostSheet(this.route.params.modelId)
+                this.piniaCostStore = await useSheetUpdate().getCostSheet(this.$route.params.modelId)
             }
 
         },
@@ -564,45 +587,45 @@ export default {
 
                 const storageValue: string = useGetValueFromHumanReadable(humanReadableInputValue, variableId, variableSearchMap);
 
-                this.costState.assumptions[variableIndex].time_series = this.isTimeSeries(storageValue, timeSeriesMap);
-                this.costState.assumptions[variableIndex].value = storageValue.toString();
+                this.piniaCostStore.assumptions[variableIndex].time_series = this.isTimeSeries(storageValue, timeSeriesMap);
+                this.piniaCostStore.assumptions[variableIndex].value = storageValue.toString();
                 if (storageValue.includes("+") || storageValue.includes("-") || storageValue.includes("*") || storageValue.includes("/") || storageValue.includes("-")) {
-                    this.costState.assumptions[variableIndex].var_type = "formula";
+                    this.piniaCostStore.assumptions[variableIndex].var_type = "formula";
                 } else {
-                    this.costState.assumptions[variableIndex].var_type = "value";
+                    this.piniaCostStore.assumptions[variableIndex].var_type = "value";
                 }
 
                 try {
-                    //update CostState
-                    await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
+                    //update piniaCostStore
+                    await useSheetUpdate().updateCostSheet(this.$route.params.modelId, this.piniaCostStore);
                 } catch (e) {
                     console.log(e);
                     //retrieve actual stored sheet from DB
                     //if actual sheet and state match, if not update state to actual sheet
-                    const actualSheet = await useSheetUpdate().getCostSheet(this.route.params.modelId);
-                    if (!(actualSheet.assumptions[variableIndex].value === this.costState.assumptions[variableIndex].value)) {
-                        this.costState = actualSheet;
+                    const actualSheet = await useSheetUpdate().getCostSheet(this.$route.params.modelId);
+                    if (!(actualSheet.assumptions[variableIndex].value === this.piniaCostStore.assumptions[variableIndex].value)) {
+                        this.piniaCostStore = actualSheet;
                     }
                 }
             } else {
                 this.errorMessages.push("You can't enter an empty value. Please try again.");
             }
         },
-        async updateEmployee(employeeIndex:number, newName:string, newSalary:number, newTitle:string, newDepartment:string, newStartDate:string, newEndDate:string) {
+        async updateEmployee(employeeIndex: number, newName: string, newSalary: number, newTitle: string, newDepartment: string, newStartDate: string, newEndDate: string) {
 
-            this.payrollState.employees[employeeIndex].name = newName;
-            this.payrollState.employees[employeeIndex].monthly_salary = newSalary;
-            this.payrollState.employees[employeeIndex].title = newTitle;
-            this.payrollState.employees[employeeIndex].department = newDepartment;
-            this.payrollState.employees[employeeIndex].start_date = newStartDate;
-            this.payrollState.employees[employeeIndex].end_date = newEndDate;
+            this.piniaPayrollStore.employees[employeeIndex].name = newName;
+            this.piniaPayrollStore.employees[employeeIndex].monthly_salary = newSalary;
+            this.piniaPayrollStore.employees[employeeIndex].title = newTitle;
+            this.piniaPayrollStore.employees[employeeIndex].department = newDepartment;
+            this.piniaPayrollStore.employees[employeeIndex].start_date = newStartDate;
+            this.piniaPayrollStore.employees[employeeIndex].end_date = newEndDate;
 
             try {
-                this.payrollState = await useSheetUpdate().updatePayroll(this.route.params.modelId, this.payrollState.employees);
+                this.piniaPayrollStore = await useSheetUpdate().updatePayroll(this.$route.params.modelId, this.piniaPayrollStore.employees);
             } catch (e) {
                 console.log(e);
                 this.errorMessages.push("Could not update employee! Please try again.");
-                this.payrollState = await useSheetUpdate().getPayroll(this.route.params.modelId);
+                this.piniaPayrollStore = await useSheetUpdate().getPayroll(this.$route.params.modelId);
             }
 
         },
@@ -612,29 +635,29 @@ export default {
                 //Get humanReadableInputValue and create storage value
 
                 const storageValue: string = useGetValueFromHumanReadable(humanReadableInputValue, variableId, variableSearchMap);
-                this.costState.sections[sectionIndex].rows[variableIndex].value = storageValue.toString();
+                this.piniaCostStore.sections[sectionIndex].rows[variableIndex].value = storageValue.toString();
 
-                if (this.costState.sections[sectionIndex].rows[variableIndex].integration_name != null) {
-                    this.costState.sections[sectionIndex].rows[variableIndex].var_type = "integration";
-                    this.costState.sections[sectionIndex].rows[variableIndex].time_series = true;
+                if (this.piniaCostStore.sections[sectionIndex].rows[variableIndex].integration_name != null) {
+                    this.piniaCostStore.sections[sectionIndex].rows[variableIndex].var_type = "integration";
+                    this.piniaCostStore.sections[sectionIndex].rows[variableIndex].time_series = true;
                 } else if (storageValue.includes("+") || storageValue.includes("-") || storageValue.includes("*") || storageValue.includes("/") || storageValue.includes("-")) {
-                    this.costState.sections[sectionIndex].rows[variableIndex].var_type = "formula";
-                    this.costState.sections[sectionIndex].rows[variableIndex].time_series = this.isTimeSeries(storageValue, timeSeriesMap);
+                    this.piniaCostStore.sections[sectionIndex].rows[variableIndex].var_type = "formula";
+                    this.piniaCostStore.sections[sectionIndex].rows[variableIndex].time_series = this.isTimeSeries(storageValue, timeSeriesMap);
                 } else {
-                    this.costState.sections[sectionIndex].rows[variableIndex].var_type = "value";
-                    this.costState.sections[sectionIndex].rows[variableIndex].time_series = this.isTimeSeries(storageValue, timeSeriesMap);
+                    this.piniaCostStore.sections[sectionIndex].rows[variableIndex].var_type = "value";
+                    this.piniaCostStore.sections[sectionIndex].rows[variableIndex].time_series = this.isTimeSeries(storageValue, timeSeriesMap);
                 }
 
                 try {
-                    //update CostState
-                    await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
+                    //update piniaCostStore
+                    await useSheetUpdate().updateCostSheet(this.$route.params.modelId, this.piniaCostStore);
                 } catch (e) {
                     console.log(e);
                     //retrieve actual stored sheet from DB
                     //if actual sheet and state match, if not update state to actual sheet
-                    const actualSheet = await useSheetUpdate().getCostSheet(this.route.params.modelId);
-                    if (!(actualSheet.sections[0].rows[variableIndex].value === this.costState.sections[0].rows[variableIndex].value)) {
-                        this.costState = actualSheet;
+                    const actualSheet = await useSheetUpdate().getCostSheet(this.$route.params.modelId);
+                    if (!(actualSheet.sections[0].rows[variableIndex].value === this.piniaCostStore.sections[0].rows[variableIndex].value)) {
+                        this.piniaCostStore = actualSheet;
                     }
                 }
             } else {
@@ -643,32 +666,32 @@ export default {
         },
         async updateIntegrationValue(integrationSelected: string, timeSeriesMap: Map<string, boolean>, variableIndex: number, sectionIndex: number) {
             if (integrationSelected != "None") {
-                this.costState.sections[sectionIndex].rows[variableIndex].var_type = "integration";
-                this.costState.sections[sectionIndex].rows[variableIndex].integration_name = integrationSelected;
-                this.costState.sections[sectionIndex].rows[variableIndex].time_series = true;
+                this.piniaCostStore.sections[sectionIndex].rows[variableIndex].var_type = "integration";
+                this.piniaCostStore.sections[sectionIndex].rows[variableIndex].integration_name = integrationSelected;
+                this.piniaCostStore.sections[sectionIndex].rows[variableIndex].time_series = true;
             } else {
-                var checkValue = this.costState.sections[sectionIndex].rows[variableIndex].value;
+                var checkValue = this.piniaCostStore.sections[sectionIndex].rows[variableIndex].value;
                 if (checkValue.includes("+") || checkValue.includes("-") || checkValue.includes("*") || checkValue.includes("/") || checkValue.includes("-")) {
-                    this.costState.sections[sectionIndex].rows[variableIndex].var_type = "formula";
+                    this.piniaCostStore.sections[sectionIndex].rows[variableIndex].var_type = "formula";
                 } else {
-                    this.costState.sections[sectionIndex].rows[variableIndex].var_type = "value";
+                    this.piniaCostStore.sections[sectionIndex].rows[variableIndex].var_type = "value";
                 }
-                this.costState.sections[sectionIndex].rows[variableIndex].time_series = this.isTimeSeries(checkValue, timeSeriesMap);
-                this.costState.sections[sectionIndex].rows[variableIndex].integration_name = null;
-                this.costState.sections[sectionIndex].rows[variableIndex].integration_values = null;
+                this.piniaCostStore.sections[sectionIndex].rows[variableIndex].time_series = this.isTimeSeries(checkValue, timeSeriesMap);
+                this.piniaCostStore.sections[sectionIndex].rows[variableIndex].integration_name = null;
+                this.piniaCostStore.sections[sectionIndex].rows[variableIndex].integration_values = null;
             }
 
             try {
-                //update CostState
-                this.costState = await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
+                //update piniaCostStore
+                this.piniaCostStore = await useSheetUpdate().updateCostSheet(this.$route.params.modelId, this.piniaCostStore);
             } catch (e) {
                 console.log(e);
                 //retrieve actual stored sheet from DB
                 //if actual sheet and state match, if not update state to actual sheet
-                const actualSheet = await useSheetUpdate().getCostSheet(this.route.params.modelId);
-                if (!(actualSheet.sections[0].rows[variableIndex].integration_name === this.costState.sections[0].rows[variableIndex].integration_name) ||
-                    !(actualSheet.sections[0].rows[variableIndex].var_type === this.costState.sections[0].rows[variableIndex].var_type)) {
-                    this.costState = actualSheet;
+                const actualSheet = await useSheetUpdate().getCostSheet(this.$route.params.modelId);
+                if (!(actualSheet.sections[0].rows[variableIndex].integration_name === this.piniaCostStore.sections[0].rows[variableIndex].integration_name) ||
+                    !(actualSheet.sections[0].rows[variableIndex].var_type === this.piniaCostStore.sections[0].rows[variableIndex].var_type)) {
+                    this.piniaCostStore = actualSheet;
                 }
             }
         },
@@ -679,26 +702,26 @@ export default {
 
                 const storageValue: string = useGetValueFromHumanReadable(humanReadableInputValue, variableId, variableSearchMap);
 
-                this.costState.sections[sectionIndex].end_row.time_series = this.isTimeSeries(storageValue, timeSeriesMap);
-                this.costState.sections[sectionIndex].end_row.value = storageValue.toString();
+                this.piniaCostStore.sections[sectionIndex].end_row.time_series = this.isTimeSeries(storageValue, timeSeriesMap);
+                this.piniaCostStore.sections[sectionIndex].end_row.value = storageValue.toString();
 
                 //todo: handle integration
                 if (storageValue.includes("+") || storageValue.includes("-") || storageValue.includes("*") || storageValue.includes("/") || storageValue.includes("-")) {
-                    this.costState.sections[sectionIndex].end_row.var_type = "formula";
+                    this.piniaCostStore.sections[sectionIndex].end_row.var_type = "formula";
                 } else {
-                    this.costState.sections[sectionIndex].end_row.var_type = "value";
+                    this.piniaCostStore.sections[sectionIndex].end_row.var_type = "value";
                 }
 
                 try {
-                    //update CostState
-                    await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
+                    //update piniaCostStore
+                    await useSheetUpdate().updateCostSheet(this.$route.params.modelId, this.piniaCostStore);
                 } catch (e) {
                     console.log(e);
                     //retrieve actual stored sheet from DB
                     //if actual sheet and state match, if not update state to actual sheet
-                    const actualSheet = await useSheetUpdate().getCostSheet(this.route.params.modelId);
-                    if (!(actualSheet.sections[0].rows[variableIndex].value === this.costState.sections[0].rows[variableIndex].value)) {
-                        this.costState = actualSheet;
+                    const actualSheet = await useSheetUpdate().getCostSheet(this.$route.params.modelId);
+                    if (!(actualSheet.sections[0].rows[variableIndex].value === this.piniaCostStore.sections[0].rows[variableIndex].value)) {
+                        this.piniaCostStore = actualSheet;
                     }
                 }
             } else {
@@ -707,17 +730,17 @@ export default {
         },
         async updateAssumptionName(newName: string, variableIndex: number, sectionIndex: number) {
             if (newName.length > 0 && !useFormulaParser().charIsNumerical(newName[0])) {
-                this.costState.assumptions[variableIndex].name = newName;
+                this.piniaCostStore.assumptions[variableIndex].name = newName;
                 try {
-                    await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
+                    await useSheetUpdate().updateCostSheet(this.$route.params.modelId, this.piniaCostStore);
                 } catch (e) {
                     console.log(e);
                     this.errorMessages.push(e);
                     //retrieve actual stored sheet from DB
                     //if actual sheet and state match, if not update state to actual sheet
-                    const actualSheet = await useSheetUpdate().getCostSheet(this.route.params.modelId);
-                    if (!(this.costState.assumptions[variableIndex].name === actualSheet.assumptions[variableIndex].name)) {
-                        this.costState = actualSheet;
+                    const actualSheet = await useSheetUpdate().getCostSheet(this.$route.params.modelId);
+                    if (!(this.piniaCostStore.assumptions[variableIndex].name === actualSheet.assumptions[variableIndex].name)) {
+                        this.piniaCostStore = actualSheet;
                     }
                 }
             } else {
@@ -726,17 +749,17 @@ export default {
         },
         async updateSectionName(sectionIndex: number, newName: string) {
             if (newName.length > 0) {
-                this.costState.sections[sectionIndex].name = newName;
+                this.piniaCostStore.sections[sectionIndex].name = newName;
                 try {
-                    await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
+                    await useSheetUpdate().updateCostSheet(this.$route.params.modelId, this.piniaCostStore);
                 } catch (e) {
                     console.log(e);
                     this.errorMessages.push(e);
                     //retrieve actual stored sheet from DB
                     //if actual sheet and state match, if not update state to actual sheet
-                    const actualSheet = await useSheetUpdate().getCostSheet(this.route.params.modelId);
-                    if (!(this.costState.sections[sectionIndex].name === actualSheet.sections[sectionIndex].name)) {
-                        this.costState = actualSheet;
+                    const actualSheet = await useSheetUpdate().getCostSheet(this.$route.params.modelId);
+                    if (!(this.piniaCostStore.sections[sectionIndex].name === actualSheet.sections[sectionIndex].name)) {
+                        this.piniaCostStore = actualSheet;
                     }
                 }
             } else {
@@ -745,17 +768,17 @@ export default {
         },
         async updateVariableName(newName: string, variableIndex: number, sectionIndex: number) {
             if (newName.length > 0 && !useFormulaParser().charIsNumerical(newName[0])) {
-                this.costState.sections[sectionIndex].rows[variableIndex].name = newName;
+                this.piniaCostStore.sections[sectionIndex].rows[variableIndex].name = newName;
                 try {
-                    await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
+                    await useSheetUpdate().updateCostSheet(this.$route.params.modelId, this.piniaCostStore);
                 } catch (e) {
                     console.log(e);
                     this.errorMessages.push(e);
                     //retrieve actual stored sheet from DB
                     //if actual sheet and state match, if not update state to actual sheet
-                    const actualSheet = await useSheetUpdate().getCostSheet(this.route.params.modelId);
-                    if (!(this.costState.sections[sectionIndex].rows[variableIndex].name === actualSheet.sections[sectionIndex].rows[variableIndex].name)) {
-                        this.costState = actualSheet;
+                    const actualSheet = await useSheetUpdate().getCostSheet(this.$route.params.modelId);
+                    if (!(this.piniaCostStore.sections[sectionIndex].rows[variableIndex].name === actualSheet.sections[sectionIndex].rows[variableIndex].name)) {
+                        this.piniaCostStore = actualSheet;
                     }
                 }
             } else {
@@ -764,8 +787,8 @@ export default {
         },
         async updateAssumptionSettings(variableIndex: number, value1Input: string, valTypeInput: string, decimalPlaces: number, startingAtInput: number, sectionIndex: number) {
 
-            this.costState.assumptions[variableIndex].val_type = valTypeInput;
-            this.costState.assumptions[variableIndex].value_1 = value1Input;
+            this.piniaCostStore.assumptions[variableIndex].val_type = valTypeInput;
+            this.piniaCostStore.assumptions[variableIndex].value_1 = value1Input;
 
             var value1OnlySpaces: boolean;
 
@@ -777,33 +800,33 @@ export default {
             }
 
             if (value1Input === null || value1Input === undefined || value1Input === "" || value1OnlySpaces) {
-                this.costState.assumptions[variableIndex].value_1 = undefined;
-                this.costState.assumptions[variableIndex].first_value_diff = false;
+                this.piniaCostStore.assumptions[variableIndex].value_1 = undefined;
+                this.piniaCostStore.assumptions[variableIndex].first_value_diff = false;
             } else {
-                this.costState.assumptions[variableIndex].first_value_diff = true;
+                this.piniaCostStore.assumptions[variableIndex].first_value_diff = true;
             }
 
-            this.costState.assumptions[variableIndex].decimal_places = decimalPlaces;
-            this.costState.assumptions[variableIndex].starting_at = startingAtInput;
+            this.piniaCostStore.assumptions[variableIndex].decimal_places = decimalPlaces;
+            this.piniaCostStore.assumptions[variableIndex].starting_at = startingAtInput;
 
             try {
-                //update CostState
-                await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
+                //update piniaCostStore
+                await useSheetUpdate().updateCostSheet(this.$route.params.modelId, this.piniaCostStore);
             } catch (e) {
                 console.log(e);
                 this.errorMessages.push(e);
                 //retrieve actual stored sheet from DB
                 //if actual sheet and state match, if not update state to actual sheet
-                const actualSheet = await useSheetUpdate().getCostSheet(this.route.params.modelId);
-                if (!(actualSheet.assumptions[variableIndex].value === this.costState.assumptions[variableIndex].value)) {
-                    this.costState = actualSheet;
+                const actualSheet = await useSheetUpdate().getCostSheet(this.$route.params.modelId);
+                if (!(actualSheet.assumptions[variableIndex].value === this.piniaCostStore.assumptions[variableIndex].value)) {
+                    this.piniaCostStore = actualSheet;
                 }
             }
         },
         async updateVariableSettings(variableIndex: number, value1Input: string, valTypeInput: string, decimalPlaces: number, startingAtInput: number, sectionIndex: number) {
 
-            this.costState.sections[sectionIndex].rows[variableIndex].val_type = valTypeInput;
-            this.costState.sections[sectionIndex].rows[variableIndex].value_1 = value1Input;
+            this.piniaCostStore.sections[sectionIndex].rows[variableIndex].val_type = valTypeInput;
+            this.piniaCostStore.sections[sectionIndex].rows[variableIndex].value_1 = value1Input;
 
             var value1OnlySpaces: boolean;
 
@@ -815,86 +838,86 @@ export default {
             }
 
             if (value1Input === null || value1Input === undefined || value1Input === "" || value1OnlySpaces) {
-                this.costState.sections[sectionIndex].rows[variableIndex].value_1 = undefined;
-                this.costState.sections[sectionIndex].rows[variableIndex].first_value_diff = false;
+                this.piniaCostStore.sections[sectionIndex].rows[variableIndex].value_1 = undefined;
+                this.piniaCostStore.sections[sectionIndex].rows[variableIndex].first_value_diff = false;
             } else {
-                this.costState.sections[sectionIndex].rows[variableIndex].first_value_diff = true;
+                this.piniaCostStore.sections[sectionIndex].rows[variableIndex].first_value_diff = true;
             }
 
-            this.costState.sections[sectionIndex].rows[variableIndex].decimal_places = decimalPlaces;
-            this.costState.sections[sectionIndex].rows[variableIndex].starting_at = startingAtInput;
+            this.piniaCostStore.sections[sectionIndex].rows[variableIndex].decimal_places = decimalPlaces;
+            this.piniaCostStore.sections[sectionIndex].rows[variableIndex].starting_at = startingAtInput;
 
             try {
-                //update CostState
-                await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
+                //update piniaCostStore
+                await useSheetUpdate().updateCostSheet(this.$route.params.modelId, this.piniaCostStore);
             } catch (e) {
                 console.log(e);
                 this.errorMessages.push(e);
                 //retrieve actual stored sheet from DB
                 //if actual sheet and state match, if not update state to actual sheet
-                const actualSheet = await useSheetUpdate().getCostSheet(this.route.params.modelId);
-                if (!(actualSheet.sections[sectionIndex].rows[variableIndex].value === this.costState.sections[sectionIndex].rows[variableIndex].value)) {
-                    this.costState = actualSheet;
+                const actualSheet = await useSheetUpdate().getCostSheet(this.$route.params.modelId);
+                if (!(actualSheet.sections[sectionIndex].rows[variableIndex].value === this.piniaCostStore.sections[sectionIndex].rows[variableIndex].value)) {
+                    this.piniaCostStore = actualSheet;
                 }
             }
         },
         async deleteAssumption(variableIndex: number, sectionIndex: number) {
             //first directly change the state
-            this.costState.assumptions.splice(variableIndex, 1);
+            this.piniaCostStore.assumptions.splice(variableIndex, 1);
 
             //then update the backend
             try {
-                await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
+                await useSheetUpdate().updateCostSheet(this.$route.params.modelId, this.piniaCostStore);
             } catch (e) {
                 console.log(e) //todo: throw error message
                 this.errorMessages.push(e);
-                const actualSheet = await useSheetUpdate().getCostSheet(this.route.params.modelId);
-                if (!(actualSheet.assumptions.length === this.costState.assumptions.length)) {
-                    this.costState = actualSheet;
+                const actualSheet = await useSheetUpdate().getCostSheet(this.$route.params.modelId);
+                if (!(actualSheet.assumptions.length === this.piniaCostStore.assumptions.length)) {
+                    this.piniaCostStore = actualSheet;
                 }
             }
         },
-        async deleteEmployee(employeeIndex:number) {
+        async deleteEmployee(employeeIndex: number) {
 
-            this.payrollState.employees.splice(employeeIndex, 1);
+            this.piniaPayrollStore.employees.splice(employeeIndex, 1);
 
             try {
-                this.payrollState = await useSheetUpdate().updatePayroll(this.route.params.modelId, this.payrollState.employees);
+                this.piniaPayrollStore = await useSheetUpdate().updatePayroll(this.$route.params.modelId, this.piniaPayrollStore.employees);
             } catch (e) {
                 console.log(e);
                 this.errorMessages.push("Could not delete employee! Please try again.");
-                this.payrollState = await useSheetUpdate().getPayroll(this.route.params.modelId);
+                this.piniaPayrollStore = await useSheetUpdate().getPayroll(this.$route.params.modelId);
             }
 
         },
         async deleteSection(sectionIndex: number) {
             //first directly change the state
-            this.costState.sections.splice(sectionIndex, 1)
+            this.piniaCostStore.sections.splice(sectionIndex, 1)
             //then update the backend
             try {
-                await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
+                await useSheetUpdate().updateCostSheet(this.$route.params.modelId, this.piniaCostStore);
             } catch (e) {
                 console.log(e) //todo: throw error message
                 this.errorMessages.push(e);
-                const actualSheet = await useSheetUpdate().getCostSheet(this.route.params.modelId);
-                if (!(actualSheet.sections[sectionIndex].rows.length === this.costState.sections[sectionIndex].rows.length)) {
-                    this.costState = actualSheet;
+                const actualSheet = await useSheetUpdate().getCostSheet(this.$route.params.modelId);
+                if (!(actualSheet.sections[sectionIndex].rows.length === this.piniaCostStore.sections[sectionIndex].rows.length)) {
+                    this.piniaCostStore = actualSheet;
                 }
             }
         },
         async deleteVariable(variableIndex: number, sectionIndex: number) {
             //first directly change the state
-            this.costState.sections[sectionIndex].rows.splice(variableIndex, 1);
+            this.piniaCostStore.sections[sectionIndex].rows.splice(variableIndex, 1);
 
             //then update the backend
             try {
-                await useSheetUpdate().updateCostSheet(this.route.params.modelId, this.costState);
+                await useSheetUpdate().updateCostSheet(this.$route.params.modelId, this.piniaCostStore);
             } catch (e) {
                 console.log(e) //todo: throw error message
                 this.errorMessages.push(e);
-                const actualSheet = await useSheetUpdate().getCostSheet(this.route.params.modelId);
-                if (!(actualSheet.sections[sectionIndex].rows.length === this.costState.sections[sectionIndex].rows.length)) {
-                    this.costState = actualSheet;
+                const actualSheet = await useSheetUpdate().getCostSheet(this.$route.params.modelId);
+                if (!(actualSheet.sections[sectionIndex].rows.length === this.piniaCostStore.sections[sectionIndex].rows.length)) {
+                    this.piniaCostStore = actualSheet;
                 }
             }
         },

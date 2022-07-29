@@ -1,7 +1,5 @@
 <script setup lang="ts">
 
-const config = useRuntimeConfig();
-
 definePageMeta({
   middleware: ["auth", "route-check"]
 })
@@ -181,6 +179,8 @@ import { OtpRequiredResponse } from "~/types/OtpRequiredResponse";
 import { OtpCreateResponse } from "~/types/OtpCreateResponse";
 import { OtpValidateResponse } from "~/types/OtpValidateResponse";
 import { GetUserResponse } from '~~/types/GetUserResponse';
+import { mapWritableState, mapActions } from 'pinia';
+import { useUserStore } from '~~/store/useUserStore';
 
 export default {
   data() {
@@ -210,15 +210,19 @@ export default {
     };
   },
   async beforeMount() {
-    //get user data and pre fill the form
-    const userState = useUserState();
-
-    this.user.firstName = userState.value.first_name;
-    this.user.lastName = userState.value.last_name;
-    this.user.email = userState.value.username;
+    
+    try {
+      await this.updatePiniaUserStore();
+      //get workspace name from userState
+      this.user.firstName = this.piniaUserStore.first_name;
+      this.user.lastName = this.piniaUserStore.last_name;
+      this.user.email = this.piniaUserStore.username;
+    } catch(e) {
+      console.log(e);
+    }
 
     await $fetch(
-      `${this.config.public.backendUrlBase}/user/requiresOtp`, {
+      `${this.$config.public.backendUrlBase}/user/requiresOtp`, {
       method: 'GET',
       params: { username: this.user.email }
     }
@@ -231,7 +235,11 @@ export default {
     });
 
   },
+  computed: {
+    ...mapWritableState(useUserStore, ['piniaUserStore']),
+  },
   methods: {
+    ...mapActions(useUserStore, ['updatePiniaUserStore']),
     async updateUserInformation() {
 
       //remove error messages so they don't stack up
@@ -259,6 +267,10 @@ export default {
         this.errorMessagePersonalInfo = error.data.detail;
         this.showErrorPersonalInfo = true;
       });
+
+      this.piniaUserStore.first_name = this.user.firstName;
+      this.piniaUserStore.last_name = this.user.lastName;
+      this.piniaUserStore.username = this.user.email
 
     },
     async updatePassword() {
