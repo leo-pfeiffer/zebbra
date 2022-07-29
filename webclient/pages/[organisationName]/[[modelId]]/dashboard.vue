@@ -1,7 +1,5 @@
 <script setup lang="ts">
 
-import { useSheetUpdate } from '~~/methods/useSheetUpdate';
-
 definePageMeta({
   middleware: ["auth", "route-check"]
 })
@@ -164,13 +162,13 @@ definePageMeta({
 import { GetIntegrationProvidersResponse } from '~~/types/GetIntegrationProvidersResponse';
 import { useFetchAuth } from '~~/methods/useFetchAuth';
 import { useCalculateDashboardProfits } from "~/methods/useCalculateDashboardProfits";
-
 import { mapState, mapActions } from 'pinia';
 import { useUserStore } from '~~/store/useUserStore';
 import { useCostStore } from '~~/store/useCostStore';
 import { useRevenueStore } from '~~/store/useRevenueStore';
 import { usePayrollStore } from '~~/store/usePayrollStore';
 import { useModelMetaStore } from '~~/store/useModelMetaStore';
+import { useSheetUpdate } from '~~/methods/useSheetUpdate';
 
 export default {
   data() {
@@ -524,14 +522,14 @@ export default {
       this.statusMessage = "Processing data..."
       this.showLoading = true;
 
-      var startingDate = new Date;
-      // convert the string date to a date object
-      if (this.piniaModelMetaStore.starting_month) {
-        const dateParts = this.piniaModelMetaStore.starting_month.split('-');
-        startingDate = new Date(Number(dateParts[0]), Number(dateParts[1]) - 1, Number(dateParts[2]));
+      if (!this.piniaModelMetaStore.starting_month) {
+        return
       }
-
-      //todo: ask leo if all right!!!!
+      // convert the string date to a date object
+      
+      const dateParts = this.piniaModelMetaStore.starting_month.split('-');
+      const startingDate = new Date(Number(dateParts[0]), Number(dateParts[1]) - 1, Number(dateParts[2]));
+    
 
       // calculate the dashboard data
       const newDashboardData = useCalculateDashboardProfits(
