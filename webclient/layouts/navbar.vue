@@ -142,13 +142,13 @@ export default {
                 method: 'POST',
                 params: {
                     name: this.newModelName,
-                    workspace_id: this.user.workspaces[0]._id
+                    workspace_id: this.piniaUserStore.workspaces[0]._id
                 }
             }
             ).then((data:Model) => {
                 console.log("Model created sucessfully.");
                 newModelId = data._id;
-                navigateTo(`/${this.user.workspaces[0].name}/${newModelId}/dashboard`);
+                navigateTo(`/${this.piniaUserStore.workspaces[0].name}/${newModelId}/dashboard`);
             }).catch((error) => {
                 console.log(error);
                 this.createNewModalErrorMessage = error.data.details;

@@ -1,10 +1,3 @@
-<script setup lang="ts">
-
-const userState = useUserState();
-
-</script>
-
-
 <template>
 <div class="relative">
     <button @click="toggleDots" type="button"><i class="bi bi-three-dots"></i></button>
@@ -161,6 +154,8 @@ const userState = useUserState();
 
 import { useFetchAuth } from '~~/methods/useFetchAuth';
 import { useGetModelPermissions } from '~~/methods/useGetModelPermissions';
+import { mapState } from 'pinia';
+import { useUserStore } from '~~/store/useUserStore';
 
 export default {
 
@@ -194,6 +189,9 @@ export default {
         await this.getWorkspaceUsers();
         this.showAccessRightsSuccess = false;
     },
+    computed: {
+    ...mapState(useUserStore, ['piniaUserStore']),
+    },
     methods: {
         toggleDots() {
             if (this.clicked) {
@@ -225,7 +223,7 @@ export default {
                         '/workspace/users', {
                         method: 'GET',
                         params: {
-                            workspace_id: this.userState.workspaces[0]._id
+                            workspace_id: this.piniaUserStore.workspaces[0]._id
                         }
                     }
                     ).then((data) => {

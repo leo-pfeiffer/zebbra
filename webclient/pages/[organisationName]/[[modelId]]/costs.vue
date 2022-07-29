@@ -221,6 +221,7 @@ import { useCostStore } from '~~/store/useCostStore';
 import { usePayrollStore } from '~~/store/usePayrollStore';
 import { useModelMetaStore } from '~~/store/useModelMetaStore';
 import { usePossibleIntegrationsStore } from '~~/store/usePossibleIntegrationsStore';
+import { useDateArray } from '~~/methods/useDateArray';
 
 
 export default {

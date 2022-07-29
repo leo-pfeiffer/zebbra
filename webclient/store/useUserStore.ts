@@ -9,8 +9,6 @@ export const useUserStore = defineStore('userStore', {
   actions: {
     async updatePiniaUserStore() {
 
-      console.log("updatePiniaUserStore")
-
       await useFetchAuth(
         '/user', { method: 'GET' }
       ).then((data: GetUserResponse) => {

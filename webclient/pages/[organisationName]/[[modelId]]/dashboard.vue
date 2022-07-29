@@ -162,7 +162,7 @@ definePageMeta({
 import { GetIntegrationProvidersResponse } from '~~/types/GetIntegrationProvidersResponse';
 import { useFetchAuth } from '~~/methods/useFetchAuth';
 import { useCalculateDashboardProfits } from "~/methods/useCalculateDashboardProfits";
-import { mapState, mapActions } from 'pinia';
+import { mapState, mapWritableState, mapActions } from 'pinia';
 import { useUserStore } from '~~/store/useUserStore';
 import { useCostStore } from '~~/store/useCostStore';
 import { useRevenueStore } from '~~/store/useRevenueStore';
@@ -198,10 +198,10 @@ export default {
   },
   computed: {
     ...mapState(useUserStore, ['piniaUserStore']),
-    ...mapState(useModelMetaStore, ['piniaModelMetaStore']),
-    ...mapState(useCostStore, ['piniaCostStore']),
-    ...mapState(useRevenueStore, ['piniaRevenueStore']),
-    ...mapState(usePayrollStore, ['piniaPayrollStore']),
+    ...mapWritableState(useModelMetaStore, ['piniaModelMetaStore']),
+    ...mapWritableState(useCostStore, ['piniaCostStore']),
+    ...mapWritableState(useRevenueStore, ['piniaRevenueStore']),
+    ...mapWritableState(usePayrollStore, ['piniaPayrollStore']),
   },
   methods: {
     ...mapActions(useModelMetaStore, ['updatePiniaModelMetaStore']),

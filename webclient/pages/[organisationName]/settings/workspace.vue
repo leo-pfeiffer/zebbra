@@ -45,6 +45,7 @@ definePageMeta({
 import { useFetchAuth } from '~~/methods/useFetchAuth';
 import { mapWritableState, mapActions } from 'pinia';
 import { useUserStore } from '~~/store/useUserStore';
+import { useIsWorkspaceAdmin } from '~~/methods/useIsWorkspaceAdmin';
 
 export default {
   data() {

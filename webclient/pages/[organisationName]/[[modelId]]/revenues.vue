@@ -195,6 +195,7 @@ import { usePossibleIntegrationsStore } from '~~/store/usePossibleIntegrationsSt
 import { useFormulaParser } from '~~/methods/useFormulaParser';
 import { useGetValueFromHumanReadable } from '~~/methods/useGetValueFromHumanReadable';
 import { useMathParser } from '~~/methods/useMathParser';
+import { useDateArray } from '~~/methods/useDateArray';
 
 export default {
     data() {

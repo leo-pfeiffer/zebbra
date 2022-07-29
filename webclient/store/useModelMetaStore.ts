@@ -9,8 +9,6 @@ export const useModelMetaStore = defineStore('modelMetaStore', {
   actions: {
     async updatePiniaModelMetaStore(modelId: string) {
 
-      console.log("updatePiniaModelMetaStore")
-
       await useFetchAuth(
         '/model/meta', {
         method: 'GET',
