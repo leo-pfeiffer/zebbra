@@ -1,7 +1,3 @@
-<script setup lang="ts">
-
-</script>
-
 <template>
     <div class="w-screen h-screen flex" v-if="!userDataLoading">
         <div class="w-48 min-w-[12rem] bg-zinc-100 px-3 py-4 border-r border-zinc-300 overflow-hidden">
@@ -54,7 +50,7 @@
         </div>
         <div class="absolute bottom-0 left-0 bg-zinc-100 border-r border-zinc-300 w-48 flex justify-center px-3">
             <div class="flex justify-center w-full border-t border-zinc-300 py-3">
-                <button type="button" @click="useLogout()"
+                <button type="button" @click="logout()"
                     class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-sm px-2.5 py-1 border border-zinc-300 rounded text-zinc-700">Logout</button>
             </div>
         </div>
@@ -159,6 +155,9 @@ export default {
                 this.showCreateNewModalError = true;
             });
 
+        },
+        logout() {
+            useLogout();
         }
     },
 }
