@@ -2,9 +2,6 @@
 definePageMeta({
   middleware: ["auth", "route-check"]
 })
-
-const config = useRuntimeConfig();
-
 </script>
 
 <template>
@@ -46,6 +43,8 @@ const config = useRuntimeConfig();
 <script>
 
 import { useFetchAuth } from '~~/methods/useFetchAuth';
+import { mapWritableState, mapActions } from 'pinia';
+import { useUserStore } from '~~/store/useUserStore';
 
 export default {
   data() {
@@ -59,18 +58,25 @@ export default {
       errorMessage: "Somthing went wrong. Try again!",
       userIsWorkspaceAdmin: false,
     };
-  }, async beforeMount() {
+  }, async mounted() {
     //check if user is admin
 
+    try {
+      await this.updatePiniaUserStore();
+      //get workspace name from userState
+      this.workspace._id = this.piniaUserStore.workspaces[0]._id;
+      this.workspace.name = this.piniaUserStore.workspaces[0].name;
+    } catch(e) {
+      console.log(e);
+    }
+
     this.userIsWorkspaceAdmin = await useIsWorkspaceAdmin();
-
-    //get workspace name from userState
-    const userState = useUserState();
-    this.workspace._id = userState.value.workspaces[0]._id;
-    this.workspace.name = userState.value.workspaces[0].name;
-
+  },
+  computed: {
+    ...mapWritableState(useUserStore, ['piniaUserStore']),
   },
   methods: {
+    ...mapActions(useUserStore, ['updatePiniaUserStore']),
     async updateWorkspaceName() {
 
       //remove error messages so they don't stack up
@@ -91,6 +97,9 @@ export default {
         this.errorMessage = error.data.detail;
         this.showError = true;
       });
+
+      this.piniaUserStore.workspaces[0].name = this.workspace.name;
+
     }
   }
 }
