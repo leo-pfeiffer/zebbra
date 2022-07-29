@@ -187,7 +187,7 @@ import { Section, Variable } from '~~/types/Model';
 import { useVariableSearchMap } from '~~/methods/useVariableSearchMap';
 import { useVariableTimeSeriesMap } from '~~/methods/useVariableTimeSeriesMap';
 import { useSheetUpdate } from '~~/methods/useSheetUpdate';
-import { mapState, mapActions } from 'pinia';
+import { mapWritableState, mapActions } from 'pinia';
 import { useUserStore } from '~~/store/useUserStore';
 import { useModelMetaStore } from '~~/store/useModelMetaStore';
 import { useRevenueStore } from '~~/store/useRevenueStore';
@@ -229,10 +229,10 @@ export default {
 
     },
     computed: {
-        ...mapState(useUserStore, ['piniaUserStore']),
-        ...mapState(useModelMetaStore, ['piniaModelMetaStore']),
-        ...mapState(useRevenueStore, ['piniaRevenueStore']),
-        ...mapState(usePossibleIntegrationsStore, ['piniaPossibleIntegrationsStore']),
+        ...mapWritableState(useUserStore, ['piniaUserStore']),
+        ...mapWritableState(useModelMetaStore, ['piniaModelMetaStore']),
+        ...mapWritableState(useRevenueStore, ['piniaRevenueStore']),
+        ...mapWritableState(usePossibleIntegrationsStore, ['piniaPossibleIntegrationsStore']),
         dates() {
             if (this.piniaModelMetaStore.starting_month) {
                 const date: string[] = this.piniaModelMetaStore.starting_month.split("-");
