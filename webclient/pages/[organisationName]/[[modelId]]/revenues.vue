@@ -11,13 +11,6 @@ definePageMeta({
 
 const route = useRoute();
 
-const userState = useUserState();
-
-const modelMeta = useModelMetaState();
-modelMeta.value = await getModelMeta(route.params.modelId);
-
-const userIsViewer = modelMeta.value.viewers.includes(userState.value._id);
-
 const revenueState = useRevenueState();
 
 try{
@@ -39,10 +32,8 @@ try{
 <template>
     <NuxtLayout name="navbar">
         <div class="h-full">
-            <div class="py-3 border-b px-3 border-zinc-300 top-0 min-h-[70px] max-h-[70px]">
-                <SheetHeader :sheetName="'Revenues'" :workspaceName="userState.workspaces[0].name" :modelName="modelMeta.name"></SheetHeader>
-            </div>
-            <div class="py-16">{{piniaUserStore}}
+            <div v-if="!userAndMetaDataLoading" class="py-3 border-b px-3 border-zinc-300 top-0 min-h-[70px] max-h-[70px]">
+                <SheetHeader :sheetName="'Revenues'" :workspaceName="piniaUserStore.workspaces[0].name" :modelName="piniaModelMetaStore.name"></SheetHeader>
             </div>
             <div class="ml-1 pl-2 flex top-0 bg-white pt-2 min-h-[50px] max-h-[50px]">
                 <div class="min-w-[470px] max-w-[470px]">
@@ -213,6 +204,8 @@ try{
 
 import { mapState, mapActions } from 'pinia';
 import { useUserStore } from '~~/store/useUserStore';
+import { useModelMetaStore } from '~~/store/useModelMetaStore';
+
 
 import { useFormulaParser } from '~~/methods/useFormulaParser';
 import { useGetValueFromHumanReadable } from '~~/methods/useGetValueFromHumanReadable';
@@ -221,24 +214,32 @@ import { useMathParser } from '~~/methods/useMathParser';
 export default {
     data() {
         return {
-            errorMessages: []
+            userAndMetaDataLoading: true,
+            errorMessages: [],
+            userIsViewer: false
         }
     },
-    mounted() {
-        this.updatePiniaUserStore;
+    async mounted() {
+        this.userAndMetaDataLoading = true;
+        try {
+            await this.updatePiniaUserStore();
+            await this.updatePiniaModelMetaStore(this.$route.params.modelId);
+            this.userAndMetaDataLoading = false;
+        } catch(e) {
+            console.log(e) //todo: handle error
+        }
 
-        //todo: add error handling
+        this.userIsViewer = this.piniaModelMetaStore.viewers.includes(this.piniaUserStore._id);
+
     },
     computed: {
         ...mapState(useUserStore, ['piniaUserStore']),
-        ...mapActions(useUserStore, ['updatePiniaUserStore']),
-        userX() {
-            console.log(this.piniaUserStore);
-            return this.piniaUserStore;
-        },
+        ...mapState(useModelMetaStore, ['piniaModelMetaStore']),
         dates() {
-            const date: string[] = this.modelMeta.starting_month.split("-");
-            return useDateArray(new Date(+date[0], +date[1] - 1))
+            if(this.piniaModelMetaStore.starting_month) {
+                const date: string[] = this.piniaModelMetaStore.starting_month.split("-");
+                return useDateArray(new Date(+date[0], +date[1] - 1))
+            }
         },
         computedAssumptionValuesToDisplay() {
             var assumptionValuesArray: string[][] = useFormulaParser().getSheetRowValues(this.revenueState.assumptions);
@@ -311,6 +312,8 @@ export default {
 
     },
     methods: {
+        ...mapActions(useModelMetaStore, ['updatePiniaModelMetaStore']),
+        ...mapActions(useUserStore, ['updatePiniaUserStore']),
         closeErrorMessage(index:number){
             this.errorMessages.splice(index, 1)
         },
