@@ -42,6 +42,8 @@ try{
             <div class="py-3 border-b px-3 border-zinc-300 top-0 min-h-[70px] max-h-[70px]">
                 <SheetHeader :sheetName="'Revenues'" :workspaceName="userState.workspaces[0].name" :modelName="modelMeta.name"></SheetHeader>
             </div>
+            <div class="py-16">{{piniaUserStore}}
+            </div>
             <div class="ml-1 pl-2 flex top-0 bg-white pt-2 min-h-[50px] max-h-[50px]">
                 <div class="min-w-[470px] max-w-[470px]">
                 </div>
@@ -209,6 +211,9 @@ try{
 
 <script lang="ts">
 
+import { mapState, mapActions } from 'pinia';
+import { useUserStore } from '~~/store/useUserStore';
+
 import { useFormulaParser } from '~~/methods/useFormulaParser';
 import { useGetValueFromHumanReadable } from '~~/methods/useGetValueFromHumanReadable';
 import { useMathParser } from '~~/methods/useMathParser';
@@ -219,7 +224,18 @@ export default {
             errorMessages: []
         }
     },
+    mounted() {
+        this.updatePiniaUserStore;
+
+        //todo: add error handling
+    },
     computed: {
+        ...mapState(useUserStore, ['piniaUserStore']),
+        ...mapActions(useUserStore, ['updatePiniaUserStore']),
+        userX() {
+            console.log(this.piniaUserStore);
+            return this.piniaUserStore;
+        },
         dates() {
             const date: string[] = this.modelMeta.starting_month.split("-");
             return useDateArray(new Date(+date[0], +date[1] - 1))
