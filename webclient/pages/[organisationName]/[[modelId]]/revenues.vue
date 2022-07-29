@@ -1,24 +1,7 @@
 <script setup lang="ts">
-import { Section, Variable } from '~~/types/Model';
-import { useVariableSearchMap } from '~~/methods/useVariableSearchMap';
-import { useVariableTimeSeriesMap } from '~~/methods/useVariableTimeSeriesMap';
-import { useSheetUpdate } from '~~/methods/useSheetUpdate';
-import { useGetPossibleIntegrationValues } from '~~/methods/useGetPossibleIntegrationValues';
-
 definePageMeta({
     middleware: ["auth", "route-check"]
 })
-
-const route = useRoute();
-
-const possibleIntegrationValuesState = usePossibleIntegrationValuesState();
-
-try {
-    possibleIntegrationValuesState.value = await useGetPossibleIntegrationValues(route.params.modelId);
-} catch (error) {
-    console.log(error);
-}
-
 </script>
 
 <template>
@@ -91,7 +74,7 @@ try {
                                         :timeSeriesMap="useVariableTimeSeriesMap(piniaRevenueStore.assumptions.concat(section.rows))"
                                         :variableSearchMap="useVariableSearchMap(piniaRevenueStore.assumptions.concat(section.rows))"
                                         :sectionIndex="sectionIndex" :isEndRow="false" :showIntegration="true"
-                                        :possible-integration-values="possibleIntegrationValuesState"
+                                        :possible-integration-values="piniaPossibleIntegrationsStore"
                                         :userIsViewer="userIsViewer"></VariableRowHeader>
                                     <div
                                         class="text-xs py-2 pl-10 min-w-[470px] max-w-[470px] border-zinc-300 border-t border-l">
@@ -200,11 +183,15 @@ try {
 
 <script lang="ts">
 
+import { Section, Variable } from '~~/types/Model';
+import { useVariableSearchMap } from '~~/methods/useVariableSearchMap';
+import { useVariableTimeSeriesMap } from '~~/methods/useVariableTimeSeriesMap';
+import { useSheetUpdate } from '~~/methods/useSheetUpdate';
 import { mapState, mapActions } from 'pinia';
 import { useUserStore } from '~~/store/useUserStore';
 import { useModelMetaStore } from '~~/store/useModelMetaStore';
 import { useRevenueStore } from '~~/store/useRevenueStore';
-
+import { usePossibleIntegrationsStore } from '~~/store/usePossibleIntegrationsStore';
 import { useFormulaParser } from '~~/methods/useFormulaParser';
 import { useGetValueFromHumanReadable } from '~~/methods/useGetValueFromHumanReadable';
 import { useMathParser } from '~~/methods/useMathParser';
@@ -233,6 +220,7 @@ export default {
         this.revenueDataLoading = true;
         try {
             await this.setPiniaRevenueStore(this.$route.params.modelId);
+            await this.setPossibleIntegrationsStore(this.$route.params.modelId);
             this.revenueDataLoading = false;
             console.log(this.piniaRevenueStore)
         } catch (e) {
@@ -244,6 +232,7 @@ export default {
         ...mapState(useUserStore, ['piniaUserStore']),
         ...mapState(useModelMetaStore, ['piniaModelMetaStore']),
         ...mapState(useRevenueStore, ['piniaRevenueStore']),
+        ...mapState(usePossibleIntegrationsStore, ['piniaPossibleIntegrationsStore']),
         dates() {
             if (this.piniaModelMetaStore.starting_month) {
                 const date: string[] = this.piniaModelMetaStore.starting_month.split("-");
@@ -324,6 +313,7 @@ export default {
         ...mapActions(useModelMetaStore, ['updatePiniaModelMetaStore']),
         ...mapActions(useUserStore, ['updatePiniaUserStore']),
         ...mapActions(useRevenueStore, ['setPiniaRevenueStore']),
+        ...mapActions(usePossibleIntegrationsStore, ['setPossibleIntegrationsStore']),
         closeErrorMessage(index: number) {
             this.errorMessages.splice(index, 1)
         },
@@ -379,11 +369,11 @@ export default {
             this.piniaRevenueStore.sections.push(emptySection);
 
             try {
-                await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.piniaRevenueStore);
+                await useSheetUpdate().updateRevenueSheet(this.$route.params.modelId, this.piniaRevenueStore);
             } catch (e) {
                 console.log(e)
                 this.errorMessages.push("Something went wrong! Please try adding the section again.");
-                this.piniaRevenueStore = await useSheetUpdate().getRevenueSheet(this.route.params.modelId)
+                this.piniaRevenueStore = await useSheetUpdate().getRevenueSheet(this.$route.params.modelId)
             }
 
         },
@@ -409,11 +399,11 @@ export default {
             this.piniaRevenueStore.assumptions.push(emptyAssumption);
 
             try {
-                await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.piniaRevenueStore);
+                await useSheetUpdate().updateRevenueSheet(this.$route.params.modelId, this.piniaRevenueStore);
             } catch (e) {
                 console.log(e)
                 this.errorMessages.push("Something went wrong! Please try adding the variable again.");
-                this.piniaRevenueStore = await useSheetUpdate().getRevenueSheet(this.route.params.modelId)
+                this.piniaRevenueStore = await useSheetUpdate().getRevenueSheet(this.$route.params.modelId)
             }
 
         },
@@ -439,11 +429,11 @@ export default {
             this.piniaRevenueStore.sections[sectionIndex].rows.push(emptyVariable);
 
             try {
-                await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.piniaRevenueStore);
+                await useSheetUpdate().updateRevenueSheet(this.$route.params.modelId, this.piniaRevenueStore);
             } catch (e) {
                 console.log(e)
                 this.errorMessages.push("Something went wrong! Please try adding the variable again.");
-                this.piniaRevenueStore = await useSheetUpdate().getRevenueSheet(this.route.params.modelId)
+                this.piniaRevenueStore = await useSheetUpdate().getRevenueSheet(this.$route.params.modelId)
             }
 
         },
@@ -464,13 +454,13 @@ export default {
 
                 try {
                     //update piniaRevenueStore
-                    await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.piniaRevenueStore);
+                    await useSheetUpdate().updateRevenueSheet(this.$route.params.modelId, this.piniaRevenueStore);
 
                 } catch (e) {
                     console.log(e);
                     //retrieve actual stored sheet from DB
                     //if actual sheet and state match, if not update state to actual sheet
-                    const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
+                    const actualSheet = await useSheetUpdate().getRevenueSheet(this.$route.params.modelId);
                     if (!(actualSheet.assumptions[variableIndex].value === this.piniaRevenueStore.assumptions[variableIndex].value)) {
                         this.piniaRevenueStore = actualSheet;
                     }
@@ -500,12 +490,12 @@ export default {
 
                 try {
                     //update piniaRevenueStore
-                    await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.piniaRevenueStore);
+                    await useSheetUpdate().updateRevenueSheet(this.$route.params.modelId, this.piniaRevenueStore);
                 } catch (e) {
                     console.log(e);
                     //retrieve actual stored sheet from DB
                     //if actual sheet and state match, if not update state to actual sheet
-                    const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
+                    const actualSheet = await useSheetUpdate().getRevenueSheet(this.$route.params.modelId);
                     if (!(actualSheet.sections[0].rows[variableIndex].value === this.piniaRevenueStore.sections[0].rows[variableIndex].value)) {
                         this.piniaRevenueStore = actualSheet;
                     }
@@ -533,12 +523,12 @@ export default {
 
             try {
                 //update piniaRevenueStore
-                this.piniaRevenueStore = await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.piniaRevenueStore);
+                this.piniaRevenueStore = await useSheetUpdate().updateRevenueSheet(this.$route.params.modelId, this.piniaRevenueStore);
             } catch (e) {
                 console.log(e);
                 //retrieve actual stored sheet from DB
                 //if actual sheet and state match, if not update state to actual sheet
-                const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
+                const actualSheet = await useSheetUpdate().getRevenueSheet(this.$route.params.modelId);
                 if (!(actualSheet.sections[0].rows[variableIndex].integration_name === this.piniaRevenueStore.sections[0].rows[variableIndex].integration_name) ||
                     !(actualSheet.sections[0].rows[variableIndex].var_type === this.piniaRevenueStore.sections[0].rows[variableIndex].var_type)) {
                     this.piniaRevenueStore = actualSheet;
@@ -564,12 +554,12 @@ export default {
 
                 try {
                     //update piniaRevenueStore
-                    await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.piniaRevenueStore);
+                    await useSheetUpdate().updateRevenueSheet(this.$route.params.modelId, this.piniaRevenueStore);
                 } catch (e) {
                     console.log(e);
                     //retrieve actual stored sheet from DB
                     //if actual sheet and state match, if not update state to actual sheet
-                    const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
+                    const actualSheet = await useSheetUpdate().getRevenueSheet(this.$route.params.modelId);
                     if (!(actualSheet.sections[0].rows[variableIndex].value === this.piniaRevenueStore.sections[0].rows[variableIndex].value)) {
                         this.piniaRevenueStore = actualSheet;
                     }
@@ -582,13 +572,13 @@ export default {
             if (newName.length > 0 && !useFormulaParser().charIsNumerical(newName[0])) {
                 this.piniaRevenueStore.assumptions[variableIndex].name = newName;
                 try {
-                    await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.piniaRevenueStore);
+                    await useSheetUpdate().updateRevenueSheet(this.$route.params.modelId, this.piniaRevenueStore);
                 } catch (e) {
                     console.log(e);
                     this.errorMessages.push(e);
                     //retrieve actual stored sheet from DB
                     //if actual sheet and state match, if not update state to actual sheet
-                    const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
+                    const actualSheet = await useSheetUpdate().getRevenueSheet(this.$route.params.modelId);
                     if (!(this.piniaRevenueStore.assumptions[variableIndex].name === actualSheet.assumptions[variableIndex].name)) {
                         this.piniaRevenueStore = actualSheet;
                     }
@@ -601,13 +591,13 @@ export default {
             if (newName.length > 0) {
                 this.piniaRevenueStore.sections[sectionIndex].name = newName;
                 try {
-                    await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.piniaRevenueStore);
+                    await useSheetUpdate().updateRevenueSheet(this.$route.params.modelId, this.piniaRevenueStore);
                 } catch (e) {
                     console.log(e);
                     this.errorMessages.push(e);
                     //retrieve actual stored sheet from DB
                     //if actual sheet and state match, if not update state to actual sheet
-                    const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
+                    const actualSheet = await useSheetUpdate().getRevenueSheet(this.$route.params.modelId);
                     if (!(this.piniaRevenueStore.sections[sectionIndex].name === actualSheet.sections[sectionIndex].name)) {
                         this.piniaRevenueStore = actualSheet;
                     }
@@ -620,13 +610,13 @@ export default {
             if (newName.length > 0 && !useFormulaParser().charIsNumerical(newName[0])) {
                 this.piniaRevenueStore.sections[sectionIndex].rows[variableIndex].name = newName;
                 try {
-                    await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.piniaRevenueStore);
+                    await useSheetUpdate().updateRevenueSheet(this.$route.params.modelId, this.piniaRevenueStore);
                 } catch (e) {
                     console.log(e);
                     this.errorMessages.push(e);
                     //retrieve actual stored sheet from DB
                     //if actual sheet and state match, if not update state to actual sheet
-                    const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
+                    const actualSheet = await useSheetUpdate().getRevenueSheet(this.$route.params.modelId);
                     if (!(this.piniaRevenueStore.sections[sectionIndex].rows[variableIndex].name === actualSheet.sections[sectionIndex].rows[variableIndex].name)) {
                         this.piniaRevenueStore = actualSheet;
                     }
@@ -661,13 +651,13 @@ export default {
 
             try {
                 //update piniaRevenueStore
-                await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.piniaRevenueStore);
+                await useSheetUpdate().updateRevenueSheet(this.$route.params.modelId, this.piniaRevenueStore);
             } catch (e) {
                 console.log(e);
                 this.errorMessages.push(e);
                 //retrieve actual stored sheet from DB
                 //if actual sheet and state match, if not update state to actual sheet
-                const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
+                const actualSheet = await useSheetUpdate().getRevenueSheet(this.$route.params.modelId);
                 if (!(actualSheet.assumptions[variableIndex].value === this.piniaRevenueStore.assumptions[variableIndex].value)) {
                     this.piniaRevenueStore = actualSheet;
                 }
@@ -699,13 +689,13 @@ export default {
 
             try {
                 //update piniaRevenueStore
-                await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.piniaRevenueStore);
+                await useSheetUpdate().updateRevenueSheet(this.$route.params.modelId, this.piniaRevenueStore);
             } catch (e) {
                 console.log(e);
                 this.errorMessages.push(e);
                 //retrieve actual stored sheet from DB
                 //if actual sheet and state match, if not update state to actual sheet
-                const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
+                const actualSheet = await useSheetUpdate().getRevenueSheet(this.$route.params.modelId);
                 if (!(actualSheet.sections[sectionIndex].rows[variableIndex].value === this.piniaRevenueStore.sections[sectionIndex].rows[variableIndex].value)) {
                     this.piniaRevenueStore = actualSheet;
                 }
@@ -717,11 +707,11 @@ export default {
 
             //then update the backend
             try {
-                await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.piniaRevenueStore);
+                await useSheetUpdate().updateRevenueSheet(this.$route.params.modelId, this.piniaRevenueStore);
             } catch (e) {
                 console.log(e) //todo: throw error message
                 this.errorMessages.push(e);
-                const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
+                const actualSheet = await useSheetUpdate().getRevenueSheet(this.$route.params.modelId);
                 if (!(actualSheet.assumptions.length === this.piniaRevenueStore.assumptions.length)) {
                     this.piniaRevenueStore = actualSheet;
                 }
@@ -732,11 +722,11 @@ export default {
             this.piniaRevenueStore.sections.splice(sectionIndex, 1)
             //then update the backend
             try {
-                await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.piniaRevenueStore);
+                await useSheetUpdate().updateRevenueSheet(this.$route.params.modelId, this.piniaRevenueStore);
             } catch (e) {
                 console.log(e) //todo: throw error message
                 this.errorMessages.push(e);
-                const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
+                const actualSheet = await useSheetUpdate().getRevenueSheet(this.$route.params.modelId);
                 if (!(actualSheet.sections[sectionIndex].rows.length === this.piniaRevenueStore.sections[sectionIndex].rows.length)) {
                     this.piniaRevenueStore = actualSheet;
                 }
@@ -748,11 +738,11 @@ export default {
 
             //then update the backend
             try {
-                await useSheetUpdate().updateRevenueSheet(this.route.params.modelId, this.piniaRevenueStore);
+                await useSheetUpdate().updateRevenueSheet(this.$route.params.modelId, this.piniaRevenueStore);
             } catch (e) {
                 console.log(e) //todo: throw error message
                 this.errorMessages.push(e);
-                const actualSheet = await useSheetUpdate().getRevenueSheet(this.route.params.modelId);
+                const actualSheet = await useSheetUpdate().getRevenueSheet(this.$route.params.modelId);
                 if (!(actualSheet.sections[sectionIndex].rows.length === this.piniaRevenueStore.sections[sectionIndex].rows.length)) {
                     this.piniaRevenueStore = actualSheet;
                 }
