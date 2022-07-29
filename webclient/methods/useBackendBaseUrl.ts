@@ -4,6 +4,6 @@ export const useBackendBaseUrl = () => {
 
     const BACKEND_BASE_URL_PRODUCTION = "https://zebbra.xyz";
     
-    return BACKEND_BASE_URL_LOCAL;
+    return BACKEND_BASE_URL_PRODUCTION;
 
 }
