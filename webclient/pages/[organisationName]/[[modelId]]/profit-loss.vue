@@ -9,7 +9,7 @@ definePageMeta({
 <template>
     <NuxtLayout name="navbar">
         <div>
-            <LoadingSpinner v-if="dataIsLoading && dataLoadingFailed" :text="'Loading'"></LoadingSpinner>
+            <LoadingSpinner v-if="dataIsLoading && !dataLoadingFailed" :text="'Loading'"></LoadingSpinner>
             <div class="h-full overflow-hidden" v-if="!dataIsLoading">
                 <div class="py-3 border-b px-3 border-zinc-300 top-0 min-h-[70px] max-h-[70px]">
                     <SheetHeader :sheetName="'Profit & Loss'" :workspaceName="piniaUserStore.workspaces[0].name"
