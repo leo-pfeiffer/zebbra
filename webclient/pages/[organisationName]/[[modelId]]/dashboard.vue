@@ -108,7 +108,7 @@ definePageMeta({
                   :series="dashboardData.payrollCosts"></apexchart>
               </ClientOnly>
             </div>
-            <div class="pb-4 px-6 xl:py-6">
+            <div class="p-4">
               <ClientOnly>
                 <apexchart v-if="renderChart" width="100%" type="bar" :options="headcountOptions"
                   :series="dashboardData.headcount"></apexchart>
