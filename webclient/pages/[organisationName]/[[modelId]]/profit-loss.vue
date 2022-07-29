@@ -1,47 +1,16 @@
 <script setup lang="ts">
 
-import { useSheetUpdate } from '~~/methods/useSheetUpdate';
-import { useCalculateProfitLoss } from '~~/methods/useCalculateProfitLoss';
-
 definePageMeta({
     middleware: ["auth", "route-check"]
 })
-
-const route = useRoute()
-
-const userState = useUserState();
-
-const modelMeta = useModelMetaState();
-modelMeta.value = await getModelMeta(route.params.modelId);
-
-const revenueState = useRevenueState();
-try {
-    revenueState.value = await useSheetUpdate().getRevenueSheet(route.params.modelId);
-} catch (error) {
-    console.log(error);
-}
-
-const costState = useCostState();
-try {
-    costState.value = await useSheetUpdate().getCostSheet(route.params.modelId);
-} catch (e) {
-
-}
-
-const payrollState = usePayrollState();
-try {
-    payrollState.value = await useSheetUpdate().getPayroll(route.params.modelId);
-} catch (e) {
-    console.log(e)
-}
 
 </script>
 
 <template>
     <NuxtLayout name="navbar">
-        <div class="h-full overflow-hidden">
+        <div class="h-full overflow-hidden" v-if="!dataIsLoading">
             <div class="py-3 border-b px-3 border-zinc-300 top-0 min-h-[70px] max-h-[70px]">
-                <SheetHeader :sheetName="'Profit & Loss'" :workspaceName="userState.workspaces[0].name" :modelName="modelMeta.name"></SheetHeader>
+                <SheetHeader :sheetName="'Profit & Loss'" :workspaceName="piniaUserStore.workspaces[0].name" :modelName="piniaModelMetaStore.name"></SheetHeader>
             </div>
             <div class="ml-1 pl-2 flex top-0 bg-white pt-2 min-h-[50px] max-h-[50px]">
                 <div class="min-w-[300px] max-w-[300px]">
@@ -173,13 +142,44 @@ try {
 
 <script lang="ts">
 
+import { mapState, mapActions } from 'pinia';
+import { useUserStore } from '~~/store/useUserStore';
+import { useCostStore } from '~~/store/useCostStore';
+import { useRevenueStore } from '~~/store/useRevenueStore';
+import { usePayrollStore } from '~~/store/usePayrollStore';
+import { useModelMetaStore } from '~~/store/useModelMetaStore';
+
+import { useCalculateProfitLoss } from '~~/methods/useCalculateProfitLoss';
+
 export default {
     data() {
         return {
-            errorMessages: []
+            errorMessages: [],
+            dataIsLoading: true,
         }
     },
+    async mounted() {
+        this.dataIsLoading = true;
+        try {
+
+            await this.updatePiniaUserStore();
+            await this.updatePiniaModelMetaStore(this.$route.params.modelId);
+            await this.setPiniaCostStore(this.$route.params.modelId);
+            await this.setPiniaRevenueStore(this.$route.params.modelId);
+            await this.setPiniaPayrollStore(this.$route.params.modelId);
+            this.dataIsLoading = false;
+        } catch(e) {
+            console.log(e);
+            //todo error handling
+        }
+
+    },
     methods: {
+        ...mapActions(useModelMetaStore, ['updatePiniaModelMetaStore']),
+        ...mapActions(useUserStore, ['updatePiniaUserStore']),
+        ...mapActions(useCostStore, ['setPiniaCostStore']),
+        ...mapActions(useRevenueStore, ['setPiniaRevenueStore']),
+        ...mapActions(usePayrollStore, ['setPiniaPayrollStore']),
         closeErrorMessage(index: number) {
             this.errorMessages.splice(index, 1)
         },
@@ -191,12 +191,20 @@ export default {
 
     },
     computed: {
+        ...mapState(useUserStore, ['piniaUserStore']),
+        ...mapState(useModelMetaStore, ['piniaModelMetaStore']),
+        ...mapState(useCostStore, ['piniaCostStore']),
+        ...mapState(useRevenueStore, ['piniaRevenueStore']),
+        ...mapState(usePayrollStore, ['piniaPayrollStore']),
         dates() {
-            const date: string[] = this.modelMeta.starting_month.split("-");
-            return useDateArray(new Date(+date[0], +date[1] - 1))
+
+            if(this.piniaModelMetaStore.starting_month) {
+                const date: string[] = this.piniaModelMetaStore.starting_month.split("-");
+                return useDateArray(new Date(+date[0], +date[1] - 1))
+            }
         },
         profitLoss() {
-            return useCalculateProfitLoss(this.revenueState, this.costState, this.payrollState);
+            return useCalculateProfitLoss(this.piniaRevenueStore, this.piniaCostStore, this.piniaPayrollStore);
         }
     }
 }
