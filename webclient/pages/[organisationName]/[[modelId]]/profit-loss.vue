@@ -161,7 +161,6 @@ export default {
     async mounted() {
         this.dataIsLoading = true;
         try {
-
             await this.updatePiniaUserStore();
             await this.updatePiniaModelMetaStore(this.$route.params.modelId);
             await this.setPiniaCostStore(this.$route.params.modelId);
