@@ -235,7 +235,6 @@ export default {
             await this.setPiniaRevenueStore(this.$route.params.modelId);
             await this.setPossibleIntegrationsStore(this.$route.params.modelId);
             this.revenueDataLoading = false;
-            console.log(this.piniaRevenueStore)
         } catch (e) {
             console.log(e) //todo: handle error
         }
