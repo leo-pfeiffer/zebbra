@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 
 definePageMeta({
   middleware: ["auth", "route-check"]
@@ -148,9 +148,8 @@ definePageMeta({
   </NuxtLayout>
 </template>
 
-<script lang="ts">
+<script>
 
-import { GetIntegrationProvidersResponse } from '~~/types/GetIntegrationProvidersResponse';
 import { useFetchAuth } from '~~/methods/useFetchAuth';
 import { useCalculateDashboardProfits } from "~/methods/useCalculateDashboardProfits";
 import { mapState, mapWritableState, mapActions } from 'pinia';
@@ -250,7 +249,7 @@ export default {
 
     },
 
-    getProfitChartOptions(showZeroLine: boolean) {
+    getProfitChartOptions(showZeroLine) {
       const opts = this.makeChartOptions('Net Income')
       opts.subtitle = {
         text: 'Total net income per month',
@@ -282,7 +281,7 @@ export default {
       return opts;
     },
 
-    getCashBalanceOptions(showZeroLine: boolean) {
+    getCashBalanceOptions(showZeroLine) {
       const opts = this.makeChartOptions('Cash Balance');
       opts.subtitle = {
         text: 'Total cash reserves per month (approximated)',
@@ -585,7 +584,7 @@ export default {
     // https://github.com/apexcharts/apexcharts.js/issues/1077#issuecomment-984386146
     setTimeout(() => { this.renderChart = true }, 50)
 
-    let integrationsProviderResponse: GetIntegrationProvidersResponse[];
+    let integrationsProviderResponse;
     const getIntegrationsState = await useFetchAuth(
       '/integration/providers', {
       method: 'GET',
@@ -593,7 +592,7 @@ export default {
         workspace_id: this.piniaUserStore.workspaces[0]._id
       }
     }
-    ).then((data: GetIntegrationProvidersResponse[]) => {
+    ).then((data) => {
       integrationsProviderResponse = data;
     }).catch((error) => {
       console.log(error);
