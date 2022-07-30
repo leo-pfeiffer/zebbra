@@ -6,7 +6,7 @@ definePageMeta({
 
 <template>
     <NuxtLayout name="navbar">
-        <div>
+        <div class="h-full">
             <LoadingSpinner v-if="costDataLoading && !costDataLoadingFailed" :text="'Loading'"></LoadingSpinner>
             <div class="h-full" v-if="!costDataLoading">
                 <div
