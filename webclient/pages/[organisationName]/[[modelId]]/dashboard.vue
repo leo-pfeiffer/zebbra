@@ -35,7 +35,7 @@ definePageMeta({
             <form @submit.prevent="updateStartingBalance">
             <input type="number" class="border border-zinc-300 rounded py-0.5 px-2 mr-2 text-sm text-zinc-700"
               name="starting-balance" placeholder="Starting balance" v-model="startingBalance">
-            <button type="submit"
+            <button type="submit" @click="updateStartingBalance"
               class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-sm px-2.5 py-1 border border-zinc-300 rounded text-zinc-700">
               Set
             </button>
@@ -223,6 +223,12 @@ export default {
 
     async updateStartingMonth() {
 
+      console.log("v-model")
+      console.log(this.newStartingMonth);
+
+      console.log("pinia before")
+      console.log(this.piniaModelMetaStore);
+
       const data = await useFetchAuth(
         '/model/startingMonth', {
         method: 'POST',
@@ -235,6 +241,9 @@ export default {
       }).catch((error) => {
         console.log(error);
       });
+
+      console.log("pinia after fetch")
+      console.log(this.piniaModelMetaStore);
 
       await this.refreshModelData()
       this.calculateData()
