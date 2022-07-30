@@ -502,13 +502,8 @@ export default {
 
             this.piniaCostStore.assumptions.push(emptyAssumption);
 
-            const assumptionValuesArrayState = useState<string[][]>('costAssumptionValues');
-            var assumptionValuesArray: string[][];
-
             try {
-                assumptionValuesArray = useFormulaParser().getSheetRowValues(this.piniaCostStore.assumptions);
-                let index = assumptionValuesArray.length - 1;
-                assumptionValuesArrayState.value.push(assumptionValuesArray[index])
+                await useSheetUpdate().updateCostSheet(this.$route.params.modelId, this.piniaCostStore);
             } catch (e) {
                 console.log(e);
                 this.errorMessages.push("Something went wrong! Please try adding the variable again.");
