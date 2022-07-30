@@ -21,7 +21,7 @@ definePageMeta({
           <div class="flex">
             <form @submit.prevent="updateStartingMonth">
               <input type="month" class="border border-zinc-300 rounded py-0.5 px-2 mr-2 text-sm text-zinc-700"
-                name="starting-month" placeholder="Starting month" v-model="newStartingMonth">
+                name="starting-month" placeholder="Starting month" v-model="newStartingMonth.value">
               <button type="submit"
                 class=" bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-sm px-2.5 py-1 border border-zinc-300 rounded text-zinc-700">
                 Set
@@ -34,7 +34,7 @@ definePageMeta({
           <div class="flex">
             <form @submit.prevent="updateStartingBalance">
             <input type="number" class="border border-zinc-300 rounded py-0.5 px-2 mr-2 text-sm text-zinc-700"
-              name="starting-balance" placeholder="Starting balance" v-model="startingBalance">
+              name="starting-balance" placeholder="Starting balance" v-model="startingBalance.value">
             <button type="submit" @click="updateStartingBalance"
               class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-sm px-2.5 py-1 border border-zinc-300 rounded text-zinc-700">
               Set
@@ -164,8 +164,12 @@ export default {
   data() {
     return {
 
-      startingBalance: null,
-      newStartingMonth: null,
+      startingBalance: {
+        value: null
+      },
+      newStartingMonth: {
+        value: null
+      },
 
       showRequiresReconnectModal: false,
 
@@ -207,7 +211,7 @@ export default {
         method: 'POST',
         params: {
           model_id: this.$route.params.modelId,
-          starting_balance: this.startingBalance
+          starting_balance: this.startingBalance.value
         }
       }).then(async (data) => {
         console.log(data)
@@ -223,7 +227,7 @@ export default {
     async updateStartingMonth() {
 
       console.log("v-model")
-      console.log(this.newStartingMonth);
+      console.log(this.newStartingMonth.value);
 
       console.log("pinia before")
       console.log(this.piniaModelMetaStore);
@@ -233,7 +237,7 @@ export default {
         method: 'POST',
         params: {
           model_id: this.$route.params.modelId,
-          starting_month: `${this.newStartingMonth}-01`
+          starting_month: `${this.newStartingMonth.value}-01`
         }
       }).then(async (data) => {
         console.log(data)
@@ -532,7 +536,7 @@ export default {
 
       // calculate the dashboard data
       const newDashboardData = useCalculateDashboardProfits(
-        this.piniaRevenueStore, this.piniaCostStore, this.piniaPayrollStore, startingDate, this.startingBalance
+        this.piniaRevenueStore, this.piniaCostStore, this.piniaPayrollStore, startingDate, this.startingBalance.value
       );
 
       this.dashboardData = { ...newDashboardData };
@@ -568,8 +572,8 @@ export default {
       await this.setPiniaRevenueStore(this.$route.params.modelId);
       await this.setPiniaPayrollStore(this.$route.params.modelId);
 
-      this.startingBalance = this.piniaModelMetaStore.starting_balance;
-      this.newStartingMonth = this.piniaModelMetaStore.starting_month.slice(0, 7);
+      this.startingBalance.value = this.piniaModelMetaStore.starting_balance;
+      this.newStartingMonth.value = this.piniaModelMetaStore.starting_month.slice(0, 7);
 
       this.dataIsLoading = false;
 
