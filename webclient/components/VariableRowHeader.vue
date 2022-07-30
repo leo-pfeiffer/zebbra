@@ -1,8 +1,3 @@
-<script setup lang="ts">
-
-const route = useRoute();
-
-</script>
 <template>
     <div class="">
         <div class="flex text-zinc-900">

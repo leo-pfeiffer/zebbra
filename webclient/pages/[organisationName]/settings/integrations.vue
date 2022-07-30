@@ -1,8 +1,4 @@
 <script setup lang="ts">
-import { useFetchAuth } from '~~/methods/useFetchAuth';
-import { useToken } from '~~/methods/useToken';
-import { GetIntegrationProvidersResponse } from '~~/types/GetIntegrationProvidersResponse';
-
 definePageMeta({
     middleware: ["auth", "route-check"]
 })
@@ -173,6 +169,8 @@ definePageMeta({
 
 <script lang="ts">
 
+import { useFetchAuth } from '~~/methods/useFetchAuth';
+import { useToken } from '~~/methods/useToken';
 import { mapWritableState, mapActions } from 'pinia';
 import { useUserStore } from '~~/store/useUserStore';
 import { useIntegrationStore } from '~~/store/useIntegrationStore';
