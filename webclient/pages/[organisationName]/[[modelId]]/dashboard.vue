@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 
 definePageMeta({
   middleware: ["auth", "route-check"]
@@ -148,8 +148,9 @@ definePageMeta({
   </NuxtLayout>
 </template>
 
-<script>
+<script lang="ts">
 
+import { GetIntegrationProvidersResponse } from '~~/types/GetIntegrationProvidersResponse';
 import { useFetchAuth } from '~~/methods/useFetchAuth';
 import { useCalculateDashboardProfits } from "~/methods/useCalculateDashboardProfits";
 import { mapState, mapWritableState, mapActions } from 'pinia';
@@ -226,12 +227,6 @@ export default {
 
     async updateStartingMonth() {
 
-      console.log("v-model")
-      console.log(this.newStartingMonth.value);
-
-      console.log("pinia before")
-      console.log(this.piniaModelMetaStore);
-
       const data = await useFetchAuth(
         '/model/startingMonth', {
         method: 'POST',
@@ -245,15 +240,12 @@ export default {
         console.log(error);
       });
 
-      console.log("pinia after fetch")
-      console.log(this.piniaModelMetaStore);
-
       await this.refreshModelData()
       this.calculateData()
 
     },
 
-    getProfitChartOptions(showZeroLine) {
+    getProfitChartOptions(showZeroLine: boolean) {
       const opts = this.makeChartOptions('Net Income')
       opts.subtitle = {
         text: 'Total net income per month',
@@ -285,7 +277,7 @@ export default {
       return opts;
     },
 
-    getCashBalanceOptions(showZeroLine) {
+    getCashBalanceOptions(showZeroLine: boolean) {
       const opts = this.makeChartOptions('Cash Balance');
       opts.subtitle = {
         text: 'Total cash reserves per month (approximated)',
@@ -588,7 +580,7 @@ export default {
     // https://github.com/apexcharts/apexcharts.js/issues/1077#issuecomment-984386146
     setTimeout(() => { this.renderChart = true }, 50)
 
-    let integrationsProviderResponse;
+    let integrationsProviderResponse: GetIntegrationProvidersResponse[];;
     const getIntegrationsState = await useFetchAuth(
       '/integration/providers', {
       method: 'GET',
@@ -596,7 +588,7 @@ export default {
         workspace_id: this.piniaUserStore.workspaces[0]._id
       }
     }
-    ).then((data) => {
+    ).then((data: GetIntegrationProvidersResponse[]) => {
       integrationsProviderResponse = data;
     }).catch((error) => {
       console.log(error);
