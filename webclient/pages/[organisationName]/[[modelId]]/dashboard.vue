@@ -19,23 +19,27 @@ definePageMeta({
         <div class="min-w-fit mr-6">
           <p class="uppercase font-medium text-xs text-zinc-500 mb-2">Starting month:</p>
           <div class="flex">
-            <input type="month" class="border border-zinc-300 rounded py-0.5 px-2 mr-2 text-sm text-zinc-700"
-              name="starting-month" placeholder="Starting month" v-model="newStartingMonth">
-            <button type="button" @click="updateStartingMonth"
-              class=" bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-sm px-2.5 py-1 border border-zinc-300 rounded text-zinc-700">
-              Set
-            </button>
+            <form @submit.prevent="updateStartingMonth">
+              <input type="month" class="border border-zinc-300 rounded py-0.5 px-2 mr-2 text-sm text-zinc-700"
+                name="starting-month" placeholder="Starting month" v-model="newStartingMonth">
+              <button type="submit"
+                class=" bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-sm px-2.5 py-1 border border-zinc-300 rounded text-zinc-700">
+                Set
+              </button>
+            </form>
           </div>
         </div>
         <div class="min-w-fit">
           <p class="uppercase font-medium text-xs text-zinc-500 mb-2">Starting balance:</p>
           <div class="flex">
+            <form @submit.prevent="updateStartingBalance">
             <input type="number" class="border border-zinc-300 rounded py-0.5 px-2 mr-2 text-sm text-zinc-700"
               name="starting-balance" placeholder="Starting balance" v-model="startingBalance">
-            <button type="button" @click="updateStartingBalance"
+            <button type="submit"
               class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-sm px-2.5 py-1 border border-zinc-300 rounded text-zinc-700">
               Set
             </button>
+            </form>
           </div>
 
         </div>
