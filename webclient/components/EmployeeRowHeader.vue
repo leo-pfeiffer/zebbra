@@ -30,7 +30,7 @@
                             </div>
                             <div class="text-zinc-900 font-medium mb-1">Start Date</div>
                             <div class="mb-2">
-                                <input :disabled="employee.from_integration || userIsViewer" v-model="newStartDate" :id="'start-date-input-' + employee._id" type="text"
+                                <input :disabled="employee.from_integration || userIsViewer" v-model="newStartDate" :id="'start-date-input-' + employee._id" type="date"
                                     placeholder="YYYY-MM-DD"
                                     class="border-zinc-300 border rounded w-full font-mono px-2 py-1 disabled:text-zinc-500 disabled:placeholder:text-zinc-300/0">
                             </div>
@@ -49,7 +49,7 @@
                             </div>
                                 <div class="text-zinc-900 font-medium mb-1">End Date</div>
                             <div class="mb-2">
-                                <input :disabled="employee.from_integration || userIsViewer" v-model="newEndDate" :id="'end-date-input-' + employee._id" type="text"
+                                <input :disabled="employee.from_integration || userIsViewer" v-model="newEndDate" :id="'end-date-input-' + employee._id" type="date"
                                     placeholder="YYYY-MM-DD"
                                     class="border-zinc-300 border rounded w-full font-mono px-2 py-1 disabled:text-zinc-500 disabled:placeholder:text-zinc-300/0">
                             </div>
