@@ -22,6 +22,7 @@ describe('Tests for getSheetRowValues', () => {
             _id: "1",
             name: undefined,
             val_type: undefined,
+            decimal_places: 0,
             editable: undefined,
             var_type: undefined,
             time_series: false,
@@ -29,6 +30,7 @@ describe('Tests for getSheetRowValues', () => {
             first_value_diff: undefined,
             value: "100",
             value_1: undefined,
+            integration_name: undefined,
             integration_values: undefined
         }
 
@@ -50,6 +52,7 @@ describe('Tests for getSheetRowValues', () => {
             _id: "1",
             name: undefined,
             val_type: undefined,
+            decimal_places: 0,
             editable: undefined,
             var_type: undefined,
             time_series: true,
@@ -57,6 +60,7 @@ describe('Tests for getSheetRowValues', () => {
             first_value_diff: true,
             value: "$1+1",
             value_1: "100",
+            integration_name: undefined,
             integration_values: undefined
         }
 
@@ -82,6 +86,7 @@ describe('Tests for getSheetRowValues', () => {
             _id: "1",
             name: undefined,
             val_type: undefined,
+            decimal_places: 0,
             editable: undefined,
             var_type: undefined,
             time_series: true,
@@ -89,6 +94,7 @@ describe('Tests for getSheetRowValues', () => {
             first_value_diff: true,
             value: "$1+1",
             value_1: "1000",
+            integration_name: undefined,
             integration_values: undefined
         }
 
@@ -118,6 +124,7 @@ describe('Tests for getSheetRowValues', () => {
             _id: "1",
             name: undefined,
             val_type: undefined,
+            decimal_places: 0,
             editable: undefined,
             var_type: undefined,
             time_series: true,
@@ -125,6 +132,7 @@ describe('Tests for getSheetRowValues', () => {
             first_value_diff: true,
             value: "$1+#3",
             value_1: "#2",
+            integration_name: undefined,
             integration_values: undefined
         }
 
@@ -132,6 +140,7 @@ describe('Tests for getSheetRowValues', () => {
             _id: "2",
             name: undefined,
             val_type: undefined,
+            decimal_places: 0,
             editable: undefined,
             var_type: undefined,
             time_series: false,
@@ -139,6 +148,7 @@ describe('Tests for getSheetRowValues', () => {
             first_value_diff: false,
             value: "1000",
             value_1: undefined,
+            integration_name: undefined,
             integration_values: undefined
         }
 
@@ -146,6 +156,7 @@ describe('Tests for getSheetRowValues', () => {
             _id: "3",
             name: undefined,
             val_type: undefined,
+            decimal_places: 0,
             editable: undefined,
             var_type: undefined,
             time_series: false,
@@ -153,6 +164,7 @@ describe('Tests for getSheetRowValues', () => {
             first_value_diff: false,
             value: "1",
             value_1: undefined,
+            integration_name: undefined,
             integration_values: undefined
         }
 
@@ -178,6 +190,7 @@ describe('Tests for getSheetRowValues', () => {
             _id: "1",
             name: undefined,
             val_type: undefined,
+            decimal_places: 0,
             editable: undefined,
             var_type: undefined,
             time_series: true,
@@ -185,6 +198,7 @@ describe('Tests for getSheetRowValues', () => {
             first_value_diff: true,
             value: "$1+1",
             value_1: "100",
+            integration_name: undefined,
             integration_values: undefined
         }
 
@@ -192,6 +206,7 @@ describe('Tests for getSheetRowValues', () => {
             _id: "2",
             name: undefined,
             val_type: undefined,
+            decimal_places: 0,
             editable: undefined,
             var_type: undefined,
             time_series: true,
@@ -199,6 +214,7 @@ describe('Tests for getSheetRowValues', () => {
             first_value_diff: false,
             value: "#1",
             value_1: undefined,
+            integration_name: undefined,
             integration_values: undefined
         }
 
@@ -214,6 +230,7 @@ describe('Tests for getSheetRowValues', () => {
             _id: "1",
             name: undefined,
             val_type: undefined,
+            decimal_places: 0,
             editable: undefined,
             var_type: undefined,
             time_series: true,
@@ -221,6 +238,7 @@ describe('Tests for getSheetRowValues', () => {
             first_value_diff: true,
             value: "$1+#3", //  <------  #3 is not provided
             value_1: "#2",
+            integration_name: undefined,
             integration_values: undefined
         }
 
@@ -228,6 +246,7 @@ describe('Tests for getSheetRowValues', () => {
             _id: "2",
             name: undefined,
             val_type: undefined,
+            decimal_places: 0,
             editable: undefined,
             var_type: undefined,
             time_series: false,
@@ -235,6 +254,7 @@ describe('Tests for getSheetRowValues', () => {
             first_value_diff: false,
             value: "1000",
             value_1: undefined,
+            integration_name: undefined,
             integration_values: undefined
         }
 
@@ -369,6 +389,7 @@ describe('Tests for getCreationOrder method', () => {
             _id: "1",
             name: undefined,
             val_type: undefined,
+            decimal_places: 0,
             editable: undefined,
             var_type: undefined,
             time_series: undefined,
@@ -376,6 +397,7 @@ describe('Tests for getCreationOrder method', () => {
             first_value_diff: undefined,
             value: "1*1",
             value_1: undefined,
+            integration_name: undefined,
             integration_values: undefined
         }
 
@@ -383,6 +405,7 @@ describe('Tests for getCreationOrder method', () => {
             _id: "2",
             name: undefined,
             val_type: undefined,
+            decimal_places: 0,
             editable: undefined,
             var_type: undefined,
             time_series: undefined,
@@ -390,6 +413,7 @@ describe('Tests for getCreationOrder method', () => {
             first_value_diff: undefined,
             value: "#3*2",
             value_1: undefined,
+            integration_name: undefined,
             integration_values: undefined
         }
 
@@ -397,6 +421,7 @@ describe('Tests for getCreationOrder method', () => {
             _id: "3",
             name: undefined,
             val_type: undefined,
+            decimal_places: 0,
             editable: undefined,
             var_type: undefined,
             time_series: undefined,
@@ -404,6 +429,7 @@ describe('Tests for getCreationOrder method', () => {
             first_value_diff: undefined,
             value: "$1*(1+0.01)",
             value_1: "#1",
+            integration_name: undefined,
             integration_values: undefined
         }
 
@@ -425,6 +451,7 @@ describe('Tests for getReferenceArray Method', () => {
             _id: "123456",
             name: undefined,
             val_type: undefined,
+            decimal_places: 0,
             editable: undefined,
             var_type: undefined,
             time_series: undefined,
@@ -432,6 +459,7 @@ describe('Tests for getReferenceArray Method', () => {
             first_value_diff: undefined,
             value: "1*1",
             value_1: undefined,
+            integration_name: undefined,
             integration_values: undefined
         }
 
@@ -439,6 +467,7 @@ describe('Tests for getReferenceArray Method', () => {
             _id: "234567",
             name: undefined,
             val_type: undefined,
+            decimal_places: 0,
             editable: undefined,
             var_type: undefined,
             time_series: undefined,
@@ -446,6 +475,7 @@ describe('Tests for getReferenceArray Method', () => {
             first_value_diff: undefined,
             value: "#123456*2",
             value_1: undefined,
+            integration_name: undefined,
             integration_values: undefined
         }
 
@@ -476,6 +506,7 @@ describe('Tests for getReferenceArray Method', () => {
             _id: "1",
             name: undefined,
             val_type: undefined,
+            decimal_places: 0,
             editable: undefined,
             var_type: undefined,
             time_series: undefined,
@@ -483,6 +514,7 @@ describe('Tests for getReferenceArray Method', () => {
             first_value_diff: undefined,
             value: "1*1",
             value_1: undefined,
+            integration_name: undefined,
             integration_values: undefined
         }
 
@@ -490,6 +522,7 @@ describe('Tests for getReferenceArray Method', () => {
             _id: "2",
             name: undefined,
             val_type: undefined,
+            decimal_places: 0,
             editable: undefined,
             var_type: undefined,
             time_series: undefined,
@@ -497,6 +530,7 @@ describe('Tests for getReferenceArray Method', () => {
             first_value_diff: undefined,
             value: "#3*2",
             value_1: undefined,
+            integration_name: undefined,
             integration_values: undefined
         }
 
@@ -504,6 +538,7 @@ describe('Tests for getReferenceArray Method', () => {
             _id: "3",
             name: undefined,
             val_type: undefined,
+            decimal_places: 0,
             editable: undefined,
             var_type: undefined,
             time_series: undefined,
@@ -511,6 +546,7 @@ describe('Tests for getReferenceArray Method', () => {
             first_value_diff: undefined,
             value: "$1*(1+0.01)",
             value_1: "#1",
+            integration_name: undefined,
             integration_values: undefined
         }
 

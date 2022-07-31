@@ -8,6 +8,7 @@ describe('useGetHumanReadableFormula Tests', () => {
         _id: "1",
         name: "Initial Customers",
         val_type: "number",
+        decimal_places: 0,
         editable: true,
         var_type: "value",
         time_series: false,
@@ -15,6 +16,7 @@ describe('useGetHumanReadableFormula Tests', () => {
         first_value_diff: false,
         value: "1000",
         value_1: undefined,
+        integration_name: undefined,
         integration_values: undefined
     };
 
@@ -22,6 +24,7 @@ describe('useGetHumanReadableFormula Tests', () => {
         _id: "2",
         name: "Customer Growth",
         val_type: "percentage",
+        decimal_places: 0,
         editable: true,
         var_type: "value",
         time_series: false,
@@ -29,6 +32,7 @@ describe('useGetHumanReadableFormula Tests', () => {
         first_value_diff: false,
         value: "0.3",
         value_1: undefined,
+        integration_name: undefined,
         integration_values: undefined
     }
 
@@ -36,6 +40,7 @@ describe('useGetHumanReadableFormula Tests', () => {
         _id: "3",
         name: "Customers",
         val_type: "number",
+        decimal_places: 0,
         editable: true,
         var_type: "formula",
         time_series: true,
@@ -43,6 +48,7 @@ describe('useGetHumanReadableFormula Tests', () => {
         first_value_diff: true,
         value: "$1*(1+#2)",
         value_1: "#1",
+        integration_name: undefined,
         integration_values: undefined
     }
 
@@ -50,6 +56,7 @@ describe('useGetHumanReadableFormula Tests', () => {
         _id: "4",
         name: "Customers",
         val_type: "number",
+        decimal_places: 0,
         editable: true,
         var_type: "formula",
         time_series: true,
@@ -57,6 +64,7 @@ describe('useGetHumanReadableFormula Tests', () => {
         first_value_diff: true,
         value: "$1*(1+#2$1)",
         value_1: "#1",
+        integration_name: undefined,
         integration_values: undefined
     }
 
