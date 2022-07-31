@@ -39,11 +39,11 @@
             <div class="pb-3">
                 <div>
                     <span class="text-xs text-zinc-500">Your Models</span>
-                    <div v-if="true" class="overflow-auto min-h-[55vh] max-h-[55vh] px-2">
+                    <div v-if="piniaUserStore.models.length > 0" class="min-h-[55vh] max-h-[55vh] px-2 overflow-y-scroll">
                         <ModelDropdown v-for="model in piniaUserStore.models" :model=model></ModelDropdown>
                     </div>
                     <div v-else>
-                        <p class="text-xs mt-2 text-zinc-500">Start by creating your first model.</p>
+                        <p class="text-[10px] mt-2 text-zinc-500">Start by creating your first model.</p>
                     </div>
                 </div>
             </div>
