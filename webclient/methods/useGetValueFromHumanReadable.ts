@@ -3,30 +3,30 @@ import { useFormulaParser } from "./useFormulaParser";
 //method that returns the variable value with refs to be stored in db form human readable input
 export const useGetValueFromHumanReadable = (humanReadableInput:string, currentAssumptionId:string, variableSearchMap:Map<string, string>) => {
 
-    var example = "Customers[1]*(1+Customer Growth[0])";
+    let inputWithoutWhitespace = humanReadableInput.replace(/\s/g,'');
     
     var output:string = "";
 
-    for(let i=0; i < humanReadableInput.length; i++) {
+    for(let i=0; i < inputWithoutWhitespace.length; i++) {
 
-        const char = humanReadableInput[i];
+        const char = inputWithoutWhitespace[i];
         if(useFormulaParser().charIsNumerical(char) || useFormulaParser().charIsOperator(char) || char === ".") {
             output = output + char;
         } else {
             var counter:number = 0;
             var refNameWithTimeDiff:string = "";
             //get the name of the ref[timeDiff]
-            while(!useFormulaParser().charIsOperator(humanReadableInput[i + counter]) && humanReadableInput[i + counter] != undefined) {
+            while(!useFormulaParser().charIsOperator(inputWithoutWhitespace[i + counter]) && inputWithoutWhitespace[i + counter] != undefined) {
 
-                if(humanReadableInput[i + counter] === "[") {
+                if(inputWithoutWhitespace[i + counter] === "[") {
                     var counter2 = 0;
-                    while(humanReadableInput[i + counter + counter2] != "]") {
-                        refNameWithTimeDiff = refNameWithTimeDiff + humanReadableInput[i + counter + counter2];
+                    while(inputWithoutWhitespace[i + counter + counter2] != "]") {
+                        refNameWithTimeDiff = refNameWithTimeDiff + inputWithoutWhitespace[i + counter + counter2];
                         counter2++;
                     }
                     counter = counter + counter2;
                 } else {
-                    refNameWithTimeDiff = refNameWithTimeDiff + humanReadableInput[i + counter];
+                    refNameWithTimeDiff = refNameWithTimeDiff + inputWithoutWhitespace[i + counter];
                     counter++;
                 }
             }
