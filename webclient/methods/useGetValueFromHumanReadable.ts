@@ -7,26 +7,28 @@ export const useGetValueFromHumanReadable = (humanReadableInput:string, currentA
     
     var output:string = "";
 
-    for(let i=0; i < inputWithoutWhitespace.length; i++) {
+    for(let i=0; i < humanReadableInput.length; i++) {
 
-        const char = inputWithoutWhitespace[i];
+        const char = humanReadableInput[i];
         if(useFormulaParser().charIsNumerical(char) || useFormulaParser().charIsOperator(char) || char === ".") {
             output = output + char;
+        } else if(char === " ") {
+            output = output;
         } else {
             var counter:number = 0;
             var refNameWithTimeDiff:string = "";
             //get the name of the ref[timeDiff]
-            while(!useFormulaParser().charIsOperator(inputWithoutWhitespace[i + counter]) && inputWithoutWhitespace[i + counter] != undefined) {
+            while(!useFormulaParser().charIsOperator(humanReadableInput[i + counter]) && humanReadableInput[i + counter] != undefined) {
 
-                if(inputWithoutWhitespace[i + counter] === "[") {
+                if(humanReadableInput[i + counter] === "[") {
                     var counter2 = 0;
-                    while(inputWithoutWhitespace[i + counter + counter2] != "]") {
-                        refNameWithTimeDiff = refNameWithTimeDiff + inputWithoutWhitespace[i + counter + counter2];
+                    while(humanReadableInput[i + counter + counter2] != "]") {
+                        refNameWithTimeDiff = refNameWithTimeDiff + humanReadableInput[i + counter + counter2];
                         counter2++;
                     }
                     counter = counter + counter2;
                 } else {
-                    refNameWithTimeDiff = refNameWithTimeDiff + inputWithoutWhitespace[i + counter];
+                    refNameWithTimeDiff = refNameWithTimeDiff + humanReadableInput[i + counter];
                     counter++;
                 }
             }
