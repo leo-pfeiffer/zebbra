@@ -18,9 +18,12 @@ definePageMeta({
                     <div class="min-w-[319px] max-w-[319px]">
                     </div>
                     <div class="min-w-[150px] max-w-[150px] z-10">
-                        <div class="border border-r-2 rounded-bl rounded-tl border-zinc-300 text-xs uppercase bg-zinc-100 text-zinc-700 text-center p-2">Values</div>
+                        <div class="relative border border-r-2 rounded-bl rounded-tl border-zinc-300 text-xs uppercase bg-zinc-100 text-zinc-700 text-center p-2">
+                            Values
+                            <InfoToggle :position="'absolute'" :text="'Double click on the cell to define the value.'"></InfoToggle>
+                            </div>
                     </div>
-                    <div class="overflow-x-auto no-scrollbar z-10" id="dates"
+                    <div class="overflow-x-auto no-scrollbar" id="dates"
                         @scroll="stickScroll('dates', 'table-right')">
                         <div class="border-zinc-300 flex">
                             <div class="first:border-l first:border-l-zinc-100 text-xs py-2 px-2 border-r border-y border-zinc-300 min-w-[90px] max-w-[90px] text-center uppercase bg-zinc-100 text-zinc-700"
@@ -36,7 +39,7 @@ definePageMeta({
                                     <!-- assumption header -->
                                     <div
                                         class="text-xs text-zinc-500 font-medium uppercase rounded-tl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-100 border-zinc-300 border-l border-t">
-                                        Assumptions
+                                        Assumptions<InfoToggle :position="'inline'" :text="'Assumptions defined here can be accessed in the model below.'"></InfoToggle>
                                     </div>
                                 </div>
                                 <VariableRowHeader @update-value="updateAssumptionValue"
@@ -64,8 +67,8 @@ definePageMeta({
 
                                     <div
                                         class="group flex mt-6 text-xs text-zinc-500 rounded-tl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-100 border-zinc-300 border-l border-t">
-                                        <span class="font-medium uppercase">
-                                            Model
+                                        <span class="font-medium uppercase max-w-fit">
+                                            Model<InfoToggle :position="'inline'" :text="'The output of the cost model will automatically be added to the P&L.'"></InfoToggle>
                                         </span>
                                     </div>
                                     <div>
@@ -85,7 +88,7 @@ definePageMeta({
                                         <div
                                             class="flex text-xs text-zinc-700 bg-zinc-50 py-2 px-3 min-w-[470px] max-w-[470px] border-zinc-300 border-l border-t">
                                             <span class="font-medium">
-                                                <li class="marker:text-white/0">Total Payroll</li>
+                                                <li class="marker:text-white/0">Total Payroll<InfoToggle :position="'list'" :text="'The output of the cost model will automatically be added to the P&L.'"></InfoToggle></li>
                                             </span>
                                         </div>
                                     </div>

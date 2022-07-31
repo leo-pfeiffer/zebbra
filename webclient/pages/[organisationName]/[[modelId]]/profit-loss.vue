@@ -30,9 +30,9 @@ definePageMeta({
                     <div class="flex">
                         <div>
                             <div
-                                class="group flex text-xs text-zinc-500 rounded-tl py-2 px-3 min-w-[300px] max-w-[300px] bg-zinc-100 border-zinc-300 border-l border-t">
+                                class="flex text-xs text-zinc-500 rounded-tl py-2 px-3 min-w-[300px] max-w-[300px] bg-zinc-100 border-zinc-300 border-l border-t">
                                 <span class="font-medium uppercase">
-                                    Profit & Loss Statement
+                                    Profit & Loss Statement<InfoToggle :position="'inline'" :text="'This P&L gets created auto-matically based on the revenue and cost model.'"></InfoToggle>
                                 </span>
                             </div>
                             <div

@@ -17,10 +17,10 @@ definePageMeta({
       </div>
       <div class="border-b border-zinc-300 py-8 p-2 mb-6 mx-14 flex flex-wrap md:flex-nowrap">
         <div class="min-w-fit mr-6">
-          <p class="uppercase font-medium text-xs text-zinc-500 mb-2">Starting month:</p>
+          <p class="uppercase font-medium text-xs text-zinc-500 mb-2">Starting month:<InfoToggle :position="'inline'" :text="'Change the starting month of your model here.'"></InfoToggle></p>
           <div class="flex">
             <form @submit.prevent="updateStartingMonth">
-              <input type="month" class="border border-zinc-300 rounded py-0.5 px-2 mr-2 text-sm text-zinc-700"
+              <input type="month" class="border border-zinc-300 rounded py-1 px-2 mr-2 text-sm text-zinc-700"
                 name="starting-month" placeholder="Starting month" v-model="newStartingMonth.value">
               <button type="submit"
                 class=" bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-sm px-2.5 py-1 border border-zinc-300 rounded text-zinc-700">
@@ -30,10 +30,10 @@ definePageMeta({
           </div>
         </div>
         <div class="min-w-fit">
-          <p class="uppercase font-medium text-xs text-zinc-500 mb-2">Starting balance:</p>
+          <p class="uppercase font-medium text-xs text-zinc-500 mb-2">Starting balance:<InfoToggle :position="'inline'" :text="'Set a starting balance to calculate your cash runway.'"></InfoToggle></p>
           <div class="flex">
             <form @submit.prevent="updateStartingBalance">
-            <input type="number" class="border border-zinc-300 rounded py-0.5 px-2 mr-2 text-sm text-zinc-700"
+            <input type="number" class="border border-zinc-300 rounded py-1 px-2 mr-2 text-sm text-zinc-700"
               name="starting-balance" placeholder="Starting balance" v-model="startingBalance.value">
             <button type="submit" @click="updateStartingBalance"
               class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-sm px-2.5 py-1 border border-zinc-300 rounded text-zinc-700">

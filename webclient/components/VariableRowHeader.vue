@@ -10,7 +10,7 @@
                 <span v-show="(valType === 'number') && !isEndRow" class="mr-3 text-zinc-500"><i
                         class="bi bi-hash"></i></span>
                 <span v-show="isEndRow" class="font-medium">
-                    <li class="marker:text-white/0">Total – {{ sectionName }}</li>
+                    <li class="marker:text-white/0">Total – {{ sectionName }}<InfoToggle :position="'inline'" :text="'Define the total for this section. It will be be added to the P&L.'"></InfoToggle></li>
                 </span>
                 <span v-show="!isEndRow" v-if="!nameChangeSelected" @dblclick="toggleNameChange">{{ variable.name
                 }}</span>
