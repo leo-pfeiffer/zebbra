@@ -7,7 +7,7 @@
                 </p>
             </div>
         </div>
-        <div class="float-right h-full pt-2">
+        <div class="float-right h-full pt-2 pr-2">
             <div class="text-xs">
                 <span class="mr-2 text-[10px] uppercase rounded border border-zinc-300 px-1 py-0.5 text-zinc-500 bg-zinc-50">{{userType}}</span><NuxtLink :to="`/${workspaceName}/settings/profile`"><Avatar :firstName="user.first_name" :lastName="user.last_name"></Avatar></NuxtLink>
             </div>
