@@ -11,7 +11,7 @@ definePageMeta({
     <div class="h-full overflow-y-auto" v-if="!dataIsLoading">
       <LoadingSpinner v-if="showLoading" :text="'Reloading the model'"></LoadingSpinner>
       <div class="py-3 border-b bg-white px-3 border-zinc-300 top-0 min-h-[70px] max-h-[70px] sticky z-40">
-        <SheetHeader :sheetName="'Dashboard'" :workspaceName="piniaUserStore.workspaces[0].name"
+        <SheetHeader :user="piniaUserStore" :modelMeta="piniaModelMetaStore" :sheetName="'Dashboard'" :workspaceName="piniaUserStore.workspaces[0].name"
           :modelName="piniaModelMetaStore.name">
         </SheetHeader>
       </div>

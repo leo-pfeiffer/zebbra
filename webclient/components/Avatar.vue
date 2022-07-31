@@ -1,7 +1,7 @@
 <template>
 
-<div :class="getRandomColor"
-class="sm:inline-block hidden rounded-full font-mono text-neutral-50 shadow-sm p-1.5 w-7 h-7 mr-3 align-middle text-center">{{ this.firstName[0] }}{{ this.lastName[0] }}</div>
+<div :class="getRandomColor,{'mr-3': margin, 'hover:drop-shadow-lg': !margin}"
+class="sm:inline-block hidden rounded-full font-mono text-neutral-50 shadow-sm p-1.5 w-7 h-7 align-middle text-center">{{ this.firstName[0] }}{{ this.lastName[0] }}</div>
 
 </template>
 <script>
@@ -11,7 +11,8 @@ export default {
   },
   props: {
     firstName: String,
-    lastName: String
+    lastName: String,
+    margin: Boolean
   },
   computed: {
     getRandomColor() {

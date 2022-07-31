@@ -11,7 +11,7 @@ definePageMeta({
             <div class="h-full" v-if="!revenueDataLoading">
                 <div v-if="!userAndMetaDataLoading"
                     class="py-3 border-b px-3 border-zinc-300 top-0 min-h-[70px] max-h-[70px]">
-                    <SheetHeader :sheetName="'Revenues'" :workspaceName="piniaUserStore.workspaces[0].name"
+                    <SheetHeader :user="piniaUserStore" :modelMeta="piniaModelMetaStore" :sheetName="'Revenues'" :workspaceName="piniaUserStore.workspaces[0].name"
                         :modelName="piniaModelMetaStore.name"></SheetHeader>
                 </div>
                 <div class="ml-1 pl-2 flex top-0 bg-white pt-2 min-h-[50px] max-h-[50px]">
