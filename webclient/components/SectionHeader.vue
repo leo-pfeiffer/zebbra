@@ -8,12 +8,12 @@
         <i v-else-if="sectionName === 'Operational Costs'" class="text-zinc-500 bi bi-hammer -ml-1 mr-2"></i>
         <i v-else-if="sectionName === 'Other Costs'" class="text-zinc-500 bi bi-layers-fill -ml-1 mr-2"></i>
         {{sectionName }}</span>
-        <span class="font-medium" v-if="!sectionNameChangeSelected && changingEnabled"
+        <span class="font-medium hover:underline hover:decoration-sky-600" v-if="!sectionNameChangeSelected && changingEnabled"
             @dblclick="toggleSectionNameChange">
             <li class="marker:text-zinc-500">{{ sectionName }}</li>
         </span>
         <span v-else-if="sectionNameChangeSelected && changingEnabled">
-            <input
+            <input :ref="`section-name-${sectionIndex}`"
                 @keydown.enter="$emit('changeSectionName', sectionIndex, sectionNameInput); toggleSectionNameChange()"
                 @keydown.esc="toggleSectionNameChange()" v-model="sectionNameInput"
                 class="bg-zinc-100/0 focus:border-b border-sky-600 focus:outline-none placeholder:text-zinc-500"
@@ -78,6 +78,12 @@ export default {
                 this.sectionNameChangeSelected = true;
             } else {
                 this.sectionNameChangeSelected = false;
+            }
+
+            if(this.sectionNameChangeSelected) {
+                setTimeout(() => {
+                    this.$refs[`section-name-${this.sectionIndex}`].focus();
+                }, 50)
             }
         },
         toggleSectionDeleteModal() {

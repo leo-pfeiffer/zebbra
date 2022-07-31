@@ -12,9 +12,9 @@
                 <span v-show="isEndRow" class="font-medium">
                     <li class="marker:text-white/0">Total – {{ sectionName }}<InfoToggle :position="'inline'" :text="'Define the total for this section. It will be be added to the P&L.'"></InfoToggle></li>
                 </span>
-                <span v-show="!isEndRow" v-if="!nameChangeSelected" @dblclick="toggleNameChange">{{ variable.name
+                <span v-show="!isEndRow" class="hover:underline hover:decoration-sky-600" v-if="!nameChangeSelected" @dblclick="toggleNameChange">{{ variable.name
                 }}</span>
-                <span v-show="!isEndRow" v-else><input ref="name"
+                <span v-show="!isEndRow" v-else><input :ref="`name-change-${variable._id}`"
                         @keydown.enter="$emit('updateName', newName, variableIndex, sectionIndex); toggleNameChange()"
                         @keydown.esc="toggleNameChange" v-model="newName"
                         class="bg-zinc-100/0 focus:border-b border-sky-600 focus:outline-none placeholder:text-zinc-500"
@@ -250,6 +250,12 @@ export default {
                     this.nameChangeSelected = false;
                 } else {
                     this.nameChangeSelected = true;
+                }
+
+                if(this.nameChangeSelected) {
+                    setTimeout(() => {
+                        this.$refs[`name-change-${this.variable._id}`].focus();
+                    }, 50)
                 }
             }
         },
