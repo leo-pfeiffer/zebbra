@@ -1,6 +1,6 @@
 <template>
 
-<div :class="getRandomColor,{'mr-3': margin, 'hover:drop-shadow-lg': !margin}"
+<div :class="getRandomColor,{'mr-3': margin, 'hover:drop-shadow-md': !margin}"
 class="sm:inline-block hidden rounded-full font-mono text-neutral-50 shadow-sm p-1.5 w-7 h-7 align-middle text-center">{{ this.firstName[0] }}{{ this.lastName[0] }}</div>
 
 </template>
