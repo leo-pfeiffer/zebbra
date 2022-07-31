@@ -17,12 +17,12 @@ definePageMeta({
       </div>
       <div class="border-b border-zinc-300 py-8 p-2 mb-6 mx-14 flex flex-wrap md:flex-nowrap">
         <div class="min-w-fit mr-6">
-          <p class="uppercase font-medium text-xs text-zinc-500 mb-2">Starting month:<InfoToggle :position="'inline'" :text="'Change the starting month of your model here.'"></InfoToggle></p>
+          <p class="uppercase font-medium text-xs text-zinc-500 mb-2">Starting month:<InfoToggle v-if="!userIsViewer" :position="'inline'" :text="'Change the starting month of your model here.'"></InfoToggle></p>
           <div class="flex">
             <form @submit.prevent="updateStartingMonth">
-              <input type="month" class="border border-zinc-300 rounded py-1 px-2 mr-2 text-sm text-zinc-700"
+              <input :disabled="userIsViewer" type="month" class="border border-zinc-300 rounded py-1 px-2 mr-2 text-sm text-zinc-700"
                 name="starting-month" placeholder="Starting month" v-model="newStartingMonth.value">
-              <button type="submit"
+              <button v-if="!userIsViewer" type="submit"
                 class=" bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-sm px-2.5 py-1 border border-zinc-300 rounded text-zinc-700">
                 Set
               </button>
@@ -30,20 +30,18 @@ definePageMeta({
           </div>
         </div>
         <div class="min-w-fit">
-          <p class="uppercase font-medium text-xs text-zinc-500 mb-2">Starting balance:<InfoToggle :position="'inline'" :text="'Set a starting balance to calculate your cash runway.'"></InfoToggle></p>
+          <p class="uppercase font-medium text-xs text-zinc-500 mb-2">Starting balance:<InfoToggle v-if="!userIsViewer" :position="'inline'" :text="'Set a starting balance to calculate your cash runway.'"></InfoToggle></p>
           <div class="flex">
             <form @submit.prevent="updateStartingBalance">
-            <input type="number" class="border border-zinc-300 rounded py-1 px-2 mr-2 text-sm text-zinc-700"
+            <input :disabled="userIsViewer" type="number" class="border border-zinc-300 rounded py-1 px-2 mr-2 text-sm text-zinc-700"
               name="starting-balance" placeholder="Starting balance" v-model="startingBalance.value">
-            <button type="submit" @click="updateStartingBalance"
+            <button v-if="!userIsViewer" type="submit"
               class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-sm px-2.5 py-1 border border-zinc-300 rounded text-zinc-700">
               Set
             </button>
             </form>
           </div>
-
         </div>
-
       </div>
 
       <div class="grid grid-cols-1 xl:grid-cols-2 gap-x-12 gap-y-8 p-3 px-16">
@@ -188,7 +186,8 @@ export default {
       defaultStatusMessage: "Up to date.",
       statusMessage: "Up to date.",
       showLoading: false,
-      dataIsLoading: true
+      dataIsLoading: true,
+      userIsViewer: false
     }
   },
   computed: {
@@ -564,6 +563,7 @@ export default {
       await this.setPiniaRevenueStore(this.$route.params.modelId);
       await this.setPiniaPayrollStore(this.$route.params.modelId);
 
+      this.userIsViewer = this.piniaModelMetaStore.viewers.includes(this.piniaUserStore._id);
       this.startingBalance.value = this.piniaModelMetaStore.starting_balance;
       this.newStartingMonth.value = this.piniaModelMetaStore.starting_month.slice(0, 7);
 
