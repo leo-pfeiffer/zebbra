@@ -15,12 +15,15 @@ definePageMeta({
                         :modelName="piniaModelMetaStore.name"></SheetHeader>
                 </div>
                 <div class="ml-1 pl-2 flex top-0 bg-white pt-2 min-h-[50px] max-h-[50px]">
-                    <div class="min-w-[470px] max-w-[470px]">
+                    <div class="min-w-[319px] max-w-[319px]">
+                    </div>
+                    <div class="min-w-[150px] max-w-[150px] z-10">
+                        <div class="border border-r-2 rounded-bl rounded-tl border-zinc-300 text-xs uppercase bg-zinc-100 text-zinc-700 text-center p-2">Values</div>
                     </div>
                     <div class="overflow-x-auto no-scrollbar z-10" id="dates"
                         @scroll="stickScroll('dates', 'table-right')">
                         <div class="border-zinc-300 flex">
-                            <div class="first:border-l first:rounded-tl first:rounded-bl text-xs py-2 px-2 border-r border-y border-zinc-300 min-w-[75px] max-w-[75px] text-center uppercase bg-zinc-100 text-zinc-700"
+                            <div class="first:border-l first:border-l-zinc-100 text-xs py-2 px-2 border-r border-y border-zinc-300 min-w-[90px] max-w-[90px] text-center uppercase bg-zinc-100 text-zinc-700"
                                 v-for="date in dates">{{ date }}</div>
                         </div>
                     </div>
@@ -134,7 +137,7 @@ definePageMeta({
                             <div id="assumption-values">
                                 <div class="flex">
                                     <!-- assumption header empty -->
-                                    <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 bg-zinc-100 border-zinc-300 border-t"
+                                    <div class="text-xs py-2 px-2 min-w-[90px] max-w-[90px] text-white/0 bg-zinc-100 border-zinc-300 border-t"
                                         v-for="date in dates">X</div>
                                 </div>
                                 <ClientOnly>
@@ -145,18 +148,18 @@ definePageMeta({
                                 </ClientOnly>
                                 <div class="flex">
                                     <!-- add assumption button empty -->
-                                    <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-y"
+                                    <div class="text-xs py-2 px-2 min-w-[90px] max-w-[90px] text-white/0 border-zinc-300 border-y"
                                         v-for="date in dates">X</div>
                                 </div>
                             </div>
                             <div id="model-values">
                                 <div class="flex mt-6">
-                                    <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 bg-zinc-100 border-zinc-300 border-t"
+                                    <div class="text-xs py-2 px-2 min-w-[90px] max-w-[90px] text-white/0 bg-zinc-100 border-zinc-300 border-t"
                                         v-for="date in dates">X</div>
                                 </div>
                                 <!-- Payroll -->
                                 <div class="flex">
-                                    <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-t"
+                                    <div class="text-xs py-2 px-2 min-w-[90px] max-w-[90px] text-white/0 border-zinc-300 border-t"
                                         v-for="date in dates">X</div>
                                 </div>
                                 <div class="flex" v-for="payrollValues in payrollToDisplay">
@@ -167,7 +170,7 @@ definePageMeta({
                                 </div>
                                 <div class="flex">
                                     <!-- add employee button empty -->
-                                    <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-t"
+                                    <div class="text-xs py-2 px-2 min-w-[90px] max-w-[90px] text-white/0 border-zinc-300 border-t"
                                         v-for="date in dates">X</div>
                                 </div>
                                 <div class="flex">
@@ -178,7 +181,7 @@ definePageMeta({
                                 </div>
                                 <div v-for="(section, index) in piniaCostStore.sections" :key="index">
                                     <div class="flex">
-                                        <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-t"
+                                        <div class="text-xs py-2 px-2 min-w-[90px] max-w-[90px] text-white/0 border-zinc-300 border-t"
                                             v-for="date in dates">X</div>
                                     </div>
                                     <ClientOnly>
@@ -191,7 +194,7 @@ definePageMeta({
                                     </ClientOnly>
                                     <div class="flex">
                                         <!-- add variable button empty -->
-                                        <div class="text-xs py-2 px-2 min-w-[75px] max-w-[75px] text-white/0 border-zinc-300 border-t"
+                                        <div class="text-xs py-2 px-2 min-w-[90px] max-w-[90px] text-white/0 border-zinc-300 border-t"
                                             v-for="date in dates">X</div>
                                     </div>
                                     <ClientOnly>
