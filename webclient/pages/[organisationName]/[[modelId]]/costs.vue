@@ -619,7 +619,11 @@ export default {
             this.piniaPayrollStore.employees[employeeIndex].title = newTitle;
             this.piniaPayrollStore.employees[employeeIndex].department = newDepartment;
             this.piniaPayrollStore.employees[employeeIndex].start_date = newStartDate;
-            this.piniaPayrollStore.employees[employeeIndex].end_date = newEndDate;
+            if(newEndDate === "") {
+                this.piniaPayrollStore.employees[employeeIndex].end_date = null;
+            } else {
+                this.piniaPayrollStore.employees[employeeIndex].end_date = newEndDate;
+            }
 
             try {
                 this.piniaPayrollStore = await useSheetUpdate().updatePayroll(this.$route.params.modelId, this.piniaPayrollStore.employees);
