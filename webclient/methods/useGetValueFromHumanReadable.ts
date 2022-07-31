@@ -3,7 +3,7 @@ import { useFormulaParser } from "./useFormulaParser";
 //method that returns the variable value with refs to be stored in db form human readable input
 export const useGetValueFromHumanReadable = (humanReadableInput:string, currentAssumptionId:string, variableSearchMap:Map<string, string>) => {
 
-    var example = "Customers[1]*(1+Customer Growth[0])";
+    let inputWithoutWhitespace = humanReadableInput.replace(/\s/g,'');
     
     var output:string = "";
 
@@ -12,6 +12,8 @@ export const useGetValueFromHumanReadable = (humanReadableInput:string, currentA
         const char = humanReadableInput[i];
         if(useFormulaParser().charIsNumerical(char) || useFormulaParser().charIsOperator(char) || char === ".") {
             output = output + char;
+        } else if(char === " ") {
+            output = output;
         } else {
             var counter:number = 0;
             var refNameWithTimeDiff:string = "";

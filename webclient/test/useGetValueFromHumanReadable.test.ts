@@ -8,6 +8,7 @@ describe('useGetValueFromHumanReadable Tests', () => {
         _id: "1",
         name: "Initial Customers",
         val_type: "number",
+        decimal_places: 0,
         editable: true,
         var_type: "value",
         time_series: false,
@@ -15,6 +16,7 @@ describe('useGetValueFromHumanReadable Tests', () => {
         first_value_diff: false,
         value: "1000",
         value_1: undefined,
+        integration_name: undefined,
         integration_values: undefined
     };
 
@@ -22,6 +24,7 @@ describe('useGetValueFromHumanReadable Tests', () => {
         _id: "2",
         name: "Customer Growth",
         val_type: "percentage",
+        decimal_places: 0,
         editable: true,
         var_type: "value",
         time_series: false,
@@ -29,6 +32,7 @@ describe('useGetValueFromHumanReadable Tests', () => {
         first_value_diff: false,
         value: "0.3",
         value_1: undefined,
+        integration_name: undefined,
         integration_values: undefined
     }
 
@@ -36,6 +40,7 @@ describe('useGetValueFromHumanReadable Tests', () => {
         _id: "3",
         name: "Customers",
         val_type: "number",
+        decimal_places: 0,
         editable: true,
         var_type: "formula",
         time_series: true,
@@ -43,6 +48,7 @@ describe('useGetValueFromHumanReadable Tests', () => {
         first_value_diff: true,
         value: "$1*(1+#2)",
         value_1: "#1",
+        integration_name: undefined,
         integration_values: undefined
     }
 
@@ -50,6 +56,7 @@ describe('useGetValueFromHumanReadable Tests', () => {
         _id: "4",
         name: "Customers 33",
         val_type: "number",
+        decimal_places: 0,
         editable: true,
         var_type: "formula",
         time_series: true,
@@ -57,6 +64,7 @@ describe('useGetValueFromHumanReadable Tests', () => {
         first_value_diff: true,
         value: "$1*(1+#2)",
         value_1: "#1",
+        integration_name: undefined,
         integration_values: undefined
     }
 
@@ -64,6 +72,7 @@ describe('useGetValueFromHumanReadable Tests', () => {
         _id: "5",
         name: "2022 Customers",
         val_type: "number",
+        decimal_places: 0,
         editable: true,
         var_type: "formula",
         time_series: true,
@@ -71,6 +80,7 @@ describe('useGetValueFromHumanReadable Tests', () => {
         first_value_diff: true,
         value: "$1*(1+#2)",
         value_1: "#1",
+        integration_name: undefined,
         integration_values: undefined
     }
 
@@ -78,6 +88,7 @@ describe('useGetValueFromHumanReadable Tests', () => {
         _id: "6",
         name: "2022 Customer Growth",
         val_type: "percentage",
+        decimal_places: 0,
         editable: true,
         var_type: "value",
         time_series: false,
@@ -85,6 +96,7 @@ describe('useGetValueFromHumanReadable Tests', () => {
         first_value_diff: false,
         value: "0.3",
         value_1: undefined,
+        integration_name: undefined,
         integration_values: undefined
     }
 
@@ -144,7 +156,25 @@ describe('useGetValueFromHumanReadable Tests', () => {
 
         expect(useGetValueFromHumanReadable(humanReadableInput, customers._id, variableSearchMap)).toStrictEqual(expectedOutput);
 
-    })
+    });
+
+    it('should work with leading SPACES before numbers', () => {
+
+        const humanReadableInput:string = "Customers[1] + 1";
+        const expectedOutput:string = "$1+1"
+
+        expect(useGetValueFromHumanReadable(humanReadableInput, customers._id, variableSearchMap)).toStrictEqual(expectedOutput);
+
+    });
+
+    it('should work with leading SPACES before numbers; only numbers in formula', () => {
+
+        const humanReadableInput:string = "1 + 1 * 99    * 2 / 3";
+        const expectedOutput:string = "1+1*99*2/3"
+
+        expect(useGetValueFromHumanReadable(humanReadableInput, customers._id, variableSearchMap)).toStrictEqual(expectedOutput);
+
+    });
 
     it('should work with a number in the variable name', () => {
 

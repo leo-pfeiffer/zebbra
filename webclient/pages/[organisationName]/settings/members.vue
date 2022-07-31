@@ -19,7 +19,7 @@ definePageMeta({
 
               <tr v-for="member in members" class="border-b border-zinc-300 last:border-0">
                 <td class="py-4 px-3 text-zinc-900">
-                  <Avatar :first-name="member.first_name" :last-name="member.last_name"></Avatar>
+                  <Avatar :margin="true" :first-name="member.first_name" :last-name="member.last_name"></Avatar>
                   <div class="inline-block align-middle"><span>{{ member.first_name }} {{ member.last_name }}</span>
                   </div>
                 </td>

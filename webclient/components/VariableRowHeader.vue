@@ -1,8 +1,3 @@
-<script setup lang="ts">
-
-const route = useRoute();
-
-</script>
 <template>
     <div class="">
         <div class="flex text-zinc-900">
@@ -15,11 +10,11 @@ const route = useRoute();
                 <span v-show="(valType === 'number') && !isEndRow" class="mr-3 text-zinc-500"><i
                         class="bi bi-hash"></i></span>
                 <span v-show="isEndRow" class="font-medium">
-                    <li class="marker:text-white/0">Total – {{ sectionName }}</li>
+                    <li class="marker:text-white/0">Total – {{ sectionName }}<InfoToggle :position="'inline'" :text="'Define the total for this section. It will be be added to the P&L.'"></InfoToggle></li>
                 </span>
-                <span v-show="!isEndRow" v-if="!nameChangeSelected" @dblclick="toggleNameChange">{{ variable.name
+                <span v-show="!isEndRow" class="hover:underline hover:decoration-sky-600" v-if="!nameChangeSelected" @dblclick="toggleNameChange">{{ variable.name
                 }}</span>
-                <span v-show="!isEndRow" v-else><input ref="name"
+                <span v-show="!isEndRow" v-else><input :ref="`name-change-${variable._id}`"
                         @keydown.enter="$emit('updateName', newName, variableIndex, sectionIndex); toggleNameChange()"
                         @keydown.esc="toggleNameChange" v-model="newName"
                         class="bg-zinc-100/0 focus:border-b border-sky-600 focus:outline-none placeholder:text-zinc-500"
@@ -122,7 +117,7 @@ const route = useRoute();
                 </div>
             </div>
             <div class="h-full w-full relative" :class="{'bg-zinc-50': hierarchy === 'med' }">
-                <div v-if="!valueInputSelected"
+                <div v-show="!valueInputSelected"
                     class="text-xs relative group border-t border-r border-zinc-300 min-w-[150px] max-w-[150px] h-full w-full text-right">
                     <div @dblclick="toggleInput" :class="{'text-sky-700': variable.var_type === 'value'}"
                         class="float-right h-full min-w-[130px] max-w-[130px] text-right text-xs py-2 px-2 border-r-2 border-zinc-300 tabular-nums truncate overflow-hidden">
@@ -137,12 +132,12 @@ const route = useRoute();
                             class="text-[8px] text-sky-700/50 bi bi-server"></i>
                     </div>
                 </div>
-                <div v-else
-                    class="absolute top-0 left-0 text-xs border-zinc-300 min-w-[500px] max-w-[500px] h-full w-full text-right z-40">
-                    <input v-show="valueInputSelected" autofocus
+                <div v-show="valueInputSelected"
+                    class="absolute top-0 left-0 text-xs min-w-[500px] max-w-[500px] h-full w-full text-right z-40">
+                    <input :ref="`input-${variable._id}`" v-show="valueInputSelected"
                         @keydown.enter="$emit('updateValue', humanReadableInputValue, variable._id, variableSearchMap, timeSeriesMap, variableIndex, sectionIndex); toggleInput()"
                         @keydown.esc="toggleInput" v-model="humanReadableInputValue"
-                        class="border-t bg-white w-full py-2 px-2 font-mono font-sm focus:rounded-none focus:outline-green-600 border-r-2 border-zinc-300"
+                        class="border bg-white w-full py-2 px-2 font-mono font-sm focus:rounded-none focus:outline-green-600 border-r-2 border-zinc-300"
                         type=text>
                     <SearchDropDown v-show="variableSearch.size > 0" :variableSearch="variableSearch"
                         @search-click="addSearchItemToInputValue"></SearchDropDown>
@@ -256,13 +251,23 @@ export default {
                 } else {
                     this.nameChangeSelected = true;
                 }
+
+                if(this.nameChangeSelected) {
+                    setTimeout(() => {
+                        this.$refs[`name-change-${this.variable._id}`].focus();
+                    }, 50)
+                }
             }
         },
-        toggleInput() {
+        async toggleInput() {
             if (!this.valueInputSelected && !this.userIsViewer) {
                 this.valueInputSelected = true;
             } else {
                 this.valueInputSelected = false;
+            }
+
+            if(this.valueInputSelected) {
+                setTimeout(() => {this.$refs["input-" + this.variable._id].focus();}, 50)
             }
         },
         toggleSettings() {
@@ -309,6 +314,9 @@ export default {
             } else if (searchTimeDiff === "T-12") {
                 this.humanReadableInputValue = this.humanReadableInputValue + "[12]";
             }
+
+            this.$refs["input-" + this.variable._id].focus();
+            
         }
     },
     computed: {

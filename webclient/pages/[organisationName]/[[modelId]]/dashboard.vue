@@ -11,35 +11,37 @@ definePageMeta({
     <div class="h-full overflow-y-auto" v-if="!dataIsLoading">
       <LoadingSpinner v-if="showLoading" :text="'Reloading the model'"></LoadingSpinner>
       <div class="py-3 border-b bg-white px-3 border-zinc-300 top-0 min-h-[70px] max-h-[70px] sticky z-40">
-        <SheetHeader :sheetName="'Dashboard'" :workspaceName="piniaUserStore.workspaces[0].name"
+        <SheetHeader :user="piniaUserStore" :modelMeta="piniaModelMetaStore" :sheetName="'Dashboard'" :workspaceName="piniaUserStore.workspaces[0].name"
           :modelName="piniaModelMetaStore.name">
         </SheetHeader>
       </div>
       <div class="border-b border-zinc-300 py-8 p-2 mb-6 mx-14 flex flex-wrap md:flex-nowrap">
         <div class="min-w-fit mr-6">
-          <p class="uppercase font-medium text-xs text-zinc-500 mb-2">Starting month:</p>
+          <p class="uppercase font-medium text-xs text-zinc-500 mb-2">Starting month:<InfoToggle v-if="!userIsViewer" :position="'inline'" :text="'Change the starting month of your model here.'"></InfoToggle></p>
           <div class="flex">
-            <input type="month" class="border border-zinc-300 rounded py-0.5 px-2 mr-2 text-sm text-zinc-700"
-              name="starting-month" placeholder="Starting month" v-model="newStartingMonth">
-            <button type="button" @click="updateStartingMonth"
-              class=" bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-sm px-2.5 py-1 border border-zinc-300 rounded text-zinc-700">
-              Set
-            </button>
+            <form @submit.prevent="updateStartingMonth">
+              <input :disabled="userIsViewer" type="month" class="border border-zinc-300 rounded py-1 px-2 mr-2 text-sm text-zinc-700"
+                name="starting-month" placeholder="Starting month" v-model="newStartingMonth.value">
+              <button v-if="!userIsViewer" type="submit"
+                class=" bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-sm px-2.5 py-1 border border-zinc-300 rounded text-zinc-700">
+                Set
+              </button>
+            </form>
           </div>
         </div>
         <div class="min-w-fit">
-          <p class="uppercase font-medium text-xs text-zinc-500 mb-2">Starting balance:</p>
+          <p class="uppercase font-medium text-xs text-zinc-500 mb-2">Starting balance:<InfoToggle v-if="!userIsViewer" :position="'inline'" :text="'Set a starting balance to calculate your cash runway.'"></InfoToggle></p>
           <div class="flex">
-            <input type="number" class="border border-zinc-300 rounded py-0.5 px-2 mr-2 text-sm text-zinc-700"
-              name="starting-balance" placeholder="Starting balance" v-model="startingBalance">
-            <button type="button" @click="updateStartingBalance"
+            <form @submit.prevent="updateStartingBalance">
+            <input :disabled="userIsViewer" type="number" class="border border-zinc-300 rounded py-1 px-2 mr-2 text-sm text-zinc-700"
+              name="starting-balance" placeholder="Starting balance" v-model="startingBalance.value">
+            <button v-if="!userIsViewer" type="submit"
               class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-sm px-2.5 py-1 border border-zinc-300 rounded text-zinc-700">
               Set
             </button>
+            </form>
           </div>
-
         </div>
-
       </div>
 
       <div class="grid grid-cols-1 xl:grid-cols-2 gap-x-12 gap-y-8 p-3 px-16">
@@ -108,7 +110,7 @@ definePageMeta({
                   :series="dashboardData.payrollCosts"></apexchart>
               </ClientOnly>
             </div>
-            <div class="pb-4 px-6 xl:py-6">
+            <div class="p-4">
               <ClientOnly>
                 <apexchart v-if="renderChart" width="100%" type="bar" :options="headcountOptions"
                   :series="dashboardData.headcount"></apexchart>
@@ -161,8 +163,12 @@ export default {
   data() {
     return {
 
-      startingBalance: null,
-      newStartingMonth: null,
+      startingBalance: {
+        value: null
+      },
+      newStartingMonth: {
+        value: null
+      },
 
       showRequiresReconnectModal: false,
 
@@ -180,7 +186,8 @@ export default {
       defaultStatusMessage: "Up to date.",
       statusMessage: "Up to date.",
       showLoading: false,
-      dataIsLoading: true
+      dataIsLoading: true,
+      userIsViewer: false
     }
   },
   computed: {
@@ -204,7 +211,7 @@ export default {
         method: 'POST',
         params: {
           model_id: this.$route.params.modelId,
-          starting_balance: this.startingBalance
+          starting_balance: this.startingBalance.value
         }
       }).then(async (data) => {
         console.log(data)
@@ -224,7 +231,7 @@ export default {
         method: 'POST',
         params: {
           model_id: this.$route.params.modelId,
-          starting_month: `${this.newStartingMonth}-01`
+          starting_month: `${this.newStartingMonth.value}-01`
         }
       }).then(async (data) => {
         console.log(data)
@@ -520,7 +527,7 @@ export default {
 
       // calculate the dashboard data
       const newDashboardData = useCalculateDashboardProfits(
-        this.piniaRevenueStore, this.piniaCostStore, this.piniaPayrollStore, startingDate, this.startingBalance
+        this.piniaRevenueStore, this.piniaCostStore, this.piniaPayrollStore, startingDate, this.startingBalance.value
       );
 
       this.dashboardData = { ...newDashboardData };
@@ -556,8 +563,9 @@ export default {
       await this.setPiniaRevenueStore(this.$route.params.modelId);
       await this.setPiniaPayrollStore(this.$route.params.modelId);
 
-      this.startingBalance = this.piniaModelMetaStore.starting_balance;
-      this.newStartingMonth = this.piniaModelMetaStore.starting_month.slice(0, 7);
+      this.userIsViewer = this.piniaModelMetaStore.viewers.includes(this.piniaUserStore._id);
+      this.startingBalance.value = this.piniaModelMetaStore.starting_balance;
+      this.newStartingMonth.value = this.piniaModelMetaStore.starting_month.slice(0, 7);
 
       this.dataIsLoading = false;
 
@@ -572,7 +580,7 @@ export default {
     // https://github.com/apexcharts/apexcharts.js/issues/1077#issuecomment-984386146
     setTimeout(() => { this.renderChart = true }, 50)
 
-    let integrationsProviderResponse: GetIntegrationProvidersResponse[];
+    let integrationsProviderResponse: GetIntegrationProvidersResponse[];;
     const getIntegrationsState = await useFetchAuth(
       '/integration/providers', {
       method: 'GET',
