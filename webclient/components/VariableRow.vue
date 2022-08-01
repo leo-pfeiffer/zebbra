@@ -35,6 +35,11 @@ export default {
                      
                      if(splittedValue[1].length > this.roundTo) {
                          valueWithDecimals = (+value).toFixed(this.roundTo).toString();
+                     } else if(splittedValue[1].length < this.roundTo) {
+                        valueWithDecimals = value;
+                        for(let i=0; i < (this.roundTo -splittedValue[1].length); i++) {
+                            valueWithDecimals = valueWithDecimals + "0"
+                        }
                      } else {
                          valueWithDecimals = value;
                      }
