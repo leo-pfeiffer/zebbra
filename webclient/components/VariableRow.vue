@@ -26,17 +26,6 @@ export default {
                 var value:string = input[i];
                 if(value === null) {
                     output.push("–"); //error handling for null values (could be coming from integration)
-                } else if(value.includes(".")) {
-                    var splittedValue = value.split(".");
-
-                    var valueWithDecimals;
-                    
-                    if(splittedValue[1].length > this.roundTo) {
-                        valueWithDecimals = (+value).toFixed(this.roundTo);
-                    } else {
-                        valueWithDecimals = value;
-                    }
-                    output.push(valueWithDecimals);
                 } else {
                     output.push(value);
                 }
