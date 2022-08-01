@@ -58,6 +58,7 @@ EOF
 # prod db
 DEMO_DIR="resources/demo"
 
+mongoimport --db zebbra --collection demo --drop --file $DEMO_DIR/demo.json --jsonArray
 mongoimport --db zebbra --collection users --drop --file $DEMO_DIR/users.json --jsonArray
 mongoimport --db zebbra --collection workspaces --drop --file $DEMO_DIR/workspaces.json --jsonArray
 mongoimport --db zebbra --collection models --drop --file $DEMO_DIR/models.json --jsonArray

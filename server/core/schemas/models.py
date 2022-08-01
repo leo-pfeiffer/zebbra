@@ -5,9 +5,9 @@ from datetime import date
 from bson import ObjectId
 from pydantic import BaseModel, Field
 
-from core.schemas.rows import IntegrationValue
+from core.schemas.rows import IntegrationValue, Row
 from core.schemas.utils import PyObjectId, DateString
-from core.schemas.sheets import Sheet
+from core.schemas.sheets import Sheet, Section
 
 
 class Employee(BaseModel):
@@ -81,3 +81,21 @@ class ModelUser(BaseModel):
     first_name: str | None
     last_name: str | None
     user_role: Literal["Admin", "Editor", "Viewer"]
+
+
+def create_new_demo_model(
+        admin_id: str | PyObjectId,
+        workspace_id: str | PyObjectId,
+        model_template: Model
+) -> Model:
+    new_meta = model_template.meta
+    new_meta.admins = [admin_id]
+    new_meta.editors = []
+    new_meta.viewers = []
+    new_meta.workspace = workspace_id
+
+    return Model(
+        meta=new_meta,
+        sheets=model_template.sheets,
+        payroll=model_template.payroll
+    )

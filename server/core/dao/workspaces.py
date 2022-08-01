@@ -3,6 +3,7 @@ from fastapi.encoders import jsonable_encoder
 from core.exceptions import UniqueConstraintFailedException, DoesNotExistException
 from core.dao.database import db
 from core.dao.users import get_user, user_exists
+from core.schemas.models import create_new_demo_model, Model
 from core.schemas.utils import PyObjectId
 from core.schemas.workspaces import Workspace, WorkspaceUser
 
@@ -127,6 +128,11 @@ async def create_workspace(workspace: Workspace):
     if await get_workspace_by_name(workspace.name) is not None:
         raise UniqueConstraintFailedException("Workspace name must be unique")
 
+    # insert the demo model
+    demo_model = await get_demo_model()
+    model = create_new_demo_model(workspace.admin, workspace.id, demo_model)
+    await db.models.insert_one(jsonable_encoder(model))
+
     return await db.workspaces.insert_one(jsonable_encoder(workspace))
 
 
@@ -173,3 +179,9 @@ async def add_user_to_workspace(user_id: PyObjectId, workspace_id: PyObjectId):
         return await db.workspaces.update_one(
             {"_id": str(workspace_id)}, {"$push": {"users": str(user_id)}}
         )
+
+
+async def get_demo_model() -> Model:
+    demo_model = await db.demo.find_one({})
+    if demo_model:
+        return Model(**demo_model)

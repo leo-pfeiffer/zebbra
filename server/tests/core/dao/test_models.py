@@ -25,7 +25,7 @@ from core.dao.models import (
     delete_model,
     remove_user_from_model, set_starting_balance,
 )
-from core.dao.workspaces import get_workspace
+from core.dao.workspaces import get_workspace, get_demo_model
 from core.exceptions import (
     DoesNotExistException,
     NoAccessException,
@@ -34,7 +34,7 @@ from core.exceptions import (
 )
 from datetime import date
 
-from core.schemas.models import Employee
+from core.schemas.models import Employee, create_new_demo_model
 from core.schemas.sheets import Sheet
 
 
@@ -560,3 +560,11 @@ async def test_get_users_of_model(users):
 async def test_get_users_for_model_model_non_existent():
     with pytest.raises(DoesNotExistException):
         await get_users_for_model("Not a model.")
+
+
+@pytest.mark.anyio
+async def test_demo_model():
+    demo_model = await get_demo_model()
+    new_model = create_new_demo_model("admin_id_123", "workspace_id_123", demo_model)
+    assert new_model.meta.admins == ["admin_id_123"]
+    assert new_model.meta.workspace == "workspace_id_123"

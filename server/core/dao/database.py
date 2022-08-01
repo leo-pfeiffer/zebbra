@@ -19,6 +19,7 @@ class _DAO:
     _client.get_io_loop = asyncio.get_running_loop
     _db = _client[_settings.dict()["MONGODB_DB"]]
 
+    demo = _db["demo"]
     users = _db["users"]
     workspaces = _db["workspaces"]
     token_blacklist = _db["token_blacklist"]
