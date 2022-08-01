@@ -4,10 +4,10 @@ This guide walks through the process of setting up Zebbra locally for developmen
 
 ## Prerequisites
 
-To run Zebbra you will have to make sure the following is given on your machine:
+To run Zebbra you will have to make sure the following is given on your machine (the versions matter!):
 
-- Python 3.10+ is installed, we recommend pyenv ([how to](https://www.liquidweb.com/kb/how-to-install-pyenv-on-ubuntu-18-04/))
-- Node 16+ is installed ([how to](https://nodejs.org/en/download/package-manager/))
+- Python 3.10 is installed, we recommend pyenv ([how to](https://www.liquidweb.com/kb/how-to-install-pyenv-on-ubuntu-18-04/))
+- Node 16 is installed ([how to](https://nodejs.org/en/download/package-manager/))
 - MongoDB Community Edition 5.0 is installed and running ([how to](https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/))
 
 ## Repository
