@@ -22,8 +22,8 @@ definePageMeta({
                         data within your models.</p>
                     <div class="w-full border border-zinc-300 rounded py-5 px-4 mt-5">
                         <div class="flex align-middle max-h-fit mb-3">
-                            <div><img src="~~/assets/img/xero_logo.png" alt="Xero accounting logo" width="19px"
-                                    height="19px"></div>
+                            <div><img src="~~/assets/img/xero_logo.png" alt="Xero accounting logo" width="19"
+                                    height="19"></div>
                             <div class="font-medium text-zinc-900 text-xs ml-1.5 flex align-middle py-0.5">
                                 <div><span class="mr-2">Connect Zebbra with Xero Accounting</span><span
                                         v-if="piniaXeroStore.connected && !piniaXeroStore.requires_reconnect"
@@ -80,8 +80,8 @@ definePageMeta({
                         and employee data within your models.</p>
                     <div class="w-full border border-zinc-300 rounded py-5 px-4 mt-5">
                         <div class="flex align-middle max-h-fit mb-3">
-                            <div><img src="~~/assets/img/gusto_logo.png" alt="Gusto payroll logo" width="19px"
-                                    height="19px"></div>
+                            <div><img src="~~/assets/img/gusto_logo.png" alt="Gusto payroll logo" width="19"
+                                    height="19"></div>
                             <div class="font-medium text-zinc-900 text-xs ml-1.5 flex align-middle py-0.5">
                                 <div><span class="mr-2">Connect Zebbra with Gusto</span><span
                                         v-if="piniaGustoStore.connected && !piniaGustoStore.requires_reconnect"
