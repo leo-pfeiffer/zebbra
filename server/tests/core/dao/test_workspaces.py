@@ -47,6 +47,24 @@ async def test_create_workspace(users):
 
 
 @pytest.mark.anyio
+async def test_create_workspace_adds_demo_model(users):
+    new_wsp = Workspace(
+        **{
+            "name": "New Workspace",
+            "admin": users["johndoe@example.com"],
+            "users": [users["johndoe@example.com"]],
+        }
+    )
+
+    await create_workspace(new_wsp)
+    wsp = await get_workspace_by_name("New Workspace")
+    models = await get_models_for_workspace(wsp.id)
+    assert len(models) == 1
+    assert models[0].meta.name == "Demo Model (SaaS)"
+    assert wsp is not None
+
+
+@pytest.mark.anyio
 async def test_cannot_create_workspace_with_duplicate_name(users):
     new_wsp = Workspace(
         **{

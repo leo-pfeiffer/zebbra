@@ -21,6 +21,7 @@ def _read_json(path):
     return data
 
 
+DEMO_PATH = "resources/demo/demo.json"
 USERS_PATH = "resources/demo/users.json"
 WORKSPACE_PATH = "resources/demo/workspaces.json"
 MODELS_PATH = "resources/demo/models.json"
@@ -29,6 +30,7 @@ INTEGRATION_ACCESS_PATH = "resources/demo/integration_access.json"
 ACCOUNTING_CACHE_PATH = "resources/demo/accounting_cache.json"
 PAYROLL_CACHE_PATH = "resources/demo/payroll_cache.json"
 
+demo = _read_json(DEMO_PATH)
 users = _read_json(USERS_PATH)
 workspaces = _read_json(WORKSPACE_PATH)
 models = _read_json(MODELS_PATH)
@@ -39,6 +41,7 @@ payroll_cache = _read_json(PAYROLL_CACHE_PATH)
 
 
 async def create():
+    await create_demo()
     await create_users()
     await create_workspaces()
     await create_models()
@@ -49,6 +52,7 @@ async def create():
 
 
 async def teardown():
+    await teardown_demo()
     await teardown_users()
     await teardown_workspaces()
     await teardown_token_blacklist()
@@ -57,6 +61,10 @@ async def teardown():
     await teardown_integration_access()
     await teardown_accounting_cache()
     await teardown_payroll_cache()
+
+
+def create_demo():
+    return db.demo.insert_many([jsonable_encoder(Model(**e)) for e in demo])
 
 
 def create_users():
@@ -99,6 +107,10 @@ def create_payroll_cache():
     return db.payroll_cache.insert_many(
         [jsonable_encoder(EmployeeListCache(**e)) for e in payroll_cache]
     )
+
+
+def teardown_demo():
+    return db.demo.delete_many({})
 
 
 def teardown_users():
