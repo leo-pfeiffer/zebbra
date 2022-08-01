@@ -26,8 +26,34 @@ export default {
                 var value:string = input[i];
                 if(value === null) {
                     output.push("–"); //error handling for null values (could be coming from integration)
-                } else {
+                } else if(value === "#REF!" || value === "–") {
                     output.push(value);
+                } else if(value.includes(".")) {
+                     var splittedValue = value.split(".");
+
+                     var valueWithDecimals:string;
+                     
+                     if(splittedValue[1].length > this.roundTo) {
+                         valueWithDecimals = (+value).toFixed(this.roundTo).toString();
+                     } else if(splittedValue[1].length < this.roundTo) {
+                        valueWithDecimals = value;
+                        for(let i=0; i < (this.roundTo -splittedValue[1].length); i++) {
+                            valueWithDecimals = valueWithDecimals + "0"
+                        }
+                     } else {
+                         valueWithDecimals = value;
+                     }
+                     output.push(valueWithDecimals);
+                 } else {
+                    if(this.roundTo > 0) {
+                        let valueToPush:string = value + "."
+                        for(let i=0; i < this.roundTo; i++) {
+                            valueToPush = valueToPush + "0";
+                        }
+                        output.push(valueToPush);
+                    } else {
+                        output.push(value);
+                    }
                 }
             }
             return output;
