@@ -734,7 +734,30 @@ export default {
             }
         },
         async updateAssumptionName(newName: string, variableIndex: number, sectionIndex: number) {
-            if (newName.length > 0 && !useFormulaParser().charIsNumerical(newName[0])) {
+
+            if(useFormulaParser().charIsNumerical(newName[0])) {
+                this.errorMessages.push("A variable name cannot start with a number.")
+                return
+            }
+
+            if(newName.length === 0) {
+                this.errorMessages.push("Please enter a valid name.")
+                return
+            }
+
+            if(newName.includes("[") || newName.includes("]")) {
+                this.errorMessages.push("A variable name cannot include operators, brackets, hashtags, or dollar signs.")
+                return
+            }
+
+            for(let i=0; i< newName.length; i++) {
+                if(useFormulaParser().charIsOperator(newName[i]) || useFormulaParser().charIsRefToken(newName[i])) {
+                    this.errorMessages.push("A variable name cannot include operators, brackets, hashtags, or dollar signs.")
+                    return
+                }
+            }
+
+            if (newName.length > 0) {
                 this.piniaCostStore.assumptions[variableIndex].name = newName;
                 try {
                     await useSheetUpdate().updateCostSheet(this.$route.params.modelId, this.piniaCostStore);
@@ -749,7 +772,7 @@ export default {
                     }
                 }
             } else {
-                this.errorMessages.push("A variable name must be longer than 0 and can't start with a number.");
+                this.errorMessages.push("Please enter a valid name.");
             }
         },
         async updateSectionName(sectionIndex: number, newName: string) {
@@ -772,7 +795,30 @@ export default {
             }
         },
         async updateVariableName(newName: string, variableIndex: number, sectionIndex: number) {
-            if (newName.length > 0 && !useFormulaParser().charIsNumerical(newName[0])) {
+
+            if(useFormulaParser().charIsNumerical(newName[0])) {
+                this.errorMessages.push("A variable name cannot start with a number.")
+                return
+            }
+
+            if(newName.length === 0) {
+                this.errorMessages.push("Please enter a valid name.")
+                return
+            }
+
+            if(newName.includes("[") || newName.includes("]")) {
+                this.errorMessages.push("A variable name cannot include operators, brackets, hashtags, or dollar signs.")
+                return
+            }
+
+            for(let i=0; i< newName.length; i++) {
+                if(useFormulaParser().charIsOperator(newName[i]) || useFormulaParser().charIsRefToken(newName[i])) {
+                    this.errorMessages.push("A variable name cannot include operators, brackets, hashtags, or dollar signs.")
+                    return
+                }
+            }
+
+            if (newName.length > 0) {
                 this.piniaCostStore.sections[sectionIndex].rows[variableIndex].name = newName;
                 try {
                     await useSheetUpdate().updateCostSheet(this.$route.params.modelId, this.piniaCostStore);
@@ -787,7 +833,7 @@ export default {
                     }
                 }
             } else {
-                this.errorMessages.push("A variable name must be longer than 0 and can't start with a number.");
+                this.errorMessages.push("Please enter a valid name.");
             }
         },
         async updateAssumptionSettings(variableIndex: number, value1Input: string, valTypeInput: string, decimalPlaces: number, startingAtInput: number, sectionIndex: number) {

@@ -110,10 +110,11 @@ export const useFormulaParser = () => {
             if(variableInput.var_type === "integration" && integrationValueExists){
                 firstValue = variableInput.integration_values[0].value;
             } else if(variableInput.value_1.includes("#")) {
-                firstValue = getExternalRefValue(variableInput.value_1, variableInput.starting_at, variablesAlreadyCovered);
+                const externalRefValue = getExternalRefValue(variableInput.value_1, variableInput.starting_at, variablesAlreadyCovered);
+                firstValue = (+externalRefValue).toFixed(variableInput.decimal_places).toString();
             } else {
                 try {
-                    firstValue = useMathParser(variableInput.value_1).toString();
+                    firstValue = useMathParser(variableInput.value_1).toFixed(variableInput.decimal_places).toString();
                 } catch(e) {
                     throw(e);
                 }
@@ -166,7 +167,7 @@ export const useFormulaParser = () => {
             }
 
             //add the solution of maths parser to the valuesToDisplay string
-            valuesToDisplay.push(valueToDisplay);
+            valuesToDisplay.push((+valueToDisplay).toFixed(variableInput.decimal_places).toString());
         }
         return valuesToDisplay;
 
