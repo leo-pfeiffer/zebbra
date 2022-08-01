@@ -177,6 +177,7 @@ import { Variable } from "~~/types/Model"
 import { IntegrationValueInfo } from "~~/types/IntegrationValueInfo"
 import { useGetHumanReadableFormula } from "~~/methods/useGetHumanReadableFormula";
 import { useMathParser } from "~~/methods/useMathParser";
+import { useFormulaParser } from "~~/methods/useFormulaParser";
 
 export default {
     data() {
@@ -243,10 +244,13 @@ export default {
     },
     methods: {
         toggleNameChange() {
+
+            const regex = new RegExp("[+\\*\\(\\)\\[\\$\\#\\,]+")
+            
             if (this.userIsViewer) {
                 this.nameChangeSelected = false;
             } else {
-                if (this.nameChangeSelected && this.newName.length > 0) {
+                if (this.nameChangeSelected && this.newName.length > 0 && !useFormulaParser().charIsNumerical(this.newName[0]) && !this.newName.match(regex) && !this.newName.includes("-") && !this.newName.includes("/") && !this.newName.includes("]")) {
                     this.nameChangeSelected = false;
                 } else {
                     this.nameChangeSelected = true;
