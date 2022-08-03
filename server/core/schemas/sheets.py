@@ -1,4 +1,3 @@
-import uuid
 from typing import Literal
 
 from bson import ObjectId

@@ -2,7 +2,6 @@ from datetime import date
 
 import pytest
 from pytest import approx
-from pydantic import BaseModel
 
 from core.dao.models import get_revenues_sheet
 from core.schemas.integrations import IntegrationProvider
