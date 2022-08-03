@@ -84,9 +84,7 @@ class ModelUser(BaseModel):
 
 
 def create_new_demo_model(
-        admin_id: str | PyObjectId,
-        workspace_id: str | PyObjectId,
-        model_template: Model
+    admin_id: str | PyObjectId, workspace_id: str | PyObjectId, model_template: Model
 ) -> Model:
     new_meta = model_template.meta
     new_meta.admins = [admin_id]
@@ -95,7 +93,5 @@ def create_new_demo_model(
     new_meta.workspace = workspace_id
 
     return Model(
-        meta=new_meta,
-        sheets=model_template.sheets,
-        payroll=model_template.payroll
+        meta=new_meta, sheets=model_template.sheets, payroll=model_template.payroll
     )
