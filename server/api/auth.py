@@ -4,7 +4,6 @@ import pyotp
 from fastapi import APIRouter, Depends, HTTPException, status
 from jose import jwt
 from jose.exceptions import ExpiredSignatureError
-from starlette.responses import HTMLResponse
 
 from core.dao.invite_codes import get_invite_code
 from core.dao.token_blacklist import add_to_blacklist
@@ -53,25 +52,6 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
-
-
-@router.get("/login", tags=["auth"], include_in_schema=False)
-async def login_page():
-    """
-    Helper endpoint to allow manual log in.
-    """
-    html_content = """
-        <div class="container">
-            <h1>Login</h1>
-            <form action="/token" method="POST">
-                <input type="text" name="username" placeholder="username">
-                <input type="password" name="password" placeholder="password">
-                <input type="hidden" name="grant_type" value="password">
-                <input type="submit" value="login">
-            </form>
-        </div>
-    """
-    return HTMLResponse(content=html_content, status_code=200)
 
 
 @router.post(
