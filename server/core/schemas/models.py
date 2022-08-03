@@ -5,7 +5,7 @@ from datetime import date
 from bson import ObjectId
 from pydantic import BaseModel, Field
 
-from core.schemas.rows import IntegrationValue, Row
+from core.schemas.rows import DateValue, Row
 from core.schemas.utils import PyObjectId, DateString
 from core.schemas.sheets import Sheet, Section
 
@@ -32,7 +32,7 @@ class UpdateEmployee(BaseModel):
 
 
 class Payroll(BaseModel):
-    payroll_values: list[IntegrationValue]  # calculated on the fly from employees
+    payroll_values: list[DateValue]  # calculated on the fly from employees
     employees: list[Employee]
 
 

@@ -8,7 +8,7 @@ from core.integrations.config import ADAPTERS
 from core.logger import logger
 from core.schemas.integrations import IntegrationProvider
 from core.schemas.models import Employee
-from core.schemas.rows import Row, IntegrationValue
+from core.schemas.rows import Row, DateValue
 from core.schemas.sheets import Sheet
 from core.schemas.cache import DataBatch
 from core.utils import (
@@ -79,7 +79,7 @@ def aggregate_payroll_info(
     months_salary_map = total_salary_per_month(months, employees)
     values = []
     for m in months:
-        values.append(IntegrationValue(date=m, value=months_salary_map[m]))
+        values.append(DateValue(date=m, value=months_salary_map[m]))
     return values
 
 
@@ -161,7 +161,7 @@ def process_row(row: Row, data_batches: dict[IntegrationProvider, DataBatch]) ->
     else:
         # use sorted dates to retrieve the IntegrationValues
         integration_values = [
-            IntegrationValue(
+            DateValue(
                 date=datetime.strptime(timestamp, "%Y-%m-%d").date(),
                 value=data_batches[integration].data[endpoint][timestamp],
             )

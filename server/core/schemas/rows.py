@@ -4,7 +4,7 @@ from datetime import date
 from pydantic import BaseModel, Field
 
 
-class IntegrationValue(BaseModel):
+class DateValue(BaseModel):
     date: date
     value: str | None
 
@@ -23,5 +23,5 @@ class Row(BaseModel):
     value: str  # parsed in the frontend -> var_type is relevant for this
     integration_name: str | None  # contains the name of the integration data point
     value_1: str | None  # only relevant if firstValueDiff == true
-    integration_values: list[IntegrationValue] | None
+    integration_values: list[DateValue] | None
     decimal_places: int = 2

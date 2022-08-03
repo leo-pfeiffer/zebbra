@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from core.dao.models import get_revenues_sheet
 from core.schemas.integrations import IntegrationProvider
-from core.schemas.rows import Row, IntegrationValue
+from core.schemas.rows import Row, DateValue
 from core.schemas.cache import DataBatch
 from core.integrations.merge import (
     parse_value,
@@ -84,8 +84,8 @@ def test_process_row_integration():
     process_row(row, data_batches)
 
     assert row.integration_values == [
-        IntegrationValue(date=date(2020, 5, 31), value="1.0"),
-        IntegrationValue(date=date(2020, 6, 30), value="2.0"),
+        DateValue(date=date(2020, 5, 31), value="1.0"),
+        DateValue(date=date(2020, 6, 30), value="2.0"),
     ]
 
 

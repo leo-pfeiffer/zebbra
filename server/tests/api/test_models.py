@@ -17,7 +17,7 @@ from core.dao.models import (
     has_access_to_model,
 )
 from core.schemas.models import ModelMeta, Employee
-from core.schemas.rows import IntegrationValue
+from core.schemas.rows import DateValue
 from core.schemas.sheets import Sheet
 from main import app
 from tests.utils import assert_unauthorized_login_checked
@@ -832,7 +832,7 @@ async def test_post_model_employees(access_token):
 
     assert len(model_afterwards["payroll_values"]) == 24
     for p in model_afterwards["payroll_values"]:
-        IntegrationValue(**p)
+        DateValue(**p)
 
 
 @pytest.mark.anyio
@@ -957,7 +957,7 @@ async def test_get_model_employees(access_token):
 
     assert len(model_afterwards["payroll_values"]) == 24
     for p in model_afterwards["payroll_values"]:
-        IntegrationValue(**p)
+        DateValue(**p)
 
 
 @pytest.mark.anyio
