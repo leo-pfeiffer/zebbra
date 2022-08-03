@@ -30,7 +30,8 @@ from core.dao.models import (
     set_starting_month,
     update_model_employees,
     delete_model,
-    remove_user_from_model, set_starting_balance,
+    remove_user_from_model,
+    set_starting_balance,
 )
 from core.exceptions import (
     DoesNotExistException,
@@ -161,7 +162,7 @@ async def grant_permission_for_model(
         403: {"description": "User does not have access to the resource."},
     },
 )
-async def revoke_permission_for_model(
+async def revoke_all_permissions_for_model(
     model_id: str,
     user_id: PyObjectId,
     current_user: User = Depends(get_current_active_user),
@@ -233,7 +234,7 @@ async def rename_existing_model(
         403: {"description": "User does not have access to the resource."},
     },
 )
-async def change_starting_month_of_model(
+async def set_starting_month_of_model(
     model_id: str,
     starting_month: date,
     current_user: User = Depends(get_current_active_user),
@@ -258,7 +259,7 @@ async def change_starting_month_of_model(
         403: {"description": "User does not have access to the resource."},
     },
 )
-async def change_starting_balance_of_model(
+async def set_starting_balance_of_model(
     model_id: str,
     starting_balance: float,
     current_user: User = Depends(get_current_active_user),
@@ -323,10 +324,15 @@ async def delete_existing_model(
 ):
     """
     Delete an existing model\n
-        model_id:
+        model_id: Id of the model to be deleted.
     """
+    # model must exist
     await assert_model_exists(model_id)
+
+    # only admin can delete
     await assert_model_access_admin(user_id=current_user.id, model_id=model_id)
+
+    # delete model
     await delete_model(model_id)
     return {"message": "Model successfully deleted."}
 
@@ -340,18 +346,23 @@ async def delete_existing_model(
         403: {"description": "User does not have access to the resource."},
     },
 )
-async def retrieve_model_sheet_revenues(
+async def retrieve_revenues_sheet_of_model(
     model_id: str, current_user: User = Depends(get_current_active_user)
 ):
     """
     Retrieve the 'Revenues' sheet of a model.\n
         model_id: Model for which to retrieve the sheet
     """
+    # model must exist
     await _assert_model_exists(model_id)
+
+    # user must have access to model
     await _assert_access(current_user.id, model_id)
 
     model = await get_model_by_id(model_id)
     sheet = await get_revenues_sheet(model_id)
+
+    # merge the data from the integration
     return await merge_accounting_integration_data(
         sheet, str(model.meta.workspace), model.meta.starting_month
     )
@@ -366,7 +377,7 @@ async def retrieve_model_sheet_revenues(
         403: {"description": "User does not have access to the resource."},
     },
 )
-async def update_model_sheet_revenues(
+async def update_revenues_sheet_of_model(
     model_id: str,
     sheet_data: Sheet,
     current_user: User = Depends(get_current_active_user),
@@ -386,6 +397,8 @@ async def update_model_sheet_revenues(
 
     model = await get_model_by_id(model_id)
     sheet = await get_revenues_sheet(model_id)
+
+    # merge the data from the integration
     return await merge_accounting_integration_data(
         sheet, str(model.meta.workspace), model.meta.starting_month
     )
@@ -399,18 +412,23 @@ async def update_model_sheet_revenues(
         403: {"description": "User does not have access to the resource."},
     },
 )
-async def retrieve_model_sheet_costs(
+async def retrieve_costs_sheet_of_model(
     model_id: str, current_user: User = Depends(get_current_active_user)
 ):
     """
     Retrieve the 'Costs' sheet of a model.\n
         model_id: Model for which to retrieve the sheet
     """
+    # model must exist
     await _assert_model_exists(model_id)
+
+    # user must have access to model
     await _assert_access(current_user.id, model_id)
 
     model = await get_model_by_id(model_id)
     sheet = await get_costs_sheet(model_id)
+
+    # merge the data from the integration
     return await merge_accounting_integration_data(
         sheet, str(model.meta.workspace), model.meta.starting_month
     )
@@ -424,7 +442,7 @@ async def retrieve_model_sheet_costs(
         403: {"description": "User does not have access to the resource."},
     },
 )
-async def update_model_sheet_costs(
+async def update_costs_sheet_of_model(
     model_id: str,
     sheet_data: Sheet,
     current_user: User = Depends(get_current_active_user),
@@ -434,7 +452,9 @@ async def update_model_sheet_costs(
         model_id: Model for which to update the sheet
         sheet_data: New data of the sheet
     """
+    # model must exist
     await _assert_model_exists(model_id)
+
     # only editor can update sheet
     await _assert_access_can_edit(current_user.id, model_id)
 
@@ -444,6 +464,8 @@ async def update_model_sheet_costs(
 
     model = await get_model_by_id(model_id)
     sheet = await get_costs_sheet(model_id)
+
+    # merge the data from the integration
     return await merge_accounting_integration_data(
         sheet, str(model.meta.workspace), model.meta.starting_month
     )
@@ -468,6 +490,8 @@ async def retrieve_model_payroll(
     await _assert_access(current_user.id, model_id)
 
     model = await get_model_by_id(model_id)
+
+    # merge the data from the integration
     await merge_payroll_integration_data(
         model.payroll.employees, str(model.meta.workspace), model.meta.starting_month
     )
@@ -494,6 +518,11 @@ async def update_model_payroll(
     employee_data: list[UpdateEmployee],
     current_user: User = Depends(get_current_active_user),
 ):
+    """
+    Update the payroll information of a model.\n
+        model_id: Model for which to update the payroll
+        employee_data: New data of the payroll employees
+    """
     await _assert_model_exists(model_id)
     # only editor can update sheet
     await _assert_access_can_edit(current_user.id, model_id)
@@ -507,6 +536,7 @@ async def update_model_payroll(
 
     await update_model_employees(model_id, filtered)
 
+    # merge the payroll data from the integration
     model = await get_model_by_id(model_id)
     await merge_payroll_integration_data(
         model.payroll.employees, str(model.meta.workspace), model.meta.starting_month

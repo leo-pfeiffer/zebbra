@@ -27,11 +27,16 @@ router = APIRouter()
 
 
 @router.post("/integration/disconnect", tags=["integration"], response_model=Message)
-async def disconnect_integration(
+async def disconnect_integration_from_workspace(
     workspace_id: str,
     integration: IntegrationProvider,
     current_user: User = Depends(get_current_active_user),
 ):
+    """
+    Disconnects an integration from a workspace.
+        workspace_id: ID of the workspace
+        integration: Integration provider
+    """
     await assert_workspace_access_admin(current_user.id, workspace_id)
 
     if not await workspace_has_integration(workspace_id, integration):
@@ -46,15 +51,13 @@ async def disconnect_integration(
     tags=["integration"],
     response_model=list[IntegrationProviderInfo],
 )
-async def providers(
+async def list_available_integration_providers(
     workspace_id: str, current_user: User = Depends(get_current_active_user)
 ):
     """
     Return all integration providers for a workspace including information if the
     integration is connected.\n
-        :param workspace_id: ID of the workspace
-        :param current_user: Currently logged-in user
-        :return:List of IntegrationProviderInfo
+        workspace_id: ID of the workspace
     """
 
     await assert_workspace_access(current_user.id, workspace_id)
@@ -84,14 +87,13 @@ async def providers(
     tags=["integration"],
     response_model=list[DataPoint],
 )
-async def data_endpoints(
+async def list_available_data_endpoints(
     model_id: str,  # use model_id instead
     current_user: User = Depends(get_current_active_user),
 ):
     """
     Return all endpoints for all integrations available to a workspace.\n
         model_id: ID of the workspace
-        from_date: Start date of the model
     """
 
     await assert_model_exists(model_id)
