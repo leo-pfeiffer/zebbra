@@ -417,7 +417,7 @@ export default {
             this.piniaRevenueStore.assumptions.push(emptyAssumption);
 
             try {
-                await useSheetUpdate().updateRevenueSheet(this.$route.params.modelId, this.piniaRevenueStore);
+                this.piniaRevenueStore = await useSheetUpdate().updateRevenueSheet(this.$route.params.modelId, this.piniaRevenueStore);
             } catch (e) {
                 console.log(e)
                 this.errorMessages.push("Something went wrong! Please try adding the variable again.");
@@ -447,7 +447,7 @@ export default {
             this.piniaRevenueStore.sections[sectionIndex].rows.push(emptyVariable);
 
             try {
-                await useSheetUpdate().updateRevenueSheet(this.$route.params.modelId, this.piniaRevenueStore);
+                this.piniaRevenueStore = await useSheetUpdate().updateRevenueSheet(this.$route.params.modelId, this.piniaRevenueStore);
             } catch (e) {
                 console.log(e)
                 this.errorMessages.push("Something went wrong! Please try adding the variable again.");
