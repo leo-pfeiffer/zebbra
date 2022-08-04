@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.openapi.utils import get_openapi
 from starlette.middleware.sessions import SessionMiddleware
 
 from api import users, models, auth, workspaces, integrations
@@ -38,3 +39,22 @@ app.include_router(integrations.router)
 
 # register integration adapters etc.
 setup_integrations(app)
+
+
+# customize OpenAPI
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema = get_openapi(
+        title="Zebbra API Docs",
+        version="3.0.2",
+        routes=app.routes,
+    )
+    openapi_schema["info"]["x-logo"] = {
+        "url": "https://leo-pfeiffer.github.io/zebbra/assets/zebbra_icon.png"
+    }
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+
+app.openapi = custom_openapi

@@ -315,6 +315,7 @@ export default {
         console.log(error);
         this.errorMessageDeleteAccount = error.data.detail;
         this.showErrorDeleteAccount = true;
+        this.toggleDeleteModal();
       });
     },
     async setup2FA() {

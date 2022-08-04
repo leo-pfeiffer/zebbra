@@ -4,7 +4,6 @@ import pyotp
 from fastapi import APIRouter, Depends, HTTPException, status
 from jose import jwt
 from jose.exceptions import ExpiredSignatureError
-from starlette.responses import HTMLResponse
 
 from core.dao.invite_codes import get_invite_code
 from core.dao.token_blacklist import add_to_blacklist
@@ -55,25 +54,6 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 
-@router.get("/login", tags=["auth"], include_in_schema=False)
-async def login_page():
-    """
-    Helper endpoint to allow manual log in.
-    """
-    html_content = """
-        <div class="container">
-            <h1>Login</h1>
-            <form action="/token" method="POST">
-                <input type="text" name="username" placeholder="username">
-                <input type="password" name="password" placeholder="password">
-                <input type="hidden" name="grant_type" value="password">
-                <input type="submit" value="login">
-            </form>
-        </div>
-    """
-    return HTMLResponse(content=html_content, status_code=200)
-
-
 @router.post(
     "/token",
     tags=["auth"],
@@ -113,7 +93,12 @@ async def login_for_access_token(
 
 
 @router.get("/token/expired", response_model=ExpiredMessage, tags=["auth"])
-async def token_expired(token: str = Depends(get_current_active_user_token)):
+async def token_expired_information(
+    token: str = Depends(get_current_active_user_token),
+):
+    """
+    Get information if the token is expired or not.
+    """
     expired = False
     try:
         decode_token(token)
@@ -123,7 +108,7 @@ async def token_expired(token: str = Depends(get_current_active_user_token)):
 
 
 @router.post("/logout", response_model=Message, tags=["auth"])
-async def logout(token: str = Depends(get_current_active_user_token)):
+async def logout_current_user(token: str = Depends(get_current_active_user_token)):
     """
     Logout the user who is currently logged in. This invalidates the access
     token.
@@ -138,7 +123,7 @@ async def logout(token: str = Depends(get_current_active_user_token)):
     response_model=User,
     responses={409: {"description": "Username or workspace already exists"}},
 )
-async def register_user(form_data: RegisterUser):
+async def register_new_user(form_data: RegisterUser):
     """
     Register a new user. To add the user to an existing workspace, specify the
     workspace_id. To create a new workspace with the user as admin, specify

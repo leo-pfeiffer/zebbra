@@ -71,12 +71,6 @@ class DateString(str):
         yield cls.validate
 
     @classmethod
-    def __modify_schema__(cls, field_schema):
-        field_schema.update(
-            examples=["1999-01-25", "2001-04-04"],
-        )
-
-    @classmethod
     def validate(cls, v: str | date):
         if not isinstance(v, str) and not isinstance(v, date):
             raise TypeError("string or datetime.date required")
@@ -107,7 +101,7 @@ class PyObjectId(ObjectId):
     @classmethod
     def validate(cls, v):
         if not ObjectId.is_valid(v):
-            raise ValueError("Invalid objectid")
+            raise ValueError("Invalid ObjectId")
         return ObjectId(v)
 
     @classmethod

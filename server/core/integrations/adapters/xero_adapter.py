@@ -1,5 +1,5 @@
 import asyncio
-from datetime import date, datetime
+from datetime import date
 
 from dateutil.relativedelta import relativedelta
 
