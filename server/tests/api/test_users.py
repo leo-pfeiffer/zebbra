@@ -166,7 +166,7 @@ async def test_update_username(access_token):
     new_username = "nolongerjohn@example.com"
 
     response = client.post(
-        f"/user/update?username={new_username}",
+        f"/user?username={new_username}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -184,7 +184,7 @@ async def test_update_username_duplicate(access_token):
     client = TestClient(app)
 
     response = client.post(
-        f"/user/update?username={new_username}",
+        f"/user?username={new_username}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -198,7 +198,7 @@ async def test_update_first_name(access_token, users):
     client = TestClient(app)
 
     response = client.post(
-        f"/user/update?first_name={first_name}",
+        f"/user?first_name={first_name}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -217,7 +217,7 @@ async def test_update_last_name(access_token, users):
     client = TestClient(app)
 
     response = client.post(
-        f"/user/update?last_name={value}",
+        f"/user?last_name={value}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -238,7 +238,7 @@ async def test_update_password(access_token, users):
     user_before = await get_user(users[username])
 
     response = client.post(
-        f"/user/update?password={value}",
+        f"/user?password={value}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 

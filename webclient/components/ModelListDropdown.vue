@@ -314,7 +314,7 @@ export default {
         async deleteModel() {
             
             const deleteModel = await useFetchAuth(
-            '/model/delete', {
+            '/model', {
                 method: 'DELETE',
             params: {
                model_id: this.modelId

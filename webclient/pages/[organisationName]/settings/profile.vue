@@ -247,7 +247,7 @@ export default {
       this.showSuccessPersonalInfo = false;
 
       const data = await useFetchAuth(
-        '/user/update', {
+        '/user', {
         method: 'POST',
         params: {
           username: this.user.email,
@@ -279,7 +279,7 @@ export default {
       this.showSuccessPassword = false;
 
       const data = await useFetchAuth(
-        '/user/update', {
+        '/user', {
         method: 'POST',
         params: {
           password: this.user.password

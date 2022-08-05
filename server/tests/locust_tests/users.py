@@ -13,4 +13,4 @@ class LocustUser(JohnDoeMixin, HttpUser):
 
     @task
     def user_update(self):
-        self.client.post("/user/update", params={"first_name": "John Stuart"})
+        self.client.post("/user", params={"first_name": "John Stuart"})
