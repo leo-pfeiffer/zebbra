@@ -15,8 +15,9 @@
                 <span v-show="!isEndRow" class="hover:underline hover:decoration-sky-600" v-if="!nameChangeSelected" @dblclick="toggleNameChange">{{ variable.name
                 }}</span>
                 <span v-show="!isEndRow" v-else><input :ref="`name-change-${variable._id}`"
-                        @keydown.enter="$emit('updateName', newName, variableIndex, sectionIndex); toggleNameChange()"
-                        @keydown.esc="toggleNameChange" v-model="newName"
+                        @keydown.enter="$emit('updateName', newName, variableIndex, sectionIndex); closeNameChange()"
+                        @focusout="$emit('updateName', newName, variableIndex, sectionIndex); closeNameChange()"
+                        v-model="newName"
                         class="bg-zinc-100/0 focus:border-b border-sky-600 focus:outline-none placeholder:text-zinc-500"
                         type="text" placeholder="Change variable name"></span>
                 <span v-show="!isEndRow && !userIsViewer"
@@ -136,8 +137,8 @@
                     class="absolute top-0 left-0 text-xs min-w-[500px] max-w-[500px] h-full w-full text-right z-40">
                     <input :ref="`input-${variable._id}`" v-show="valueInputSelected"
                         @keydown.enter="$emit('updateValue', humanReadableInputValue, variable._id, variableSearchMap, timeSeriesMap, variableIndex, sectionIndex); toggleInput()"
-                        @keydown.esc="toggleInput" v-model="humanReadableInputValue"
-                        class="border bg-white w-full py-2 px-2 font-mono font-sm focus:rounded-none focus:outline-green-600 border-r-2 border-zinc-300"
+                        @keydown.esc="closeInput()" v-model="humanReadableInputValue"
+                        class="border-2 -translate-y-[1px] -translate-x-[1px] rounded bg-white w-full py-2 px-2 font-mono font-sm focus:rounded-none focus:outline-green-600 border-r-2 border-zinc-300"
                         type=text>
                     <SearchDropDown v-show="variableSearch.size > 0" :variableSearch="variableSearch"
                         @search-click="addSearchItemToInputValue"></SearchDropDown>
@@ -243,6 +244,11 @@ export default {
 
     },
     methods: {
+        closeNameChange() {
+            if(this.nameChangeSelected && !this.userIsViewer) {
+                this.nameChangeSelected = false;
+            }
+        },
         toggleNameChange() {
 
             const regex = new RegExp("[+\\*\\(\\)\\[\\$\\#\\,]+")
@@ -261,6 +267,17 @@ export default {
                         this.$refs[`name-change-${this.variable._id}`].focus();
                     }, 50)
                 }
+            }
+        },
+        closeInput() {
+            if(this.valueInputSelected && !this.userIsViewer) {
+                this.valueInputSelected = false;
+            }
+
+            if (this.variable.value === "" || this.variable.value === undefined) {
+                this.humanReadableInputValue = "–"
+            } else {
+                this.humanReadableInputValue = useGetHumanReadableFormula(this.variable.value, this.variable._id, this.variableSearchMap);
             }
         },
         async toggleInput() {

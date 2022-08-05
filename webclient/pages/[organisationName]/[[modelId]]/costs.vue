@@ -509,7 +509,7 @@ export default {
             this.piniaCostStore.assumptions.push(emptyAssumption);
 
             try {
-                await useSheetUpdate().updateCostSheet(this.$route.params.modelId, this.piniaCostStore);
+                this.piniaCostStore = await useSheetUpdate().updateCostSheet(this.$route.params.modelId, this.piniaCostStore);
             } catch (e) {
                 console.log(e);
                 this.errorMessages.push("Something went wrong! Please try adding the variable again.");
@@ -573,7 +573,7 @@ export default {
             this.piniaCostStore.sections[sectionIndex].rows.push(emptyVariable);
 
             try {
-                await useSheetUpdate().updateCostSheet(this.$route.params.modelId, this.piniaCostStore);
+                this.piniaCostStore = await useSheetUpdate().updateCostSheet(this.$route.params.modelId, this.piniaCostStore);
             } catch (e) {
                 console.log(e)
                 this.errorMessages.push("Something went wrong! Please try adding the variable again.");
