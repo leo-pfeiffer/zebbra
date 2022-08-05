@@ -7,10 +7,10 @@
 | Method | Path | Description |
 | --- | --- | --- |
 | GET | [/](#get) | Root |
-| POST | [/auth/token](#posttoken) | Login For Access Token |
-| GET | [/auth/token/expired](#gettokenexpired) | Token Expired Information |
-| POST | [/auth/logout](#postlogout) | Logout Current User |
-| POST | [/auth/register](#postregister) | Register New User |
+| POST | [/auth/token](#postauthtoken) | Login For Access Token |
+| GET | [/auth/token/expired](#getauthtokenexpired) | Token Expired Information |
+| POST | [/auth/logout](#postauthlogout) | Logout Current User |
+| POST | [/auth/register](#postauthregister) | Register New User |
 | GET | [/user](#getuser) | Retrieve Current User Info |
 | POST | [/user](#postuser) | Update Current User |
 | DELETE | [/user](#deleteuser) | Delete Current |
@@ -50,7 +50,7 @@
 
 | Name | Path | Description |
 | --- | --- | --- |
-| Body_login_for_access_token_token_post | [#/components/schemas/Body_login_for_access_token_token_post](#componentsschemasbody_login_for_access_token_token_post) |  |
+| Body_login_for_access_token_auth_token_post | [#/components/schemas/Body_login_for_access_token_auth_token_post](#componentsschemasbody_login_for_access_token_auth_token_post) |  |
 | DataPoint | [#/components/schemas/DataPoint](#componentsschemasdatapoint) |  |
 | DateValue | [#/components/schemas/DateValue](#componentsschemasdatevalue) |  |
 | Employee | [#/components/schemas/Employee](#componentsschemasemployee) |  |
@@ -214,7 +214,7 @@ OAuth2PasswordBearer
 
 ***
 
-### [POST]/auth/auth/register
+### [POST]/auth/register
 
 - Summary  
 Register New User
@@ -2200,7 +2200,7 @@ workspace_id: string
 
 ## References
 
-### #/components/schemas/Body_login_for_access_token_token_post
+### #/components/schemas/Body_login_for_access_token_auth_token_post
 
 ```ts
 {
