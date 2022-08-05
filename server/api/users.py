@@ -92,7 +92,7 @@ async def delete_current(current_user: User = Depends(get_current_active_user)):
     return JSONResponse(status_code=200, content={"message": "User deleted."})
 
 
-@router.post("/user/update", response_model=User, tags=["user"])
+@router.post("/user", response_model=User, tags=["user"])
 async def update_current_user(
     username: EmailStr | None = None,
     first_name: str | None = None,
