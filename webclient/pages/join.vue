@@ -83,7 +83,7 @@ export default {
     async join() {
       
       const data = await $fetch(
-        `${this.$config.public.backendUrlBase}/register`, {
+        `${this.$config.public.backendUrlBase}/auth/register`, {
           method: 'POST',
           body: this.form
         }

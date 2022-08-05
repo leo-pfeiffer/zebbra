@@ -55,7 +55,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 
 
 @router.post(
-    "/token",
+    "/auth/token",
     tags=["auth"],
     response_model=Token,
     responses={401: {"description": "Incorrect username or password"}},
@@ -92,7 +92,7 @@ async def login_for_access_token(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@router.get("/token/expired", response_model=ExpiredMessage, tags=["auth"])
+@router.get("/auth/token/expired", response_model=ExpiredMessage, tags=["auth"])
 async def token_expired_information(
     token: str = Depends(get_current_active_user_token),
 ):
@@ -107,7 +107,7 @@ async def token_expired_information(
     return {"expired": expired}
 
 
-@router.post("/logout", response_model=Message, tags=["auth"])
+@router.post("/auth/logout", response_model=Message, tags=["auth"])
 async def logout_current_user(token: str = Depends(get_current_active_user_token)):
     """
     Logout the user who is currently logged in. This invalidates the access
@@ -118,7 +118,7 @@ async def logout_current_user(token: str = Depends(get_current_active_user_token
 
 
 @router.post(
-    "/register",
+    "/auth/register",
     tags=["auth"],
     response_model=User,
     responses={409: {"description": "Username or workspace already exists"}},

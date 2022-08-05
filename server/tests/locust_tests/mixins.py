@@ -6,7 +6,7 @@ class JohnDoeMixin:
             "username": "johndoe@example.com",
             "password": "secret",
         }
-        resp = self.client.post("/token", data=user_form)
+        resp = self.client.post("/auth/token", data=user_form)
 
         self.client.headers.update(
             {"Authorization": f"Bearer {resp.json()['access_token']}"}

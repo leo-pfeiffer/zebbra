@@ -25,7 +25,7 @@ async def test_oauth_with_valid_user():
     }
 
     client = TestClient(app)
-    response = client.post("/token", data=user_form)
+    response = client.post("/auth/token", data=user_form)
 
     assert response.status_code == status.HTTP_200_OK
     assert "access_token" in response.json()
@@ -49,7 +49,7 @@ async def test_oauth_with_valid_user_does_with_valid_otp(users):
     }
 
     client = TestClient(app)
-    response = client.post("/token", data=user_form)
+    response = client.post("/auth/token", data=user_form)
 
     assert response.status_code == status.HTTP_200_OK
     assert "access_token" in response.json()
@@ -71,7 +71,7 @@ async def test_oauth_with_valid_user_does_with_invalid_otp(users):
     }
 
     client = TestClient(app)
-    response = client.post("/token", data=user_form)
+    response = client.post("/auth/token", data=user_form)
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
@@ -85,7 +85,7 @@ async def test_oauth_with_invalid_user():
     }
 
     client = TestClient(app)
-    response = client.post("/token", data=user_form)
+    response = client.post("/auth/token", data=user_form)
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
@@ -104,7 +104,7 @@ async def test_register_with_invite(invite_codes, workspaces):
     )
 
     client = TestClient(app)
-    response = client.post("/register", json=jsonable_encoder(new_user_form))
+    response = client.post("/auth/register", json=jsonable_encoder(new_user_form))
 
     assert response.status_code == status.HTTP_200_OK
 
@@ -146,8 +146,8 @@ async def test_reuse_invite_code(invite_codes, workspaces):
     )
 
     client = TestClient(app)
-    client.post("/register", json=jsonable_encoder(new_user_form1))
-    res = client.post("/register", json=jsonable_encoder(new_user_form2))
+    client.post("/auth/register", json=jsonable_encoder(new_user_form1))
+    res = client.post("/auth/register", json=jsonable_encoder(new_user_form2))
 
     assert res.status_code == status.HTTP_200_OK
 
@@ -176,7 +176,7 @@ async def test_register_with_new_wsp(workspaces):
     )
 
     client = TestClient(app)
-    response = client.post("/register", json=jsonable_encoder(new_user_form))
+    response = client.post("/auth/register", json=jsonable_encoder(new_user_form))
 
     assert response.status_code == status.HTTP_200_OK
 
@@ -206,7 +206,7 @@ async def test_register_can_login(invite_codes):
     }
 
     client = TestClient(app)
-    response = client.post("/register", json=jsonable_encoder(new_user_form))
+    response = client.post("/auth/register", json=jsonable_encoder(new_user_form))
 
     assert response.status_code == status.HTTP_200_OK
 
@@ -217,7 +217,7 @@ async def test_register_can_login(invite_codes):
     }
 
     client = TestClient(app)
-    response = client.post("/token", data=user_form)
+    response = client.post("/auth/token", data=user_form)
 
     assert response.status_code == status.HTTP_200_OK
 
@@ -234,7 +234,7 @@ async def test_register_cannot_specify_both_new_workspace_and_existing(invite_co
     }
 
     client = TestClient(app)
-    response = client.post("/register", json=jsonable_encoder(new_user_form))
+    response = client.post("/auth/register", json=jsonable_encoder(new_user_form))
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
@@ -251,7 +251,7 @@ async def test_register_cannot_specify_neither_new_workspace_and_existing():
     }
 
     client = TestClient(app)
-    response = client.post("/register", json=jsonable_encoder(new_user_form))
+    response = client.post("/auth/register", json=jsonable_encoder(new_user_form))
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
@@ -272,7 +272,7 @@ async def test_cannot_register_existing_username(invite_codes):
     users_initial = await count_documents("users")
 
     client = TestClient(app)
-    response = client.post("/register", json=jsonable_encoder(user))
+    response = client.post("/auth/register", json=jsonable_encoder(user))
 
     assert response.status_code == status.HTTP_409_CONFLICT
     assert await count_documents("users") == users_initial
@@ -294,7 +294,7 @@ async def test_cannot_register_with_expired_invite(invite_codes):
     users_initial = await count_documents("users")
 
     client = TestClient(app)
-    response = client.post("/register", json=jsonable_encoder(user))
+    response = client.post("/auth/register", json=jsonable_encoder(user))
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert await count_documents("users") == users_initial

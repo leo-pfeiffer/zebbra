@@ -16,7 +16,7 @@ def test_read_main():
 @pytest.mark.anyio
 async def test_logout(access_token):
     response = client.post(
-        "/logout", headers={"Authorization": f"Bearer {access_token}"}
+        "/auth/logout", headers={"Authorization": f"Bearer {access_token}"}
     )
     assert response.json()["message"] == "Logged out."
 
@@ -24,7 +24,7 @@ async def test_logout(access_token):
 @pytest.mark.anyio
 async def test_cannot_use_token_after_logout(access_token):
     logout_response = client.post(
-        "/logout", headers={"Authorization": f"Bearer {access_token}"}
+        "/auth/logout", headers={"Authorization": f"Bearer {access_token}"}
     )
 
     assert logout_response.json()["message"] == "Logged out."

@@ -143,7 +143,7 @@ export default {
       }
 
       const data = await $fetch(
-        `${this.$config.public.backendUrlBase}/token`, {
+        `${this.$config.public.backendUrlBase}/auth/token`, {
         method: 'POST',
         body: loginBody
       }
