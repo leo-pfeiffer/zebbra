@@ -1,42 +1,9 @@
-# Nuxt 3 Minimal Starter
+# Webclient
 
-Look at the [nuxt 3 documentation](https://v3.nuxtjs.org) to learn more.
+[![Run tests](https://github.com/leo-pfeiffer/zebbra/actions/workflows/ci.yml/badge.svg)](https://github.com/leo-pfeiffer/zebbra/actions/workflows/ci.yml)
+![Node: 16](https://img.shields.io/badge/Node-16-green.svg)
+[![Docs: mkdocs](https://img.shields.io/badge/docs-mkdocs-0096E2)](https://leo-pfeiffer.github.io/zebbra/)
 
 ## Setup
 
-Make sure to install the dependencies:
-
-```bash
-# yarn
-yarn install
-
-# npm
-npm install
-
-# pnpm
-pnpm install --shamefully-hoist
-```
-
-## Development Server
-
-Start the development server on http://localhost:3000
-
-```bash
-npm run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-npm run build
-```
-
-Locally preview production build:
-
-```bash
-npm run preview
-```
-
-Checkout the [deployment documentation](https://v3.nuxtjs.org/guide/deploy/presets) for more information.
+Please visit the [documentation](https://leo-pfeiffer.github.io/zebbra/project_setup) for setup instructions.
