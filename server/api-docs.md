@@ -7,10 +7,10 @@
 | Method | Path | Description |
 | --- | --- | --- |
 | GET | [/](#get) | Root |
-| POST | [/token](#posttoken) | Login For Access Token |
-| GET | [/token/expired](#gettokenexpired) | Token Expired Information |
-| POST | [/logout](#postlogout) | Logout Current User |
-| POST | [/register](#postregister) | Register New User |
+| POST | [/auth/token](#posttoken) | Login For Access Token |
+| GET | [/auth/token/expired](#gettokenexpired) | Token Expired Information |
+| POST | [/auth/logout](#postlogout) | Logout Current User |
+| POST | [/auth/register](#postregister) | Register New User |
 | GET | [/user](#getuser) | Retrieve Current User Info |
 | POST | [/user](#postuser) | Update Current User |
 | DELETE | [/user](#deleteuser) | Delete Current |
@@ -108,7 +108,7 @@ Heartbeat endpoint to check if server is running.
 
 ***
 
-### [POST]/token
+### [POST]/auth/token
 
 - Summary  
 Login For Access Token
@@ -163,7 +163,7 @@ Get an OAuth access token using the user's credentials.
 
 ***
 
-### [GET]/token/expired
+### [GET]/auth/token/expired
 
 - Summary  
 Token Expired Information
@@ -188,7 +188,7 @@ OAuth2PasswordBearer
 
 ***
 
-### [POST]/logout
+### [POST]/auth/logout
 
 - Summary  
 Logout Current User
@@ -214,7 +214,7 @@ OAuth2PasswordBearer
 
 ***
 
-### [POST]/register
+### [POST]/auth/auth/register
 
 - Summary  
 Register New User
