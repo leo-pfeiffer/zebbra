@@ -311,7 +311,7 @@ async def create_new_model(
 
 
 @router.delete(
-    "/model/delete",
+    "/model",
     response_model=Message,
     tags=["model"],
     responses={
