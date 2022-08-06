@@ -10,4 +10,18 @@ Zebbra API is the REST API powering the Zebbra FP&A tool.
 
 [Zebbra API](https://zebbra.xyz)
 
-[Zebbra API Swagger Docs](https://zebbra.xyz/docs)
+[Zebbra API Docs](https://zebbra.xyz/redoc)
+
+## Overview
+
+This documentation includes the following sections:
+
+The [Project Setup](/project_setup) guide provides a step-by-step guideline of how to start running the different components of the Zebbra application. This is especially useful for local testing and development.
+
+The [OAuth 2.0 Authentication](/oauth_authentication) section shifts the focus to the actual use of the Zebbra API by providing an overview of the OAuth workflow to authenticate client requests.
+
+In the [Integration Guide](/add_integration), the steps to adding a new third-party integration are detailed.
+
+The [Gusto Integration Example](/gusto_example) provides an example of how to use the integration guide of by applying it to the implementation of the Gusto application.
+
+In the [Deployment](/deployment) section, all steps necessary to deploy both the front end as well as the back end to a production server is provided.
