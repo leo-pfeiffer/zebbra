@@ -243,3 +243,7 @@ sudo ufw delete allow 'Nginx HTTP'
 ## 🏁 Checkpoint
 
 You're done! If everything went well, you can now access the Zebbra API on `https://your_domain`.
+
+# Deploying the Zebbra front end
+
+Since the Zebbra front end is implemented as a Nuxt.js app, you can deploy it just as every other Nuxt.js out there. We recommend deploying via Netlify, which is free and works entirely out of the box. A guide is provided in the [official Nuxt documentation](https://v3.nuxtjs.org/guide/deploy/providers/netlify/). The only necessary modification will be to set the environment variable `BACKEND_URL_BASE`  of the front end to the URL on which your instance of the Zebbra API is deployed.
