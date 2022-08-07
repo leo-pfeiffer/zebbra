@@ -1,5 +1,5 @@
 import asyncio
-from datetime import date, datetime
+from datetime import date
 
 from dateutil.relativedelta import relativedelta
 
@@ -107,7 +107,10 @@ class XeroFetchAdapter(FetchAdapter):
         :param from_date: Date from which on to get the batches
         :return: batches
         """
-        batch_periods = self._create_batch_periods(from_date, date.today())
+
+        # always calculate data for 24 months
+        to_date = last_of_same_month(from_date + relativedelta(months=23))
+        batch_periods = self._create_batch_periods(from_date, to_date)
 
         pl_batches = await asyncio.gather(
             *[self._retrieve_profit_and_loss(p[0], p[1]) for p in batch_periods]

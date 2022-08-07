@@ -28,17 +28,21 @@ router = APIRouter()
     response_model=UserInfo,
     tags=["user"],
 )
-async def read_user(current_user: User = Depends(get_current_active_user)):
+async def retrieve_current_user_info(
+    current_user: User = Depends(get_current_active_user),
+):
     """
     Retrieve current user's data.
     """
 
+    # get workspaces of the user
     workspaces = []
     for workspace in await get_workspaces_of_user(current_user.id):
         workspaces.append(
             UserInfo.WorkspaceInfo(**{"name": workspace.name, "_id": str(workspace.id)})
         )
 
+    # get models of the user
     models = []
     for model in await get_models_for_user(current_user.id):
         models.append(
@@ -63,7 +67,7 @@ async def read_user(current_user: User = Depends(get_current_active_user)):
     tags=["user"],
     responses={400: {"description": "Attempting to delete admin."}},
 )
-async def delete_user(current_user: User = Depends(get_current_active_user)):
+async def delete_current(current_user: User = Depends(get_current_active_user)):
     """
     Delete a user's account. This requires that the user is not
     admin of any workspace, model etc.
@@ -88,8 +92,8 @@ async def delete_user(current_user: User = Depends(get_current_active_user)):
     return JSONResponse(status_code=200, content={"message": "User deleted."})
 
 
-@router.post("/user/update", response_model=User, tags=["user"])
-async def update_user(
+@router.post("/user", response_model=User, tags=["user"])
+async def update_current_user(
     username: EmailStr | None = None,
     first_name: str | None = None,
     last_name: str | None = None,
@@ -97,9 +101,14 @@ async def update_user(
     current_user: User = Depends(get_current_active_user),
 ):
     """
-    Update a user object.
+    Update the current user.
+        username: New username (e-mail address)
+        first_name: New first name
+        last_name: New last name
+        password: New password
     """
 
+    # update username
     if username is not None and username != current_user.username:
         # make sure username is not already taken
         if await username_exists(username):
@@ -108,14 +117,21 @@ async def update_user(
                 detail="Username already exists",
             )
         await update_username(current_user.id, username)
+
+    # update first name
     if first_name is not None:
         await update_user_field(current_user.id, "first_name", first_name)
+
+    # update last name
     if last_name is not None:
         await update_user_field(current_user.id, "last_name", last_name)
+
+    # update password
     if password is not None:
         hashed_password = get_password_hash(password)
         await update_user_field(current_user.id, "hashed_password", hashed_password)
 
+    # return updated user
     return await get_user(current_user.id)
 
 
@@ -125,7 +141,9 @@ async def update_user(
     tags=["user"],
     responses={},
 )
-async def user_otp_create(current_user: User = Depends(get_current_active_user)):
+async def create_otp_secret_for_current_user(
+    current_user: User = Depends(get_current_active_user),
+):
     """
     Create an OTP secret for the user. If the user already has an OTP secret,
     the old one will be overridden.
@@ -152,6 +170,7 @@ async def user_otp_validate(
 ):
     """
     Validate an OTP.
+        otp: The OTP to validate.
     """
 
     user = await get_user(current_user.id)
@@ -176,9 +195,10 @@ async def user_otp_validate(
     response_model=Message,
     tags=["user"],
 )
-async def user_otp_validate(username: str):
+async def check_otp_status_of_current_user(username: str):
     """
-    Validate an OTP.
+    Check if the user requires an OTP.
+        username: The username of the user.
     """
 
     user = await get_user_by_username(username)

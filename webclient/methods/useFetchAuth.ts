@@ -16,7 +16,7 @@ export const useFetchAuth = async (url: string, opts?: FetchOptions) => {
   };
 
   //todo:update
-  const logoutIfTokenIsExpired = await $fetch(`${config.public.backendUrlBase}/token/expired`, {
+  const logoutIfTokenIsExpired = await $fetch(`${config.public.backendUrlBase}/auth/token/expired`, {
     method: 'GET', headers
   }).then((data:GetTokenExpiredResponse) => {
     if (data.expired) {

@@ -66,7 +66,7 @@ definePageMeta({
                                 <div>
 
                                     <div
-                                        class="group flex mt-6 text-xs text-zinc-500 rounded-tl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-100 border-zinc-300 border-l border-t">
+                                        class="flex mt-6 text-xs text-zinc-500 rounded-tl py-2 px-3 min-w-[470px] max-w-[470px] bg-zinc-100 border-zinc-300 border-l border-t">
                                         <span class="font-medium uppercase">
                                             Model<InfoToggle :position="'inline'" :text="'The output of the revenue model will automatically be added to the P&L.'"></InfoToggle>
                                         </span>
@@ -417,7 +417,7 @@ export default {
             this.piniaRevenueStore.assumptions.push(emptyAssumption);
 
             try {
-                await useSheetUpdate().updateRevenueSheet(this.$route.params.modelId, this.piniaRevenueStore);
+                this.piniaRevenueStore = await useSheetUpdate().updateRevenueSheet(this.$route.params.modelId, this.piniaRevenueStore);
             } catch (e) {
                 console.log(e)
                 this.errorMessages.push("Something went wrong! Please try adding the variable again.");
@@ -447,7 +447,7 @@ export default {
             this.piniaRevenueStore.sections[sectionIndex].rows.push(emptyVariable);
 
             try {
-                await useSheetUpdate().updateRevenueSheet(this.$route.params.modelId, this.piniaRevenueStore);
+                this.piniaRevenueStore = await useSheetUpdate().updateRevenueSheet(this.$route.params.modelId, this.piniaRevenueStore);
             } catch (e) {
                 console.log(e)
                 this.errorMessages.push("Something went wrong! Please try adding the variable again.");

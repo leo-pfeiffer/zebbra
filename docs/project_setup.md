@@ -108,6 +108,17 @@ make run_server
 
 ![Zebbra API](https://user-images.githubusercontent.com/50983452/180023467-f8e66e8b-fad0-4063-952d-3d64b3f14f10.png)
 
+### Testing
+
+If you want to run the unit tests for the backend you can now do so like this:
+
+```shell
+# zebbra/server
+
+make test
+```
+
+![Backend tests](https://user-images.githubusercontent.com/50983452/183068069-c4494086-eb85-46b3-a7db-3a454664217f.png)
 
 ## Client setup
 
@@ -150,3 +161,13 @@ npm run dev
 The client will be served on `http://localhost:3000`.
 
 ![Zebbra client](https://user-images.githubusercontent.com/50983452/180023257-d47d1fbd-0a94-4582-be27-4559030a9a01.png)
+
+### Testing
+
+If you want to run the unit tests for the frontend you can now do so like this.
+
+```shell
+# zebbra/webclient
+
+npm run test
+```

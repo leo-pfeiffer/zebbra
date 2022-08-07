@@ -3,7 +3,7 @@ import { useToken } from "./useToken";
 
 export const useLogout = () => {
 
-    useFetchAuth('/logout', { method: 'POST'});
+    useFetchAuth('/auth/logout', { method: 'POST'});
 
     useToken().deleteTokenCookie();
 

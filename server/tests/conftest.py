@@ -40,7 +40,7 @@ def access_token():
         "username": "johndoe@example.com",
         "password": "secret",
     }
-    response = client.post("/token", data=user_form)
+    response = client.post("/auth/token", data=user_form)
     return response.json()["access_token"]
 
 
@@ -52,7 +52,7 @@ def access_token_alice():
         "username": "alice@example.com",
         "password": "secret",
     }
-    response = client.post("/token", data=user_form)
+    response = client.post("/auth/token", data=user_form)
     return response.json()["access_token"]
 
 
@@ -64,7 +64,7 @@ def access_token_zeus():
         "username": "zeus@example.com",
         "password": "secret",
     }
-    response = client.post("/token", data=user_form)
+    response = client.post("/auth/token", data=user_form)
     return response.json()["access_token"]
 
 
