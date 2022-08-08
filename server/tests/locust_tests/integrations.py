@@ -13,11 +13,15 @@ class LocustIntegrations(JohnDoeMixin, HttpUser):
     @task
     def integration_data_endpoints(self):
         self.client.get(
-            "/integration/dataEndpoints", params={"model_id": self.model_id}
+            "/integration/dataEndpoints",
+            params={"model_id": self.model_id},
+            name="/integration/dataEndpoints",
         )
 
     @task
     def model_users(self):
         self.client.get(
-            "/integration/providers", params={"workspace_id": self.workspace_id}
+            "/integration/providers",
+            params={"workspace_id": self.workspace_id},
+            name="/integration/providers",
         )

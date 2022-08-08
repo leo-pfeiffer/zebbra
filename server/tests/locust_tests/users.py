@@ -9,8 +9,11 @@ class LocustUser(JohnDoeMixin, HttpUser):
 
     @task
     def user(self):
-        self.client.get("/user")
+        self.client.get(
+            "/user",
+            name="/user",
+        )
 
     @task
     def user_update(self):
-        self.client.post("/user", params={"first_name": "John Stuart"})
+        self.client.post("/user", params={"first_name": "John Stuart"}, name="/user")

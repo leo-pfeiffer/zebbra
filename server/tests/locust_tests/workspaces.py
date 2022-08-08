@@ -11,8 +11,14 @@ class LocustWorkspaces(JohnDoeMixin, HttpUser):
 
     @task
     def model_meta(self):
-        self.client.get("/workspace", params={"workspace_id": self.workspace_id})
+        self.client.get(
+            "/workspace", params={"workspace_id": self.workspace_id}, name="/workspace"
+        )
 
     @task
     def model_users(self):
-        self.client.get("/workspace/users", params={"workspace_id": self.workspace_id})
+        self.client.get(
+            "/workspace/users",
+            params={"workspace_id": self.workspace_id},
+            name="/workspace/users",
+        )
