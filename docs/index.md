@@ -1,10 +1,6 @@
-# Zebbra API
+# Zebbra
 
 ![zebbra_logo](https://user-images.githubusercontent.com/50983452/179749244-b8be4e13-1cb8-4ad5-934d-40d6633a1764.png)
-
-Zebbra API is the REST API powering the Zebbra FP&A tool.
-
-## Links
 
 [Zebbra](https://zebbra.app)
 
@@ -15,6 +11,8 @@ Zebbra API is the REST API powering the Zebbra FP&A tool.
 ## Overview
 
 This documentation includes the following sections:
+
+The [Tutorial](/zebbra/tutorial) provides a brief user-oriented introduction to how to use Zebbra.
 
 The [Project Setup](/zebbra/project_setup) guide provides a step-by-step guideline of how to start running the different components of the Zebbra application. This is especially useful for local testing and development.
 
