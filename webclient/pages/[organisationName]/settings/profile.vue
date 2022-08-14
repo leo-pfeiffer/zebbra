@@ -112,7 +112,7 @@ definePageMeta({
                 <div class="mt-1">
                   <input required
                     class="w-64 border-zinc-300 border rounded text-sm focus:ring-sky-500 focus:border-sky-500 px-2.5 py-1 placeholder:text-zinc-400"
-                    id="otp" type="text" placeholder="OTP" v-model="otpToValidate">
+                    id="otp" type="text" placeholder="OTP" v-model="otpToValidate.value">
                 </div>
               </div>
               <button type="submit" class="bg-sky-600  drop-shadow-sm
@@ -191,7 +191,9 @@ export default {
         email: "",
         password: "",
       },
-      otpToValidate: "",
+      otpToValidate: {
+        value: null
+      },
       otpSetUp: false,
       otpUrl: "",
       showOtpUrl: false,
@@ -332,7 +334,7 @@ export default {
     },
     async validate2FA() {
       await useFetchAuth(
-        '/user/otp/validate', { method: 'POST', params: { otp: this.otpToValidate } }
+        '/user/otp/validate', { method: 'POST', params: { otp: this.otpToValidate.value } }
       ).then((data: OtpValidateResponse) => {
         if (data.valid) {
           this.showOtpUrl = false;
