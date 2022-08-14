@@ -17,6 +17,7 @@ theme:
         name: Switch to light mode
 nav:
     - Home: index.md
+    - Tutorial: tutorial.md
     - Project Setup: project_setup.md
     - OAuth 2.0 Authentication: oauth_authentication.md
     - Integration Guide: add_integration.md
