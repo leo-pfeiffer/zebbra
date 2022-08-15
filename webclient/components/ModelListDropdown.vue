@@ -277,7 +277,6 @@ export default {
                     }
                 }
                 ).then((data) => {
-                    //todo:success
                     this.updateModelUsers();
                 })
 

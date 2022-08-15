@@ -231,7 +231,7 @@ export default {
         } catch (e) {
             this.errorMessages.push("Failed to load data. Please reload the page.");
             this.revenueDataLoadingFailed = true;
-            console.log(e) //todo: handle error
+            console.log(e)
         }
 
         this.userIsViewer = this.piniaModelMetaStore.viewers.includes(this.piniaUserStore._id);
@@ -242,7 +242,7 @@ export default {
             await this.setPossibleIntegrationsStore(this.$route.params.modelId);
             this.revenueDataLoading = false;
         } catch (e) {
-            console.log(e) //todo: handle error
+            console.log(e)
         }
 
     },
@@ -563,7 +563,6 @@ export default {
                 this.piniaRevenueStore.sections[sectionIndex].end_row.time_series = this.isTimeSeries(storageValue, timeSeriesMap);
                 this.piniaRevenueStore.sections[sectionIndex].end_row.value = storageValue.toString();
 
-                //todo: handle integration
                 if (storageValue.includes("+") || storageValue.includes("-") || storageValue.includes("*") || storageValue.includes("/") || storageValue.includes("-")) {
                     this.piniaRevenueStore.sections[sectionIndex].end_row.var_type = "formula";
                 } else {
@@ -773,7 +772,7 @@ export default {
             try {
                 await useSheetUpdate().updateRevenueSheet(this.$route.params.modelId, this.piniaRevenueStore);
             } catch (e) {
-                console.log(e) //todo: throw error message
+                console.log(e)
                 this.errorMessages.push(e);
                 const actualSheet = await useSheetUpdate().getRevenueSheet(this.$route.params.modelId);
                 if (!(actualSheet.assumptions.length === this.piniaRevenueStore.assumptions.length)) {
@@ -788,7 +787,7 @@ export default {
             try {
                 await useSheetUpdate().updateRevenueSheet(this.$route.params.modelId, this.piniaRevenueStore);
             } catch (e) {
-                console.log(e) //todo: throw error message
+                console.log(e)
                 this.errorMessages.push(e);
                 const actualSheet = await useSheetUpdate().getRevenueSheet(this.$route.params.modelId);
                 if (!(actualSheet.sections[sectionIndex].rows.length === this.piniaRevenueStore.sections[sectionIndex].rows.length)) {
@@ -804,7 +803,7 @@ export default {
             try {
                 await useSheetUpdate().updateRevenueSheet(this.$route.params.modelId, this.piniaRevenueStore);
             } catch (e) {
-                console.log(e) //todo: throw error message
+                console.log(e)
                 this.errorMessages.push(e);
                 const actualSheet = await useSheetUpdate().getRevenueSheet(this.$route.params.modelId);
                 if (!(actualSheet.sections[sectionIndex].rows.length === this.piniaRevenueStore.sections[sectionIndex].rows.length)) {

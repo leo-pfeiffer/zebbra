@@ -573,7 +573,6 @@ export default {
 
     } catch (e) {
       console.log(e);
-      //todo error handling
     }
 
     // fixes rendering issue in apexcharts if width is not set to a fixed pixel width

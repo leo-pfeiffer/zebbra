@@ -312,7 +312,6 @@ export default {
       }).then((data) => {
         console.log(data)
         useLogout();
-        //todo: success message
       }).catch((error) => {
         console.log(error);
         this.errorMessageDeleteAccount = error.data.detail;

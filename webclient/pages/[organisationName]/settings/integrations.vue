@@ -153,7 +153,7 @@ definePageMeta({
                                 <NuxtLink to="https://leo-pfeiffer.github.io/zebbra/add_integration/" target="_blank"
                                     class="bg-zinc-50 hover:bg-zinc-100 drop-shadow-sm shadow-inner shadow-zinc-50 font-medium text-xs px-2 py-1 border border-zinc-300 rounded text-zinc-700">
                                     Learn
-                                    more <i class="bi bi-arrow-up-right"></i></NuxtLink> <!-- todo: link -->
+                                    more <i class="bi bi-arrow-up-right"></i></NuxtLink>
                             </div>
                         </div>
                     </div>

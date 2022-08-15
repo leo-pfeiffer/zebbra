@@ -126,7 +126,6 @@ export default {
   computed: {
     ...mapState(useUserStore, ['piniaUserStore']),
     getRandomColor() {
-      // todo is this still used anywhere?? I think this was moved to the Avatar component.
       const colors = [
         "bg-green-400",
         "bg-sky-400",
