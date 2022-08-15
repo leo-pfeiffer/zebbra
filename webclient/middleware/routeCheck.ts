@@ -21,7 +21,6 @@ export default defineNuxtRouteMiddleware( async (to, from) => {
         navigateTo('/login')
         console.log("User state could not be accessed");
         console.log(e);
-        //todo message
     }
 
     //const userWorkspace = user.value.workspaces[0].name;
@@ -34,7 +33,6 @@ export default defineNuxtRouteMiddleware( async (to, from) => {
         navigateTo('/login')
         console.log("User state could not be accessed");
         console.log(error);
-        //todo message
     }
 
     const path:string[] = to.fullPath.split("/");

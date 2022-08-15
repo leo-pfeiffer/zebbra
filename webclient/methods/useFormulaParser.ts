@@ -247,10 +247,8 @@ export const useFormulaParser = () => {
         let returnValue: string;
 
         if (ref[0] == "$") {
-            //todo: err
             returnValue = getInternalRefValue(ref, index, valuesToDisplay);
         } else if (ref[0] == "#") {
-            //todo: err
             returnValue = getExternalRefValue(ref, index, variablesAlreadyCovered);
         }
         return returnValue;
@@ -263,8 +261,6 @@ export const useFormulaParser = () => {
         const indexDiff: number = +internalRef.substring(1);
 
         return valuesToDisplay[index - indexDiff];
-
-        //todo: err throw
 
     }
 
@@ -283,10 +279,8 @@ export const useFormulaParser = () => {
         }
 
         if(variablesAlreadyCovered.get(ref).time_series) {
-            //todo throw err
             outputValue = variablesAlreadyCovered.get(ref).row_values[index - indexDiff];
         } else {
-            //todo: err
             outputValue = useMathParser(variablesAlreadyCovered.get(ref).value).toString();
         }
 
@@ -486,7 +480,6 @@ export const useFormulaParser = () => {
             }
         }
 
-        //todo: update to handle recursive 
         if (finalOrder.length != numRows) {
             throw("Error: There is a recursive relationship between the variables.");
         } else {

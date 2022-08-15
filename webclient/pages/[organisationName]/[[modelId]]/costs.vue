@@ -710,7 +710,6 @@ export default {
                 this.piniaCostStore.sections[sectionIndex].end_row.time_series = this.isTimeSeries(storageValue, timeSeriesMap);
                 this.piniaCostStore.sections[sectionIndex].end_row.value = storageValue.toString();
 
-                //todo: handle integration
                 if (storageValue.includes("+") || storageValue.includes("-") || storageValue.includes("*") || storageValue.includes("/") || storageValue.includes("-")) {
                     this.piniaCostStore.sections[sectionIndex].end_row.var_type = "formula";
                 } else {
@@ -920,7 +919,7 @@ export default {
             try {
                 await useSheetUpdate().updateCostSheet(this.$route.params.modelId, this.piniaCostStore);
             } catch (e) {
-                console.log(e) //todo: throw error message
+                console.log(e)
                 this.errorMessages.push(e);
                 const actualSheet = await useSheetUpdate().getCostSheet(this.$route.params.modelId);
                 if (!(actualSheet.assumptions.length === this.piniaCostStore.assumptions.length)) {
@@ -948,7 +947,7 @@ export default {
             try {
                 await useSheetUpdate().updateCostSheet(this.$route.params.modelId, this.piniaCostStore);
             } catch (e) {
-                console.log(e) //todo: throw error message
+                console.log(e)
                 this.errorMessages.push(e);
                 const actualSheet = await useSheetUpdate().getCostSheet(this.$route.params.modelId);
                 if (!(actualSheet.sections[sectionIndex].rows.length === this.piniaCostStore.sections[sectionIndex].rows.length)) {
@@ -964,7 +963,7 @@ export default {
             try {
                 await useSheetUpdate().updateCostSheet(this.$route.params.modelId, this.piniaCostStore);
             } catch (e) {
-                console.log(e) //todo: throw error message
+                console.log(e)
                 this.errorMessages.push(e);
                 const actualSheet = await useSheetUpdate().getCostSheet(this.$route.params.modelId);
                 if (!(actualSheet.sections[sectionIndex].rows.length === this.piniaCostStore.sections[sectionIndex].rows.length)) {

@@ -53,7 +53,7 @@ export default {
             await this.updatePiniaUserStore();
             this.userDataLoading = false;
         } catch (e) {
-            console.log(e) //todo: handle error
+            console.log(e)
         }
     },
     computed: {
