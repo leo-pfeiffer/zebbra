@@ -12,4 +12,4 @@ Zebbra provides:
 - 🔗 integrations to [Xero](https://www.xero.com/) and [Gusto](https://gusto.com/)
 - ↗️ extensibility to add your own integrations
 
-Visit the [docs](https://leo-pfeiffer.github.io/zebbra/) for more information.
+Visit the [docs](https://leo-pfeiffer.github.io/zebbra/) for more information or watch our [demo video](https://youtu.be/bYLdyrwtQz8).
