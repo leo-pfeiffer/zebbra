@@ -1,0 +1,883 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../gusto_example/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.2">
+    
+    
+      
+        <title>Deployment - Zebbra Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.f56500e0.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.2505c338.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#deploying-the-zebbra-api-and-front-end" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Zebbra Docs" class="md-header__button md-logo" aria-label="Zebbra Docs" data-md-component="logo">
+      
+  <img src="../assets/zebbra_icon.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Zebbra Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Deployment
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+            </label>
+          
+        
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Zebbra Docs" class="md-nav__button md-logo" aria-label="Zebbra Docs" data-md-component="logo">
+      
+  <img src="../assets/zebbra_icon.png" alt="logo">
+
+    </a>
+    Zebbra Docs
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorial/" class="md-nav__link">
+        Tutorial
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../project_setup/" class="md-nav__link">
+        Project Setup
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../oauth_authentication/" class="md-nav__link">
+        OAuth 2.0 Authentication
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../add_integration/" class="md-nav__link">
+        Integration Guide
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gusto_example/" class="md-nav__link">
+        Gusto Integration Example
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Deployment
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Deployment
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#project-set-up" class="md-nav__link">
+    Project set up
+  </a>
+  
+    <nav class="md-nav" aria-label="Project set up">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#repository-and-virtual-environment" class="md-nav__link">
+    Repository and virtual environment
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#env-file" class="md-nav__link">
+    .env file
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#database" class="md-nav__link">
+    Database
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#checkpoint" class="md-nav__link">
+    🚩 Checkpoint
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setting-up-the-zebbra-service" class="md-nav__link">
+    Setting up the Zebbra service
+  </a>
+  
+    <nav class="md-nav" aria-label="Setting up the Zebbra service">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#service-configuration" class="md-nav__link">
+    Service configuration
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#start-and-enable-the-service" class="md-nav__link">
+    Start and enable the service
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#checkpoint_1" class="md-nav__link">
+    🚩 Checkpoint
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#set-up-nginx" class="md-nav__link">
+    Set up NGINX
+  </a>
+  
+    <nav class="md-nav" aria-label="Set up NGINX">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#installing-nginx" class="md-nav__link">
+    Installing NGINX
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-the-zebbra-site" class="md-nav__link">
+    Create the Zebbra site
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update-firewall" class="md-nav__link">
+    Update firewall
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#checkpoint_2" class="md-nav__link">
+    🚩 Checkpoint
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setting-up-https" class="md-nav__link">
+    Setting up HTTPS
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#checkpoint_3" class="md-nav__link">
+    🚩 Checkpoint
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploying-the-zebbra-front-end" class="md-nav__link">
+    Deploying the Zebbra front end
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#done" class="md-nav__link">
+    🏁 Done!
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#project-set-up" class="md-nav__link">
+    Project set up
+  </a>
+  
+    <nav class="md-nav" aria-label="Project set up">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#repository-and-virtual-environment" class="md-nav__link">
+    Repository and virtual environment
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#env-file" class="md-nav__link">
+    .env file
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#database" class="md-nav__link">
+    Database
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#checkpoint" class="md-nav__link">
+    🚩 Checkpoint
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setting-up-the-zebbra-service" class="md-nav__link">
+    Setting up the Zebbra service
+  </a>
+  
+    <nav class="md-nav" aria-label="Setting up the Zebbra service">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#service-configuration" class="md-nav__link">
+    Service configuration
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#start-and-enable-the-service" class="md-nav__link">
+    Start and enable the service
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#checkpoint_1" class="md-nav__link">
+    🚩 Checkpoint
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#set-up-nginx" class="md-nav__link">
+    Set up NGINX
+  </a>
+  
+    <nav class="md-nav" aria-label="Set up NGINX">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#installing-nginx" class="md-nav__link">
+    Installing NGINX
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-the-zebbra-site" class="md-nav__link">
+    Create the Zebbra site
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update-firewall" class="md-nav__link">
+    Update firewall
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#checkpoint_2" class="md-nav__link">
+    🚩 Checkpoint
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setting-up-https" class="md-nav__link">
+    Setting up HTTPS
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#checkpoint_3" class="md-nav__link">
+    🚩 Checkpoint
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploying-the-zebbra-front-end" class="md-nav__link">
+    Deploying the Zebbra front end
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#done" class="md-nav__link">
+    🏁 Done!
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="deploying-the-zebbra-api-and-front-end">Deploying the Zebbra API (and front end)</h1>
+<p>Users are encouraged to deploy their own instance of the Zebbra API. This way, you have controll over your own data (and our deployment has to cope with less traffic).</p>
+<p>We will deploy the API using gunicorn as the application server, and NGINX as the reverse proxy to handle HTTPS etc.</p>
+<p>This deployment guide was tested on Ubuntu 20.04.</p>
+<p>The deployment guide assumes the following:</p>
+<ul>
+<li>Logged in as superuser with username <code>zebbra</code></li>
+<li>Python 3.10 is installed and the default Python version. We recommend using pyenv (<a href="https://www.liquidweb.com/kb/how-to-install-pyenv-on-ubuntu-18-04/">how to</a>)</li>
+<li>Mongo DB Community edition version 5.0 is installed and running (<a href="https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/">how to</a>)</li>
+</ul>
+<p>We further assume that you start out in the user's home directory <code>/home/zebbra</code>.</p>
+<hr />
+<blockquote>
+<p>Much of this guide was based on similar tutorials by <a href="https://www.digitalocean.com/community/tutorials/how-to-serve-flask-applications-with-gunicorn-and-nginx-on-ubuntu-20-04">DigitalOcean</a> and <a href="https://www.vultr.com/docs/how-to-deploy-fastapi-applications-with-gunicorn-and-nginx-on-ubuntu-20-04/">Vultr</a>.</p>
+</blockquote>
+<hr />
+<h2 id="project-set-up">Project set up</h2>
+<blockquote>
+<p>The project setup is similar to the setup for local development, so if you've set up the project locally before, feel free to step this step. </p>
+</blockquote>
+<h3 id="repository-and-virtual-environment">Repository and virtual environment</h3>
+<p>Start by cloning the repository, setting up a virtual environment and installing the required dependencies.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># /home/zebbra</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1"># clone the repository</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:leo-pfeiffer/zebbra.git
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="c1"># set up virtual environment</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="nb">cd</span><span class="w"> </span>zebbra/server
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>venv
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="nb">source</span><span class="w"> </span>venv/bin/activate
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="c1"># install dependencies</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>make<span class="w"> </span>requirements
+</code></pre></div>
+<h3 id="env-file"><code>.env</code> file</h3>
+<p>Next, create the <code>.env</code> file with the environment variables. Run the following to create a file with the starter template. You will have to fill out the missing variable assignments (e.g. secrets etc.).</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># /home/zebbra/zebbra/server</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>cat<span class="w"> </span><span class="s">&lt;&lt;EOF &gt; .env</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="s"># VALIDATION</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="s">ENV_SET=&quot;true&quot;</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="s"># BASE URL</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="s">ZEBBRA_BASE_URL=</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="s">#ZEBBRA_BASE_URL=&quot;http://localhost:8000&quot;</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="s"># SETTINGS</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="s">ENV_ENCRYPT_PASS=</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="s"># AUTH</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="s">AUTH_SECRET=</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="s">AUTH_ALGO=&quot;HS256&quot;</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="s"># 30 days in minutes</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="s">AUTH_TOKEN_EXPIRE=43200</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="s"># MONGO DB</span>
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="s">MONGODB_USER=</span>
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="s">MONGODB_DB=</span>
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="s">MONGODB_PW=</span>
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="s">MONGODB_URL=&quot;127.0.0.1:27017&quot;</span>
+<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>
+<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="s"># XERO</span>
+<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a><span class="s">XERO_CLIENT_ID=</span>
+<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a><span class="s">XERO_CLIENT_SECRET=</span>
+<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>
+<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a><span class="s"># GUSTO</span>
+<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a><span class="s">GUSTO_CLIENT_ID=</span>
+<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a><span class="s">GUSTO_CLIENT_SECRET=</span>
+<a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>
+<a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a><span class="s"># CACHE</span>
+<a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a><span class="s"># 24 hrs in seconds</span>
+<a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a><span class="s">CACHE_TTL=86400</span>
+<a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a><span class="s">EOF</span>
+</code></pre></div>
+<h3 id="database">Database</h3>
+<p>If you've set up the <code>.env</code> file correctly, you can use the default script to set up the database.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># /home/zebbra/zebbra/server</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>make<span class="w"> </span>setup_db
+</code></pre></div>
+<p>This creates the required users, sets up the indexes for caching, and loads some demo data.</p>
+<h3 id="checkpoint">🚩 Checkpoint</h3>
+<p>At this point you should be able to run the app with gunicorn.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>gunicorn<span class="w"> </span>--bind<span class="w"> </span><span class="m">0</span>.0.0.0:5000<span class="w"> </span>main:app<span class="w"> </span>-k<span class="w"> </span>uvicorn.workers.UvicornWorker
+</code></pre></div>
+<p>Head to <code>http://your-domain.com:5000</code> (remember to allow port 5000 in your firewall first).</p>
+<h2 id="setting-up-the-zebbra-service">Setting up the Zebbra service</h2>
+<p>Next, we will have to set up the Zebbra service that will later be run by NGINX.</p>
+<h3 id="service-configuration">Service configuration</h3>
+<p>Run</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>sudo<span class="w"> </span>nano<span class="w"> </span>/etc/systemd/system/zebbra.service
+</code></pre></div>
+<p>and paste the following:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">[Unit]</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="na">Description</span><span class="o">=</span><span class="s">Gunicorn instance to serve Zebbra API</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="na">After</span><span class="o">=</span><span class="s">network.target</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="k">[Service]</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="na">User</span><span class="o">=</span><span class="s">zebbra</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="na">Group</span><span class="o">=</span><span class="s">www-data</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="na">WorkingDirectory</span><span class="o">=</span><span class="s">/home/zebbra/zebbra/server</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="na">Environment</span><span class="o">=</span><span class="s">&quot;PATH=/home/zebbra/zebbra/server/venv/bin&quot;</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="na">ExecStart</span><span class="o">=</span><span class="s">/home/zebbra/zebbra/server/venv/bin/gunicorn --workers 3 --bind unix:zebbra.sock -m 007 main:app -k uvicorn.workers.UvicornWorker --forwarded-allow-ips=&quot;*&quot;</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="k">[Install]</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="na">WantedBy</span><span class="o">=</span><span class="s">multi-user.target</span>
+</code></pre></div>
+<h3 id="start-and-enable-the-service">Start and enable the service</h3>
+<p>With the service configuration in place, we can sart and enable the Zebbra service.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>start<span class="w"> </span>zebbra
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>zebbra
+</code></pre></div>
+<h3 id="checkpoint_1">🚩 Checkpoint</h3>
+<p>You can confirm that all is well by runing <code>sudo systemctl status zebbra</code>. Your Zebbra service is running.</p>
+<h2 id="set-up-nginx">Set up NGINX</h2>
+<p>We can now proceed to set up NGINX.</p>
+<h3 id="installing-nginx">Installing NGINX</h3>
+<p>If you don't already have NGINX installed on your server, you can do so like this:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>sudo<span class="w"> </span>apt<span class="w"> </span>update
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>nginx
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>sudo<span class="w"> </span>ufw<span class="w"> </span>allow<span class="w"> </span><span class="s1">&#39;Nginx HTTP&#39;</span>
+</code></pre></div>
+<h3 id="create-the-zebbra-site">Create the Zebbra site</h3>
+<p>With NGINX installed, we can add the Zebbra site.</p>
+<p>Run</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>sudo<span class="w"> </span>nano<span class="w"> </span>/etc/nginx/sites-available/zebbra
+</code></pre></div>
+<p>and paste the following content. Remember to change <code>your_domain</code> to your actual domain.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>server {
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>   listen 80;
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>   server_name your_domain www.your_domain;
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>   location / {
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>       include proxy_params;
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>       proxy_pass http://unix:/home/zebbra/zebbra/server/zebbra.sock;
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>   }
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>}
+</code></pre></div>
+<p>This site can now be enabled by setting up a symlink.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>sudo<span class="w"> </span>ln<span class="w"> </span>-s<span class="w"> </span>/etc/nginx/sites-available/zebbra<span class="w"> </span>/etc/nginx/sites-enabled
+</code></pre></div>
+<p>You can confirm that the file is correctly formatted by running <code>sudo nginx -t</code>.</p>
+<p>We now need to restart the NGINX service to pick up the Zebbra service.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span>restart<span class="w"> </span>nginx
+</code></pre></div>
+<h3 id="update-firewall">Update firewall</h3>
+<p>Lastly, we need to update the firewall to allow full access to NGINX.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>sudo<span class="w"> </span>ufw<span class="w"> </span>allow<span class="w"> </span><span class="s1">&#39;Nginx Full&#39;</span>
+</code></pre></div>
+<h3 id="checkpoint_2">🚩 Checkpoint</h3>
+<p>The Zebbra API should now be deployed and accessible via <code>http://your_domain</code>.</p>
+<h2 id="setting-up-https">Setting up HTTPS</h2>
+<p>Since Zebbra handles financial data, security is paramount. In this step, access to the Zebbra API is secured with HTTPS. We will use a free Let's Encrypt certificate.</p>
+<p>First, install the python certbot for NGINX.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>python3-certbot-nginx
+</code></pre></div>
+<p>Next, request and generate a SSL certificate.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>sudo<span class="w"> </span>certbot<span class="w"> </span>--nginx<span class="w"> </span>-d<span class="w"> </span>your_domain.xyz<span class="w"> </span>-d<span class="w"> </span>www.your_domain
+</code></pre></div>
+<p>When prompted, accept the T&amp;Cs and select (2) to redirect all HTTP requests to HTTPS automatically.</p>
+<p>Lastly, we can revoke the NGINX HTTP permission from the firewall again.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>sudo<span class="w"> </span>ufw<span class="w"> </span>delete<span class="w"> </span>allow<span class="w"> </span><span class="s1">&#39;Nginx HTTP&#39;</span>
+</code></pre></div>
+<h2 id="checkpoint_3">🚩 Checkpoint</h2>
+<p>You're done deploying the API! If everything went well, you can now access the Zebbra API on <code>https://your_domain</code>.</p>
+<h2 id="deploying-the-zebbra-front-end">Deploying the Zebbra front end</h2>
+<p>Since the Zebbra front end is implemented as a Nuxt.js app, you can deploy it just as every other Nuxt.js out there. We recommend deploying via Netlify, which is free and works entirely out of the box. A guide is provided in the <a href="https://v3.nuxtjs.org/guide/deploy/providers/netlify/">official Nuxt documentation</a>. The only necessary modification will be to set the environment variable <code>BACKEND_URL_BASE</code>  of the front end to the URL on which your instance of the Zebbra API is deployed.</p>
+<h2 id="done">🏁 Done!</h2>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.12658920.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.5cf534bf.min.js"></script>
+      
+    
+  </body>
+</html>
